@@ -1,52 +1,51 @@
 # 通义千问 (Qwen)
 
-> 最后更新: 2026-04-24
+> 最后更新: 2026-05-31
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 
 **定位**: 阿里云自研大语言模型系列，覆盖文本/代码/多模态，开源+商业双轨并行
-**当前主推**: Qwen3.6 系列（Qwen3.6-Max / Qwen3.6-Plus / Qwen3.6-Flash）
-**适用**: 企业级AI应用开发、智能对话、代码生成、多模态理解
+**当前主推**: Qwen3.7-Max（旗舰 Agent）/ Qwen3.6 系列（Plus / Flash）
+**适用**: 企业级AI应用开发、智能对话、代码生成、多模态理解、长时间自主 Agent
 **不适用**: 需要完全私有化且无网络的极端离线场景
 
 ## 当前主推模型
 
 | 模型 | 定位 | 上下文 | 特点 |
 |------|------|--------|------|
+| **Qwen3.7-Max** | 旗舰 Agent | **1M tokens** | AA Intelligence Index 56.6（中国模型最高），35小时自主运行，Agent 优先设计 |
 | Qwen3.6-Max-Preview | 旗舰推理 | 256K tokens | 综合智能指数 #2/201，深度推理能力极强，MoE 架构 |
 | Qwen3.6-Plus | 均衡型 | 1M tokens | Agentic Coding 接近 Claude Opus 4.5，支持多模态，性价比极高 |
 | Qwen3.6-Flash | 轻量 | 256K tokens | 速度快，成本低 |
-| Qwen3.6-Max | 旗舰（待发布） | 1M tokens | 最强推理，复杂任务 |
+
+### Qwen3.7-Max
+
+- **模型**：Qwen3.7-Max
+- **公司**：阿里云
+- **时间**：2026 年 5 月 19 日（阿里云峰会上线）
+- **尺寸**：未公开（MoE架构）
+- **上下文**：**1M tokens**，最大输出 65,536 tokens
+- **定价**：$2.50 / $7.50 per 1M input/output tokens；缓存输入 $0.25（90% 折扣）
+- **接入**：仅 API（百炼 / DashScope），兼容 OpenAI 和 Anthropic 协议
+- **开源**：否，非 open-weight
+- **场景**：长时间自主 Agent、Agentic Coding、数学推理、多语言任务
+- **定位**："The Agent Frontier"，专为长时自主执行设计的旗舰 Agent 模型
+
+**关键基准**（vendor-published，vs Claude Opus 4.6）：
+Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verified 80.4 vs 80.8（平手）、HLE **41.4**（+1.4）、GPQA Diamond **92.4**（+1.1）、HMMT 2026 **97.1%**、IMOAnswerBench **90.0%**（+14.7）、Apex **44.5**（+10.0）
+
+**标志性事件**：35 小时自主编码运行（1,158 次工具调用），GPU 内核优化达 10× 加速比（vs Triton 参考）
 
 ### Qwen3.6-Plus
 - 模型：Qwen3.6-Plus
 - 公司：阿里云
 - 时间：2026年（已正式 GA）
-- 尺寸：未公开
 - 上下文：1M tokens
-- 场景：AI Agent、自动编程、长文档分析、多模态理解、Agentic Coding/长文档分析/多模态推理
+- 场景：AI Agent、自动编程、长文档分析、多模态理解
 - 定价：¥2/1M input tokens（≤256K）
-- 特点：Agentic Coding 极强，支持图像输入，成熟度高（GA 状态），1M上下文，Always-on CoT，Agentic Coding能力强
+- 特点：Agentic Coding 强，支持图像输入，GA 稳定，1M 上下文
 
-### Qwen3.6-Max-Preview
-- 模型：Qwen3.6-Max-Preview
-- 公司：阿里云
-- 时间：2026年4月
-- 尺寸：未公开（MoE 旗舰架构）
-- 上下文：256K tokens
-- 场景：科研/数学/复杂逻辑推理、复杂推理/科研/创作
-- 定价：Preview 期免费，正式版预计偏贵、按量付费（百炼平台）
-- 特点：综合智能指数 52（全球 Top 3），倾向充分推理后给出答案（极度 verbose），深度推理能力极强，MoE 架构
-
-### Qwen3.6-Max
-- 模型：Qwen3.6-Max
-- 公司：阿里云
-- 时间：2026年5月（预告未发布）
-- 尺寸：未公开（MoE架构）
-- 上下文：1M tokens
-- 场景：复杂推理/科研/创作
-- 定价：按量付费（百炼平台）
-- 特点：旗舰推理能力，数学/代码/逻辑最强
+> 注：Qwen3.6-Max-Preview（2026.04，256K 上下文，AA Index 52，Preview 免费）仍可调用，但已被 Qwen3.7-Max 取代。
 
 ## 核心能力与限制
 
@@ -54,28 +53,24 @@
 
 | 能力 | 说明 |
 |------|------|
-| 深度推理（Max） | GPQA Diamond 科学推理、数学、逻辑等深度思考任务表现优异 |
-| Agentic Coding（Plus） | SWE-bench、Terminal-Bench、NL2Repo 等真实编程任务接近 Claude Opus 4.5 |
-| 超长上下文（Plus） | 1M tokens 上下文窗口，处理大型代码仓库和长文档 |
-| 多模态理解（Plus） | 支持图像输入，适用于视觉理解场景 |
-| 综合智能（Max） | AA Intelligence Index 得分 52，仅次于 Claude Opus 4.7 和 Gemini 3.1 Pro |
-| 多语言 | 中英文及多语言能力领先 |
-| 代码生成 | 编程能力对标 GPT-4 级别 |
-| 多模态 | Qwen-VL 系列支持图文理解 |
-| 开源生态 | 多尺寸开源，社区活跃 |
+| **深度推理（Max）** | AA Intelligence Index 56.6（中国模型最高），数学/科学推理全球领先 |
+| **Agentic Coding** | Terminal-Bench 2.0 69.7，SWE-Pro 60.6；35小时自主编码运行 |
+| **超长上下文** | 1M tokens 上下文窗口，处理大型代码仓库和长文档 |
+| **多模态理解（Plus）** | Qwen3.6-Plus 支持图像输入；Qwen3.7-Max 仅文本 |
+| **数学能力** | HMMT 2026 97.1%、IMOAnswerBench 90.0%，竞赛数学断层领先 |
+| **多语言** | WMT24++ 85.8%，覆盖 55 种语言，多语言能力领先 |
+| **开源生态** | 多尺寸开源，社区活跃（3.7-Max 除外，为 API only） |
 
 ### 核心限制
 
 | 限制项 | 具体值 | 说明 |
 |--------|--------|------|
-| Max 上下文窗口 | 256K tokens | 仅为 Plus 的 1/4，处理超长文档时受限 |
-| Max 多模态 | 仅文本 | Preview 阶段不支持图像输入 |
-| Max 稳定性 | Preview 状态 | 尚未正式 GA，生产环境建议使用 Plus |
-| Max 推理成本 | 预计偏贵 | 正式版定价未公布，但 MoE 旗舰架构成本较高 |
-| Plus 深度推理 | 稍弱于 Max | 在科学推理和数学任务上略逊于 Max |
-| 最大上下文 | 1M tokens | Qwen3.6-Plus/Max |
+| 3.7-Max 开源 | 不开放 | API only，无法私有化部署或微调 |
+| 3.7-Max 多模态 | 仅文本 | 不支持图像输入（Plus-Preview 支持） |
+| 3.7-Max 输出冗长 | 97M vs 中位 24M | 实际输出成本可达同类模型的 2-4× |
+| 3.6-Max 上下文 | 256K tokens | 仅为 Plus/3.7 的 1/4 |
+| 3.6-Max 稳定性 | Preview 状态 | 尚未正式 GA，生产环境建议 Plus 或 3.7-Max |
 | 并发限制 | 按账户等级 | 企业版更高 |
-| 多模态 | 图文理解 | 视频/音频能力有限 |
 
 ## 适用场景
 
@@ -83,16 +78,11 @@
 
 | 场景 | 推荐模型 | 说明 |
 |------|----------|------|
-| AI Agent / 自动编程 | Plus | Agentic coding 能力更强，1M 上下文 |
-| 科研/数学/复杂推理 | Max | 深度推理天花板更高 |
-| 长文档分析 | Plus | 1M vs 256K |
-| 多模态理解 | Plus | 支持图像输入 |
-| 生产环境稳定性 | Plus | GA 状态，Max 仍为 Preview |
-| 追求极致智能 | Max | 综合智能 Top 3 |
-| 企业智能客服 | Qwen3.6-Plus | 性价比高，中文能力强 |
-| 代码辅助 | Qwen3.6-Max | 复杂代码推理 |
-| 高并发轻量调用 | Qwen3.6-Flash | 低延迟低成本 |
-| 私有化部署 | Qwen3.6开源版 | 支持本地部署 |
+| 长时间自主 Agent / 数学竞赛 / 科研推理 | **3.7-Max** | 35h 自主运行，HMMT 97.1%，全球领先 |
+| Agentic Coding（重度） | **3.7-Max** | Terminal-Bench 69.7 |
+| Agentic Coding（性价比）/ 长文档 / 多模态 / 生产环境 | 3.6-Plus | GA 稳定，支持图像，1M 上下文 |
+| 高并发轻量调用 | 3.6-Flash | 低延迟低成本 |
+| 私有化部署 | 3.6 开源版 | 支持本地部署 |
 
 ## 接入方式
 
@@ -100,6 +90,16 @@
 |------|------|----------|
 | API 直接调用 | DashScope API，兼容OpenAI格式 | 快速集成 |
 | 平台托管 | 百炼平台，可视化编排 | 企业级应用 |
+
+## 定价（API）
+
+| 模型 | 输入 ($/1M tokens) | 输出 ($/1M tokens) | 缓存输入 |
+|------|---------------------|---------------------|----------|
+| **Qwen3.7-Max** | $2.50 | $7.50 | $0.25 |
+| Qwen3.6-Plus | ¥2 | — | — |
+| Qwen3.6-Max-Preview | 免费 | 免费 | — |
+
+> Qwen3.7-Max 实际成本需关注输出冗长问题：评估中生成量是中位数的 4×，建议 prompt 中显式约束输出长度。
 
 ## 参考资料
 
@@ -115,5 +115,6 @@
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-05-31 | 新增 Qwen3.7-Max（2026.05.19 发布），包含关键基准、AA Intelligence Index 56.6、35h 自主运行、定价、局限；更新模型表、能力/场景/限制/定价；标注 Qwen3.6-Max 被 3.7-Max 取代 |
 | 2026-04-24 | 合并 qwen3.6.md 内容，补充 Qwen3.6-Max-Preview 详细信息和对比分析 |
 | 2026-04-20 | 按_maas_template重构，对齐模板结构 |

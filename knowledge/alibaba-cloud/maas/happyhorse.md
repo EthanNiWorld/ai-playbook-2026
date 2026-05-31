@@ -1,0 +1,125 @@
+# HappyHorse 1.0
+
+> 最后更新: 2026-05-31
+> 所属厂商: 阿里巴巴（淘天集团 ATH 创新单元）
+> 产品类别: MaaS
+
+**定位**: 阿里淘天 ATH 创新单元出品的 AI 视频生成模型，15B 单流 Transformer + 8 步 DMD-2 蒸馏，音视频联合单次生成。2026 年 4 月匿名登顶 Artificial Analysis 盲测双榜首后公开身份
+**当前主推**: HappyHorse 1.0（T2V / I2V / Reference-to-Video），百炼已正式商用
+**适用**: 电商商品视频、短视频创作、多语言口型同步内容、批量素材生产
+**不适用**: 本地自部署（权重未开源）、长视频（单段 3-15 秒）
+
+## 当前主推模型
+
+| 模型 | 定位 | 能力 | 特点 | 推出时间 |
+|------|------|------|------|------|
+| HappyHorse-1.0-T2V | 文生视频 | 文本→视频+音频 | 音视频联合生成，7语言口型同步 | 2026.04.27 百炼上线 |
+| HappyHorse-1.0-I2V | 图生视频 | 图像→视频 | 首帧驱动，动态控制 [来源: help.aliyun.com] | 2026.04.27 |
+| HappyHorse-1.0-Ref | 参考生视频 | 多图参考→视频 | 多张参考图融合角色生成 [来源: help.aliyun.com] | 2026.04.27 |
+
+### 技术架构
+
+- 架构：15B 参数，40 层单流 Self-Attention Transformer，无 Cross-Attention，所有模态编码为统一 token 序列 [来源: remio.ai, help.apiyi.com]
+- 推理：DMD-2 蒸馏，仅 8 步去噪（传统 Diffusion 需 50-100 步）[来源: remio.ai]
+- 音频：音视频联合单次前向生成，非先视频后配音 [来源: remio.ai]
+- 速度：H100 上 5 秒 256p ≈ 2s，1080p ≈ 38s [来源: remio.ai]
+- 分辨率：最高 1080p@30fps [来源: jxp.com]
+- 时长：3-15 秒 [来源: remio.ai]
+- 画幅：16:9, 9:16, 1:1, 4:3 [来源: fal.ai]
+
+### 定价
+
+| 规格 | 单价 | 5秒视频成本 | 来源 |
+|------|------|-----------|------|
+| T2V 720P | ¥0.9/秒 | ¥4.50 | 百炼官方 [来源: help.apiyi.com] |
+| T2V 1080P | ¥1.6/秒 | ¥8.00 | 百炼官方 [来源: help.apiyi.com] |
+| I2V 720P | ¥0.9/秒 | ¥4.50 | [来源: aliyunbaike.com] |
+
+> 计费公式：总费用 = 生成数量 × 视频时长(秒) × 单价。失败不收费。
+
+## 核心能力与限制
+
+### 核心能力
+
+| 能力 | 说明 |
+|------|------|
+| **音视频联合生成** | 同一 pass 出视频+音频，天然同步，无需后处理配音 [来源: remio.ai] |
+| **7语言口型同步** | 中/英/粤/日/韩/德/法，Word Error Rate 14.60% [来源: remio.ai] |
+| **多镜头叙事一致性** | ~87% 多镜头角色/光照/风格一致性，当前公开模型最高 [来源: jxp.com] |
+| **AA 盲测双冠** | T2V Elo 1357, I2V Elo 1415，均列 #1 [来源: Artificial Analysis] |
+| **VBench 高分** | 综合 84.32，较前代榜首提升 7.8% [来源: remio.ai] |
+| **多平台商用** | 百炼 API + fal.ai API + 千问App 三通道 [来源: developer.aliyun.com, fal.ai] |
+
+### 核心限制
+
+| 限制项 | 具体值 | 说明 |
+|--------|--------|------|
+| 权重开源 | ❌ coming soon | 自 4 月承诺以来未发布 [来源: wavespeed.ai 2026.04.08] |
+| 本地部署 | 不可行 | 15B 参数，即便放权重也需专业 GPU |
+| 音频场景 | 略逊 Seedance 2.0 | AA 带音频排行 #2 [来源: Artificial Analysis] |
+| 长视频 | 单段 ≤15 秒 | 更长内容需手动拼接 |
+| 液体物理 | 较弱 | 水流/流体模拟效果不佳 [来源: jxp.com] |
+
+## 适用场景
+
+### ✅ 适用
+
+| 场景 | 推荐模型 | 说明 |
+|------|----------|------|
+| 电商商品展示 | I2V | 静态商品图转动图，AA I2V #1 |
+| 纯视觉短视频 | T2V | AA T2V #1，画面质量最高 |
+| 多语言营销 | T2V | 7语言口型同步，一条素材覆盖多市场 |
+| 批量素材生产 | T2V 720P | ¥4.50/条，成本可精确预估 |
+| 创作者快速迭代 | 千问App | 免费体验额度 |
+
+### ❌ 不适用
+
+| 场景 | 原因 | 替代方案 |
+|------|------|----------|
+| 带对话的长内容 | 音频略逊，≤15秒 | Seedance 2.0 或 Veo 3.1 |
+| 本地微调部署 | 权重未开源 | Wan 2.7（已开源+LoRA指南） |
+| 专业影视后期 | 无 Runway 级别控制面 | Runway Gen-4.5 |
+
+## 接入方式
+
+| 方式 | 说明 | 适用场景 |
+|------|------|----------|
+| 百炼 API | DashScope，按秒计费 | 企业生产集成 |
+| fal.ai API | 4 端点（T2V/I2V/Ref/Edit），Python/JS SDK | 国际开发者 |
+| 千问 App | 首页 HappyHorse 胶囊入口，有免费额度 | 个人体验 |
+
+## 竞品对比
+
+| 维度 | HappyHorse 1.0 | Wan 2.7（同属阿里） | Seedance 2.0（字节） |
+|------|---------------|-------------------|---------------------|
+| 团队 | 淘天 ATH | 阿里云通义 | 字节跳动 |
+| AA T2V Elo | #1 1357 | 未参赛 | #2 ~1283 |
+| AA I2V Elo | #1 1415 | 未参赛 | #2 ~1378 |
+| 音频 | 单次联合生成 | 需外部模型 | 双分支+Cross-Attention |
+| 开源 | ❌ coming soon | ✅ Apache 2.0 | ❌ |
+| 百炼定价 | 720P ¥0.9/s | 按量付费 | 火山引擎 ¥~1.0/s |
+| LoRA | 宣称支持，不可实操 | ✅ 官方指南 | ❌ |
+
+## 团队背景
+
+HappyHorse 由张迪团队开发，该团队此前在快手主导了 Kling AI（2024-2025 年国内最流行的 AI 视频工具之一）。2025 年底团队整体加入阿里淘天集团 ATH 创新单元，用更大资源重建了视频模型。[来源：remio.ai, CNBC]
+
+HappyHorse 与 Wan（万相）分属阿里不同事业群——淘天 vs 阿里云，是阿里内部"赛马机制"的体现。HappyHorse 承诺 Apache 2.0 开源，但截至 2026 年 5 月 31 日，GitHub 和 HuggingFace 仍显示 "coming soon"。[来源：wavespeed.ai]
+
+## 参考资料
+
+- [HappyHorse T2V API 官方文档](https://help.aliyun.com/zh/model-studio/happyhorse-text-to-video-api-reference)
+- [HappyHorse I2V API 官方文档](https://help.aliyun.com/zh/model-studio/happyhorse-image-to-video-api-reference)
+- [HappyHorse 参考生视频 API 官方文档](https://help.aliyun.com/zh/model-studio/happyhorse-reference-to-video-api-reference)
+- [百炼产品月刊 2026年4月 - HappyHorse 上架](https://developer.aliyun.com/article/1732596)
+- [HappyHorse 上架百炼公告](https://developer.aliyun.com/article/1731495)
+- [Artificial Analysis Video Arena](https://artificialanalysis.ai/video/leaderboard/text-to-video)
+- [HappyHorse 定价分析](https://help.apiyi.com/en/happyhorse-pricing-vs-seedance-2-comparison-en.html)
+- [HappyHorse 技术架构分析](https://help.apiyi.com/en/happyhorse-model-mystery-ai-video-lmarena-analysis-en.html)
+- [HappyHorse 开源状态追踪](https://wavespeed.ai/blog/posts/is-happyhorse-1-0-open-source-2026/)
+- [fal.ai HappyHorse 官方发布](https://www.prnewswire.com/news-releases/fal-launches-happyhorse-1-0--the-1-ranked-ai-video-model-as-official-api-partner-302755003.html)
+
+## Changelog
+| 日期 | 变更内容 |
+|------|----------|
+| 2026-05-31 | 初始创建：团队背景、技术架构、AA/VBench 评测、百炼定价、4个API端点、竞品对比、限制与适用场景 |

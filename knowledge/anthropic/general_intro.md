@@ -45,7 +45,8 @@ Anthropic 是一家总部位于美国加州旧金山的人工智能公司，由�
 ## 五、关键产品矩阵
 
 ### 1. Claude 系列大模型
-- **Claude Opus 4.7**（2026.04）：最新旗舰，集成 Project Glasswing 安全防护框架。
+- **Claude Opus 4.8**（2026.05.28）：最新旗舰，SWE-Bench Pro 69.2%、诚实度4×提升、effort控制、动态工作流。
+- **Claude Opus 4.7**（2026.04）：前旗舰，集成 Project Glasswing 安全防护框架。
 - **Claude Sonnet 4**：百万 Token 上下文，为 GPT-5 的 2.5 倍。
 - **Claude Opus 4.5** / **Sonnet 4.5** / **Haiku 4.5**：覆盖不同层级需求。
 
@@ -165,4 +166,4 @@ Anthropic的研究体系围绕“以理解促安全（Safety through Understandi
 
 ---
 
-*最后更新：2026 年 4 月 24 日 | 基于公开报道与研究整理*
+*最后更新：2026 年 5 月 31 日 | 基于公开报道与研究整理*

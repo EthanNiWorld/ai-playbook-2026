@@ -1,40 +1,43 @@
 # 万相 (Wan)
 
-> 最后更新: 2026-04-20
+> 最后更新: 2026-05-31
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 
-**定位**: 阿里云多模态生成模型（图像/视频），开源+商业双轨
-**当前主推**: Wan2.6 系列（Wan2.6-Video / Wan2.6-Image）
-**适用**: AI视频生成、图像创作、营销素材、短视频制作
+**定位**: 阿里云通义实验室多模态生成模型（图像/视频），开源（Apache 2.0）+ 百炼商业 API 双轨
+**当前主推**: Wan2.7 系列（Wan2.7-T2V / Wan2.7-I2V / Wan2.7-R2V / Wan2.7-Image / Wan2.7-VideoEdit），Wan2.6 仍可用
+**适用**: AI视频生成、图像创作、营销素材、短视频制作、角色一致性内容
 **不适用**: 高精度工业设计、实时视频流处理
 
 ## 当前主推模型
 
-| 模型 | 定位 | 能力 | 特点 |
+| 模型 | 定位 | 新增能力 | 特点 |
 |------|------|------|------|
-| Wan2.6-t2v | 文生视频 | 文本→视频 | 影视级画质，音画同步 |
-| Wan2.6-i2v | 图生视频 | 图像→视频 | 首帧驱动，动态控制 |
-| Wan2.6-r2v | 参考视频 | 视频→视频 | 角色扮演，风格迁移 |
-| Wan2.6-Image | 图像生成 | 文生图/图生图/编辑 | 全链路图像能力 |
+| **Wan2.7-T2V** | 文生视频 | 2-15秒时长，首尾帧控制 | 影视级画质，DiT 架构 |
+| **Wan2.7-I2V** | 图生视频 | 9宫格多图输入，首尾帧控制 | 角色/场景一致性大幅提升 |
+| **Wan2.7-R2V** | 参考生视频 | 主体+声音参考 | 角色外观+声音一致性 [来源: wavespeed.ai] |
+| **Wan2.7-VideoEdit** | 指令编辑 | 自然语言指令修改视频 | 背景替换、光照调整、服装变更 [来源: help.aliyun.com] |
+| **Wan2.7-Image** | 图像生成 | 4K输出 | 文生图/图生图/编辑全链路 |
 
-### Wan2.6-Video
-- 模型：Wan2.6-t2v / Wan2.6-i2v / Wan2.6-r2v
-- 公司：阿里云
-- 时间：2026年1月
-- 尺寸：多尺寸（1.3B ~ 14B）
-- 场景：文生视频/图生视频/角色扮演/声音驱动
-- 定价：按量付费（百炼平台）
-- 特点：影视级画质，音画同步，国内首个角色扮演视频模型
+> Wan2.6 系列（2026.01）仍可通过百炼调用，适合已搭建稳定管线的团队。
 
-### Wan2.6-Image
-- 模型：Wan2.6-Image
-- 公司：阿里云
-- 时间：2026年1月
-- 尺寸：未公开
-- 场景：文生图/图生图/图像编辑
-- 定价：按量付费（百炼平台）
-- 特点：全链路图像生成与编辑，支持中文提示词
+### Wan2.7 核心升级点 vs Wan2.6
+
+| 升级项 | Wan2.6 | Wan2.7 |
+|--------|--------|--------|
+| 视频时长 | 最长约10秒 | 2-15秒 [来源: help.aliyun.com] |
+| I2V 输入 | 单图首帧 | 9宫格多图 + 首尾帧双图 [来源: wavespeed.ai] |
+| 角色控制 | R2V 角色扮演 | 主体+声音双参考 [来源: wavespeed.ai] |
+| 视频编辑 | 不支持 | 自然语言指令编辑 [来源: help.aliyun.com] |
+| 架构 | Diffusion MoE（继承自2.2） | DiT Full Attention（延续2.6），无架构大改 [来源: wavespeed.ai] |
+| 开源 | Apache 2.0（Wan2.1/2.2权重） | Apache 2.0，权重在 GitHub/HuggingFace [来源: pinggy.io May 2026] |
+| 定价参考 | 按量付费 | 国际：720P $0.086/s, 1080P $0.144/s [来源: evolink.ai] |
+
+### 技术架构
+- 架构：DiT (Diffusion Transformer)，Full Attention 机制捕捉长程时空依赖 [来源: wavespeed.ai]
+- MoE：~27B 总参数 / ~14B 每步激活（继承自 2.2）[来源: pinggy.io May 2026]
+- 轻量版：T2V-1.3B 仅需 8.19GB VRAM，消费级 GPU 可跑 [来源: pinggy.io]
+- ComfyUI：社区集成已就绪 [来源: alici.ai]
 
 ## 核心能力与限制
 
@@ -71,17 +74,35 @@
 
 | 方式 | 说明 | 适用场景 |
 |------|------|----------|
-| API 直接调用 | DashScope API | 快速集成 |
-| 平台托管 | 百炼平台 / 万相平台 | 可视化创作 |
+| 百炼 API | DashScope API，按秒计费 | 生产集成 |
+| 开源权重 | GitHub/HuggingFace 下载，Apache 2.0 | 本地部署、微调、ComfyUI |
+| 万相平台 | wanx.biz.aliyun.com 可视化创作 | 非技术用户 |
+
+## 竞品对比
+
+| 维度 | Wan 2.7 | HappyHorse 1.0（同属阿里） |
+|------|---------|---------------------------|
+| 团队 | 阿里云通义实验室 | 阿里淘天 ATH（前快手 Kling 团队） |
+| 架构 | DiT MoE ~27B | 15B 单流 Transformer + 8步蒸馏 |
+| 音频 | 需外部模型 | 音视频联合单次生成 |
+| AA 盲测 | 未参赛（开源赛道） | T2V/I2V 双冠 |
+| 开源 | ✅ 权重已发布 | ❌ coming soon |
+| 百炼商用 | ✅ | ✅ 720P ¥0.9/s, 1080P ¥1.6/s |
+| LoRA 微调 | ✅ 百炼官方指南 | 宣称支持，权重未出不可实操 |
 
 ## 参考资料
 
-- AIGC参考: https://artificialanalysis.ai/video/models
-- [万相官网](https://tongyi.aliyun.com/wanxiang)
-- [百炼平台](https://bailian.console.aliyun.com)
-- [Wan GitHub](https://github.com/Wan-Video/Wan2.1)
+- [万相2.7 T2V API](https://help.aliyun.com/zh/model-studio/text-to-video-api-reference)
+- [万相2.7 I2V API](https://help.aliyun.com/zh/model-studio/image-to-video-general-api-reference)
+- [万相2.7 R2V API](https://help.aliyun.com/zh/model-studio/wan-video-to-video-api-reference)
+- [万相2.7 视频编辑 API](https://help.aliyun.com/zh/model-studio/wan-video-editing-api-reference)
+- [Wan 2.7 功能分析](https://wavespeed.ai/blog/posts/wan-2-7-features-api-upgrade/)
+- [Wan 2.7 定价参考](https://evolink.ai/zh/blog/wan-api-pricing-guide)
+- [万相官网](https://wanx.biz.aliyun.com/wan)
+- [Wan GitHub](https://github.com/Wan-Video)
 
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-05-31 | 更新至 Wan2.7：新增首尾帧控制、9宫格I2V、指令编辑、主体+声音参考等功能；补充技术架构（DiT/MoE）、竞品对比（vs HappyHorse）、定价参考、官方API文档链接 |
 | 2026-04-20 | 按_maas_template重构，Wan2.6-Video/Image拆分 |

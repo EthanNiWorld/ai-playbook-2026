@@ -11,6 +11,7 @@
 **一句话说明**: Anthropic 的 AI 编程工具，在真实世界代码库应用上比 OpenAI 起步更早
 **核心价值**: 率先认识到将模型应用到混乱真实代码库的价值，在编程 Agent 领域建立先发优势
 **竞争对比**: OpenAI Codex（起步慢但追赶迅速）、阿里云 Qoder、Google Gemini Code Assist
+**最新更新**: 2026.05.28 发布动态工作流（Dynamic Workflows），支持单次会话并行调度数百个子 Agent
 <!-- SUMMARY_END -->
 
 ## 是什么
@@ -44,8 +45,16 @@ Claude Code 是 Anthropic 推出的 AI 编程工具，专注于代码生成、�
 - [⚠️ 待验证] OpenAI 创始人访谈（2026-04-24）- 编程领域竞争分析部分
 - 来源：https://mp.weixin.qq.com/s/SDUqxjvUXN451bjpSH29pQ
 
+## 动态工作流（2026.05.28）
+
+随 Claude Opus 4.8 同日发布的 Claude Code 重大更新：
+
+- **parallel subagents**：单次会话中 Claude Code 可自主规划工作并并行调度数百个子 Agent，显著提升复杂任务执行效率
+- **来源**：Anthropic 官方博客 "Introducing dynamic workflows in Claude Code"（2026.05.28）
+
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-05-31 | 新增：动态工作流特性（parallel subagents），来源 Anthropic 官方博客 |
 | 2026-04-24 | 新增：编程领域竞对分析、OpenAI官方评价、真实世界代码应用先发优势（来源：OpenAI创始人访谈） |
 | 2026-04-20 | 初始创建，基础产品定位 |
