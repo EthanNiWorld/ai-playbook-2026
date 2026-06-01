@@ -3,7 +3,7 @@
 > AI Native 领域结构化知识库 — 双 Agent 驱动，持续进化
 
 <p align="center">
-  <b>📄 70</b> 篇知识文档 ·
+  <b>📄 71</b> 篇知识文档 ·
   <b>⭐ 9</b> 篇精华 ·
   <b>🏢 10</b> 个厂商/领域 ·
   <b>🤖 2</b> 个 AI Agent 协作
@@ -35,7 +35,7 @@ mindmap
       阿里云
         MaaS: Qwen / Wan / HappyHorse / 百炼
         AI Coding: Qoder
-        AI App: QoderWork / Claw家族 / JVS Crew
+        AI App: QoderWork / MuleRun / Claw家族 / JVS Crew
         AI Infra: GPU选型 / 灵骏 / ECS GPU
         AI Platform: PAI
       AWS
@@ -104,7 +104,7 @@ flowchart LR
 ├── archive/        ← 已处理素材备份
 ├── knowledge/      ← 🎯 结构化知识库（核心产出）
 │   ├── ai-general-notes/   ← 跨厂商 AI 通识（Agent/Harness/Prompt/RAG...）
-│   ├── alibaba-cloud/      ← 阿里云（19 篇）
+│   ├── alibaba-cloud/      ← 阿里云（20 篇）
 │   ├── aws/                ← AWS（10 篇）
 │   ├── gcp/                ← GCP（7 篇）
 │   ├── anthropic/          ← Anthropic（5 篇）

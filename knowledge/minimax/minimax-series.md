@@ -1,12 +1,12 @@
 # MiniMax M 系列模型
 
-> 最后更新: 2026-05-28
+> 最后更新: 2026-06-01
 > 所属厂商: MiniMax（稀宇科技）
 > 产品类别: MaaS
 > 状态: Published
 
 **定位**: MiniMax 自研文本/推理大模型系列，从 abab 架构演进至 M 系列（MoE 架构），强调开源、长上下文与 Agent 能力
-**当前主推**: M2.7（2026.01）
+**当前主推**: M3（2026.06.01）
 **适用**: Agentic Coding、长上下文任务、专业办公、软件工程、ML 工程
 **不适用**: 超低延迟实时对话、纯中文日常闲聊
 
@@ -14,10 +14,29 @@
 
 | 模型 | 定位 | 上下文 | 特点 | 推出时间 |
 |------|------|--------|------|----------|
-| **MiniMax-M3**（即将）| 下一代旗舰 | TBD | 应对 1–2 个数量级 Token 增长 | 2026 年 |
+| **MiniMax-M3** | 旗舰 | 1M tokens | MSA 稀疏注意力、原生多模态、前沿 Coding/Agent | 2026.06.01 |
 | **MiniMax-M2.7** | 旗舰 | 100 万 tokens | 自我进化能力、Benchmark 追平 GPT-5.3-Codex | 2026.03.18 |
 | **MiniMax-M2** | Agent/代码 | 100K+ | 面向 Agent 与代码场景，强化工具调用能力 | 2025.11 |
 | **MiniMax-M1** | 开源标杆 | 128K+ | 全球首个开源大规模混合注意力推理模型 | 2025.08 |
+
+### MiniMax-M3
+
+- **模型**：MiniMax-M3
+- **公司**：MiniMax
+- **时间**：2026 年 6 月 1 日 [来源: ai-knowledge-by-qoder-ai-native-agent-20260601.md]
+- **架构**：MoE + MSA（MiniMax Sparse Attention） [来源: minimaxi.com/blog/minimax-m3]
+- **上下文**：1M tokens [来源: minimaxi.com/blog/minimax-m3]
+- **多模态**：原生多模态（图片 + 视频输入 + Computer Use） [来源: minimaxi.com/blog/minimax-m3]
+- **开源**：10 天内开源权重 [来源: minimaxi.com/blog/minimax-m3]
+- **场景**：Agentic Coding、长程 Agent 任务、论文复现、CUDA 算子优化、自主训模型
+- **特点**：
+  1. **MSA 稀疏注意力**：100 万上下文下每 token 计算量仅为上代 1/20，Prefill 加速 9.7x，Decode 加速 15.6x，比 Flash-Sparse-Attention/flash-moba 快 4 倍以上 [来源: minimaxi.com/blog/minimax-m3]
+  2. **前沿 Coding/Agent**：SWE-Bench Pro 59.0%（> GPT-5.5, > Gemini 3.1 Pro，接近 Opus 4.7）、Terminal Bench 2.1 66.0%、MCP Atlas 74.2%、Claw-Eval 全模型 #1 [来源: minimaxi.com/blog/minimax-m3]
+  3. **原生多模态**：OmniDocBench 超过 Gemini 3.1 Pro、SVG-Bench 超过 Opus 4.7 [来源: minimaxi.com/blog/minimax-m3]
+  4. **长程自主能力**：自主运行 12h 复现 ICLR 获奖论文（18 次 commit + 23 张图表）、24h CUDA 算子优化（9.4x 加速）、12h 自主训模型（PostTrainBench 0.37） [来源: minimaxi.com/blog/minimax-m3]
+  5. **定价（分两档）**：≤512K 输入 ¥4.2/M 输出 ¥16.8/M；512K–1M 输入 ¥8.4/M 输出 ¥33.6/M [来源: finance.sina.com.cn]
+  6. **Token Plan**：Plus ¥49/月（6 亿 token）、Max ¥119/月（18 亿）、Ultra ¥469/月（55 亿），约 Claude 订阅 15 倍用量 [来源: minimaxi.com/blog/minimax-m3]
+  7. **支持 thinking / non-thinking 两种模式**，共享定价 [来源: minimaxi.com/blog/minimax-m3]
 
 ### MiniMax-M2.7
 
@@ -59,7 +78,12 @@
 
 | 能力 | 说明 |
 |------|------|
-| **Agentic Coding** | SWE-Pro 56.22%，追平 GPT-5.3-Codex；可完成端到端完整项目交付、Bug 定位 |
+| **Agentic Coding（M3）** | SWE-Bench Pro 59.0%（> GPT-5.5, > Gemini 3.1 Pro）、Terminal Bench 2.1 66.0% [来源: minimaxi.com/blog/minimax-m3] |
+| **Agentic Coding（M2.7）** | SWE-Pro 56.22%，追平 GPT-5.3-Codex；可完成端到端完整项目交付、Bug 定位 |
+| **MSA 稀疏注意力（M3）** | 1M 上下文计算量降为上代 1/20，Prefill 9.7x / Decode 15.6x 加速 [来源: minimaxi.com/blog/minimax-m3] |
+| **原生多模态（M3）** | 图片 + 视频输入 + Computer Use；OmniDocBench > Gemini 3.1 Pro [来源: minimaxi.com/blog/minimax-m3] |
+| **长程自主运行（M3）** | 12h 论文复现、24h CUDA 优化（9.4x 加速）、PostTrainBench 0.37 [来源: minimaxi.com/blog/minimax-m3] |
+| **MCP 工具调用（M3）** | MCP Atlas 74.2% [来源: minimaxi.com/blog/minimax-m3] |
 | **自我进化** | 模型自主驱动自身训练迭代，100+ 轮迭代效果提升 30% |
 | **长上下文** | 100 万 token 上下文，NIAH (1M) 准确率 96.8% |
 | **ML 工程** | MLE Bench Lite 66.6% 得牌率，仅次于 Opus-4.6 和 GPT-5.4 |
@@ -70,7 +94,7 @@
 
 | 限制项 | 具体值 | 说明 |
 |--------|--------|------|
-| 开源版本 | M1/M2 开源，M2.7 闭源 | M3 可能延续部分开源策略 |
+| 开源版本 | M1/M2 开源，M2.7 闭源 | M3 计划 10 天内开源权重 [来源: minimaxi.com/blog/minimax-m3] |
 | 最大输出 | 16,384 tokens | 单次回复长度受限 |
 | 厂商背景 | MiniMax 非阿里云产品 | 需通过 MiniMax 开放平台调用，非百炼 |
 
@@ -80,10 +104,10 @@
 
 | 场景 | 推荐模型 | 说明 |
 |------|----------|------|
-| Agentic Coding（重度） | M2.7 | SWE-Pro 追平 GPT-5.3-Codex |
-| 整仓库代码审查 | M2.7 | 100 万 token 上下文支持完整代码库分析 |
-| 软件工程自动化 | M2.7 | 端到端项目交付，故障恢复 3 分钟以内 |
-| 长文档分析 | M2.7 | 金融年报、超长合同分析 |
+| Agentic Coding（重度） | M3 | SWE-Bench Pro 59.0%，Terminal Bench 2.1 66.0% |
+| 长程自主任务 | M3 | 12h 论文复现、24h CUDA 优化、自主训模型 |
+| 多模态 Agent（Computer Use） | M3 | 原生图片/视频输入 + 桌面操作 |
+| 整仓库代码审查 | M3 / M2.7 | 100 万 token 上下文支持完整代码库分析 |
 | 开源部署 / 研究 | M1 | Artificial Analysis 开源榜登顶 |
 | 工具调用 / Agent | M2 | 强化函数调用能力 |
 
@@ -96,12 +120,15 @@
 
 ## 定价
 
-| 模型 | 输入 ($/1M tokens) | 输出 ($/1M tokens) |
-|------|---------------------|---------------------|
-| **MiniMax-M2.7** | $1.00 | $5.00 |
-| Claude Opus 4.6 | $15.00 | $75.00 |
-| GPT-5 | $10.00 | $30.00 |
+| 模型 | 输入 | 输出 | 上下文分档 |
+|------|------|------|------------|
+| **MiniMax-M3** | ¥4.2/M tokens | ¥16.8/M tokens | ≤512K [来源: finance.sina.com.cn] |
+| **MiniMax-M3** | ¥8.4/M tokens | ¥33.6/M tokens | 512K–1M [来源: finance.sina.com.cn] |
+| **MiniMax-M2.7** | $1.00/M tokens | $5.00/M tokens | — |
+| Claude Opus 4.6 | $15.00/M tokens | $75.00/M tokens | — |
+| GPT-5 | $10.00/M tokens | $30.00/M tokens | — |
 
+> M3 有限时 7 天 5 折活动。支持 thinking / non-thinking 两种模式，共享定价。[来源: minimaxi.com/blog/minimax-m3]
 > M2.7 价格约为 Claude Opus 4.6 的 **1/15**，性价比极高。
 
 ## 市场表现
@@ -109,16 +136,22 @@
 - M2.7 在 OpenRouter 平台上的调用量一度超过 Claude Opus 4.6，是目前用量增长最快的模型之一
 - 2026 年 2 月 M2 系列每百万 Token 推理算力成本较 2025 年 12 月下降超过 **50%**
 - 日均 token 消耗量增长超 6 倍，其中 Coding Plan 增长超 10 倍
+- M3 发布当日（2026.06.01）MiniMax（00100.HK）早盘涨超 7% 后转跌，收盘跌超 15%，报 708 港元 [来源: finance.sina.com.cn]
+- 用户反馈：M3 速度更快、上下文能力不错，但 Token 消耗更快、变相涨价 [来源: finance.sina.com.cn]
+- 公司 2025 年营收约 7904 万美元（同比 +159%），年内亏损 18.7 亿美元 [来源: finance.sina.com.cn]
 
 ## 参考资料
 
+- [MiniMax M3 官方博客](https://www.minimaxi.com/blog/minimax-m3)
 - [MiniMax 投资者材料 PDF](https://ir-upload.realxen.net/iis/0100/uploads/iis/2026/11985588-0.PDF)
 - [MiniMax 投资者材料 PDF](https://ir-upload.realxen.net/iis/0100/uploads/iis/2026/12116753-0.PDF)
 - [MiniMax 开放平台](https://platform.minimaxi.com)
 - Artificial Analysis 开源榜单
+- [新浪科技：MiniMax 新模型报道](https://finance.sina.com.cn/tech/roll/2026-06-01/doc-inhzwyqq3940096.shtml)
 
 ## Changelog
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-06-01 | 合并：ai-knowledge-by-qoder-ai-native-agent-20260601.md - M3 从"即将"升级为正式发布，新增 M3 详细参数、Benchmark、定价、MSA 稀疏注意力、Token Plan、市场反应 |
 | 2026-05-28 | 新建文档，首次提炼 M 系列模型系列信息 |

@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-05-31（新增 HappyHorse 条目、Wan 2.7 更新）
+> 最后更新：2026-06-01（新增 MuleRun，更新 QoderWork）
 
 ## 道：AI 领域知识（跨厂商）
 
@@ -23,7 +23,7 @@
 ### 阿里云
 - MaaS: [百炼平台](alibaba-cloud/maas/overview.md) — UID 级限流机制、多账号扩 TPM 方案（8.5× 实测验证）、deepseek-v4-flash 压测踩坑 | [Qwen](alibaba-cloud/maas/qwen.md) | [万相](alibaba-cloud/maas/wan.md) | [HappyHorse](alibaba-cloud/maas/happyhorse.md) | [Qwen3.6](alibaba-cloud/maas/qwen3.6.md)
 - AI Coding: [Qoder](alibaba-cloud/ai-coding/qoder.md)
-- AI App: [QoderWork](alibaba-cloud/ai-application/qoder-work.md) | [龙虾家族（HiClaw/QwenPaw/百炼龙虾/PolarClaw/AgentBay）](alibaba-cloud/ai-application/claw-family.md) | [JVS Crew](alibaba-cloud/ai-application/jvs-crew.md)
+- AI App: [QoderWork](alibaba-cloud/ai-application/qoder-work.md) | [MuleRun（骡子快跑）](alibaba-cloud/ai-application/mulerun.md) | [龙虾家族（HiClaw/QwenPaw/百炼龙虾/PolarClaw/AgentBay）](alibaba-cloud/ai-application/claw-family.md) | [JVS Crew](alibaba-cloud/ai-application/jvs-crew.md)
 - AI Platform: [PAI](alibaba-cloud/ai-platform/pai.md)
 - AI Infra：[ECS GPU](alibaba-cloud/ai-infra/ecs-gpu.md) | [灵骏](alibaba-cloud/ai-infra/lingjun.md) | [GPU 产品线选型](alibaba-cloud/ai-infra/gpu-product-line.md) ⭐
 
@@ -48,7 +48,7 @@
 
 ### MiniMax
 - 公司分析: [MiniMax 公司分析报告](minimax/general_intro.md) — 2026.01 港股 IPO（00100.HK）、海螺 AI / Talkie 全球化、MiniMax-M1/M2/M2.7 开源混合注意力，**M2.7 自我进化（模型自驱动训练）能力**
-- 模型系列: [M 系列](minimax/minimax-series.md) — M1/M2/M2.7/M3
+- 模型系列: [M 系列](minimax/minimax-series.md) — M1/M2/M2.7/M3（**M3 已正式发布**，MSA 稀疏注意力、原生多模态、前沿 Coding/Agent）
 - Agent: [Agent Team](minimax/agent-team.md) — Leader–Worker–Verifier 对抗制衡多Agent协作系统，Team Engine 状态机驱动
 
 ### 智谱 AI（Zhipu）
