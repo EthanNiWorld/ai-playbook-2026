@@ -17,10 +17,23 @@ tools: Read, Grep, Glob, Write, Bash
 - 识别素材来源：
   - **`inbox/` 素材**：一次性原始素材，处理完归档到 `archive/`
   - **`notes/` 笔记**：长期维护的个人笔记（如 Daily note），处理完**保留原文件**
-- 如未指定，列出 `inbox/` 和 `notes/` 下所有 `.md` 文件供用户选择
+- 如未指定，列出 `inbox/` 和 `notes/` 下所有 `.md` 和 `.html` 文件供用户选择
 - 读取用户指定的文件内容
 
-### Step 1.5 — 确认提炼范围（仅 notes/ 需要）
+> ⚡ **HTML 快捷通道（仅 `inbox/` 下的 `.html` 文件）**
+> 
+> HTML 文件是已成型的销售物料/展示文档（如 salebook、case report），**无需提炼、无需按模板格式化、无需事实校验**。
+> 
+> 处理流程：
+> 1. **识别归属**：根据文件名和内容判断属于哪个厂商/品类（如 `qwen3.7-max-salebook.html` → `knowledge/alibaba-cloud/maas/`）
+> 2. **直接移动**：将 HTML 文件从 `inbox/` 移到对应的 `knowledge/{厂商}/{品类}/` 目录
+> 3. **更新 README 计数**（如 knowledge/ 下文件总数变化）
+> 4. **归档 inbox 源文件**（已移动，无需额外归档）
+> 
+> **跳过**：Step 2（合并检测）、Step 3（脱敏）、Step 4（模板格式化）、Step 5（事实校验）
+> **可选执行**：Step 6.5（销售洞察同步，如涉及阿里云产品）
+
+### Step 1.5 — 确认提炼范围（仅 notes/ 需要，HTML 快捷通道跳过）
 
 如果素材来源是 `notes/`：
 - 分析文档中的日期/章节节点

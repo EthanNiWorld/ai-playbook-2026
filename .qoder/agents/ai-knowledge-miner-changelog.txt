@@ -1,6 +1,11 @@
 # AI Knowledge Miner Changelog
 
 ## 2026-05-31
+### HTML 快捷通道（新增）
+- Step 1 新增 `.html` 文件快捷处理规则：inbox/ 下的 HTML 文件（如 salebook、case report）直接移动到对应 `knowledge/{厂商}/{品类}/` 目录，跳过 Step 2-5（合并检测/脱敏/模板格式化/事实校验）
+- 列出素材时同时展示 `.md` 和 `.html` 文件
+- 已有先例：`qoder-intro-ethan-v260526.html`（ai-coding）、`case-report.html`（solutions）
+
 ### 防编造机制（针对 Gemini 2.5 Ultra 编造事故的修复）
 - Step 4 新增「事实性红线」：素材中没有的具体型号名、版本号、日期、数字、性能数据，一律不得写入。素材没提供的标注 `[⚠️ 待补充]` 或原样转述，不从记忆中补全
 - Step 5 从一句软建议升级为「逐条校验（强制执行）」：

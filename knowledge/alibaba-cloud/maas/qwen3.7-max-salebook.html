@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qwen3.7-Max Sales Book | The Agent Frontier · 亚太第一旗舰</title>
+<style>
+  :root {
+    --primary: #FF6A00;
+    --primary-dark: #E55D00;
+    --accent: #1A73E8;
+    --bg-dark: #0F1419;
+    --bg-card: #1A1F2E;
+    --bg-card-hover: #222840;
+    --text: #E8EAED;
+    --text-muted: #9AA0A6;
+    --gold: #FFD700;
+    --green: #34A853;
+    --red: #EA4335;
+    --blue: #4285F4;
+    --gradient: linear-gradient(135deg, #FF6A00 0%, #EE0979 100%);
+    --gradient-blue: linear-gradient(135deg, #1A73E8 0%, #6C63FF 100%);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    padding: 80px 40px 60px;
+    text-align: center;
+    background: linear-gradient(180deg, #1a0a2e 0%, #0F1419 100%);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(circle at 60% 40%, rgba(255,106,0,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 30% 70%, rgba(26,115,232,0.06) 0%, transparent 50%);
+    animation: pulse 8s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+  .hero-content { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; }
+  .badge {
+    display: inline-block;
+    background: var(--gradient);
+    color: #fff;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: 52px;
+    font-weight: 800;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 16px;
+  }
+  .hero .subtitle {
+    font-size: 22px;
+    color: var(--text-muted);
+    max-width: 700px;
+    margin: 0 auto 30px;
+  }
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+  .hero-stat { text-align: center; }
+  .hero-stat .num {
+    font-size: 42px;
+    font-weight: 800;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-stat .label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+  /* Section */
+  .section { max-width: 1100px; margin: 0 auto; padding: 60px 24px; }
+  .section-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .section-subtitle { color: var(--text-muted); margin-bottom: 32px; font-size: 15px; }
+
+  /* Cards */
+  .adv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+  .adv-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: transform 0.2s, border-color 0.3s;
+  }
+  .adv-card:hover { transform: translateY(-4px); border-color: rgba(255,106,0,0.3); }
+  .adv-card .icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin-bottom: 16px;
+  }
+  .adv-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .adv-card p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+  .adv-card .metric {
+    display: inline-block;
+    background: rgba(255,106,0,0.12);
+    color: var(--primary);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+
+  /* Table */
+  .bench-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 14px;
+  }
+  .bench-table thead th {
+    background: var(--bg-card);
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid rgba(255,106,0,0.3);
+  }
+  .bench-table thead th:first-child { padding-left: 20px; }
+  .bench-table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .bench-table tbody td:first-child { padding-left: 20px; font-weight: 500; }
+  .bench-table tbody tr { background: var(--bg-card); }
+  .bench-table tbody tr:hover { background: var(--bg-card-hover); }
+  .win { color: var(--green); font-weight: 700; }
+  .lose { color: var(--text-muted); }
+  .tie { color: var(--gold); font-weight: 600; }
+  .crown { margin-left: 4px; }
+
+  /* Pricing */
+  .price-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .price-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+  }
+  .price-card.highlight {
+    border-color: var(--primary);
+    box-shadow: 0 0 30px rgba(255,106,0,0.1);
+  }
+  .price-card.highlight::before {
+    content: '推荐';
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background: var(--gradient);
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .price-card .model { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+  .price-card .price { font-size: 32px; font-weight: 800; }
+  .price-card .price .unit { font-size: 14px; font-weight: 400; color: var(--text-muted); }
+  .price-card .detail { font-size: 13px; color: var(--text-muted); margin-top: 8px; }
+  .price-card .save {
+    display: inline-block;
+    background: rgba(52,168,83,0.15);
+    color: var(--green);
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+  .price-card .warn {
+    display: inline-block;
+    background: rgba(234,67,53,0.12);
+    color: var(--red);
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
+  /* Scenario */
+  .scenario-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .scenario-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .scenario-card .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .scenario-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .scenario-card p { font-size: 13px; color: var(--text-muted); }
+  .scenario-card ul { list-style: none; margin-top: 10px; }
+  .scenario-card li { font-size: 13px; color: var(--text-muted); padding: 4px 0; }
+  .scenario-card li::before { content: '✓ '; color: var(--green); font-weight: 700; }
+
+  /* Winback */
+  .winback-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+    gap: 24px;
+  }
+  .winback-card {
+    background: linear-gradient(135deg, rgba(255,106,0,0.04), rgba(26,115,232,0.04));
+    border: 1px solid rgba(255,106,0,0.2);
+    border-radius: 16px;
+    padding: 28px;
+  }
+  .winback-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+  .winback-card .vs-badge {
+    display: inline-block;
+    background: var(--gradient);
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .winback-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 14px; }
+  .winback-item:last-child { border: none; }
+  .winback-item .label { color: var(--text-muted); }
+  .winback-item .qwen { color: var(--green); font-weight: 600; }
+  .winback-item .comp { color: var(--text-muted); }
+
+  /* FAQ */
+  .faq-item {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .faq-item h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; color: var(--primary); }
+  .faq-item p { font-size: 14px; color: var(--text-muted); line-height: 1.8; }
+
+  /* Callout */
+  .callout {
+    background: linear-gradient(135deg, rgba(255,106,0,0.08), rgba(238,9,121,0.06));
+    border-left: 4px solid var(--primary);
+    border-radius: 0 12px 12px 0;
+    padding: 20px 24px;
+    margin: 24px 0;
+    font-size: 14px;
+  }
+  .callout strong { color: var(--primary); }
+  .callout-blue {
+    background: linear-gradient(135deg, rgba(26,115,232,0.08), rgba(108,99,255,0.06));
+    border-left: 4px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    padding: 20px 24px;
+    margin: 24px 0;
+    font-size: 14px;
+  }
+  .callout-blue strong { color: var(--accent); }
+
+  /* Tool logos */
+  .tool-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .tool-chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tool-chip .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+
+  /* CTA */
+  .cta {
+    text-align: center;
+    padding: 60px 24px 80px;
+    background: linear-gradient(0deg, #1a0a2e 0%, var(--bg-dark) 100%);
+  }
+  .cta h2 { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+  .cta p { color: var(--text-muted); max-width: 600px; margin: 0 auto 30px; }
+  .cta-btn {
+    display: inline-block;
+    background: var(--gradient);
+    color: #fff;
+    padding: 14px 40px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,106,0,0.3); }
+  .cta-secondary {
+    display: inline-block;
+    color: var(--primary);
+    padding: 14px 30px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 16px;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,106,0,0.2), transparent);
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .source { font-size: 11px; color: var(--text-muted); opacity: 0.7; margin-top: 6px; }
+  .footer {
+    text-align: center;
+    padding: 30px;
+    font-size: 12px;
+    color: var(--text-muted);
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 32px; }
+    .hero-stats { gap: 24px; }
+    .hero-stat .num { font-size: 28px; }
+    .section { padding: 40px 16px; }
+    .winback-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="badge">ALIBABA CLOUD · BAILIAN · AGENT ERA FLAGSHIP</div>
+    <h1>Qwen3.7-Max</h1>
+    <p class="subtitle">The Agent Frontier — 面向智能体时代打造的旗舰模型<br>亚太第一 · Arena 国产模型榜首 · Agent 优先设计</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num">#1</div>
+        <div class="label">亚太国产模型<br>综合智能榜首</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">69.7</div>
+        <div class="label">Terminal-Bench 2.0<br>Agentic Coding 全球领先</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">35h</div>
+        <div class="label">长时自主执行<br>1,158 次工具调用</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">1M</div>
+        <div class="label">Token 上下文<br>≈ 1,500 页文本</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 定位 ==================== -->
+<section class="section">
+  <h2 class="section-title">模型定位：The Agent Frontier</h2>
+  <p class="section-subtitle">不是通用聊天模型的升级版——而是从底层架构为 Agentic 执行重新设计的新一代</p>
+
+  <div class="callout-blue">
+    <strong>为什么叫 "The Agent Frontier"？</strong> Qwen 官方将 Qwen3.7-Max 定义为 "The Agent Frontier"——专为长时自主执行、跨框架通用、海量工具调用场景从底层架构重新设计的旗舰模型。传统大模型为"问答"优化，Agent 场景需要的是"能干活更久"。这标志着大模型竞争从智能比拼进入执行力比拼。
+  </div>
+
+  <div class="adv-grid">
+    <div class="adv-card">
+      <div class="icon" style="background:rgba(255,106,0,0.12)">🏆</div>
+      <h3>亚太第一</h3>
+      <p>Artificial Analysis Intelligence Index 综合评分 57，全球 218 个模型中国产模型排名第一。Arena 盲测榜国产 #1，超越 GLM-5.1、DeepSeek-V4-Pro、Kimi-K2.6。</p>
+      <span class="metric">AA Index 57 · 国产 #1</span>
+    </div>
+    <div class="adv-card">
+      <div class="icon" style="background:rgba(66,133,244,0.12)">🤖</div>
+      <h3>Agent 优先设计</h3>
+      <p>跨 Harness 通用：Claude Code、OpenClaw、Qwen Code、自定义 tool-use 框架均表现一致。35 小时自主编码已验证。不是"适配 Agent"，而是"为 Agent 而生"。</p>
+      <span class="metric">跨框架一致性 · 长时执行验证</span>
+    </div>
+    <div class="adv-card">
+      <div class="icon" style="background:rgba(52,168,83,0.12)">🧮</div>
+      <h3>数学推理断层领先</h3>
+      <p>HMMT 97.1%、IMO Answer Bench 90.0（超 Opus 4.6 达 +14.7）、Apex 44.5（+10）。数学推理全球最强，适用于金融建模、量化分析、科研推理。</p>
+      <span class="metric">IMO 90.0 · HMMT 97.1%</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==================== 两大主推场景 ==================== -->
+<section class="section">
+  <h2 class="section-title">两大主推场景</h2>
+  <p class="section-subtitle">Qwen3.7-Max 的核心战场：Agentic Coding + Agent 平台</p>
+
+  <div class="winback-grid">
+    <div class="winback-card">
+      <span class="vs-badge">场景一：Agentic Coding</span>
+      <h3>AI Coding 工具的最佳底座模型</h3>
+      <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">Terminal-Bench 2.0 得分 69.7 全球领先，SWE-bench Pro 60.6 超越 Opus 4.6。已验证可在主流 AI Coding 工具中无缝替换底层模型。</p>
+      <div class="tool-strip">
+        <div class="tool-chip"><span class="dot" style="background:var(--green)"></span>Claude Code</div>
+        <div class="tool-chip"><span class="dot" style="background:var(--blue)"></span>CodeBuddy</div>
+        <div class="tool-chip"><span class="dot" style="background:var(--primary)"></span>Trae CN</div>
+        <div class="tool-chip"><span class="dot" style="background:#9C27B0"></span>Qwen Code</div>
+        <div class="tool-chip"><span class="dot" style="background:var(--gold)"></span>OpenClaw</div>
+      </div>
+      <div class="callout" style="margin-top:16px;margin-bottom:0">
+        <strong>客户价值：</strong>在 Claude Code / Trae CN 等工具中，只需更改 2 个环境变量（base_url + api_key），即可将底层模型替换为 Qwen3.7-Max，Agent 体验不变，成本大幅下降。
+      </div>
+    </div>
+
+    <div class="winback-card">
+      <span class="vs-badge">场景二：Agent 应用平台</span>
+      <h3>企业级 Agent 平台的旗舰推理引擎</h3>
+      <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">1M 上下文 + 65K 最大输出 + 长时自主执行，专为需要数百步工具调用的 Agent 平台设计。</p>
+      <div class="tool-strip">
+        <div class="tool-chip"><span class="dot" style="background:var(--green)"></span>QoderWork</div>
+        <div class="tool-chip"><span class="dot" style="background:var(--blue)"></span>OpenClaw</div>
+        <div class="tool-chip"><span class="dot" style="background:var(--primary)"></span>Hermes</div>
+        <div class="tool-chip"><span class="dot" style="background:#9C27B0"></span>MCP 协议</div>
+        <div class="tool-chip"><span class="dot" style="background:var(--gold)"></span>百炼 Agent 编排</div>
+      </div>
+      <div class="callout" style="margin-top:16px;margin-bottom:0">
+        <strong>客户价值：</strong>MCP-Mark 评测 60.8（超 Opus 4.6 的 56.7），τ²-Bench Agent 工具调用评测表现优异。Agent 平台客户可获得更强的工具调用准确性 + 更低的单次调用成本。
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==================== Winback 对比 ==================== -->
+<section class="section">
+  <h2 class="section-title">Winback 竞品对比</h2>
+  <p class="section-subtitle">Qwen3.7-Max vs GLM-5.1 / DeepSeek-V4-Pro：能力全面超越，为什么客户该换回来</p>
+
+  <div class="winback-grid">
+    <div class="winback-card">
+      <span class="vs-badge">WINBACK ① GLM-5.1（智谱）</span>
+      <h3>Qwen3.7-Max vs GLM-5.1</h3>
+      <div class="winback-item"><span class="label">Terminal-Bench 2.0</span><span class="qwen">69.7 🏆</span><span class="comp">63.5</span></div>
+      <div class="winback-item"><span class="label">SWE-bench Pro</span><span class="qwen">60.6 🏆</span><span class="comp">—</span></div>
+      <div class="winback-item"><span class="label">HMMT 2026</span><span class="qwen">97.1% 🏆</span><span class="comp">—</span></div>
+      <div class="winback-item"><span class="label">MCP-Mark（Agent）</span><span class="qwen">60.8 🏆</span><span class="comp">—</span></div>
+      <div class="winback-item"><span class="label">上下文窗口</span><span class="qwen">1M 🏆</span><span class="comp">128K</span></div>
+      <div class="winback-item"><span class="label">长时自主执行</span><span class="qwen">35h 已验证 🏆</span><span class="comp">无公开数据</span></div>
+      <div class="winback-item"><span class="label">输入定价</span><span class="lose">¥12/M</span><span class="win">¥6/M 🏆</span></div>
+      <div class="winback-item"><span class="label">输出定价</span><span class="lose">¥36/M</span><span class="win">¥24/M 🏆</span></div>
+      <div class="winback-item"><span class="label">百炼平台集成</span><span class="qwen">原生支持 🏆</span><span class="comp">即将接入</span></div>
+      <div class="callout" style="margin-top:16px;margin-bottom:0">
+        <strong>Winback 话术：</strong>GLM-5.1 单价确实便宜（输入 ¥6 vs Qwen ¥12），但 Agent 场景核心看<strong>上下文窗口</strong>和<strong>任务完成率</strong>。GLM 只有 128K 上下文，Agent 跑几十步工具调用后上下文打满，模型被迫丢失关键信息，任务失败重来。Qwen 1M 上下文是 GLM 的 8 倍，Terminal-Bench 高 6.2 分，35h 长时执行不断档。一次任务成功 vs 三次失败重试，综合成本谁更低？
+      </div>
+    </div>
+
+    <div class="winback-card">
+      <span class="vs-badge">WINBACK ② DeepSeek-V4-Pro</span>
+      <h3>Qwen3.7-Max vs DeepSeek-V4-Pro</h3>
+      <div class="winback-item"><span class="label">AA Intelligence Index</span><span class="qwen">57（国产 #1）🏆</span><span class="comp">52</span></div>
+      <div class="winback-item"><span class="label">Terminal-Bench 2.0</span><span class="qwen">69.7 🏆</span><span class="comp">—</span></div>
+      <div class="winback-item"><span class="label">SWE-bench Pro</span><span class="qwen">60.6 🏆</span><span class="comp">—</span></div>
+      <div class="winback-item"><span class="label">IMO Answer Bench</span><span class="qwen">90.0 🏆</span><span class="comp">—</span></div>
+      <div class="winback-item"><span class="label">长时自主执行</span><span class="qwen">35h 🏆</span><span class="comp">无公开数据</span></div>
+      <div class="winback-item"><span class="label">跨 Harness 通用性</span><span class="qwen">CC/OpenClaw/Qwen Code 🏆</span><span class="comp">有限</span></div>
+      <div class="winback-item"><span class="label">上下文窗口</span><span class="tie">1M</span><span class="tie">1M</span></div>
+      <div class="winback-item"><span class="label">输入定价</span><span class="comp">¥12/M</span><span class="qwen" style="color:var(--red)">¥3/M 🏆</span></div>
+      <div class="callout" style="margin-top:16px;margin-bottom:0">
+        <strong>Winback 话术：</strong>DeepSeek-V4-Pro 输入价格确实只有 ¥3/M，是 Qwen 的 1/4。但 Agent 场景不是按 token 算账——是按"任务完成率"算账。Qwen 的 Terminal-Bench 高 5+ 分、35h 长时执行不断档、跨 Harness 通用——一个 Agent 任务用 DS-V4-Pro 跑 3 轮才完成，Qwen 1 轮搞定，<strong>综合成本反而更低</strong>。
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==================== 定价 ==================== -->
+<section class="section">
+  <h2 class="section-title">定价与成本分析</h2>
+  <p class="section-subtitle">正面回应价格差异——帮客户算"任务完成率"的账，而不是"单价"的账</p>
+
+  <div class="price-grid">
+    <div class="price-card highlight">
+      <div class="model">Qwen3.7-Max</div>
+      <div class="price" style="color:var(--primary)">¥12<span class="unit"> /M 输入</span></div>
+      <div class="price" style="color:var(--primary)">¥36<span class="unit"> /M 输出</span></div>
+      <div class="detail">5折活动: ¥6 / ¥18</div>
+      <div class="detail">缓存命中 ¥0.6/M（5折后）</div>
+      <div class="detail">新用户赠 100 万 Tokens</div>
+    </div>
+    <div class="price-card">
+      <div class="model">DeepSeek-V4-Pro</div>
+      <div class="price">¥3<span class="unit"> /M 输入</span></div>
+      <div class="price">¥6<span class="unit"> /M 输出</span></div>
+      <div class="detail">缓存命中 ¥0.025/M</div>
+      <div class="detail">百炼平台同价可售</div>
+      <span class="warn">输入便宜 4×</span>
+    </div>
+    <div class="price-card">
+      <div class="model">GLM-5.1</div>
+      <div class="price">¥6<span class="unit"> /M 输入</span></div>
+      <div class="price">¥24<span class="unit"> /M 输出</span></div>
+      <div class="detail">缓存命中 ~¥3.4/M（$0.475）</div>
+      <div class="detail">智谱开放平台 · 百炼即将接入</div>
+      <span class="warn">上下文 128K 仅 Qwen 1/8</span>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:28px">
+    <strong>核心销售逻辑——"单价贵 4 倍，但任务完成率高 2-3 倍"</strong><br><br>
+    Agent 场景下，客户真正关心的是<strong>每个任务的成本</strong>，不是每 token 的成本。<br><br>
+    <strong>算账示例：</strong>一个 Agentic Coding 任务（修一个 GitHub Issue）：<br>
+    • DeepSeek-V4-Pro：需 3 轮迭代完成，每轮消耗 ~50K tokens → 总计 ~150K tokens × ¥3/M = <strong>¥0.45</strong>，但因能力不足可能需要人工介入 2 次（按 10min × ¥5 = ¥50 人力成本）<br>
+    • Qwen3.7-Max：1 轮即完成，消耗 ~80K tokens × ¥12/M = <strong>¥0.96</strong>，无需人工介入<br><br>
+    <strong>token 成本差 ¥0.51，但人力成本省 ¥100+。对于日均 50 个 Agent 任务的企业，月度节省超 ¥75,000。</strong><br><br>
+    另外 Qwen3.7-Max 5 折期间输入仅 ¥6/M，综合成本差距进一步收窄。
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==================== Benchmark 对比 ==================== -->
+<section class="section">
+  <h2 class="section-title">Benchmark 全面对比</h2>
+  <p class="section-subtitle">Qwen3.7-Max vs GLM-5.1 / DeepSeek-V4-Pro / Claude Opus 4.6</p>
+
+  <table class="bench-table">
+    <thead>
+      <tr>
+        <th>评测维度</th>
+        <th>Qwen3.7-Max</th>
+        <th>GLM-5.1</th>
+        <th>DeepSeek-V4-Pro</th>
+        <th>Opus 4.6</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>AA Intelligence Index</td>
+        <td class="win">57 — 国产 #1 <span class="crown">🏆</span></td>
+        <td class="lose">—</td>
+        <td class="lose">52</td>
+        <td class="tie">57</td>
+      </tr>
+      <tr>
+        <td>Terminal-Bench 2.0</td>
+        <td class="win">69.7 <span class="crown">🏆</span></td>
+        <td class="lose">63.5</td>
+        <td class="lose">—</td>
+        <td class="lose">65.4</td>
+      </tr>
+      <tr>
+        <td>SWE-bench Verified</td>
+        <td class="tie">80.4</td>
+        <td class="lose">—</td>
+        <td class="lose">—</td>
+        <td class="tie">80.8</td>
+      </tr>
+      <tr>
+        <td>SWE-bench Pro</td>
+        <td class="win">60.6 <span class="crown">🏆</span></td>
+        <td class="lose">—</td>
+        <td class="lose">—</td>
+        <td class="lose">57.3</td>
+      </tr>
+      <tr>
+        <td>HMMT 2026（数学）</td>
+        <td class="win">97.1% <span class="crown">🏆</span></td>
+        <td class="lose">—</td>
+        <td class="lose">—</td>
+        <td class="lose">96.2%</td>
+      </tr>
+      <tr>
+        <td>IMO Answer Bench</td>
+        <td class="win">90.0 <span class="crown">🏆</span></td>
+        <td class="lose">—</td>
+        <td class="lose">—</td>
+        <td class="lose">75.3</td>
+      </tr>
+      <tr>
+        <td>MCP-Mark（Agent）</td>
+        <td class="win">60.8 <span class="crown">🏆</span></td>
+        <td class="lose">—</td>
+        <td class="lose">—</td>
+        <td class="lose">56.7</td>
+      </tr>
+      <tr>
+        <td>HLE（人类终极考试）</td>
+        <td class="win">41.4 <span class="crown">🏆</span></td>
+        <td class="lose">—</td>
+        <td class="lose">—</td>
+        <td class="lose">40.0</td>
+      </tr>
+      <tr>
+        <td>MRCR-v2 128K（长上下文）</td>
+        <td class="win">90.4 <span class="crown">🏆</span></td>
+        <td class="lose">—</td>
+        <td class="lose">—</td>
+        <td class="lose">84.0</td>
+      </tr>
+      <tr>
+        <td>WMT24++（多语言）</td>
+        <td class="win">85.8 <span class="crown">🏆</span></td>
+        <td class="lose">—</td>
+        <td class="lose">—</td>
+        <td class="lose">82.7</td>
+      </tr>
+      <tr>
+        <td>上下文窗口</td>
+        <td class="win">1M tokens <span class="crown">🏆</span></td>
+        <td class="lose">128K</td>
+        <td class="tie">1M</td>
+        <td class="tie">1M</td>
+      </tr>
+      <tr>
+        <td>长时自主执行</td>
+        <td class="win">35h / 1,158 calls <span class="crown">🏆</span></td>
+        <td class="lose">无公开数据</td>
+        <td class="lose">无公开数据</td>
+        <td class="lose">无公开数据</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="source" style="margin-top:12px">来源：Qwen 官方博客（2026.05.19）、DataLearner 模型对比、Artificial Analysis Intelligence Index</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==================== FAQ ==================== -->
+<section class="section">
+  <h2 class="section-title">FAQ 销售实战话术</h2>
+  <p class="section-subtitle">一线销售最常遇到的 5 个问题</p>
+
+  <div class="faq-item">
+    <h3>Q：DeepSeek-V4-Pro 只要 3 元/M 输入，你们 12 元太贵了？</h3>
+    <p>A：<strong>理解，价格是 4 倍，但价值是 2-3 倍。</strong>Agent 场景不比单价，比任务完成率。Qwen3.7-Max 的 Terminal-Bench 2.0 是国产模型最高（69.7），35 小时长时执行已实测。DeepSeek-V4-Pro 没有公开的 Agent 长时运行数据。一个简单的算账：如果一个 Agent 任务用 DS 需要 3 轮 + 2 次人工介入，用 Qwen 1 轮搞定无人介入，Qwen 的综合成本反而更低。<br><br>另外，5 折活动期间 Qwen3.7-Max 输入仅 ¥6/M，差距已收窄至 2 倍。缓存命中更是低至 ¥0.6/M。</p>
+  </div>
+
+  <div class="faq-item">
+    <h3>Q：我们在用 GLM-5.1，为什么要换？</h3>
+    <p>A：<strong>单价便宜，但 Agent 场景不等于单价便宜就能用。</strong>① 上下文窗口：GLM-5.1 只有 128K，Qwen 是 1M——Agent 场景下 128K 很快打满，模型被迫丢失上下文，任务失败率飙升。② Terminal-Bench 2.0：Qwen 69.7 vs GLM 63.5，Agentic Coding 能力高 6.2 分。③ 长时执行：Qwen 35h 自主执行已实测，GLM-5.1 无公开 Agent 长时运行数据。④ GLM 输入 ¥6 确实只有 Qwen ¥12 的一半，但一个 Agent 任务 GLM 因为上下文不足可能失败 2-3 次，Qwen 1 次搞定，总账算下来 Qwen 反而更省。</p>
+  </div>
+
+  <div class="faq-item">
+    <h3>Q：我们已经在用 Claude Code 接 Opus 了，为什么要切 Qwen？</h3>
+    <p>A：<strong>零迁移成本，成本直降 60%+。</strong>Qwen3.7-Max 兼容 Anthropic API 协议，Claude Code 里只需改 ANTHROPIC_BASE_URL 和 AUTH_TOKEN 两个环境变量，代码零改动。Terminal-Bench 69.7 超 Opus 4.6 的 65.4，SWE-bench Pro 60.6 超 57.3。能力更强，价格更低——百炼 ¥12/M vs Anthropic $6.25/M（≈ ¥45/M），输入成本不到 1/3。</p>
+  </div>
+
+  <div class="faq-item">
+    <h3>Q：Qwen3.7-Max 输出冗长，会不会反而更贵？</h3>
+    <p>A：<strong>好问题，确实需要注意。</strong>评测中 Qwen 生成量是中位数的 4 倍。建议：① prompt 中显式约束输出长度；② 善用缓存（¥0.6/M，命中率极高）；③ 对不需深度推理的轻量场景，搭配 Qwen3.6-Flash 使用。即便如此，单价优势仍在——GPT-5.5 输出 ¥30/M（≈ ¥216/M），是 Qwen ¥36/M 的 6 倍。</p>
+  </div>
+
+  <div class="faq-item">
+    <h3>Q：Qwen3.7-Max 怎么快速接入？</h3>
+    <p>A：<strong>三步 5 分钟搞定。</strong>① 开通百炼平台，获取 DashScope API Key；② 在你的 AI Coding 工具（CC/Trae CN/CodeBuddy）或 Agent 平台（QoderWork/OpenClaw/Hermes）中，将 base_url 改为百炼地址、API Key 替换为 DashScope Key；③ 测试跑通。兼容 OpenAI 和 Anthropic 双协议，现有代码零改动。新用户赠送 100 万 tokens 免费体验。</p>
+  </div>
+</section>
+
+<!-- ==================== CTA ==================== -->
+<section class="cta">
+  <h2>5 分钟接入 Qwen3.7-Max</h2>
+  <p>百炼平台一键开通 · OpenAI / Anthropic 双协议兼容 · 新用户赠 100 万 Tokens</p>
+  <a href="https://bailian.console.alibabacloud.com" class="cta-btn" target="_blank">开通 Model Studio →</a>
+  <a href="https://www.alibabacloud.com/help/en/model-studio/" class="cta-secondary" target="_blank">查看 API 文档</a>
+</section>
+
+<!-- ==================== Footer ==================== -->
+<div class="footer">
+  <p>© 2026 Alibaba Cloud · 百炼平台 · 仅供内部销售参考</p>
+  <p style="margin-top:6px">数据来源：Qwen 官方博客、Artificial Analysis、DataLearner、阿里云开发者社区 · 更新至 2026-05-31</p>
+  <p style="margin-top:6px">⚠️ 部分 benchmark 为 vendor-published，建议以实际业务验证为准。定价/能力可能随时更新。</p>
+</div>
+
+</body>
+</html>
