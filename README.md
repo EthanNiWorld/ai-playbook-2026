@@ -74,7 +74,7 @@ mindmap
         AI Infra: GPU选型 / 灵骏 / ECS GPU
         AI Platform: PAI
       AWS
-        MaaS: Bedrock(Claude/Titan)
+        MaaS: Bedrock Claude/Titan
         AI Coding: Kiro / Q Developer
         AI Infra: Trainium / Inferentia
       GCP
@@ -87,13 +87,13 @@ mindmap
         AI Coding: Claude Code
         AI App: Managed Agents / Teams
       MiniMax
-        M3(旗舰) / M2.7 / Agent Team
+        M3 旗舰 / M2.7 / Agent Team
       DeepSeek
-        V4(对话) / R1(推理)
+        V4 对话 / R1 推理
       OpenAI
         GPT-5.5 / GPT-5.4 / GPT-5.3-Codex
       智谱
-        GLM-5.1(旗舰) / GLM-5
+        GLM-5.1 旗舰 / GLM-5
     线:竞品对比
       Qoder vs Kiro
       Qoder vs Trae
