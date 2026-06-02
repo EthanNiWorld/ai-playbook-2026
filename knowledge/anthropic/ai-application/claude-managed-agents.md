@@ -10,7 +10,7 @@
 **适用**: 需要顶级模型能力、gVisor 级沙箱安全、不可变审计日志、纯公网 SaaS 的 AI Agent 场景
 **不适用**: 需要内网部署、企业 SSO/RBAC、IM 集成（钉钉/企微/飞书）、私有化部署的中国企业场景
 **竞品**: JVS Crew（阿里云）、Copilot Studio（Microsoft）
-**常搭配**: Claude API（claude-opus-4.5 / sonnet / haiku）
+**常搭配**: Claude API（claude-opus-4.8 / sonnet-4.6 / haiku-4）
 <!-- SUMMARY_END -->
 
 ## 产品原理解析
@@ -42,7 +42,7 @@ Anthropic 推出的云端全托管 AI Agent 平台，核心架构为推理与执
 | 维度 | 详情 |
 |------|------|
 | **架构** | 推理与执行解耦，四大模块 |
-| **模型** | 仅 Claude 系列（claude-opus-4.5 / sonnet / haiku） |
+| **模型** | 仅 Claude 系列（claude-opus-4.8 / sonnet-4.6 / haiku-4） |
 | **触发** | 多种触发模式（API 调用、定时、事件等） |
 | **调试** | 控制台 + SDK + CLI |
 | **监控** | 会话日志 |

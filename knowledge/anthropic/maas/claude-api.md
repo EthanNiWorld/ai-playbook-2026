@@ -1,6 +1,6 @@
 # Anthropic Claude 模型
 
-> 最后更新: 2026-05-28
+> 最后更新: 2026-06-03
 > 所属厂商: Anthropic
 > 产品类别: MaaS
 > 状态: Published
@@ -35,6 +35,10 @@
   5. **effort 控制**：用户可调节 default / extra / max 三档推理深度，更高的 effort 等级可进一步改善质量
   6. **Fast mode 降价 3 倍**：$10/$50 per 1M tokens，速度 2.5×，仅为旧版 fast mode 的 1/3 价格
   7. **对齐水平达 Mythos 级**：首次在公开可用模型中达到 Mythos Preview 级别的对齐指标，Anthropic 预计数周内推 Mythos 级正式模型
+  8. **Agentic 判断领先**：Online-Mind2Web（浏览器 Agent 基准）84%，超越 4.7 和 GPT-5.5
+  9. **Tool calling 更高效**：用更少步骤完成相同任务；修复 4.7 的 comment-verbosity 过高和 tool-calling 一致性问题
+  10. **法律 Agent 突破**：Legal Agent Benchmark 历史最高分，首个 all-pass 标准突破 10%
+  11. **Messages API 系统条目**：开发者可在 messages 数组中插入 system entries，运行时更新指令而不破坏 prompt cache
 
 #### 编程基准对比
 
@@ -46,8 +50,21 @@
 | HLE（带工具） | **57.9%** | 54.7% | 52.2% | 51.4% |
 | OSWorld-Verified | **83.4%** | 82.8% | 78.7% | 76.2% |
 | GDPval-AA | **1,890** | 1,753 | 1,769 | 1,314 |
+| Online-Mind2Web | **84%** | — | <84% | — |
 
 > 注：Terminal-Bench 对测试 harness 敏感。GPT-5.5 在 OpenAI 自有 Codex CLI 上得分 83.4%，但在公共 Terminus-2 harness 上为 78.2%。Opus 4.8 在同条件 Terminus-2 下 74.6%，对比 Gemini 3.1 Pro 的 70.3%。
+
+#### 42 天快速迭代与版本策略
+
+距上代 Opus 4.7（2026-04-16）仅 **42 天**，为 Anthropic 历史上最短 Opus 迭代间隔（此前约 70-75 天）。
+
+**迭代动因**：
+1. **修复 4.7 短板**：社区反馈 comment-verbosity 过高、tool-calling 不一致
+2. **诚实性是 Agent 规模化前提**：4× 诚实性提升解锁大规模 Agent 部署
+3. **竞争节奏加快**：GPT-5.5、Gemini 3.5 Pro/Flash 同期活跃
+4. **为 Mythos 铺路**：在 Mythos 大规模开放前稳住旗舰位置
+
+**版本发布策略**：Opus 先行 → Sonnet 1-4 周跟进 → Haiku 跳跃式更新（非每版本都跟）。
 
 ### Claude Opus 4.7
 
@@ -89,8 +106,8 @@
 | **高精度推理** | Constitutional AI 安全对齐，强调输出安全性与无害性 |
 | **长上下文** | 1M tokens（无长上下文附加费） | 标准 API 价格，无额外费用 |
 | **代码生成** | Opus 4.8 SWE-Bench Pro 69.2%，Verified 88.6%，编程能力断层领先 |
-| **多模态** | Opus 4.7 视觉能力提升 3 倍 |
-| **Agent 能力** | Claude Code 编程 Agent，支持动态工作流（parallel subagents）、effort 调参 |
+| **多模态** | Opus 4.8 继承并增强视觉能力，支持图片、视频等多模态输入 |
+| **Agent 能力** | Claude Code 编程 Agent，支持动态工作流（parallel subagents）、effort 调参、Online-Mind2Web 84%（浏览器 Agent 基准 SOTA） |
 
 ### 核心限制
 
@@ -106,10 +123,10 @@
 
 | 场景 | 推荐模型 | 说明 |
 |------|----------|------|
-| 最高精度推理 | Opus 4.7 | xhigh 推理等级，视觉3×提升 |
+| 最高精度推理 | Opus 4.8 | SWE-Bench Pro 69.2%，effort 控制，编程+推理 SOTA |
 | 均衡性价比 | Sonnet 4.6 | 编程/推理均衡 |
 | 极速响应 | Haiku 4 | 编程能力显著提升，极速 |
-| 企业级 Agent | Opus 4.7 / Sonnet 4.6 | Task Budgets 支持 |
+| 企业级 Agent | Opus 4.8 / Sonnet 4.6 | Dynamic Workflows、Task Budgets、Agentic 判断 84% |
 
 ### ❌ 不适用
 
@@ -147,13 +164,17 @@ Opus 4.8 发布后，Anthropic 与 Google 在 AI Coding 核心基准上的差距
 
 ## 参考资料
 
-- [Anthropic 官方新闻](https://www.anthropic.com/news/claude-opus-4-7)
+- [Anthropic 官方博客 — Claude Opus 4.8](https://www.anthropic.com/news/claude-opus-4-8)
+- [Anthropic 官方博客 — Claude Opus 4.7](https://www.anthropic.com/news/claude-opus-4-7)
+- [TechCrunch: Anthropic releases Opus 4.8 with new dynamic workflow tool](https://techcrunch.com/2026/05/28/anthropic-releases-opus-4-8-with-new-dynamic-workflow-tool/)
 - [Anthropic API 文档](https://docs.anthropic.com)
 - [Claude API Platform](https://console.anthropic.com)
+- [Claude Model Release Timeline（独立整理）](https://hidekazu-konishi.com/entry/anthropic_claude_model_release_timeline.html)
 
 ## Changelog
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-06-03 | 合并 ai-native-expert 素材：新增 Agentic 基准（Online-Mind2Web 84%）、Legal Agent Benchmark、Tool calling 改进、Messages API 系统条目、42 天迭代策略分析 |
 | 2026-05-31 | 更新 Opus 4.8（2026.05.28 发布），包含关键基准（SWE-Bench Pro 69.2%等）、诚实度4×提升、fast mode降价、与Gemini 3.1 Pro竞品对比 |
 | 2026-05-28 | 新建文档，首次提炼 Claude Opus 4.7 系列信息 |

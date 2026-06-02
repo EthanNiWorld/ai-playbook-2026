@@ -31,8 +31,8 @@
 - **场景**：Agentic Coding、长程 Agent 任务、论文复现、CUDA 算子优化、自主训模型
 - **特点**：
   1. **MSA 稀疏注意力**：100 万上下文下每 token 计算量仅为上代 1/20，Prefill 加速 9.7x，Decode 加速 15.6x，比 Flash-Sparse-Attention/flash-moba 快 4 倍以上 [来源: minimaxi.com/blog/minimax-m3]
-  2. **前沿 Coding/Agent**：SWE-Bench Pro 59.0%（> GPT-5.5, > Gemini 3.1 Pro，接近 Opus 4.7）、Terminal Bench 2.1 66.0%、MCP Atlas 74.2%、Claw-Eval 全模型 #1 [来源: minimaxi.com/blog/minimax-m3]
-  3. **原生多模态**：OmniDocBench 超过 Gemini 3.1 Pro、SVG-Bench 超过 Opus 4.7 [来源: minimaxi.com/blog/minimax-m3]
+  2. **前沿 Coding/Agent**：SWE-Bench Pro 59.0%（> GPT-5.5, > Gemini 3.1 Pro，低于 Opus 4.8 的 69.2% [来源：ai-native-expert 2026-06-02]）、Terminal Bench 2.1 66.0%、MCP Atlas 74.2%、Claw-Eval 全模型 #1 [来源: minimaxi.com/blog/minimax-m3]
+  3. **原生多模态**：OmniDocBench 超过 Gemini 3.1 Pro、SVG-Bench 超过 Opus 4.8 [来源: minimaxi.com/blog/minimax-m3]
   4. **长程自主能力**：自主运行 12h 复现 ICLR 获奖论文（18 次 commit + 23 张图表）、24h CUDA 算子优化（9.4x 加速）、12h 自主训模型（PostTrainBench 0.37） [来源: minimaxi.com/blog/minimax-m3]
   5. **定价（分两档）**：≤512K 输入 ¥4.2/M 输出 ¥16.8/M；512K–1M 输入 ¥8.4/M 输出 ¥33.6/M [来源: finance.sina.com.cn]
   6. **Token Plan**：Plus ¥49/月（6 亿 token）、Max ¥119/月（18 亿）、Ultra ¥469/月（55 亿），约 Claude 订阅 15 倍用量 [来源: minimaxi.com/blog/minimax-m3]
@@ -125,11 +125,11 @@
 | **MiniMax-M3** | ¥4.2/M tokens | ¥16.8/M tokens | ≤512K [来源: finance.sina.com.cn] |
 | **MiniMax-M3** | ¥8.4/M tokens | ¥33.6/M tokens | 512K–1M [来源: finance.sina.com.cn] |
 | **MiniMax-M2.7** | $1.00/M tokens | $5.00/M tokens | — |
-| Claude Opus 4.6 | $15.00/M tokens | $75.00/M tokens | — |
-| GPT-5 | $10.00/M tokens | $30.00/M tokens | — |
+| Claude Opus 4.8 | $5.00/M tokens | $25.00/M tokens | — |
+| GPT-5.5 | $7.50/M tokens | $22.50/M tokens | — |
 
 > M3 有限时 7 天 5 折活动。支持 thinking / non-thinking 两种模式，共享定价。[来源: minimaxi.com/blog/minimax-m3]
-> M2.7 价格约为 Claude Opus 4.6 的 **1/15**，性价比极高。
+> M3（¥4.2）价格约为 Claude Opus 4.8（$5 ≈ ¥36）的 **约 1/8**，M2.7 时代相对 Opus 4.6 为 1/15。
 
 ## 市场表现
 

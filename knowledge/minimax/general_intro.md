@@ -79,8 +79,8 @@ MiniMax（中文名稀宇科技）是一家总部位于上海的多模态通用�
 | **abab7-Preview** | 2024 年底 [⚠️ 待验证] | 万亿级参数 MoE [⚠️ 待验证]，作为 M 系列前身 |
 | **MiniMax-M1** | 2025 年中 | 全球首个**开源、大规模混合注意力（Hybrid Attention）推理模型**，登顶 Artificial Analysis 开源榜单[reference:8] |
 | **MiniMax-M2** | 2025 年下半年 | 面向 Agent 与代码场景，强化工具调用能力 |
-| **MiniMax-M2.7** | 2026 年 1 月 | MoE，总参 2300 亿 / 激活 100 亿，100 万 token 上下文，自我进化（模型自驱动训练）能力，benchmark 追平 GPT-5.3-Codex，OpenRouter 调用量一度超 Claude Opus 4.6 |
-| **MiniMax-M3**（即将）| 2026 年 | 应对 1–2 个数量级 Token 增长的下一代旗舰模型[reference:9] |
+| **MiniMax-M2.7** | 2026 年 1 月 | MoE，总参 2300 亿 / 激活 100 亿，100 万 token 上下文，自我进化能力，benchmark 追平 GPT-5.3-Codex |
+| **MiniMax-M3** | 2026.06.01 | MoE + MSA 稀疏注意力，1M 上下文，原生多模态，SWE-Bench Pro 59.0%，Claw-Eval #1，开源权重 |
 
 **视频 / 图像 / 音乐 / 语音模型（Hailuo 全模态）**
 
