@@ -14,6 +14,7 @@
 | 模型 | 定位 | 上下文 | 特点 |
 |------|------|--------|------|
 | **Qwen3.7-Max** | 旗舰 Agent | **1M tokens** | AA Intelligence Index 56.6–57（国产 #1），35小时自主运行，"The Agent Frontier" |
+| **Qwen3.7-Plus** | 多模态智能体 | **1M tokens** | 原生多模态（图/视频/屏幕）+ GUI/CLI Agent + 视觉编码，纯文本接近 Max |
 | Qwen3.6-Max-Preview | 旗舰推理 | 256K tokens | 综合智能指数 #2/201，深度推理能力极强，MoE 架构 |
 | Qwen3.6-Plus | 均衡型 | 1M tokens | Agentic Coding 接近 Claude Opus 4.5，支持多模态，性价比极高 |
 | Qwen3.6-Flash | 轻量 | 256K tokens | 速度快，成本低 |
@@ -48,6 +49,38 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 
 > 注：Qwen3.6-Max-Preview（2026.04，256K 上下文，AA Index 52，Preview 免费）仍可调用，但已被 Qwen3.7-Max 取代。
 
+### Qwen3.7-Plus
+
+- **模型**：Qwen3.7-Plus
+- **公司**：阿里云
+- **时间**：Preview 版 2026-05-19/20（阿里云峰会）；stable 快照 `qwen3.7-plus-2026-05-26`，2026-06-02 全量上线 [来源: https://qwen.ai/blog?id=qwen3.7-plus]
+- **尺寸**：约 35B 密集架构（preview 阶段 CSDN/网易转述，stable 版官方未公布）[⚠️ 待补充]
+- **上下文**：**1M tokens**（阶梯计价 0-256K / 256K-1M）[来源: https://help.aliyun.com/zh/model-studio/model-pricing]
+- **输入模态**：文本 + 单图/多图/视频 + 屏幕截图 [来源: https://qwen.ai/blog?id=qwen3.7-plus]
+- **场景**：多模态智能体（GUI + CLI 闭环）、视觉编码（图→SVG/网页/前端）、视觉推理、真实世界感知
+- **特点**：
+  - 多模态智能体：GUI/CLI 操作 + 视觉编码 + 跨框架部署（Claude Code / OpenClaw / Qwen Code）
+  - `preserve_thinking` 多轮思维保留
+  - 纯文本能力官方称"整体接近 Max 级别"
+  - **多模态/GUI 操作为 Qwen3.7 系列最强**
+- **定价**：¥2/¥8 per 1M input/output tokens（≤256K）；¥6/¥24（256K-1M）；思考与非思考同价 [来源: https://help.aliyun.com/zh/model-studio/model-pricing]
+  - Batch 调用 5 折；输入支持上下文缓存折扣（与 Batch 不可叠加）
+  - 推理后付费限时 8 折至 2026-07-02
+- **开源**：否，API 商用闭源（仅通过百炼提供）[来源: https://www.aihub.cn/ai-model/qwen3-7-plus/]
+- **Benchmark**：SWE-bench Verified ~68.7%；Arena 综合 1156（均为 preview 阶段第三方数据）[⚠️ stable 版待验证]
+
+> ⚠️ stable 版 benchmark 与精确参数官方尚未公布，建议关注 artificialanalysis.ai / LMSYS Arena 后续复测。
+
+**系列定位分工**：
+- **Qwen3.7-Max** = 文本 / Agentic Coding 旗舰（1M 全段无阶梯）
+- **Qwen3.7-Plus** = 多模态智能体（视觉 + 语言 + GUI/CLI + 视觉编码）
+- **Qwen3.6-Flash** = 低成本快速档（系列内未推 3.7-Flash，Flash 仍延用 3.6 代号）
+
+**竞争力要点**：
+- vs Qwen3.6-Plus（上一代）：输出价从 ¥12 降至 ¥8（-33%），256K-1M 输出从 ¥48 降至 ¥24（-50%），能力升级同时降价
+- vs Qwen3.7-Max：256K 内输入成本仅为 Max 的 1/6、输出约 1/4.5；Max 仅在 SWE-bench/复杂长链路 Agentic Coding 上明显占优
+- vs 海外同档（Claude Haiku 4 / GPT-4o-mini）：价位接近，但 Plus 独有 1M 上下文 + 多模态智能体组合
+
 ## 核心能力与限制
 
 ### 核心能力
@@ -57,7 +90,7 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 | **深度推理（Max）** | AA Intelligence Index 56.6–57（国产 #1），数学/科学推理全球领先 |
 | **Agentic Coding** | Terminal-Bench 2.0 69.7，SWE-Pro 60.6；35小时自主编码运行 |
 | **超长上下文** | 1M tokens 上下文窗口，处理大型代码仓库和长文档 |
-| **多模态理解（Plus）** | Qwen3.6-Plus 支持图像输入；Qwen3.7-Max 仅文本 |
+| **多模态智能体（Plus）** | Qwen3.7-Plus 支持图/视频/屏幕输入 + GUI/CLI Agent + 视觉编码；Qwen3.7-Max 仅文本 |
 | **数学能力** | HMMT 2026 97.1%、IMOAnswerBench 90.0%，竞赛数学断层领先 |
 | **多语言** | WMT24++ 85.8%，覆盖 55 种语言，多语言能力领先 |
 | **开源生态** | 多尺寸开源，社区活跃（3.7-Max 除外，为 API only） |

@@ -1,14 +1,15 @@
 # QoderWork
 
-> 最后更新: 2026-06-01
+> 最后更新: 2026-06-02
 > 所属厂商: 阿里云
 > 产品类别: AI App
 > 状态: Published
 
 <!-- SUMMARY_START -->
-**定位**: 桌面端通用智能体助手，将 Qoder 的 Agent 能力从代码领域扩展到日常工作场景
+**定位**: 桌面端通用智能体助手，Qoder IDE 生态衍生产品，将 Agent 能力从代码领域扩展到日常工作场景
 **适用**: 文档/表格/PPT 生成、本地文件整理、数据分析、照片管理
-**不适用**: 需要 7×24 持续运行的场景（用 MuleRun）、云端跨系统集成
+**不适用**: 需要 7×24 持续运行的场景（用 MuleRun）、云端跨系统集成、HTML 网站发布
+**数据主权**: QoderWork 本身不一定数据不出境；如需数据不出境须选择 **QoderWork CN** 版本
 **竞品**: Claude Cowork（Anthropic 桌面通用 Agent，Claude Code 能力扩展到日常办公，2026.01.12）[来源: anthropic.com/product/claude-cowork]
 **常搭配**: Qoder（Coding 生态）、MuleRun（云端场景互补）
 <!-- SUMMARY_END -->
@@ -50,13 +51,19 @@ QoderWork 是一款**桌面端智能工作助手**——通过自然语言对话
 | 文档创作 | 撰写报告、制作演示文稿、处理表格数据 |
 | 照片管理 | 按时间、地点、主题自动分类 |
 
-## 与 MuleRun 的定位对比
+## 与 MuleRun 的深度对比分析
 
-详见 [MuleRun 文档](mulerun.md#与-qoderwork-的定位对比)
+详见 [MuleRun 文档 — 深度对比分析](mulerun.md#与-qoderwork-的深度对比分析)
+
+**核心差异一句话**：QoderWork 是本地桌面方案（Qoder IDE 生态衍生），MuleRun 是云端方案（全球版数据出境，骡子快跑 = MuleRun CN 数据不出境）；QoderWork 如需数据不出境须选择 **QoderWork CN**。
+
+> ⚠️ 对比分析中含用户补充信息（HTML 发布/内置生图生视频/骡子快跑 CN 版关系等），已标注 ⚠️ 待官方验证。
 
 ## Changelog
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-06-02 | 深度对比分析重构：更新引用链接至增强版对比分析；标注用户补充信息待验证 |
+| 2026-06-02 | 增量更新：强化"Qoder IDE 生态衍生"定位；修正数据主权说明（QoderWork 本身不保证数据不出境，须选 QoderWork CN）；不适用场景新增 HTML 网站发布 |
 | 2026-06-01 | Draft→Published，补充核心能力、定价、场景（来源：ali-knowledge-miner 校验后入库） |
 | 2026-04-20 | 初始 Draft |

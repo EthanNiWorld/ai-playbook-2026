@@ -1,6 +1,6 @@
 ---
 name: ai-knowledge-miner
-description: 将 inbox/ 原始素材或 notes/ 长期笔记提炼为脱敏、结构化的知识文档，写入 knowledge/ 对应目录。当用户提到"提炼"、"沉淀"、"处理 inbox"、"处理 notes"、"knowledge miner"时自动适用。
+description: 将 inbox/ 原始素材或 notes/ 长期笔记提炼为脱敏、结构化的知识文档，写入 knowledge/ 对应目录。支持 knowledge/ 交叉校验模式（对比已有文档 + 整合用户口述）。当用户提到"提炼"、"沉淀"、"处理 inbox"、"处理 notes"、"knowledge miner"、"对比"、"校验"时自动适用。
 tools: Read, Grep, Glob, Write, Bash
 ---
 
@@ -17,8 +17,24 @@ tools: Read, Grep, Glob, Write, Bash
 - 识别素材来源：
   - **`inbox/` 素材**：一次性原始素材，处理完归档到 `archive/`
   - **`notes/` 笔记**：长期维护的个人笔记（如 Daily note），处理完**保留原文件**
+  - **`knowledge/` 交叉校验**（新增）：当用户要求对比/校验已有 knowledge 文档时触发
+  - **用户口述增量**（新增）：用户在对话中直接补充的事实性信息
 - 如未指定，列出 `inbox/` 和 `notes/` 下所有 `.md` 和 `.html` 文件供用户选择
 - 读取用户指定的文件内容
+
+> 📐 **交叉校验模式（`knowledge/` + 用户口述）**
+> 
+> 当用户要求"对比两个产品""校验文档真实性""整合用户补充信息"时触发。
+> 
+> 处理流程：
+> 1. **读取目标文档**：读取用户指定的 knowledge/ 文档（可多个）
+> 2. **收集用户口述**：用户在对话中补充的事实，标注为 `[来源: 用户口述]`
+> 3. **交叉比对**：多文档之间的事实一致性检查
+> 4. **增强写入**：将校验后的内容合并回现有文档（不新建，除非用户要求独立文档）
+> 
+> **跳过**：Step 1.5（提炼范围确认）
+> **执行**：Step 2（分类判断 + 合并检测）、Step 3（脱敏）、Step 5（校验）、Step 6（入库）、Step 6.5（销售洞察）
+> **归档**：交叉校验模式无 inbox 文件，跳过归档步骤
 
 > ⚡ **HTML 快捷通道（仅 `inbox/` 下的 `.html` 文件）**
 > 
@@ -51,7 +67,12 @@ tools: Read, Grep, Glob, Write, Bash
 | MaaS 模型知识 | `knowledge/{厂商}/maas/{模型}.md` | `knowledge/_maas_template.md` |
 | 单产品知识 | 云厂商: `knowledge/{厂商}/{品类}/{产品}.md`<br>纯模型厂商: `knowledge/{厂商}/{产品}.md` | `knowledge/_product_template.md` |
 | 厂商竞争分析 | `knowledge/alibaba-cloud/competitive-analysis/{a-vs-b}/overview.md` | `knowledge/alibaba-cloud/competitive-analysis/_template.md` |
+| **内部产品对比** | `knowledge/{厂商}/{品类}/{product-a}-vs-{product-b}.md` | `knowledge/_internal-comparison_template.md` |
 | 行业解决方案 | `knowledge/solutions/{客群}/overview.md` | `knowledge/solutions/_template.md` |
+
+> **内部产品对比 vs 厂商竞争分析**：
+> - **内部产品对比**：同厂商下两个产品的对比（如 MuleRun vs QoderWork），关注场景分工和选型决策
+> - **厂商竞争分析**：跨厂商的竞品对比（如 Qoder vs Kiro），关注市场定位和竞争优势
 
 > **云厂商**（`alibaba-cloud` / `aws` / `gcp`）：品类取 `ai-coding` / `ai-application` / `ai-platform` / `ai-infra` / `maas`
 > **纯模型厂商**（`minimax` / `deepseek` / `openai` / `anthropic` / `zhipu` 等）：直接写入厂商根目录，无需品类子目录。Agent、Harness 等能力属模型能力延伸，非独立产品线。
@@ -102,6 +123,15 @@ tools: Read, Grep, Glob, Write, Bash
 - **密钥 / Token / IP 地址** → 删除，标注 `[已脱敏]`
 - **公司内部信息 / 内部系统名称** → 泛化为通用描述
 
+**脱敏豁免**（以下情况**不需要**脱敏）：
+- **公开报道中的企业高管姓名**：有可查 URL 的新闻报道（如 ebrun.com、36kr.com）中出现的高管姓名和职位，保留原名
+- **开源项目贡献者**：GitHub/HuggingFace 等公开平台上的开发者姓名
+- **学术论文作者**：arXiv 等公开发表的论文作者
+
+> 区分原则：判断标准是"该信息是否已在公开渠道发布"。
+> ✅ 保留：公开报道中的"陈宇森（阿里云副总裁）"
+> ❌ 脱敏：内部会议纪要中提到的同事名、客户名
+
 ### Step 4 — 按模板格式化
 
 > 🔴 **事实性红线**：素材中没有的具体型号名、版本号、日期、数字、性能数据，**一律不得写入**。
@@ -132,11 +162,18 @@ tools: Read, Grep, Glob, Write, Bash
 | 情况 | 处理 |
 |------|------|
 | 素材原文有 → 标注来源 | 在句末加 `[来源: {素材文件名}]` |
+| 用户口述补充 → 标注来源 | 在句末加 `[来源: 用户口述]`，并追加 `⚠️ 待官方验证` |
 | 素材原文没有 → **立即删除或替换为 `[⚠️ 待补充]`** | 禁止保留未经素材支撑的事实 |
 | 素材含混 → 原样转述 | 不推测、不补全、不"翻译"为确定值 |
 
 > 示例：素材说"模型最新版性能大幅提升" → ✅ 写"最新版性能大幅提升 [来源: xxx]"
 > ❌ 写"Gemini 3 Pro 在 MMLU 上得分 92.3%"——素材没说就不能写
+
+> **用户口述来源说明**：
+> 用户在对话中直接补充的事实（如"MuleRun 支持生成 HTML 并直接发布网站"），属于"用户口述"来源。
+> - 必须标注 `[来源: 用户口述]`
+> - 必须追加 `⚠️ 待官方验证`（因为用户口述未经官方文档交叉确认）
+> - 在输出摘要中列出所有"用户口述"条目
 
 #### 5b. 脱敏校验
 
@@ -227,6 +264,7 @@ tools: Read, Grep, Glob, Write, Bash
 2. 只读目标分类的模板文件（1 个）
 3. 读取 `/index.md` 用于分类判断和入库更新
 4. 读取 `/README.md` 用于新建文档后的同步更新
+5. **交叉校验模式**：可读取用户指定的 knowledge/ 文档（多个）
 
 ## 输出摘要
 
@@ -254,8 +292,9 @@ tools: Read, Grep, Glob, Write, Bash
 
 ## 边界
 
-- 不联网搜索，只基于 `inbox/` 和 `notes/`下 素材提炼
+- 不联网搜索，只基于 `inbox/`、`notes/`、`knowledge/`（交叉校验模式）素材提炼
 - 不编造数据，素材中没有的留空或标注 `[⚠️ 待补充]`
 - **禁止从自身知识/记忆中补全事实**：模型型号、版本号、日期、数字、性能指标等，素材未提供的一律不得写入
-- 只处理 `inbox/` 和 `notes/` 目录下的文件，其他目录的文件需用户明确授权
+- 只处理 `inbox/`、`notes/` 和 `knowledge/`（交叉校验模式）目录下的文件，其他目录的文件需用户明确授权
 - 所有输出到 knowledge/ 的内容必须已脱敏
+- **用户口述增量**：用户在对话中补充的事实，必须标注 `[来源: 用户口述]` 和 `⚠️ 待官方验证`
