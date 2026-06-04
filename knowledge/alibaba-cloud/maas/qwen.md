@@ -1,23 +1,25 @@
 # 通义千问 (Qwen)
 
-> 最后更新: 2026-05-31
+> 最后更新: 2026-06-04
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 
 **定位**: 阿里云自研大语言模型系列，覆盖文本/代码/多模态，开源+商业双轨并行
-**当前主推**: Qwen3.7-Max（旗舰 Agent）/ Qwen3.6 系列（Plus / Flash）
+**当前主推**: Qwen3.7-Max（旗舰 Agent）/ Qwen3.7-Plus（多模态智能体）/ Qwen3.6-Flash（轻量快速）
 **适用**: 企业级AI应用开发、智能对话、代码生成、多模态理解、长时间自主 Agent
 **不适用**: 需要完全私有化且无网络的极端离线场景
 
 ## 当前主推模型
 
+> 数据来源：[百炼模型广场](https://help.aliyun.com/zh/model-studio/models)，2026-06-04 核实
+
 | 模型 | 定位 | 上下文 | 特点 |
 |------|------|--------|------|
 | **Qwen3.7-Max** | 旗舰 Agent | **1M tokens** | AA Intelligence Index 56.6–57（国产 #1），35小时自主运行，"The Agent Frontier" |
 | **Qwen3.7-Plus** | 多模态智能体 | **1M tokens** | 原生多模态（图/视频/屏幕）+ GUI/CLI Agent + 视觉编码，纯文本接近 Max |
-| Qwen3.6-Max-Preview | 旗舰推理 | 256K tokens | 综合智能指数 #2/201，深度推理能力极强，MoE 架构 |
-| Qwen3.6-Plus | 均衡型 | 1M tokens | Agentic Coding 接近 Claude Opus 4.5，支持多模态，性价比极高 |
-| Qwen3.6-Flash | 轻量 | 256K tokens | 速度快，成本低 |
+| **Qwen3.6-Flash** | 轻量快速 | 256K tokens | 速度快，成本低，系列内 Flash 仍延用 3.6 代号 |
+
+> 📌 **历史模型**：Qwen3.6-Plus、Qwen3.6-Max-Preview 仍可调用，但已分别被 Qwen3.7-Plus 和 Qwen3.7-Max 取代，不建议新项目选用。
 
 ### Qwen3.7-Max
 
@@ -37,17 +39,6 @@
 Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verified 80.4 vs 80.8（平手）、HLE **41.4**（+1.4）、GPQA Diamond **92.4**（+1.1）、HMMT 2026 **97.1%**、IMOAnswerBench **90.0%**（+14.7）、Apex **44.5**（+10.0）
 
 **标志性事件**：35 小时自主编码运行（1,158 次工具调用），GPU 内核优化达 10× 加速比（vs Triton 参考）
-
-### Qwen3.6-Plus
-- 模型：Qwen3.6-Plus
-- 公司：阿里云
-- 时间：2026年（已正式 GA）
-- 上下文：1M tokens
-- 场景：AI Agent、自动编程、长文档分析、多模态理解
-- 定价：¥2/1M input tokens（≤256K）
-- 特点：Agentic Coding 强，支持图像输入，GA 稳定，1M 上下文
-
-> 注：Qwen3.6-Max-Preview（2026.04，256K 上下文，AA Index 52，Preview 免费）仍可调用，但已被 Qwen3.7-Max 取代。
 
 ### Qwen3.7-Plus
 
@@ -114,8 +105,8 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 |------|----------|------|
 | 长时间自主 Agent / 数学竞赛 / 科研推理 | **3.7-Max** | 35h 自主运行，HMMT 97.1%，全球领先 |
 | Agentic Coding（重度） | **3.7-Max** | Terminal-Bench 69.7 |
-| Agentic Coding（性价比）/ 长文档 / 多模态 / 生产环境 | 3.6-Plus | GA 稳定，支持图像，1M 上下文 |
-| 高并发轻量调用 | 3.6-Flash | 低延迟低成本 |
+| Agentic Coding（性价比）/ 长文档 / 多模态 / 生产环境 | **3.7-Plus** | GA 稳定，支持图像/视频/屏幕，1M 上下文，GUI/CLI Agent |
+| 高并发轻量调用 | **3.6-Flash** | 低延迟低成本 |
 | 私有化部署 | 3.6 开源版 | 支持本地部署 |
 
 ## 接入方式
@@ -131,8 +122,8 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 |------|---------------------|---------------------|----------|
 | **Qwen3.7-Max** | ¥12 | ¥36 | ¥1.2 |
 | Qwen3.7-Max（5折） | ¥6 | ¥18 | ¥0.6 |
-| Qwen3.6-Plus | ¥2 | — | — |
-| Qwen3.6-Max-Preview | 免费 | 免费 | — |
+| **Qwen3.7-Plus** | ¥2 | ¥8 | — |
+| **Qwen3.6-Flash** | [查看定价](https://help.aliyun.com/zh/model-studio/model-pricing) | — | — |
 
 > Qwen3.7-Max 实际成本需关注输出冗长问题：评估中生成量是中位数的 4×，建议 prompt 中显式约束输出长度。
 
@@ -165,6 +156,7 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-06-04 | 主推模型表更新：移除已取代的 Qwen3.6-Plus / Qwen3.6-Max-Preview，主推表仅保留百炼在售的 3 个模型（Qwen3.7-Max / Qwen3.7-Plus / Qwen3.6-Flash）；历史模型单独标注 |
 | 2026-05-31 | 合并：inbox 素材 — 新增百炼 RMB 定价（¥12/¥36，5折 ¥6/¥18）、竞品定价对比表（DS-V4-Pro/GLM-5.1/GPT-5.5/Opus 4.7）、新用户 100 万 tokens 免费额度 |
 | 2026-05-31 | 新增 Qwen3.7-Max（2026.05.19 发布），包含关键基准、AA Intelligence Index 56.6、35h 自主运行、定价、局限；更新模型表、能力/场景/限制/定价；标注 Qwen3.6-Max 被 3.7-Max 取代 |
 | 2026-04-24 | 合并 qwen3.6.md 内容，补充 Qwen3.6-Max-Preview 详细信息和对比分析 |
