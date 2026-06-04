@@ -6,8 +6,8 @@ import sys
 import glob
 from datetime import datetime
 
-# 把项目目录加入 path
-PROJECT_DIR = "/Users/nizhen/Documents/ai-knowledge-base/vibeproject/video_translation_demo"
+# 项目目录：基于脚本自身位置动态推导（避免硬编码绝对路径）
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PROJECT_DIR)
 
 # 列出 testfile 中的文件
@@ -38,8 +38,12 @@ if not video_path or not vocal_path:
     print("❌ 缺少素材")
     sys.exit(1)
 
-# 验证 API key 是否纯 ASCII
-API_KEY = "sk-7e41d5d2f93e4d569f136428fa36d7e6"
+# API Key 从环境变量读取（禁止硬编码）
+API_KEY = os.getenv("DASHSCOPE_API_KEY", "").strip()
+if not API_KEY:
+    print("❌ 未设置环境变量 DASHSCOPE_API_KEY")
+    print("   请先运行: export DASHSCOPE_API_KEY=sk-xxx")
+    sys.exit(1)
 print(f"\n=== API Key 校验 ===")
 print(f"  starts_with_sk-: {API_KEY.startswith('sk-')}")
 print(f"  length: {len(API_KEY)}")
