@@ -136,20 +136,21 @@ flowchart LR
 
 ```
 .
-├── inbox/          ← 原始素材暂存（处理后自动归档）
-├── notes/          ← 长期笔记
-├── archive/        ← 已处理素材备份
-├── knowledge/      ← 🎯 结构化知识库（65 篇）
-│   ├── ai-general-notes/   ← AI 通识（Agent/Harness/Prompt/RAG...）
-│   ├── alibaba-cloud/      ← 阿里云（19 篇）
-│   ├── aws/                ← AWS（10 篇）
-│   ├── gcp/                ← GCP（7 篇）
-│   ├── anthropic/          ← Anthropic（5 篇）
-│   ├── minimax/            ← MiniMax（3 篇）
-│   ├── deepseek/           ← DeepSeek（3 篇）
-│   ├── openai/             ← OpenAI（2 篇）
-│   ├── zhipu/              ← 智谱 AI（2 篇）
-│   └── solutions/          ← 行业方案（6 篇）
-├── index.md        ← 全局索引导航
+├── inbox/              ← 📥 原始素材暂存（处理后自动归档）
+├── notes/              ← 📝 长期笔记（销售洞察、Daily Note）
+├── archive/            ← 🗄️ 已处理素材备份
+├── knowledge/          ← 🎯 结构化知识库（72 篇，含模板）
+│   ├── ai-general-notes/   ← 🧠 AI 通识（9 篇：Agent / Harness / Prompt / RAG…）
+│   ├── alibaba-cloud/      ← ☁️ 阿里云（20 篇：MaaS / Coding / App / Infra / 竞品分析）
+│   ├── aws/                ← 🔶 AWS（10 篇：MaaS / Coding / App / Infra / Platform）
+│   ├── gcp/                ← 🔷 GCP（7 篇：MaaS / Coding / App / Infra / Platform）
+│   ├── anthropic/          ← 🟠 Anthropic（5 篇：MaaS / Coding / App）
+│   ├── minimax/            ← 🟣 MiniMax（3 篇：公司分析 / 模型系列 / Agent Team）
+│   ├── deepseek/           ← 🔵 DeepSeek（3 篇：公司分析 / V系列 / R系列）
+│   ├── openai/             ← 🟢 OpenAI（2 篇：公司分析 / GPT-5系列）
+│   ├── zhipu/              ← 🟡 智谱 AI（2 篇：公司分析 / GLM系列）
+│   └── solutions/          ← 🏭 行业方案（7 篇：企业AI平台 / 短剧出海 / IPC…）
+├── vibeproject/        ← 🧪 实验代码（Demo 脚本、压测工具）
+├── index.md            ← 📋 全局索引导航
 └── README.md
 ```

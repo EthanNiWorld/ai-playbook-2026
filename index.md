@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-06-03
+> 最后更新：2026-06-04
 
 ## 🔍 快速查找
 
@@ -73,6 +73,7 @@
 - AI Infra: [TPU](gcp/ai-infra/tpu.md) — Google 自研 AI 芯片
 
 ### Anthropic
+- 公司分析: [Anthropic 公司分析报告](anthropic/general_intro.md) — PBC 治理结构、Scaling Laws 团队、Claude 模型家族、ARR $2B+（2026.04）
 - MaaS: [Claude API](anthropic/maas/claude-api.md) — Opus 4.8（SWE-Bench Pro 69.2%）/ Sonnet 4.6 / Haiku 4
 - AI Coding: [Claude Code](anthropic/ai-coding/claude-code.md) — 终端 AI 编程
 - AI App: [Claude Teams](anthropic/ai-application/claude-teams.md) | [Claude Managed Agents](anthropic/ai-application/claude-managed-agents.md) — 托管 Agent
