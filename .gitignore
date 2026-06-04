@@ -26,6 +26,7 @@ archive/*.md
 notes/maas_sales_advice_ethan*
 notes/SkillYourAllYouNeed_202606*
 
+.qoder/repowiki/*
 # 废弃的 PRD 版本
 knowledge_orginal_prd.md
 knowledge_orginal_prd_v_simple_20260413.md

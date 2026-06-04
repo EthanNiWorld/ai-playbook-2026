@@ -12,21 +12,22 @@
 --------
 1. 视频文件（MP4/MOV）
 2. 纯人声 MP3（通过 vocalremover.org 提取，无背景音乐）
-3. 阿里云百炼大陆站 API Key
+3. 阿里云百炼 API Key + 地域选择（默认国际站，可切国内站）
 
 Pipeline
 --------
 1. 百炼临时上传 → 纯人声 MP3 获得 oss:// URL
 2. fun-asr ASR → 带时间戳的中文句子列表
-3. qwen-mt-flash 翻译 → 中文→英文
-4. CosyVoice 声音复刻 → 克隆原说话人音色
-5. CosyVoice TTS → 英文语音合成 + 时长对齐
+3. qwen-mt-plus 翻译 → 中文→英文（plus 档质量优于 flash）
+4. CosyVoice 声音复刻 → 克隆原说话人音色（国际/国内站均支持）
+5. CosyVoice v3-plus TTS → 英文语音合成 + 时长对齐（plus 档音质优于 flash）
 6. ffmpeg 合成 → 替换视频音轨输出最终视频
 
 配置
 ----
 环境变量（可选，也可在 UI 中输入）:
-  DASHSCOPE_API_KEY - 大陆站 API Key
+  DASHSCOPE_API_KEY_INTL_AIGC - 国际站 API Key（默认）
+  DASHSCOPE_API_KEY_CN_AIGC   - 国内站 API Key
 
 运行
 ----
@@ -58,7 +59,7 @@ from typing import Optional, List, Dict, Tuple, Generator
 
 import dashscope
 from dashscope.audio.asr import Transcription
-from dashscope.audio.tts_v2 import VoiceEnrollmentService, SpeechSynthesizer
+from dashscope.audio.tts_v2 import VoiceEnrollmentService, SpeechSynthesizer, AudioFormat
 from openai import OpenAI
 import gradio as gr
 import requests
@@ -77,13 +78,29 @@ logger = logging.getLogger("video_dubbing")
 # ---------------------------------------------------------------------------
 # 常量
 # ---------------------------------------------------------------------------
-DASHSCOPE_BASE_URL = "https://dashscope.aliyuncs.com"
-DASHSCOPE_API_V1 = f"{DASHSCOPE_BASE_URL}/api/v1"
-DASHSCOPE_COMPAT_URL = f"{DASHSCOPE_BASE_URL}/compatible-mode/v1"
-DEFAULT_MT_MODEL = "qwen-mt-flash"
-DEFAULT_TTS_MODEL = "cosyvoice-v3-flash"
+# 地域（百炼多地域接入点）
+# - cn:   国内大陆站 (北京)
+# - intl: 国际站（新加坡）
+REGION_URLS = {
+    "cn":   "https://dashscope.aliyuncs.com",
+    "intl": "https://dashscope-intl.aliyuncs.com",
+}
+REGION_API_V1 = {k: f"{v}/api/v1" for k, v in REGION_URLS.items()}
+REGION_COMPAT_URL = {k: f"{v}/compatible-mode/v1" for k, v in REGION_URLS.items()}
+
+# 默认地域（用户要求）
+DEFAULT_REGION = "intl"
+
+DEFAULT_MT_MODEL = "qwen-mt-plus"
+DEFAULT_TTS_MODEL = "cosyvoice-v3-plus"
 DEFAULT_ASR_MODEL = "fun-asr"
 MAX_VIDEO_DURATION_S = 300  # 5 分钟
+
+# WebSocket 端点（与 base_http_api_url 不互通，必须显式指定）
+REGION_WS_URL = {
+    "cn":   "wss://dashscope.aliyuncs.com/api-ws/v1/inference",
+    "intl": "wss://dashscope-intl.aliyuncs.com/api-ws/v1/inference",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -128,7 +145,12 @@ def oss_url_to_http(oss_url: str) -> str:
     return http_url
 
 
-def upload_to_dashscope(api_key: str, model_name: str, file_path: str) -> str:
+def upload_to_dashscope(
+    api_key: str,
+    model_name: str,
+    file_path: str,
+    api_v1_url: str,
+) -> str:
     """
     上传本地文件至百炼临时存储，返回 oss:// URL（有效期 48 小时）
 
@@ -136,13 +158,14 @@ def upload_to_dashscope(api_key: str, model_name: str, file_path: str) -> str:
 
     Args:
         api_key: DashScope API Key
-        model_name: 绑定的模型名称（如 'fun-asr'、'cosyvoice-v3-flash'）
+        model_name: 绑定的模型名称（如 'fun-asr'、'cosyvoice-v3-plus'）
         file_path: 本地文件路径
+        api_v1_url: 当前地域的 API v1 接入点
 
     Returns:
         oss:// 格式的临时 URL
     """
-    logger.info(f"上传文件 {file_path} (绑定模型: {model_name})...")
+    logger.info(f"上传文件 {file_path} (绑定模型: {model_name}, endpoint: {api_v1_url})...")
 
     # 安全化文件名（移除空格、方括号等特殊字符）
     original_name = Path(file_path).name
@@ -158,7 +181,7 @@ def upload_to_dashscope(api_key: str, model_name: str, file_path: str) -> str:
 
     try:
         # Step 1: 获取上传凭证
-        url = f"{DASHSCOPE_API_V1}/uploads"
+        url = f"{api_v1_url}/uploads"
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
@@ -233,15 +256,52 @@ def trim_audio(input_path: str, output_path: str, max_seconds: float = 15.0) -> 
 class VideoDubbingPipeline:
     """视频中文配音转英文配音 Pipeline"""
 
-    def __init__(self, api_key: str, mt_model: str = DEFAULT_MT_MODEL):
+    def __init__(
+        self,
+        api_key: str,
+        mt_model: str = DEFAULT_MT_MODEL,
+        region: str = DEFAULT_REGION,
+    ):
+        if region not in REGION_URLS:
+            raise ValueError(
+                f"不支持的地域: {region}（仅支持 {list(REGION_URLS.keys())}）"
+            )
+
+        # API Key 预处理与校验
+        api_key = (api_key or "").strip()
+        if not api_key:
+            raise ValueError("API Key 不能为空")
+        try:
+            api_key.encode("latin-1")
+        except UnicodeEncodeError as e:
+            raise ValueError(
+                f"API Key 包含非 ASCII 字符（位置 {e.start}-{e.end}）。"
+                "通常原因：复制时带入了中文标点/空格/换行。\n"
+                "请在 API Key 输入框中重新粘贴，确保不包含中文标点、"
+                "中英文空格或不可见字符。"
+            ) from e
+        if not api_key.startswith("sk-"):
+            raise ValueError("API Key 格式不正确，应以 'sk-' 开头")
+
         self.api_key = api_key
+        self.region = region
         self.mt_model = mt_model
         self.tts_model = DEFAULT_TTS_MODEL
         self.asr_model = DEFAULT_ASR_MODEL
 
+        # 按地域选择接入点
+        self.base_url = REGION_URLS[region]
+        self.api_v1_url = REGION_API_V1[region]
+        self.compat_url = REGION_COMPAT_URL[region]
+        self.ws_url = REGION_WS_URL[region]
+
         # 配置 DashScope SDK
         dashscope.api_key = api_key
-        dashscope.base_http_api_url = DASHSCOPE_API_V1
+        dashscope.base_http_api_url = self.api_v1_url
+
+        logger.info(
+            f"Pipeline 初始化: region={region}, endpoint={self.base_url}, ws={self.ws_url}"
+        )
 
     def run(
         self,
@@ -317,10 +377,14 @@ class VideoDubbingPipeline:
             (asr_oss_url, voice_oss_url, local_file_path)
         """
         # 为 ASR 上传（绑定 fun-asr），使用 oss:// URL
-        asr_oss_url = upload_to_dashscope(self.api_key, self.asr_model, vocal_mp3_path)
+        asr_oss_url = upload_to_dashscope(
+            self.api_key, self.asr_model, vocal_mp3_path, self.api_v1_url
+        )
 
         # 为声音复刻上传（绑定 voice-enrollment），保留 oss:// URL
-        voice_oss_url = upload_to_dashscope(self.api_key, "voice-enrollment", vocal_mp3_path)
+        voice_oss_url = upload_to_dashscope(
+            self.api_key, "voice-enrollment", vocal_mp3_path, self.api_v1_url
+        )
 
         return asr_oss_url, voice_oss_url, vocal_mp3_path
 
@@ -334,7 +398,7 @@ class VideoDubbingPipeline:
             sentences 列表: [{text, begin_time, end_time}]
         """
         # 使用 HTTP API 直接调用，添加必要的 header
-        submit_url = f"{DASHSCOPE_API_V1}/services/audio/asr/transcription"
+        submit_url = f"{self.api_v1_url}/services/audio/asr/transcription"
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
@@ -367,7 +431,7 @@ class VideoDubbingPipeline:
         logger.info(f"ASR 任务已提交: task_id={task_id}")
 
         # 等待任务完成（轮询）
-        query_url = f"{DASHSCOPE_API_V1}/tasks/{task_id}"
+        query_url = f"{self.api_v1_url}/tasks/{task_id}"
         max_wait = 180  # 最大等待 3 分钟
         waited = 0
         while waited < max_wait:
@@ -432,11 +496,11 @@ class VideoDubbingPipeline:
 
     def _translate(self, sentences: List[Dict]) -> List[Dict]:
         """
-        Step 3: 使用 qwen-mt-flash 将中文翻译为英文
+        Step 3: 使用 qwen-mt-plus 将中文翻译为英文（质量档）
 
         通过 OpenAI 兼容 API 调用，translation_options 通过 extra_body 传入
         """
-        client = OpenAI(api_key=self.api_key, base_url=DASHSCOPE_COMPAT_URL)
+        client = OpenAI(api_key=self.api_key, base_url=self.compat_url)
 
         for i, sent in enumerate(sentences):
             logger.info(f"翻译 [{i+1}/{len(sentences)}]: {sent['text'][:30]}...")
@@ -493,7 +557,7 @@ class VideoDubbingPipeline:
         logger.info(f"音频 Base64 编码完成，大小: {len(base64_str)} 字符")
 
         # 使用 HTTP API 调用声音复刻
-        url = f"{DASHSCOPE_API_V1}/services/audio/tts/customization"
+        url = f"{self.api_v1_url}/services/audio/tts/customization"
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
@@ -525,6 +589,53 @@ class VideoDubbingPipeline:
         logger.info(f"声音复刻完成: voice_id={voice_id}")
         return voice_id
 
+    @staticmethod
+    def _escape_ssml(text: str) -> str:
+        """
+        转义 SSML/XML 特殊字符。
+
+        阿里云百炼要求标签内文本的 & < > 必须转义。
+        注意：不能把 " 替换为 &quot;，因为我们的用法是标签内的文本内容，
+        不是属性值。
+        """
+        return (
+            text.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+        )
+
+    def _build_ssml_long_text(self, sentences: List[Dict], break_ms: int = 300) -> str:
+        """
+        把多句英文拼成一段 SSML 长文本，句间插入 <break> 标记气口。
+
+        优势（vs 旧版"每句独立 WS 合成"）：
+        - 一次 WebSocket 调用 → 模型有完整上下文，韵律连贯
+        - 显式 <break> → 句间停顿可预期，避免"PPT 翻页感"
+
+        Args:
+            sentences: 含 text_en 字段的句子列表
+            break_ms: 句间停顿时长（毫秒），范围 [50, 10000]
+
+        Returns:
+            SSML 字符串，外层包 <speak>
+        """
+        parts = []
+        for sent in sentences:
+            text_en = (sent.get("text_en") or sent.get("text", "")).strip()
+            if not text_en:
+                continue
+            text_en = self._escape_ssml(text_en)
+            # 句末若无标点，补一个句号让模型自然停顿
+            if not text_en.endswith((".", "!", "?", ":", ";")):
+                text_en += "."
+            parts.append(text_en)
+
+        if not parts:
+            return "<speak></speak>"
+
+        inner = f'<break time="{break_ms}ms"/>'.join(parts)
+        return f"<speak>{inner}</speak>"
+
     def _synthesize(
         self,
         sentences: List[Dict],
@@ -532,150 +643,94 @@ class VideoDubbingPipeline:
         work_dir: str,
     ) -> List[Dict]:
         """
-        Step 5: 使用克隆音色合成英文语音 + 时长对齐
+        Step 5: 合并多句为一段 SSML，一次性合成英文语音
 
-        使用 HTTP API 非流式合成（返回音频 URL），避免 WebSocket 连接问题
+        关键改动（路径 A 优化 vs 旧版"逐句合成"）：
+        1. 多句合并为 1 段长文本（用 <break> 隔开），一次 WebSocket 调用
+           → 模型拿到完整上下文，句间韵律连贯，解决"PPT 翻页感"
+        2. 取消 atempo 硬拉
+           → 旧版每句独立合成后用 atempo 强行变速对齐中文时长，会损伤
+              韵律、让重音错位；新版只做整段微调（仅当英文明显长于视频时）
+        3. ffmpeg loudnorm 响度归一
+           → 多句合成后整体响度统一，避免拼接处音量跳
+        4. 文本中可能出现的 XML 特殊字符（& < >）在拼 SSML 前先转义
 
-        对每句英文：
-        1. 计算目标时长（原中文句子的时长）
-        2. 调用 HTTP API 合成，下载返回的音频 URL
-        3. 合成后用 ffmpeg atempo 微调时长对齐
+        输出约定：句 0 携带整段音频路径（en_is_full_track=True），
+                 其他句 en_audio_path=None。_compose_video 据此走整段模式。
         """
-        tts_url = f"{DASHSCOPE_API_V1}/services/audio/tts/SpeechSynthesizer"
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
+        if not sentences:
+            return sentences
 
-        for i, sent in enumerate(sentences):
-            logger.info(f"合成 [{i+1}/{len(sentences)}]: {sent['text_en'][:40]}...")
+        # 1) 拼 SSML 长文本
+        ssml_text = self._build_ssml_long_text(sentences)
+        logger.info(
+            f"Step 5: 合并 {len(sentences)} 句为一次合成，"
+            f"SSML 长度 {len(ssml_text)} 字符"
+        )
+        logger.info(f"  SSML 预览: {ssml_text[:200]}...")
 
-            # 计算目标时长（原中文句子时长）
-            target_duration_s = (sent["end_time"] - sent["begin_time"]) / 1000.0
+        # 2) 一次 WebSocket 合成（WAV 格式便于后续 ffmpeg 处理）
+        try:
+            synth = SpeechSynthesizer(
+                model=self.tts_model,
+                voice=voice_id,
+                format=AudioFormat.WAV_22050HZ_MONO_16BIT,
+                url=self.ws_url,
+            )
+            audio_data = synth.call(ssml_text)
+        except Exception as e:
+            logger.error(f"TTS 合并合成失败: {e}")
+            for sent in sentences:
+                sent["en_audio_path"] = None
+            return sentences
 
-            # 根据英文文本长度估算 rate 参数
-            # 基准：rate=1.0 时，平均每个英文字符约 0.08 秒（需根据实际调整）
-            # 让 TTS 直接合成接近目标时长，减少 atempo 机械拉伸
-            text_len = len(sent["text_en"])
-            baseline_duration = text_len * 0.08  # 预估基准时长
-            
-            # 计算 rate：让合成时长匹配目标时长
-            # rate = 基准时长 / 目标时长（clamp 到 API 支持范围 0.5~2.0）
-            if target_duration_s > 0.5 and baseline_duration > 0.1:
-                estimated_rate = baseline_duration / target_duration_s
-                # clamp 到合理范围，避免极端值影响音质
-                rate = max(0.6, min(1.5, estimated_rate))
+        if not audio_data:
+            logger.error("TTS 返回空音频")
+            for sent in sentences:
+                sent["en_audio_path"] = None
+            return sentences
+
+        # 3) 保存原始合成结果
+        raw_audio_path = os.path.join(work_dir, "en_full_raw.wav")
+        with open(raw_audio_path, "wb") as f:
+            f.write(audio_data)
+        raw_duration_s = get_audio_duration(raw_audio_path)
+        logger.info(
+            f"合并合成完成: {len(audio_data)} bytes, "
+            f"时长 {raw_duration_s:.1f}s, "
+            f"约 {raw_duration_s / max(len(sentences), 1):.1f}s/句"
+        )
+
+        # 4) 响度归一（EBU R128 标准，播客/影视常用目标）
+        normalized_path = os.path.join(work_dir, "en_full_normalized.wav")
+        try:
+            result = subprocess.run(
+                [
+                    "ffmpeg", "-i", raw_audio_path,
+                    "-af", "loudnorm=I=-16:TP=-1.5:LRA=11",
+                    "-ar", "22050", "-ac", "1",
+                    "-y", normalized_path,
+                ],
+                capture_output=True, text=True,
+            )
+            if result.returncode != 0:
+                logger.warning(
+                    f"loudnorm 失败，使用原音频: {result.stderr[:200]}"
+                )
+                normalized_path = raw_audio_path
             else:
-                rate = 0.85  # 默认稍慢
-            
-            logger.info(f"目标时长: {target_duration_s:.1f}s, 文本长度: {text_len}, rate: {rate:.2f}")
+                logger.info("响度归一完成 (EBU R128 I=-16 LUFS)")
+        except Exception as e:
+            logger.warning(f"loudnorm 异常: {e}")
+            normalized_path = raw_audio_path
 
-            # 使用 HTTP API 合成（非流式，返回音频 URL）
-            payload = {
-                "model": self.tts_model,
-                "input": {
-                    "text": sent["text_en"],
-                    "voice": voice_id,
-                    "format": "mp3",
-                    "language_hints": ["en"],
-                    "rate": round(rate, 2),  # 动态语速
-                    "instruction": "语速请保持自然流畅，语气从容。",
-                },
-            }
+        # 5) 整段音频填到句 0，标记"整段模式"（_compose_video 据此走新逻辑）
+        sentences[0]["en_audio_path"] = normalized_path
+        sentences[0]["en_is_full_track"] = True
+        sentences[0]["en_full_duration_s"] = raw_duration_s
+        for sent in sentences[1:]:
+            sent["en_audio_path"] = None
 
-            resp = requests.post(tts_url, headers=headers, json=payload)
-
-            if resp.status_code != 200:
-                logger.warning(f"第 {i+1} 句 TTS 失败: {resp.status_code} {resp.text[:200]}")
-                sent["en_audio_path"] = None
-                continue
-
-            result = resp.json()
-            audio_url = result.get("output", {}).get("audio", {}).get("url")
-
-            if not audio_url:
-                logger.warning(f"第 {i+1} 句 TTS 无音频 URL: {result}")
-                sent["en_audio_path"] = None
-                continue
-
-            # 下载音频文件
-            logger.info(f"下载音频: {audio_url[:80]}...")
-            audio_resp = requests.get(audio_url)
-            if audio_resp.status_code != 200:
-                logger.warning(f"第 {i+1} 句音频下载失败: {audio_resp.status_code}")
-                sent["en_audio_path"] = None
-                continue
-
-            audio_data = audio_resp.content
-
-            # 保存临时音频
-            raw_audio_path = os.path.join(work_dir, f"en_raw_{i:04d}.mp3")
-            with open(raw_audio_path, "wb") as f:
-                f.write(audio_data)
-
-            # 获取实际合成时长
-            try:
-                actual_duration_s = get_audio_duration(raw_audio_path)
-            except Exception:
-                actual_duration_s = target_duration_s  # 获取失败时跳过对齐
-
-            # 时长对齐：使用 ffmpeg atempo 调整
-            aligned_audio_path = os.path.join(work_dir, f"en_aligned_{i:04d}.mp3")
-
-            if target_duration_s > 0.1 and actual_duration_s > 0.1:
-                ratio = actual_duration_s / target_duration_s
-
-                if 0.5 <= ratio <= 2.0:
-                    # atempo 支持 0.5~2.0 范围
-                    subprocess.run(
-                        [
-                            "ffmpeg", "-i", raw_audio_path,
-                            "-filter:a", f"atempo={ratio:.4f}",
-                            "-y", aligned_audio_path,
-                        ],
-                        capture_output=True, check=True,
-                    )
-                elif ratio > 2.0:
-                    # 超出范围，链式 atempo
-                    filters = []
-                    remaining = ratio
-                    while remaining > 2.0:
-                        filters.append("atempo=2.0")
-                        remaining /= 2.0
-                    filters.append(f"atempo={remaining:.4f}")
-                    filter_str = ",".join(filters)
-                    subprocess.run(
-                        [
-                            "ffmpeg", "-i", raw_audio_path,
-                            "-filter:a", filter_str,
-                            "-y", aligned_audio_path,
-                        ],
-                        capture_output=True, check=True,
-                    )
-                else:
-                    # ratio < 0.5，链式处理
-                    filters = []
-                    remaining = ratio
-                    while remaining < 0.5:
-                        filters.append("atempo=0.5")
-                        remaining /= 0.5
-                    filters.append(f"atempo={remaining:.4f}")
-                    filter_str = ",".join(filters)
-                    subprocess.run(
-                        [
-                            "ffmpeg", "-i", raw_audio_path,
-                            "-filter:a", filter_str,
-                            "-y", aligned_audio_path,
-                        ],
-                        capture_output=True, check=True,
-                    )
-            else:
-                # 时长异常，直接使用原音频
-                aligned_audio_path = raw_audio_path
-
-            sent["en_audio_path"] = aligned_audio_path
-
-        logger.info("语音合成完成")
         return sentences
 
     def _compose_video(
@@ -687,12 +742,14 @@ class VideoDubbingPipeline:
         """
         Step 6: 使用 ffmpeg 合成最终视频
 
-        策略：
-        1. 获取原视频时长
-        2. 生成静音底板（与视频等长）
-        3. 对每句英文音频添加 adelay 延迟到对应时间点
-        4. 混合所有音频
-        5. 替换原视频音轨
+        新策略（路径 A 优化）：
+        - 5 句已合并为一段连续音频，整段替换原视频音轨
+        - 只在英文总长 > 视频总长 × 1.2 时才做整体 atempo 微调
+          （v.s. 旧版每句独立硬拉，严重损伤韵律）
+        - 视频比英文长没关系（会保留原视频结尾的静音/画面）
+
+        向后兼容：如果某句 en_is_full_track=True，走新逻辑；
+                 否则回落到旧的"逐句按时间戳拼接"逻辑。
         """
         output_path = os.path.join(work_dir, "output_dubbed.mp4")
 
@@ -703,8 +760,125 @@ class VideoDubbingPipeline:
         if len(sentences) == 0:
             raise RuntimeError("无可合成的句子")
 
-        # 方案：使用 ffmpeg complex_filter 将所有音频片段按时间戳混合
-        # 构建 ffmpeg 命令
+        # 找主音轨（句 0 携带整段音频）
+        full_sent = next((s for s in sentences if s.get("en_is_full_track")), None)
+
+        if full_sent and full_sent.get("en_audio_path"):
+            return self._compose_video_full_track(
+                video_path, full_sent, video_duration, output_path,
+            )
+
+        # 回落：旧的逐句拼接模式（保留以兼容）
+        return self._compose_video_legacy(
+            video_path, sentences, video_duration, work_dir, output_path,
+        )
+
+    def _compose_video_full_track(
+        self,
+        video_path: str,
+        full_sent: Dict,
+        video_duration: float,
+        output_path: str,
+    ) -> str:
+        """
+        整段音轨模式（路径 A 新逻辑）：
+        - 整段替换原视频音轨
+        - 仅在英文明显长于视频时做整体 atempo 微调
+        """
+        en_audio_path = full_sent["en_audio_path"]
+        en_duration = full_sent.get("en_full_duration_s", video_duration)
+
+        logger.info(
+            f"整段音轨模式: en={en_duration:.1f}s, video={video_duration:.1f}s, "
+            f"比例={en_duration / max(video_duration, 0.01):.2f}"
+        )
+
+        final_audio = en_audio_path
+        ratio = en_duration / max(video_duration, 0.01)
+
+        # 策略分层（避免 atempo > 1.3x 损伤韵律）：
+        # - ratio <= 1.0   ：英文比视频短，直接用
+        # - ratio <= 1.3   ：温和 atempo（最多 1.3x，重音改变有限）
+        # - ratio >  1.3   ：不加速（会严重损韵律），改为截断英文到视频时长
+        #                     保留开头部分，保证视频始终有声音
+        if ratio > 1.3:
+            truncated_path = os.path.join(
+                os.path.dirname(output_path), "en_full_truncated.wav"
+            )
+            subprocess.run(
+                [
+                    "ffmpeg", "-i", en_audio_path,
+                    "-t", str(video_duration),
+                    "-y", truncated_path,
+                ],
+                capture_output=True, check=True,
+            )
+            final_audio = truncated_path
+            logger.warning(
+                f"英文比视频长 {ratio:.2f}x（>1.3），不加速避免损伤韵律；"
+                f"截断英文到 {video_duration:.1f}s（保留开头）"
+            )
+        elif ratio > 1.0:
+            # 温和 atempo（最大 1.3x）
+            filter_str = f"atempo={ratio:.4f}"
+            adapted_path = os.path.join(
+                os.path.dirname(output_path), "en_full_adapted.wav"
+            )
+            subprocess.run(
+                [
+                    "ffmpeg", "-i", en_audio_path,
+                    "-filter:a", filter_str,
+                    "-y", adapted_path,
+                ],
+                capture_output=True, check=True,
+            )
+            final_audio = adapted_path
+            logger.info(
+                f"英文比视频长 {ratio:.2%}，温和 atempo={ratio:.3f}（保持韵律）"
+            )
+        else:
+            logger.info(
+                f"英文 {en_duration:.1f}s 短于视频 {video_duration:.1f}s，"
+                f"直接替换（视频尾部保留原静音）"
+            )
+
+        # ffmpeg 替换音轨（最简方式）
+        cmd = [
+            "ffmpeg",
+            "-i", video_path,
+            "-i", final_audio,
+            "-map", "0:v:0",   # 视频流来自原视频
+            "-map", "1:a:0",   # 音频流来自英文音轨
+            "-c:v", "copy",    # 视频编码直接复制（不重压）
+            "-c:a", "aac",     # 音频编码为 AAC
+            "-shortest",       # 以最短流为准
+            "-y", output_path,
+        ]
+
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            logger.error(f"ffmpeg 错误: {result.stderr}")
+            raise RuntimeError(f"ffmpeg 合成失败: {result.stderr[:500]}")
+
+        logger.info(f"视频合成完成: {output_path}")
+        return output_path
+
+    def _compose_video_legacy(
+        self,
+        video_path: str,
+        sentences: List[Dict],
+        video_duration: float,
+        work_dir: str,
+        output_path: str,
+    ) -> str:
+        """
+        旧版逐句拼接模式（保留兼容，未来可能删除）
+
+        策略：
+        1. 对每句英文音频添加 adelay 延迟到对应时间点
+        2. 混合所有音频
+        3. 替换原视频音轨
+        """
         inputs = ["-i", video_path]  # input 0: 原视频
         filter_parts = []
         audio_inputs = []
@@ -750,14 +924,12 @@ class VideoDubbingPipeline:
             "-y", output_path,
         ]
 
-        logger.info(f"ffmpeg 合成命令: {' '.join(cmd[:10])}...")
         result = subprocess.run(cmd, capture_output=True, text=True)
-
         if result.returncode != 0:
-            logger.error(f"ffmpeg 错误: {result.stderr[:500]}")
-            raise RuntimeError(f"ffmpeg 合成失败: {result.stderr[:200]}")
+            logger.error(f"ffmpeg 错误（完整）: {result.stderr}")
+            raise RuntimeError(f"ffmpeg 合成失败: {result.stderr[:500]}")
 
-        logger.info(f"视频合成完成: {output_path}")
+        logger.info(f"视频合成完成（legacy 模式）: {output_path}")
         return output_path
 
 
@@ -769,29 +941,51 @@ def build_ui() -> gr.Blocks:
 
     with gr.Blocks(
         title="视频中文配音转英文配音",
-        theme=gr.themes.Soft(),
     ) as demo:
         gr.Markdown(
             "# 🎬 视频中文配音转英文配音 Demo\n"
             "将视频中一个人的中文说话转换为英文配音，保留原说话人音色。\n\n"
             "**使用步骤**: 1️⃣ 去 [vocalremover.org](https://vocalremover.org) 提取纯人声MP3 → "
-            "2️⃣ 上传视频和MP3 → 3️⃣ 点击转换"
+            "2️⃣ 上传视频和MP3 → 3️⃣ 点击转换\n\n"
+            "> 💡 **CosyVoice v3-plus / qwen-mt-plus 在国际/国内站均可用**。"
+            "若某能力调用失败，尝试切换地域或检查 API Key 权限。"
         )
 
         with gr.Row():
+            region_input = gr.Radio(
+                choices=[("🌏 国际站 (intl)", "intl"), ("🇨🇳 国内站 (cn)", "cn")],
+                value=DEFAULT_REGION,
+                label="百炼地域",
+                scale=1,
+            )
             api_key_input = gr.Textbox(
                 label="阿里云百炼 API Key (AIGC)",
                 type="password",
-                placeholder="sk-xxx (需要CosyVoice权限)",
-                value=os.getenv("DASHSCOPE_API_KEY_CN_AIGC", os.getenv("DASHSCOPE_API_KEY_CN", "")),
+                placeholder=(
+                    "国际站: sk-xxx (DASHSCOPE_API_KEY_INTL_AIGC)  /  "
+                    "国内站: sk-xxx (DASHSCOPE_API_KEY_CN_AIGC)"
+                ),
+                value="",
                 scale=2,
             )
             mt_model_input = gr.Dropdown(
-                choices=["qwen-mt-flash", "qwen-mt-plus"],
-                value="qwen-mt-flash",
-                label="翻译模型",
+                choices=["qwen-mt-plus", "qwen-mt-flash"],
+                value="qwen-mt-plus",
+                label="翻译模型（plus 档质量更优）",
                 scale=1,
             )
+
+        # 地域切换时自动从对应环境变量预填 API Key
+        def _on_region_change(region):
+            env_key = "DASHSCOPE_API_KEY_INTL_AIGC" if region == "intl" \
+                else "DASHSCOPE_API_KEY_CN_AIGC"
+            return gr.update(value=os.getenv(env_key, ""))
+
+        region_input.change(
+            fn=_on_region_change,
+            inputs=[region_input],
+            outputs=[api_key_input],
+        )
 
         with gr.Row():
             video_input = gr.Video(label="上传视频文件 (MP4/MOV, ≤5分钟)")
@@ -827,10 +1021,14 @@ def build_ui() -> gr.Blocks:
 
         # --- 事件处理 ---
 
-        def process_video(video_path, vocal_path, api_key, mt_model):
+        def process_video(video_path, vocal_path, region, api_key, mt_model):
             """处理视频的主函数"""
             if not api_key:
-                raise gr.Error("请输入 API Key")
+                env_hint = (
+                    "DASHSCOPE_API_KEY_INTL_AIGC" if region == "intl"
+                    else "DASHSCOPE_API_KEY_CN_AIGC"
+                )
+                raise gr.Error(f"请输入 API Key（环境变量名: {env_hint}）")
             if not video_path:
                 raise gr.Error("请上传视频文件")
             if not vocal_path:
@@ -844,6 +1042,7 @@ def build_ui() -> gr.Blocks:
             pipeline = VideoDubbingPipeline(
                 api_key=api_key,
                 mt_model=mt_model,
+                region=region,
             )
 
             try:
@@ -871,7 +1070,7 @@ def build_ui() -> gr.Blocks:
 
         start_btn.click(
             fn=process_video,
-            inputs=[video_input, vocal_input, api_key_input, mt_model_input],
+            inputs=[video_input, vocal_input, region_input, api_key_input, mt_model_input],
             outputs=[progress_output, asr_output, translation_output, video_output],
         )
 
@@ -883,4 +1082,5 @@ def build_ui() -> gr.Blocks:
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
     ui = build_ui()
-    ui.launch(server_name="0.0.0.0", server_port=7860)
+    # Gradio 6.0: theme 参数需在 launch() 传入
+    ui.launch(server_name="0.0.0.0", server_port=7860, theme=gr.themes.Soft())

@@ -24,11 +24,10 @@
    - 文件名安全化：移除空格、方括号等特殊字符（OSS 兼容性）
 2. **fun-asr ASR** → 对纯人声MP3做语音识别，获得带时间戳的中文句子列表
    - 使用 HTTP API + `X-DashScope-OssResourceResolve: enable` header（SDK 不支持 oss:// URL）
-3. **qwen-mt-flash翻译** → 每句中文→英文（OpenAI兼容API）
+3. **qwen-mt-plus翻译** → 每句中文→英文（OpenAI兼容API，质量档）
 4. **CosyVoice声音复刻** → 用纯人声MP3克隆音色，获得voice_id
    - 使用 HTTP API + Base64 Data URL（API 不支持 oss:// URL）
-5. **CosyVoice TTS** → 用克隆音色合成英文语音
-   - 使用 HTTP API（避免 WebSocket 连接问题）
+5. **CosyVoice v3-plus TTS** → 用克隆音色合成英文语音（plus 档音质优于 flash）
    - 动态 rate 参数：根据目标时长自动调整语速
    - ffmpeg atempo 微调时长对齐
 6. **ffmpeg合成** → 将各句英文音频按时间戳放置 → 替换原视频音轨
@@ -46,12 +45,17 @@
 | 语速过快 | 动态计算 rate 参数，根据目标时长匹配语速 |
 | CosyVoice需要AIGC权限 | 使用 `DASHSCOPE_API_KEY_CN_AIGC` 环境变量 |
 
+## 使用说明
+
+- **地域选择**：UI 默认国际站，可切国内站。CosyVoice v3-plus / qwen-mt-plus / fun-asr 在两个站均可用
+- **环境变量**：根据所选地域使用 `DASHSCOPE_API_KEY_INTL_AIGC` 或 `DASHSCOPE_API_KEY_CN_AIGC`
+
 ## 技术栈
 
 - **语音识别**: fun-asr（HTTP API，北京地域）
-- **翻译**: qwen-mt-flash（OpenAI兼容API）
+- **翻译**: qwen-mt-plus（OpenAI兼容API，质量档）
 - **声音复刻**: CosyVoice voice-enrollment（HTTP API + Base64）
-- **语音合成**: CosyVoice TTS（HTTP API，动态 rate）
+- **语音合成**: CosyVoice v3-plus TTS（HTTP API，动态 rate）
 - **音频处理**: ffmpeg（atempo时长对齐、adelay+amix合成）
 - **UI**: Gradio Web UI
 
@@ -66,9 +70,9 @@ VideoDubbingPipeline         — 核心Pipeline类
   .run()                     — 主入口，协调6步流程
   ._upload_files()           — Step 1: 上传纯人声MP3（返回oss URL + 本地路径）
   ._run_asr()                — Step 2: fun-asr语音识别（HTTP API + header）
-  ._translate()              — Step 3: qwen-mt-flash翻译
+  ._translate()              — Step 3: qwen-mt-plus翻译
   ._clone_voice()            — Step 4: CosyVoice声音复刻（HTTP API + Base64）
-  ._synthesize()             — Step 5: CosyVoice英文TTS（HTTP API + 动态rate + atempo）
+  ._synthesize()             — Step 5: CosyVoice v3-plus英文TTS（HTTP API + 动态rate + atempo）
   ._compose_video()          — Step 6: ffmpeg合成最终视频
 build_ui()                   — Gradio界面
 ```
@@ -79,7 +83,7 @@ build_ui()                   — Gradio界面
 API Key (AIGC): [sk-xxx          ] (password, 需CosyVoice权限)
 上传视频:      [拖拽上传 MP4/MOV]
 纯人声MP3:    [拖拽上传 MP3] (从vocalremover.org提取)
-翻译模型:      [qwen-mt-flash ▾]
+翻译模型:      [qwen-mt-plus ▾]
 [▶ 开始转换]
 
 ── 处理进度 ──
