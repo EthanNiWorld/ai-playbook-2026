@@ -170,7 +170,7 @@ Opus 4.8 发布后，Anthropic 与 Google 在 AI Coding 核心基准上的差距
 - [Anthropic API 文档](https://docs.anthropic.com)
 - [Claude API Platform](https://console.anthropic.com)
 - [Claude Model Release Timeline（独立整理）](https://hidekazu-konishi.com/entry/anthropic_claude_model_release_timeline.html)
-
+- 定价： https://platform.claude.com/docs/zh-CN/about-claude/pricing
 ## Changelog
 
 | 日期 | 变更内容 |

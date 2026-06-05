@@ -1,7 +1,7 @@
 ---
 name: ai-knowledge-miner
 description: 将 inbox/ 原始素材或 notes/ 长期笔记提炼为脱敏、结构化的知识文档，写入 knowledge/ 对应目录。支持 knowledge/ 交叉校验模式（对比已有文档 + 整合用户口述）。当用户提到"提炼"、"沉淀"、"处理 inbox"、"处理 notes"、"knowledge miner"、"对比"、"校验"时自动适用。
-tools: Read, Grep, Glob, Write, Bash
+tools: Read, Grep, Glob, Write, SearchReplace, SearchCodebase, Bash
 ---
 
 # 知识提炼助手
@@ -64,7 +64,7 @@ tools: Read, Grep, Glob, Write, Bash
 | 分类 | 目标路径 | 模板 |
 |------|----------|------|
 | AI 领域通识 | `knowledge/ai-general-notes/{子领域}.md` | `knowledge/ai-general-notes/_template.md` |
-| MaaS 模型知识 | `knowledge/{厂商}/maas/{模型}.md` | `knowledge/_maas_template.md` |
+| MaaS 模型知识 | `knowledge/{厂商}/maas/{模型}.md`（单模型）<br>`knowledge/{厂商}/{系列}-series.md`（模型系列） | `knowledge/_maas_template.md` |
 | 单产品知识 | 云厂商: `knowledge/{厂商}/{品类}/{产品}.md`<br>纯模型厂商: `knowledge/{厂商}/{产品}.md` | `knowledge/_product_template.md` |
 | 厂商竞争分析 | `knowledge/alibaba-cloud/competitive-analysis/{a-vs-b}/overview.md` | `knowledge/alibaba-cloud/competitive-analysis/_template.md` |
 | **内部产品对比** | `knowledge/{厂商}/{品类}/{product-a}-vs-{product-b}.md` | `knowledge/_internal-comparison_template.md` |
@@ -103,6 +103,7 @@ tools: Read, Grep, Glob, Write, Bash
    - 保留差异化信息，消除冗余重复
    - 更新现有文档的 SUMMARY、最后更新时间、Changelog
    - **不创建新索引**（复用现有文档索引）
+   - **工具选择**：合并必须使用 `SearchReplace`（精确定位替换），禁止用 `Write` 覆盖整个文件
 
 4. 一篇素材涉及多个分类时，拆分为多篇文档（但优先合并到各类别现有文档）
 5. 如果觉得模板需要优化的可以和用户确认、交流
@@ -114,6 +115,7 @@ tools: Read, Grep, Glob, Write, Bash
   - ❌ `new-feature.md`、`update.md`、`misc.md`
 - 多个词用连字符分隔，全小写：`agent-team-design.md`
 - 版本号紧跟产品名：`deepseek-v4.md`、`gpt-5.1.md`
+- **模型系列文档**：用 `{系列名}-series.md`，如 `gpt-5-series.md`、`minimax-series.md`、`deepseek-v-series.md`
 
 ### Step 3 — 脱敏（必须执行）
 
@@ -204,6 +206,7 @@ tools: Read, Grep, Glob, Write, Bash
 2. **新建文档**（仅在无相关文档或用户确认需要独立文档时）：
    - 将文档写入 `knowledge/` 对应目录
    - 更新 `/index.md` 追加条目，更新最后更新时间
+   - **⚠️ 链接前缀**：index.md 位于仓库根目录，所有链接必须以 `knowledge/` 开头（如 `[Qwen](knowledge/alibaba-cloud/maas/qwen.md)`），禁止省略前缀
 
 3. 如果内容已经存在，需要追加到合适位置，增量迭代，覆盖、删除原有内容需要与用户确认
 
@@ -292,6 +295,15 @@ tools: Read, Grep, Glob, Write, Bash
 - index.md — 新增 x 条索引（如未新建则为 0）
 - README.md — 同步统计/计数/精华表 ✅（如是合并操作则跳过）
 - archive/ — 原始素材已归档
+
+## 主推模型表规范（所有模型系列文档必须遵守）
+
+> 此规范适用于所有 `{系列}-series.md` 和 `qwen.md` 等包含"当前主推模型"表格的文档。
+
+1. **主推表仅保留当前在售主力模型**（通常 2-3 个），加 🚩 标识旗舰
+2. **历史模型移出主推表**：在表下方用 `> 📌 **历史模型**：...` 单独标注，说明"仍可调用，但已被 X 取代，不建议新项目选用"
+3. **未发布模型不列入主推表**：用 `> 📌 **路线图**：...` 单独标注，附 `[⚠️ 待验证]`
+4. **每次更新主推表时**：必须核实官方平台（如百炼模型广场）当前在售模型列表，不可凭记忆判断
 
 ## 边界
 
