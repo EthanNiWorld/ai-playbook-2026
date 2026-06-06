@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qwen3.7 系列升级说明</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap');
+
+  :root {
+    --primary: #4f46e5;
+    --primary-light: #818cf8;
+    --primary-dark: #3730a3;
+    --accent: #06b6d4;
+    --success: #059669;
+    --warning: #d97706;
+    --surface: #ffffff;
+    --surface-alt: #f8fafc;
+    --text: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --border: #e2e8f0;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 100%);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .page {
+    max-width: 920px;
+    margin: 0 auto;
+    background: var(--surface);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 20px 60px rgba(0,0,0,0.06);
+    border-radius: 0 0 24px 24px;
+    overflow: hidden;
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%);
+    color: #fff;
+    padding: 56px 56px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(129,140,248,0.2) 0%, transparent 60%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 60%);
+    border-radius: 50%;
+    animation: float 10s ease-in-out infinite reverse;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 24px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    margin-bottom: 20px;
+    color: rgba(255,255,255,0.85);
+    position: relative;
+    z-index: 1;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #34d399;
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1.25;
+    margin-bottom: 14px;
+    position: relative;
+    z-index: 1;
+    letter-spacing: -0.5px;
+  }
+  .hero h1 .highlight {
+    background: linear-gradient(90deg, #c4b5fd, #67e8f9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    font-size: 16px;
+    color: rgba(255,255,255,0.7);
+    max-width: 600px;
+    position: relative;
+    z-index: 1;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* Content */
+  .content {
+    padding: 48px 56px 56px;
+  }
+
+  /* Section title */
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--primary);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::before {
+    content: '';
+    width: 20px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    border-radius: 1px;
+  }
+
+  /* Benefit cards */
+  .benefit-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 48px;
+  }
+  .benefit-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .benefit-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .benefit-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(79,70,229,0.1);
+    border-color: var(--primary-light);
+  }
+  .benefit-card:hover::before {
+    opacity: 1;
+  }
+  .benefit-card .metric {
+    font-size: 36px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+    letter-spacing: -1px;
+  }
+  .benefit-card .metric-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+  .benefit-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  .benefit-card p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  /* Scenarios */
+  .scenarios {
+    margin-bottom: 48px;
+  }
+  .scenario-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .scenario-card {
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .scenario-card:hover {
+    transform: translateY(-4px);
+  }
+  .scenario-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+  }
+  .scenario-card h4 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .scenario-card p {
+    font-size: 13px;
+    line-height: 1.8;
+    opacity: 0.9;
+    position: relative;
+  }
+  .scenario-card .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    position: relative;
+    letter-spacing: 0.3px;
+  }
+  .sc-1 { background: linear-gradient(135deg, #3730a3, #6366f1); box-shadow: 0 8px 32px rgba(99,102,241,0.3); }
+  .sc-2 { background: linear-gradient(135deg, #0e7490, #06b6d4); box-shadow: 0 8px 32px rgba(6,182,212,0.3); }
+  .sc-3 { background: linear-gradient(135deg, #6d28d9, #a78bfa); box-shadow: 0 8px 32px rgba(167,139,250,0.3); }
+
+  /* Selection */
+  .selection {
+    margin-bottom: 48px;
+  }
+  .selection-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .selection-card {
+    border-radius: var(--radius);
+    padding: 28px;
+    border: 2px solid;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .selection-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+    opacity: 0.5;
+  }
+  .selection-card h4 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .selection-card .selection-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+  .selection-card p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
+  .selection-card .benchmark {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: rgba(0,0,0,0.03);
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    font-weight: 500;
+  }
+  .sel-plus {
+    border-color: #c7d2fe;
+    background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+  }
+  .sel-plus::after {
+    background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%);
+  }
+  .sel-plus h4 { color: var(--primary); }
+  .sel-plus:hover { border-color: var(--primary-light); box-shadow: 0 8px 32px rgba(99,102,241,0.1); }
+  .sel-max {
+    border-color: #a5f3fc;
+    background: linear-gradient(135deg, #ecfeff, #f0fdfa);
+  }
+  .sel-max::after {
+    background: radial-gradient(circle, rgba(6,182,212,0.1) 0%, transparent 70%);
+  }
+  .sel-max h4 { color: #0e7490; }
+  .sel-max:hover { border-color: var(--accent); box-shadow: 0 8px 32px rgba(6,182,212,0.1); }
+
+  /* Notice */
+  .notice {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 1px solid #fde68a;
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 48px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    box-shadow: 0 4px 12px rgba(217,119,6,0.06);
+  }
+  .notice-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    width: 36px;
+    height: 36px;
+    background: rgba(217,119,6,0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .notice h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #92400e;
+    margin-bottom: 6px;
+  }
+  .notice p {
+    font-size: 14px;
+    color: #78350f;
+    line-height: 1.7;
+  }
+
+  /* Pricing */
+  .pricing-section {
+    margin-bottom: 48px;
+  }
+  .pricing-table-wrap {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  thead th {
+    background: var(--surface-alt);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    padding: 14px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    color: var(--text-secondary);
+  }
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+  tbody tr:hover {
+    background: #fafbff;
+  }
+  .price-old {
+    color: var(--text-muted);
+    text-decoration: line-through;
+  }
+  .price-new {
+    color: var(--success);
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .badge-save {
+    display: inline-block;
+    background: #d1fae5;
+    color: #065f46;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 6px;
+    letter-spacing: 0.3px;
+  }
+  .model-name {
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* CTA */
+  .cta {
+    text-align: center;
+    padding: 36px 24px;
+    background: linear-gradient(135deg, #f8fafc, #eef2ff);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  .cta p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+  .cta strong {
+    color: var(--text);
+  }
+  .cta .links {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .cta .links a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+  .cta .links a:hover {
+    color: var(--primary-dark);
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 24px 56px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero, .content { padding-left: 24px; padding-right: 24px; }
+    .hero h1 { font-size: 24px; }
+    .benefit-grid, .scenario-grid, .selection-grid { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    body { background: #fff; }
+    .page { box-shadow: none; border-radius: 0; }
+    .benefit-card:hover, .scenario-card:hover, .selection-card:hover { transform: none; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">百炼平台 &middot; 模型升级说明</div>
+    <h1>升级到 <span class="highlight">Qwen3.7 系列</span><br>针对 Agent 能力全方位升级</h1>
+    <p class="hero-sub">面向 Agent 时代全新设计，四大核心能力代际跨越：工具调用（Tool Use）、编程（Coding）、执行控制（Harness）、长程任务（Long Horizon）。输出成本直降 33%，视觉理解质量大幅提升，新增 GUI 操作和屏幕交互能力。</p>
+  </div>
+
+  <div class="content">
+
+    <!-- Three Benefits -->
+    <div class="section-title">升级带来的三大收益</div>
+    <div class="benefit-grid">
+      <div class="benefit-card">
+        <div class="metric">近 3 倍</div>
+        <div class="metric-label">数学推理提升（vs Qwen3.6-Plus）</div>
+        <h3>性能跃升</h3>
+        <p>编程与 Agent 能力大幅提升，数学推理接近 3 倍增长。纯文本表现接近旗舰 Max，但响应更快。</p>
+      </div>
+      <div class="benefit-card">
+        <div class="metric">-33%</div>
+        <div class="metric-label">vs Qwen3.6-Plus 输出单价</div>
+        <h3>升级即降本</h3>
+        <p>输出价从 12 元/百万 Token 降至 8 元，同样调用量账单直接减少。详见下方定价表。</p>
+      </div>
+      <div class="benefit-card">
+        <div class="metric">No.1</div>
+        <div class="metric-label">Vision Arena 中国排名</div>
+        <h3>新能力解锁</h3>
+        <p>新增 GUI 操作、屏幕感知与视频理解，视觉理解质量大幅提升。ScreenSpot Pro 79 分，视觉推理 64.7 分。</p>
+      </div>
+    </div>
+
+    <!-- Scenarios -->
+    <div class="scenarios">
+      <div class="section-title">主流场景升级价值</div>
+      <div class="scenario-grid">
+        <div class="scenario-card sc-1">
+          <div class="tag">AI Coding</div>
+          <h4>编程与代码生成</h4>
+          <p>SWE-bench / Terminal-Bench 大幅领先。升级后可处理更复杂的编码任务，代码质量更高、一次通过率更好。编程场景下最直接的升级收益。</p>
+        </div>
+        <div class="scenario-card sc-2">
+          <div class="tag">Agentic LLM</div>
+          <h4>Agent 智能体应用</h4>
+          <p>支持 GUI 操作、工具调用、多步执行和自我修正闭环。作为 Qoder、OpenClaw 等 Agent 产品的底座模型，长链路任务的稳定性和准确率显著提升。</p>
+        </div>
+        <div class="scenario-card sc-3">
+          <div class="tag">视频理解</div>
+          <h4>视觉与多模态</h4>
+          <p>支持图片、视频和屏幕内容的深度理解与分析。适用于视频分析、屏幕监控、内容审核、多模态客服等场景，这是上一代不具备的能力维度。</p>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding:20px 24px;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;gap:16px;">
+        <div style="font-size:13px;font-weight:600;color:var(--text-secondary);white-space:nowrap;">主流工具已接入</div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.6;">支持 Cursor、Cline、Claude Code 等主流 AI 编程与 Agent 工具直接接入，无需额外适配即可使用 Qwen3.7 系列作为底座模型。</div>
+      </div>
+    </div>
+
+    <!-- Model Selection -->
+    <div class="selection">
+      <div class="section-title">选型建议</div>
+      <div class="selection-grid">
+        <div class="selection-card sel-plus">
+          <h4>Qwen3.7-Plus</h4>
+          <div class="selection-sub">多模态智能体 &middot; 性价比最优</div>
+          <p><strong>输出价降 33%，能力大幅升级。</strong>编程与 Agent 能力相比 Qwen3.6-Plus 全面领先，同时具备视觉理解、视频理解、GUI 操作等多模态能力，是绝大多数场景的最优选择。</p>
+        </div>
+        <div class="selection-card sel-max">
+          <h4>Qwen3.7-Max</h4>
+          <div class="selection-sub">纯文本旗舰 &middot; 编程效果极致</div>
+          <p><strong>API 成本仅为 Claude Opus 系列的 1/3 左右，</strong>编程效果在第一梯队，强于 GLM-5.1 和 DeepSeek-V4-Pro。上下文 1M，适合超长代码库与复杂推理任务。</p>
+          <div class="benchmark">SWE-bench Verified 80.4（DeepSeek-V4-Pro 73.6）&middot; SWE-bench Pro 60.6（GLM-5.1 58.4，DeepSeek-V4-Pro 52.1）&middot; Terminal-Bench 2.0 69.7（DeepSeek-V4-Pro 59.1）</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Notice -->
+    <div class="notice">
+      <div class="notice-icon">&#9888;&#65039;</div>
+      <div>
+        <h3>服务变更提醒</h3>
+        <p>参考行业惯例，平台算力正在向 Qwen3.7 系列集中，早期版本将逐步退出。越早升级，越能享受更充足的算力保障和更稳定的服务质量。</p>
+      </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="pricing-section">
+      <div class="section-title">定价对比</div>
+      <div class="pricing-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>模型</th>
+              <th>输入（元/百万Token）</th>
+              <th>输出（元/百万Token）</th>
+              <th>上下文</th>
+              <th>定位</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="model-name">Qwen3.7-Plus</td>
+              <td>2 <span style="color:var(--text-muted);font-size:12px;">($0.4)</span></td>
+              <td><span class="price-new">8</span> <span style="color:var(--text-muted);font-size:12px;">($1.6)</span> <span class="badge-save">&#8595; 33%</span> <span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#fff5e6;color:#d97706;font-size:11px;font-weight:600;border:1px solid #fed7aa;margin-left:4px;">限时 8 折</span></td>
+              <td>&le; 256K</td>
+              <td>多模态智能体</td>
+            </tr>
+            <tr>
+              <td class="model-name" style="color:var(--text-muted);">Qwen3.6-Plus</td>
+              <td style="color:var(--text-muted);">2</td>
+              <td><span class="price-old">12</span></td>
+              <td style="color:var(--text-muted);">&le; 256K</td>
+              <td style="color:var(--text-muted);">&mdash;</td>
+            </tr>
+            <tr>
+              <td class="model-name">Qwen3.7-Max</td>
+              <td>12</td>
+              <td>36 <span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#fee2e2;color:#dc2626;font-size:11px;font-weight:600;border:1px solid #fecaca;margin-left:4px;">限时 5 折</span></td>
+              <td>&le; 1M</td>
+              <td>纯文本旗舰</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:12px;font-size:12px;color:var(--text-muted);line-height:1.6;">注：Qwen3.7-Plus 美金价对应 国际站 输入 $0.4 / 输出 $1.6 每百万 Token；限时折扣（Plus 8 折 / Max 5 折）在标准价基础上叠加，活动为临时性质，请以阿里云官方公告为准。</p>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+      <p>如需了解升级方案或技术支持，请联系您的<strong>阿里云业务经理</strong>。</p>
+      <p class="links">了解更多：<a href="https://qwen.ai/blog?id=qwen3.7-plus" target="_blank">Qwen3.7-Plus 技术博客</a> &middot; <a href="https://qwen.ai/blog?id=qwen3.7" target="_blank">Qwen3.7-Max 技术博客</a></p>
+      <p class="links" style="margin-top:10px;">百炼 Qwen3.7-Plus API 接入文档：<a href="https://modelstudio.console.alibabacloud.com/ap-southeast-1?tab=doc&amp;modelId=qwen3.7-plus&amp;serviceSite=international#/doc/?type=model&amp;url=2840914_2&amp;modelId=qwen3.7-plus&amp;serviceSite=international" target="_blank">查看接入文档</a></p>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    阿里云百炼 &middot; Qwen3.7 系列升级说明
+  </div>
+
+</div>
+</body>
+</html>

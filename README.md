@@ -1,6 +1,6 @@
 # 🧠 AI Knowledge Base
 
-> AI Native 领域结构化知识库 — 双 Agent 驱动，持续进化
+> 覆盖 8 厂商 · 72 篇结构化知识文档 · 4 大知识维度：通识 · 产品 · 对比 · 方案
 
 <p align="center">
   <a href="index.md"><img src="https://img.shields.io/badge/📋-全局索引-blue?style=for-the-badge" alt="全局索引"></a>
@@ -17,6 +17,7 @@
 
 | 我想了解… | 入口 |
 |-----------|------|
+| ☁️ **阿里云全产品** | [百炼](knowledge/alibaba-cloud/maas/overview.md) · [Qwen](knowledge/alibaba-cloud/maas/qwen.md) · [Wan](knowledge/alibaba-cloud/maas/wan.md) · [HappyHorse](knowledge/alibaba-cloud/maas/happyhorse.md) · [Qoder](knowledge/alibaba-cloud/ai-coding/qoder.md) · [QoderWork](knowledge/alibaba-cloud/ai-application/qoder-work.md) · [MuleRun](knowledge/alibaba-cloud/ai-application/mulerun.md) · [Claw](knowledge/alibaba-cloud/ai-application/claw-family.md) · [GPU 选型](knowledge/alibaba-cloud/ai-infra/gpu-product-line.md) · [灵骏](knowledge/alibaba-cloud/ai-infra/lingjun.md) · [PAI](knowledge/alibaba-cloud/ai-platform/pai.md) |
 | 模型能力 / 定价 / 对比 | [Qwen](knowledge/alibaba-cloud/maas/qwen.md) · [Claude](knowledge/anthropic/maas/claude-api.md) · [GPT-5](knowledge/openai/gpt-5-series.md) · [Gemini](knowledge/gcp/maas/gemini.md) · [GLM](knowledge/zhipu/glm-series.md) · [MiniMax](knowledge/minimax/minimax-series.md) · [DeepSeek](knowledge/deepseek/general_intro.md) |
 | 文生图 / 视频生成 | [Wan](knowledge/alibaba-cloud/maas/wan.md) · [HappyHorse](knowledge/alibaba-cloud/maas/happyhorse.md) · [Imagen](knowledge/gcp/maas/imagen.md) |
 | AI Coding 工具 | [Qoder](knowledge/alibaba-cloud/ai-coding/qoder.md) · [Claude Code](knowledge/anthropic/ai-coding/claude-code.md) · [Kiro](knowledge/aws/ai-coding/kiro.md) · [Gemini Code Assist](knowledge/gcp/ai-coding/gemini-code-assist.md) |
@@ -109,7 +110,7 @@ mindmap
 
 ---
 
-## 🏗️ 知识生产流水线
+## 🏗️ 背后：双 Agent 驱动的知识生产流水线
 
 ```mermaid
 flowchart LR
@@ -154,3 +155,10 @@ flowchart LR
 ├── index.md            ← 📋 全局索引导航
 └── README.md
 ```
+
+---
+
+> *AI Native 领域结构化知识库 — 双 Agent 驱动，持续进化*
+>
+> **ai-native-expert** 联网深度分析 AI 问题，产出原始素材；
+> **ai-knowledge-miner** 提炼 inbox/notes 为脱敏、结构化的知识文档，自动入库。
