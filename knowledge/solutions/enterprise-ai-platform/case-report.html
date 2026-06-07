@@ -402,8 +402,8 @@
         <h4>迁移背景</h4>
         <p>客户原基于 AWS 的 H20 GPU 集群，因国内监管合规压力及云上成本优化需求，决策迁移至阿里云。核心业务线：</p>
         <ul style="margin-top:8px">
-          <li><strong>ZX App</strong>（AI 咨询类）— 高频对话场景</li>
-          <li><strong>Audit App</strong>（文档审计类）— 全量合规审计</li>
+          <li><strong>对话 App</strong>（智能对话）— 高频对话场景</li>
+          <li><strong>知识管理 App</strong>（文档处理）— 企业知识管理</li>
         </ul>
       </div>
       <div class="bg-card blue">
@@ -413,7 +413,7 @@
           <li>多业务 App 各自对接推理 Endpoint，运维复杂</li>
           <li>各层监控散装拼凑，无全链路视图</li>
           <li>Fallback 策略需业务侧自行实现</li>
-          <li>合规审计需额外开发，难满足国内监管</li>
+          <li>合规能力需额外开发，难满足国内监管</li>
         </ul>
       </div>
       <div class="bg-card green">
@@ -421,7 +421,7 @@
         <ul>
           <li>Higress AI 网关统一入口，全流量管控</li>
           <li>从网关到 GPU 卡全链路一体化可观测</li>
-          <li>全量 Prompt/Response 审计，NAS 持久化合规</li>
+          <li>全量 Prompt/Response 日志留痕，NAS 持久化合规</li>
           <li>ACK 统一纳管 ECS + 裸金属 + 百炼 API</li>
         </ul>
       </div>
@@ -472,7 +472,7 @@
             </tr>
             <tr>
               <td><span class="badge badge-p1">P1</span></td>
-              <td>AI 内容合规：全量 Prompt/Response 审计，满足监管要求，NAS 持久化</td>
+              <td>AI 内容合规：全量 Prompt/Response 日志留痕，满足监管要求，NAS 持久化</td>
               <td><span class="pill">Higress 审计日志</span> <span class="pill blue">Loki</span> <span class="pill green">NAS</span></td>
             </tr>
             <tr>
@@ -507,7 +507,7 @@
 │                         客户业务层                               │
 │                                                                 │
 │          ┌─────────────────┐      ┌─────────────────┐          │
-│          │    ZX  App      │      │    Audit App    │          │
+│          │    对话 App     │      │ 知识管理 App │          │
 │          └────────┬────────┘      └────────┬────────┘          │
 └───────────────────┼─────────────────────────┼───────────────────┘
                     │                         │
@@ -596,7 +596,7 @@
           <div class="principle-num">4</div>
           <div class="principle-text">
             <strong>内容合规</strong>
-            <span>全量 Prompt/Response 审计，NAS 持久化，满足国内监管要求</span>
+            <span>全量 Prompt/Response 日志留痕，NAS 持久化，满足国内监管要求</span>
           </div>
         </div>
         <div class="principle-item">
@@ -741,8 +741,8 @@
             </tr>
             <tr>
               <td>AI 内容合规</td>
-              <td>全量 Prompt/Response 持久化审计，满足国内监管；按 App 维度访问控制</td>
-              <td>合规审计需额外开发，难满足国内监管要求</td>
+              <td>全量 Prompt/Response 持久化日志留痕，满足国内监管；按 App 维度访问控制</td>
+              <td>合规能力需额外开发，难满足国内监管要求</td>
             </tr>
             <tr>
               <td>K8s 统一 GPU 调度</td>
@@ -780,7 +780,7 @@
             <tr class="opt-row-high"><td>3</td><td><span class="badge badge-p0">高</span></td><td>灵骏 + Ubuntu 兼容性</td><td>MOFED 版本与 aiext kernel 需锁版本；NCCL_IB_HCA 等参数需显式配置</td></tr>
             <tr class="opt-row-high"><td>4</td><td><span class="badge badge-p0">高</span></td><td>跨机 TP 必要性评估</td><td>H20 单机 1,128GB，≤72B 模型无需跨机；多副本 DP 通常 ROI 更高</td></tr>
             <tr class="opt-row-mid"><td>5</td><td><span class="badge badge-p1">中</span></td><td>两套 Prometheus 收敛</td><td>Higress 自带 Prometheus 改走 ServiceMonitor，统一为集群级一套</td></tr>
-            <tr class="opt-row-mid"><td>6</td><td><span class="badge badge-p1">中</span></td><td>Prompt 缓存层</td><td>Higress 已有 Redis，审计类重复 prompt 场景可节省 30-50% Token</td></tr>
+            <tr class="opt-row-mid"><td>6</td><td><span class="badge badge-p1">中</span></td><td>Prompt 缓存层</td><td>Higress 已有 Redis，知识管理类重复 prompt 场景可节省 30-50% Token</td></tr>
             <tr class="opt-row-mid"><td>7</td><td><span class="badge badge-p1">中</span></td><td>多 App 资源隔离</td><td>早期软隔离（Higress 限流配额），业务量大后考虑 SGLang 硬隔离</td></tr>
             <tr class="opt-row-mid"><td>8</td><td><span class="badge badge-p1">中</span></td><td>审计日志容量规划</td><td>全量存储约每月几百 GB，需明确合规要求是全量还是元数据+异常全量</td></tr>
             <tr class="opt-row-low"><td>9</td><td><span class="badge badge-p2">低</span></td><td>GPU 成本归集</td><td>DCGM + 业务 label，可算出单次会话 GPU 成本，对接业务定价</td></tr>
