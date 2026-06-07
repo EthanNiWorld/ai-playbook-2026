@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-06-04
+> 最后更新：2026-06-07
 
 ## 🔍 快速查找
 
@@ -29,8 +29,10 @@
 | Kiro / Spec-driven coding | [Kiro](knowledge/aws/ai-coding/kiro.md) |
 | DeepSeek / R1 / V4 / 开源 | [DeepSeek](knowledge/deepseek/general_intro.md) ⭐ |
 | MiniMax / M3 / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
+| Kimi / 月之暗面 / Moonshot / K2.6 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
 | GLM / 智谱 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) |
 | GPT-5 / ChatGPT / OpenAI | [GPT-5 系列](knowledge/openai/gpt-5-series.md) |
+| MAI / 微软自研 / Thinking / Code-Flash / Copilot 模型 | [MAI 模型家族](knowledge/microsoft/mai-models.md) |
 | 企业自建推理 / Higress / AI 网关 | [企业自建 AI 推理平台](knowledge/solutions/enterprise-ai-platform/overview.md) ⭐ |
 | 数据出境 / 数据主权 / CN 版 | [MuleRun](knowledge/alibaba-cloud/ai-application/mulerun.md#mulerun全球版与骡子快跑中国版的关系) / [QoderWork](knowledge/alibaba-cloud/ai-application/qoder-work.md) |
 
@@ -94,6 +96,13 @@
 ### OpenAI
 - 公司分析: [OpenAI 公司分析报告](knowledge/openai/general_intro.md) — GPT-5 系列、ChatGPT、Native Computer Use
 - 模型系列: [GPT-5 系列](knowledge/openai/gpt-5-series.md) — GPT-5/5.2/5.3/5.4/5.5
+
+### Microsoft AI (MAI)
+- 模型家族: [MAI 模型家族](knowledge/microsoft/mai-models.md) — Build 2026 首发 7 款自研模型：🚩 MAI-Thinking-1（推理旗舰，35B 激活/~1T 总参，AIME 2026 94.5%）/ MAI-Code-1-Flash（5B 激活，GitHub Copilot 原生集成）/ Image-2.5 / Transcribe-1.5 / Voice-2
+
+### 月之暗面（Moonshot AI）
+- 公司分析: [月之暗面公司分析报告](knowledge/moonshot/general_intro.md) — 2023 成立、估值>$200 亿、累计融资超 376 亿元、ARR>$2 亿
+- 模型系列: [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) — K2/K2.5/K2.6，**K2.6 Agent Swarm（300 子 Agent）、13 小时长周期编码**
 
 ## 线：对比分析（阿里云视角）
 
