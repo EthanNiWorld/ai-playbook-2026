@@ -1,6 +1,6 @@
 # Qoder
 
-> 最后更新: 2026-05-26
+> 最后更新: 2026-06-08
 > 所属厂商: Alibaba (Alibaba Cloud)
 > 产品类别: AI Coding
 > 状态: Published
@@ -35,6 +35,24 @@
 | Qoder IDE | 原生 AI IDE 开发环境 |
 | JetBrains 插件 | 适配 IntelliJ IDEA 等 JetBrains 全系 IDE |
 | Qoder CLI | 终端原生工作形态 |
+
+### Qoder CLI 技术栈演进
+
+Qoder CLI 最初使用 **Go** 语言开发，后因不满足快速迭代需求，整体重构为 **TypeScript**。投入 7 人、30 天完成重写二十万行代码。 可以作为qoder本身的案例case。 
+
+**为什么从 Go 切换到 TypeScript？**
+
+| 维度 | Go | TypeScript | 切换原因 |
+|------|-----|-----------|----------|
+| AI 工具链生态 | pkg.go.dev AI 库较少 | npm AI/LLM SDK 丰富（OpenAI、Anthropic、MCP 官方 SDK 均为 TS 优先） | TS 生态与 AI Coding 工具天然亲和 |
+| 流式交互架构 | goroutine 强于高并发，但流式 UI 渲染需更多胶水 | async/await + ReadableStream 原生适配流式 LLM 输出 + 终端渲染 | AI CLI 核心是流式交互，TS 更自然 |
+| IDE 生态亲和度 | 与 VSCode/LSP 生态距离较远 | VSCode 本身为 TS/Electron，LSP、tree-sitter TS binding 为一等公民 | Qoder 需深度集成 IDE 能力 |
+| MCP 协议支持 | 需自行适配 | Anthropic MCP 官方 SDK 为 TS 优先 | Qoder 深度依赖 MCP 生态 |
+| 终端 UI 框架 | cobra + bubbletea，生态较小 | Ink（React for CLI）、oclif、@inquirer 等，迭代快 | 复杂终端交互开发效率更高 |
+| 团队与招聘 | Go 开发者池较小 | TS/全栈工程师池大，前端可无缝参与 CLI 开发 | 扩大可参与开发的团队范围 |
+| 代码复用 | CLI 与 IDE 插件（TS）需各写一套 | CLI 与 IDE 插件共享核心逻辑（模型调用、MCP 集成） | 消除跨形态重复开发 |
+
+> **总结**：Go 的优势在高并发后端服务；Qoder CLI 本质是“AI 交互前端”（流式 UI + IDE 集成 + MCP 协议），这些是 TypeScript 的主场。
 
 ### 核心能力特性
 
@@ -134,3 +152,4 @@ Qoder 采用 Credit 计量制而非纯席位订阅，背后逻辑：
 |------|----------|
 | 2026-04-20 | 初始创建（Draft） |
 | 2026-05-26 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20260526.md - 完善产品定位、4大核心模式、计费模式、安全合规、竞品对照 |
+| 2026-06-08 | 增量：用户口述 - 新增 Qoder CLI 技术栈演进（Go → TypeScript，7人30天）及切换原因分析 |

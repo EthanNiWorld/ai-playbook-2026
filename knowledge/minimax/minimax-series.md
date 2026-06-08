@@ -1,6 +1,6 @@
 # MiniMax M 系列模型
 
-> 最后更新: 2026-06-04
+> 最后更新: 2026-06-08
 > 所属厂商: MiniMax（稀宇科技）
 > 产品类别: MaaS
 > 状态: Published
@@ -27,7 +27,7 @@
 - **架构**：MoE + MSA（MiniMax Sparse Attention） [来源: minimaxi.com/blog/minimax-m3]
 - **上下文**：1M tokens [来源: minimaxi.com/blog/minimax-m3]
 - **多模态**：原生多模态（图片 + 视频输入 + Computer Use） [来源: minimaxi.com/blog/minimax-m3]
-- **开源**：10 天内开源权重 [来源: minimaxi.com/blog/minimax-m3]
+- **开源**：已开源权重，官方定位为"业内首款同时集齐百万上下文、前沿代码能力、原生多模态三合一的开源权重重大模型" [来源: 用户口述 + MiniMax 官方宣传图] ⚠️ 待官方验证
 - **场景**：Agentic Coding、长程 Agent 任务、论文复现、CUDA 算子优化、自主训模型
 - **特点**：
   1. **MSA 稀疏注意力**：100 万上下文下每 token 计算量仅为上代 1/20，Prefill 加速 9.7x，Decode 加速 15.6x，比 Flash-Sparse-Attention/flash-moba 快 4 倍以上 [来源: minimaxi.com/blog/minimax-m3]
@@ -94,7 +94,7 @@
 
 | 限制项 | 具体值 | 说明 |
 |--------|--------|------|
-| 开源版本 | M1/M2 开源，M2.7 闭源 | M3 计划 10 天内开源权重 [来源: minimaxi.com/blog/minimax-m3] |
+| 开源版本 | M1/M2/M3 已开源，M2.7 闭源 | M3 官方确认为开源权重模型 [来源: 用户口述] ⚠️ 待官方验证 |
 | 最大输出 | 16,384 tokens | 单次回复长度受限 |
 | 厂商背景 | MiniMax 非阿里云产品 | 需通过 MiniMax 开放平台调用，非百炼 |
 
@@ -153,6 +153,7 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-06-08 | 更新：M3 开源状态从"计划 10 天内开源"修正为"已确认开源权重" [来源: 用户口述 + MiniMax 官方宣传图] |
 | 2026-06-04 | 主推模型表精简：仅保留 M3（旗舰）+ M2.7（次旗舰）为主推，M2/M1 移入历史模型标注 |
 | 2026-06-01 | 合并：ai-knowledge-by-qoder-ai-native-agent-20260601.md - M3 从"即将"升级为正式发布，新增 M3 详细参数、Benchmark、定价、MSA 稀疏注意力、Token Plan、市场反应 |
 | 2026-05-28 | 新建文档，首次提炼 M 系列模型系列信息 |
