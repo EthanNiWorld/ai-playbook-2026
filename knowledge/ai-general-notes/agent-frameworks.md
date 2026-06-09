@@ -7,7 +7,7 @@
 <!-- SUMMARY_START -->
 **一句话说明**: LangChain 生态提供三层递进的 Agent 开发架构——LangChain（构建工具包）→ LangGraph（运行时控制层）→ Deep Agents（高阶 Harness），对应从原型到生产到深度任务的复杂度阶梯
 **核心价值**: 理解三层架构的差异和选型边界，避免过度工程或能力不足；Deep Agents 的设计哲学直接源自 Claude Code，是开源世界对闭源 Deep Agent 产品的通用化抽象
-**相关产品**: [Harness](harness.md), [Agent 定义](agent-def.md), [Claude Code](../anthropic/ai-coding/claude-code.md), [Qoder](../alibaba-cloud/ai-coding/qoder.md)
+**相关产品**: [Harness](harness.md), [Agent 定义](agent-def.md), [Claude Code](../anthropic/claude-code.md), [Qoder](../alibaba-cloud/ai-coding/qoder.md)
 <!-- SUMMARY_END -->
 
 ## 是什么

@@ -1,6 +1,6 @@
 # 🌐 a-knowledge-graph
 
-> ☁️ **以阿里云 AI 全栈为核心** · 覆盖 10 厂商 · 77 篇结构化知识文档 · 4 大知识维度：通识 · 产品 · 对比 · 方案
+> ☁️ **以阿里云 AI 全栈为核心** · 覆盖 10 厂商 · 80 篇结构化知识文档 · 4 大知识维度：通识 · 产品 · 对比 · 方案
 
 <p align="center">
   <a href="index.md"><img src="https://img.shields.io/badge/📋-全局索引-blue?style=for-the-badge" alt="全局索引"></a>
@@ -18,10 +18,10 @@
 | 我想了解… | 入口 |
 |-----------|------|
 | ☁️ **阿里云AI全产品** | [百炼](knowledge/alibaba-cloud/maas/overview.md) · [Qwen](knowledge/alibaba-cloud/maas/qwen.md) · [Wan](knowledge/alibaba-cloud/maas/wan.md) · [HappyHorse](knowledge/alibaba-cloud/maas/happyhorse.md) · [Qoder](knowledge/alibaba-cloud/ai-coding/qoder.md) · [QoderWork](knowledge/alibaba-cloud/ai-application/qoder-work.md) · [MuleRun](knowledge/alibaba-cloud/ai-application/mulerun.md) · [Claw](knowledge/alibaba-cloud/ai-application/claw-family.md) |
-| 模型能力 / 定价 / 对比 | [Qwen](knowledge/alibaba-cloud/maas/qwen.md) · [Claude](knowledge/anthropic/maas/claude-api.md) · [GPT-5](knowledge/openai/gpt-5-series.md) · [Gemini](knowledge/gcp/maas/gemini.md) · [GLM](knowledge/zhipu/glm-series.md) · [MiniMax](knowledge/minimax/minimax-series.md) · [DeepSeek](knowledge/deepseek/general_intro.md) · [Kimi](knowledge/moonshot/kimi-k-series.md) · [MAI](knowledge/microsoft/mai-models.md) |
+| 模型能力 / 定价 / 对比 | [Qwen](knowledge/alibaba-cloud/maas/qwen.md) · [Claude](knowledge/anthropic/claude-api.md) · [GPT-5](knowledge/openai/gpt-5-series.md) · [Gemini](knowledge/gcp/maas/gemini.md) · [GLM](knowledge/zhipu/glm-series.md) · [MiniMax](knowledge/minimax/minimax-series.md) · [DeepSeek](knowledge/deepseek/general_intro.md) · [Kimi](knowledge/moonshot/kimi-k-series.md) · [MAI](knowledge/microsoft/mai-models.md) |
 | 文生图 / 视频生成 | [Wan](knowledge/alibaba-cloud/maas/wan.md) · [HappyHorse](knowledge/alibaba-cloud/maas/happyhorse.md) · [Imagen](knowledge/gcp/maas/imagen.md) |
-| AI Coding 工具 | [Qoder](knowledge/alibaba-cloud/ai-coding/qoder.md) · [Claude Code](knowledge/anthropic/ai-coding/claude-code.md) · [Kiro](knowledge/aws/ai-coding/kiro.md) · [Gemini Code Assist](knowledge/gcp/ai-coding/gemini-code-assist.md) |
-| AI 应用平台 | [QoderWork](knowledge/alibaba-cloud/ai-application/qoder-work.md) · [MuleRun](knowledge/alibaba-cloud/ai-application/mulerun.md) · [Claw](knowledge/alibaba-cloud/ai-application/claw-family.md) · [Claude Teams](knowledge/anthropic/ai-application/claude-teams.md) |
+| AI Coding 工具 | [Qoder](knowledge/alibaba-cloud/ai-coding/qoder.md) · [Claude Code](knowledge/anthropic/claude-code.md) · [Codex](knowledge/openai/codex.md) · [Kiro](knowledge/aws/ai-coding/kiro.md) · [Gemini Code Assist](knowledge/gcp/ai-coding/gemini-code-assist.md) |
+| AI 应用平台 | [QoderWork](knowledge/alibaba-cloud/ai-application/qoder-work.md) · [MuleRun](knowledge/alibaba-cloud/ai-application/mulerun.md) · [Claw](knowledge/alibaba-cloud/ai-application/claw-family.md) · [Claude Cowork](knowledge/anthropic/claude-cowork.md) · [Claude Teams](knowledge/anthropic/claude-teams.md) |
 | GPU / AI 基础设施 | [GPU 选型](knowledge/alibaba-cloud/ai-infra/gpu-product-line.md) · [灵骏](knowledge/alibaba-cloud/ai-infra/lingjun.md) · [Trainium](knowledge/aws/ai-infra/trainium.md) · [TPU](knowledge/gcp/ai-infra/tpu.md) |
 | 竞品对比 | [Qoder vs Kiro](knowledge/alibaba-cloud/competitive-analysis/qoder-vs-kiro/overview.md) · [Qoder vs Trae](knowledge/alibaba-cloud/competitive-analysis/qoder-vs-trae/overview.md) · [阿里云 vs AWS](knowledge/alibaba-cloud/competitive-analysis/alibaba-vs-aws/overview.md) · [阿里云 vs 火山引擎](knowledge/alibaba-cloud/competitive-analysis/alibaba-vs-volcengine/overview.md) |
 | AI 通识概念 | [Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [RAG](knowledge/ai-general-notes/rag.md) · [Fine-tuning](knowledge/ai-general-notes/fine-tuning.md) |
@@ -62,7 +62,7 @@
 
 | 层级 | 核心产品 | 快速入口 |
 |------|---------|---------|
-| 🧠 **MaaS 模型即服务** | 百炼 · Qwen3.7 · Wan2.6 · HappyHorse | [百炼](knowledge/alibaba-cloud/maas/overview.md) · [Qwen](knowledge/alibaba-cloud/maas/qwen.md) · [Wan](knowledge/alibaba-cloud/maas/wan.md) · [HappyHorse](knowledge/alibaba-cloud/maas/happyhorse.md) |
+| 🧠 **MaaS 模型即服务** | 百炼 · Qwen3.7 · Wan2.7 · HappyHorse | [百炼](knowledge/alibaba-cloud/maas/overview.md) · [Qwen](knowledge/alibaba-cloud/maas/qwen.md) · [Wan](knowledge/alibaba-cloud/maas/wan.md) · [HappyHorse](knowledge/alibaba-cloud/maas/happyhorse.md) |
 | ⌨️ **AI Coding** | Qoder（企业级 AI Coding） | [Qoder](knowledge/alibaba-cloud/ai-coding/qoder.md) · [vs Kiro](knowledge/alibaba-cloud/competitive-analysis/qoder-vs-kiro/overview.md) · [vs Trae](knowledge/alibaba-cloud/competitive-analysis/qoder-vs-trae/overview.md) |
 | 🤖 **AI 应用平台** | QoderWork · MuleRun · Claw · JVS Crew | [QoderWork](knowledge/alibaba-cloud/ai-application/qoder-work.md) · [MuleRun](knowledge/alibaba-cloud/ai-application/mulerun.md) · [Claw](knowledge/alibaba-cloud/ai-application/claw-family.md) · [JVS Crew](knowledge/alibaba-cloud/ai-application/jvs-crew.md) |
 | ⚡ **AI Infra（GPU 算力）** | 灵骏 · ECS GPU · GPU 选型 | [GPU 选型](knowledge/alibaba-cloud/ai-infra/gpu-product-line.md) · [灵骏](knowledge/alibaba-cloud/ai-infra/lingjun.md) · [ECS GPU](knowledge/alibaba-cloud/ai-infra/ecs-gpu.md) |
@@ -100,20 +100,21 @@ mindmap
         AI Coding: Kiro / Q Developer
         AI Infra: Trainium / Inferentia
       GCP
-        MaaS: Gemini 3.1 / Imagen
+        MaaS: Gemini 3.1 / 3.5 Flash / Imagen
         AI Coding: Gemini Code Assist
         AI Infra: TPU
         AI Platform: Vertex AI
       Anthropic
         MaaS: Opus 4.8 / Sonnet 4.6 / Haiku 4
         AI Coding: Claude Code
-        AI App: Managed Agents / Teams
+        AI App: Cowork / Managed Agents / Teams
       MiniMax
         M3 旗舰 / M2.7 / Agent Team
       DeepSeek
         V4 对话 / R1 推理
       OpenAI
         GPT-5.5 / GPT-5.4 / GPT-5.3-Codex
+        Codex App: 多 Agent 编排平台
       Microsoft AI
         MAI-Thinking-1 / MAI-Code-1-Flash
       智谱
@@ -167,13 +168,13 @@ flowchart LR
 ├── inbox/              ← 📥 原始素材暂存（处理后自动归档）
 ├── notes/              ← 📝 长期笔记（销售洞察、Daily Note）
 ├── archive/            ← 🗄️ 已处理素材备份
-├── knowledge/          ← 🎯 结构化知识库（77 篇，含模板）
+├── knowledge/          ← 🎯 结构化知识库（80 篇，含模板）
 │   ├── ai-general-notes/   ← 🟦 AI 通识（11 篇：Agent / Harness / Prompt / RAG / 记忆 / 增长飞轮…）
 │   ├── alibaba-cloud/      ← 🟧 阿里云（20 篇：MaaS / Coding / App / Infra / 竞品分析）
 │   ├── aws/                ← 🔵 AWS（10 篇：MaaS / Coding / App / Infra / Platform）
 │   ├── gcp/                ← 🔵 GCP（7 篇：MaaS / Coding / App / Infra / Platform）
-│   ├── anthropic/          ← 🔵 Anthropic（5 篇：MaaS / Coding / App）
-│   ├── openai/             ← 🔵 OpenAI（2 篇：公司分析 / GPT-5系列）
+│   ├── anthropic/          ← 🔵 Anthropic（6 篇：MaaS / Coding / App）
+│   ├── openai/             ← 🔵 OpenAI（3 篇：公司分析 / GPT-5系列 / Codex）
 │   ├── microsoft/          ← 🔵 Microsoft AI（1 篇：MAI 模型家族）
 │   ├── deepseek/           ← 🟣 DeepSeek（3 篇：公司分析 / V系列 / R系列）
 │   ├── minimax/            ← 🟣 MiniMax（3 篇：公司分析 / 模型系列 / Agent Team）

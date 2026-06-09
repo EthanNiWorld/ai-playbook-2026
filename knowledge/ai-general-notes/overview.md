@@ -7,7 +7,7 @@
 <!-- SUMMARY_START -->
 **一句话说明**: 大语言模型（LLM）是基于大规模语料训练的自然语言处理模型
 **核心价值**: 理解、生成、推理人类语言能力
-**相关产品**: [阿里云百炼](../../product/alibaba-cloud/pai/overview.md), [AWS Bedrock](../../product/aws/bedrock/overview.md)
+**相关产品**: [阿里云百炼](../alibaba-cloud/maas/overview.md), [AWS Bedrock](../aws/maas/overview.md)
 <!-- SUMMARY_END -->
 
 ## 是什么
@@ -25,7 +25,7 @@
 | 能力 | 阿里云 | AWS | 开源 |
 |------|--------|-----|------|
 
-> 详细产品分析见 `product/` 对应文档
+> 详细产品分析见各厂商对应文档
 
 ## 最佳实践
 

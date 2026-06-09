@@ -3,16 +3,19 @@
 > 最后更新: YYYY-MM-DD
 > 所属厂商: {厂商名称}
 > 产品类别: MaaS
+> 状态: Draft / Reviewed / Published
 
+<!-- SUMMARY_START -->
 **定位**: 
 **当前主推**: {当前主推模型系列及型号}
 **适用**: 
 **不适用**: 
+<!-- SUMMARY_END -->
 
 ## 当前主推模型
 
-| 模型 | 定位 | 上下文 | 特点 |推出时间
-|------|------|--------|------|
+| 模型 | 定位 | 上下文 | 特点 | 推出时间 |
+|------|------|--------|------|----------|
 | {Model-Max} | 旗舰 | | |
 | {Model-Plus} | 均衡 | | |
 | {Model-flash} | 轻量 | | |
@@ -55,9 +58,7 @@
 
 ## 参考资料
 
-- agentic LLM比如qwen 参考:https://artificialanalysis.ai/models?intelligence=coding-index
-
-- AGIC比如wan 参考 https://artificialanalysis.ai/video/models
+- {官方文档 / 权威评测 URL}
 
 ## Changelog
 | 日期 | 变更内容 |

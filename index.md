@@ -37,10 +37,10 @@
 | AI 记忆 / Memory / Dreaming | [AI Agent 记忆](knowledge/ai-general-notes/agent-memory.md) ⭐ |
 | AI 公司增长 / ARR / 飞轮 | [AI 增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ |
 | Prompt 工程 / 防幻觉 | [Prompt Engineering](knowledge/ai-general-notes/prompt-engineering.md) ⭐ |
-| Claude / Opus 4.8 / Sonnet / Haiku | [Claude API](knowledge/anthropic/maas/claude-api.md) |
-| Claude Code / Kiro / 竞品 | [Claude Code](knowledge/anthropic/ai-coding/claude-code.md) · [Qoder vs Kiro](knowledge/alibaba-cloud/competitive-analysis/qoder-vs-kiro/overview.md) |
+| Claude / Opus 4.8 / Sonnet / Haiku | [Claude API](knowledge/anthropic/claude-api.md) |
+| Claude Code / Kiro / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) · [Qoder vs Kiro](knowledge/alibaba-cloud/competitive-analysis/qoder-vs-kiro/overview.md) |
 | Gemini / Google / Imagen | [Gemini](knowledge/gcp/maas/gemini.md) · [Imagen](knowledge/gcp/maas/imagen.md) |
-| GPT-5 / ChatGPT / OpenAI | [GPT-5 系列](knowledge/openai/gpt-5-series.md) |
+| GPT-5 / ChatGPT / OpenAI / Codex | [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
 | MAI / 微软自研 / Copilot 模型 | [MAI 模型家族](knowledge/microsoft/mai-models.md) |
 | DeepSeek / R1 / V4 / 开源 | [DeepSeek](knowledge/deepseek/general_intro.md) ⭐ |
 | MiniMax / M3 / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
@@ -126,7 +126,7 @@
 
 **MaaS**
 - [Gemini Enterprise Agent Platform](knowledge/gcp/maas/overview.md)
-- [Gemini](knowledge/gcp/maas/gemini.md) — 2.5 Pro / Flash
+- [Gemini](knowledge/gcp/maas/gemini.md) — 3.1 Pro（当前旗舰） / 3.5 Flash（Agent/Coding 性价比率先，含 benchmark 对比）
 - [Imagen](knowledge/gcp/maas/imagen.md) — 图像生成
 
 **AI Coding**
@@ -144,14 +144,15 @@
 ### Anthropic
 
 - 公司分析: [Anthropic 公司分析](knowledge/anthropic/general_intro.md) — PBC 治理、Scaling Laws 团队、Claude 家族、ARR $2B+（2026.04）
-- MaaS: [Claude API](knowledge/anthropic/maas/claude-api.md) — Opus 4.8（SWE-Bench Pro 69.2%）/ Sonnet 4.6 / Haiku 4
-- AI Coding: [Claude Code](knowledge/anthropic/ai-coding/claude-code.md) — 终端 AI 编程
-- AI App: [Claude Teams](knowledge/anthropic/ai-application/claude-teams.md) · [Claude Managed Agents](knowledge/anthropic/ai-application/claude-managed-agents.md)
+- MaaS: [Claude API](knowledge/anthropic/claude-api.md) — Opus 4.8（SWE-Bench Pro 69.2%）/ Sonnet 4.6 / Haiku 4
+- AI Coding: [Claude Code](knowledge/anthropic/claude-code.md) — 终端 AI 编程
+- AI App: [Claude Cowork](knowledge/anthropic/claude-cowork.md) — 桌面通用知识工作 Agent · [Claude Teams](knowledge/anthropic/claude-teams.md) · [Claude Managed Agents](knowledge/anthropic/claude-managed-agents.md)
 
 ### OpenAI
 
 - 公司分析: [OpenAI 公司分析](knowledge/openai/general_intro.md) — GPT-5 系列、ChatGPT、Native Computer Use
 - 模型系列: [GPT-5 系列](knowledge/openai/gpt-5-series.md) — GPT-5 / 5.2 / 5.3 / 5.4 / 5.5
+- AI Coding: [Codex](knowledge/openai/codex.md) — 多形态 AI 编程 Agent 平台（CLI/IDE/Web/桌面），多 Agent 编排
 
 ### Microsoft AI (MAI)
 

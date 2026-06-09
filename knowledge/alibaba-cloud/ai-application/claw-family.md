@@ -10,7 +10,7 @@
 **适用**: 企业级 AI Agent 构建、多 Agent 协作、数据库 AI 操作、Agent 云端执行环境
 **不适用**: 纯模型推理（无 Agent 编排需求）、对 OpenClaw 无依赖的自研 Agent 框架
 **竞品**: Claude Managed Agents（Anthropic）、Copilot Studio（Microsoft）
-**常搭配**: 百炼大模型（qwen3.6-plus / DeepSeek-V4）、无影 AgentBay、钉钉/飞书
+**常搭配**: 百炼大模型（qwen3.7-plus / DeepSeek-V4）、无影 AgentBay、钉钉/飞书
 <!-- SUMMARY_END -->
 
 ## 产品清单
@@ -121,7 +121,7 @@
 
 ## 底座模型选型建议
 
-龙虾家族默认搭配百炼 qwen3.6-plus，但在**多 Agent 协作 / 复杂 Agentic Coding** 场景下，DeepSeek-V4 是值得评估的另一个选项。
+龙虾家族默认搭配百炼 qwen3.7-plus，但在**多 Agent 协作 / 复杂 Agentic Coding** 场景下，DeepSeek-V4 是值得评估的另一个选项。
 
 ### DeepSeek V4 作为底座的依据
 
@@ -176,3 +176,4 @@ DeepSeek 官方发布页明确点名 OpenClaw 集成：
 |------|----------|
 | 2026-04-23 | 初始创建，基于 龙虾家族产品分析对话记录（2026-04-23） |
 | 2026-05-27 | 合并 ai-native-expert 沉淀：新增「底座模型选型建议」章节，含 DeepSeek V4 vs V3.2 在龙虾场景下的关键差异与各产品选型推荐 |
+| 2026-06-09 | 修正：常搭配底座模型从 qwen3.6-plus 更新为 qwen3.7-plus |

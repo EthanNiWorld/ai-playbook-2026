@@ -7,7 +7,7 @@
 <!-- SUMMARY_START -->
 **一句话说明**: AI 公司增长的底层逻辑是"Killer App × 企业信任 × 消费制收入模型"三重飞轮叠加
 **核心价值**: 理解 AI 公司为何能实现超常规增长（Anthropic 17 个月 47 倍），以及这种增长的可持续性条件
-**相关产品**: [Claude](../anthropic/maas/claude-api.md), [Claude Code](../anthropic/ai-coding/claude-code.md), [Anthropic](../anthropic/general_intro.md)
+**相关产品**: [Claude](../anthropic/claude-api.md), [Claude Code](../anthropic/claude-code.md), [Anthropic](../anthropic/general_intro.md)
 <!-- SUMMARY_END -->
 
 > ⚠️ 素材截止：2026-05-29。ARR、估值等数据可能已有更新，使用前请验证。

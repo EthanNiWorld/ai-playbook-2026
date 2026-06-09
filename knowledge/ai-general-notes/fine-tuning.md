@@ -7,7 +7,7 @@
 <!-- SUMMARY_START -->
 **一句话说明**: 在预训练模型基础上，使用领域数据继续训练以适配特定任务
 **核心价值**: 提升模型在垂直领域的表现
-**相关产品**: [阿里云百炼](../../product/alibaba-cloud/pai/overview.md), [AWS SageMaker](../../product/aws/sagemaker/overview.md)
+**相关产品**: [阿里云百炼](../alibaba-cloud/maas/overview.md), [AWS SageMaker](../aws/ai-platform/sagemaker.md)
 <!-- SUMMARY_END -->
 
 ## 是什么
@@ -25,7 +25,7 @@
 | 能力 | 阿里云 | AWS | 开源 |
 |------|--------|-----|------|
 
-> 详细产品分析见 `product/` 对应文档
+> 详细产品分析见各厂商对应文档
 
 ## 最佳实践
 

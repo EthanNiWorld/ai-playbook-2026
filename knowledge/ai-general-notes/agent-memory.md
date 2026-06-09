@@ -7,7 +7,7 @@
 <!-- SUMMARY_START -->
 **一句话说明**: AI 记忆系统从"用户手动管理的笔记"演进为"AI 自动维护的用户模型"，是 Agent 从工具走向助手的关键能力
 **核心价值**: 理解 AI 记忆的工程本质（结构化摘要 + 检索增强 + 时效性衰减），掌握记忆系统设计的三大核心维度
-**相关产品**: [ChatGPT](../openai/gpt-5-series.md), [Claude](../anthropic/maas/claude-api.md), [Agent 定义](agent-def.md)
+**相关产品**: [ChatGPT](../openai/gpt-5-series.md), [Claude](../anthropic/claude-api.md), [Agent 定义](agent-def.md)
 <!-- SUMMARY_END -->
 
 > ⚠️ 素材截止：2026-06-04。记忆系统架构可能随产品迭代快速变化，使用前请验证。
