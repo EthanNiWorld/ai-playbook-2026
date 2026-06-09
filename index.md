@@ -8,7 +8,7 @@
 - [🔍 快速查找](#-快速查找)
 - [道：AI 领域知识（跨厂商）](#道ai-领域知识跨厂商)
 - [点：单产品知识](#点单产品知识)
-  - 云厂商：[阿里云](#阿里云) · [AWS](#aws) · [GCP](#gcp)
+  - 云厂商：[阿里云](#阿里云) · [GCP](#gcp)
   - 海外模型厂商：[Anthropic](#anthropic) · [OpenAI](#openai) · [Microsoft AI (MAI)](#microsoft-ai-mai)
   - 中国模型厂商：[DeepSeek](#deepseek深度求索) · [MiniMax](#minimax) · [智谱 AI](#智谱-aizhipu) · [月之暗面](#月之暗面moonshot-ai)
 - [线：对比分析（阿里云视角）](#线对比分析阿里云视角)
@@ -31,15 +31,15 @@
 | QoderWork / 桌面助手 / 本地 Agent | [QoderWork](knowledge/alibaba-cloud/ai-application/qoder-work.md) |
 | MuleRun / 骡子快跑 / 云端 Agent / vs QoderWork | [MuleRun](knowledge/alibaba-cloud/ai-application/mulerun.md) |
 | GPU 选型 / A100 / H100 / H20 | [GPU 选型决策树](knowledge/alibaba-cloud/ai-infra/gpu-product-line.md) ⭐ |
-| 灵骏 / 智算集群 / EFLOPS | [灵骏](knowledge/alibaba-cloud/ai-infra/lingjun.md) |
+| 灵骏 / 智算集群 / EFLOPS | 待补充 |
 | Agent 定义 / Harness / 治理层 | [Agent](knowledge/ai-general-notes/agent-def.md) ⭐ · [Harness](knowledge/ai-general-notes/harness.md) ⭐ |
 | Agent 框架 / LangChain / LangGraph / Deep Agents | [Agent 框架](knowledge/ai-general-notes/agent-frameworks.md) |
 | AI 记忆 / Memory / Dreaming | [AI Agent 记忆](knowledge/ai-general-notes/agent-memory.md) ⭐ |
 | AI 公司增长 / ARR / 飞轮 | [AI 增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ |
 | Prompt 工程 / 防幻觉 | [Prompt Engineering](knowledge/ai-general-notes/prompt-engineering.md) ⭐ |
 | Claude / Opus 4.8 / Sonnet / Haiku | [Claude API](knowledge/anthropic/claude-api.md) |
-| Claude Code / Kiro / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) · [Qoder vs Kiro](knowledge/alibaba-cloud/competitive-analysis/qoder-vs-kiro/overview.md) |
-| Gemini / Google / Imagen | [Gemini](knowledge/gcp/maas/gemini.md) · [Imagen](knowledge/gcp/maas/imagen.md) |
+| Claude Code / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) |
+| Gemini / Google | [Gemini](knowledge/gcp/maas/gemini.md) |
 | GPT-5 / ChatGPT / OpenAI / Codex | [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
 | MAI / 微软自研 / Copilot 模型 | [MAI 模型家族](knowledge/microsoft/mai-models.md) |
 | DeepSeek / R1 / V4 / 开源 | [DeepSeek](knowledge/deepseek/general_intro.md) ⭐ |
@@ -59,8 +59,6 @@
 - [Harness](knowledge/ai-general-notes/harness.md) ⭐ — 企业战略级资产、约束治理层、Harness vs Prompt 区别、调用层容量与限流治理、Agent=Model+Harness 公式演进史、Model-Harness 协同演进厂商对比
 - [Agent 框架](knowledge/ai-general-notes/agent-frameworks.md) — LangChain / LangGraph / Deep Agents 三层递进架构、选型决策树、与闭源 Deep Agent 产品关系
 - [Prompt Engineering](knowledge/ai-general-notes/prompt-engineering.md) ⭐ — 防幻觉四层机制、第一性原理、博弈论应用
-- [RAG](knowledge/ai-general-notes/rag.md) — 待填充
-- [Fine-tuning](knowledge/ai-general-notes/fine-tuning.md) — 待填充
 
 ### 概念洞察类（关键认知框架）
 
@@ -73,7 +71,7 @@
 
 ## 点：单产品知识
 
-> 分组顺序：**云厂商**（阿里云 / AWS / GCP，覆盖 5 大品类）→ **海外模型厂商** → **中国模型厂商**。
+> 分组顺序：**云厂商**（阿里云 / GCP）→ **海外模型厂商** → **中国模型厂商**。
 
 ### 阿里云
 
@@ -92,61 +90,24 @@
 - [龙虾家族](knowledge/alibaba-cloud/ai-application/claw-family.md)
 - [JVS Crew](knowledge/alibaba-cloud/ai-application/jvs-crew.md)
 
-**AI Platform**
-- [PAI](knowledge/alibaba-cloud/ai-platform/pai.md) — 训练平台
-
 **AI Infra**
-- [ECS GPU](knowledge/alibaba-cloud/ai-infra/ecs-gpu.md)
-- [灵骏](knowledge/alibaba-cloud/ai-infra/lingjun.md) — 智算集群
 - [GPU 产品线选型](knowledge/alibaba-cloud/ai-infra/gpu-product-line.md) ⭐ — A100/H100/H20 选型决策树
-
-### AWS
-
-**MaaS**
-- [Bedrock 概览](knowledge/aws/maas/overview.md)
-- [Claude on Bedrock](knowledge/aws/maas/claude.md)
-- [Titan](knowledge/aws/maas/titan.md)
-
-**AI Coding**
-- [Q Developer](knowledge/aws/ai-coding/q-developer.md)
-- [Kiro](knowledge/aws/ai-coding/kiro.md) — Spec-driven、需求驱动编码
-
-**AI App**
-- [Q Business](knowledge/aws/ai-application/q-business.md) — 企业搜索、知识库
-
-**AI Platform**
-- [SageMaker](knowledge/aws/ai-platform/sagemaker.md) — 训练/部署平台
-
-**AI Infra**
-- [EC2 GPU](knowledge/aws/ai-infra/ec2-gpu.md)
-- [Trainium](knowledge/aws/ai-infra/trainium.md) — 训练芯片
-- [Inferentia](knowledge/aws/ai-infra/inferentia.md) — 推理芯片
 
 ### GCP
 
 **MaaS**
 - [Gemini Enterprise Agent Platform](knowledge/gcp/maas/overview.md)
 - [Gemini](knowledge/gcp/maas/gemini.md) — 3.1 Pro（当前旗舰） / 3.5 Flash（Agent/Coding 性价比率先，含 benchmark 对比）
-- [Imagen](knowledge/gcp/maas/imagen.md) — 图像生成
-
-**AI Coding**
-- [Gemini Code Assist](knowledge/gcp/ai-coding/gemini-code-assist.md)
-
-**AI App**
-- [Gemini for Workspace](knowledge/gcp/ai-application/gemini-workspace.md) — Docs/Sheets/Gmail 集成
 
 **AI Platform**
 - [Vertex AI → Agent Platform](knowledge/gcp/ai-platform/vertex-ai.md) — 训练/部署/Agent
-
-**AI Infra**
-- [TPU](knowledge/gcp/ai-infra/tpu.md) — Google 自研 AI 芯片
 
 ### Anthropic
 
 - 公司分析: [Anthropic 公司分析](knowledge/anthropic/general_intro.md) — PBC 治理、Scaling Laws 团队、Claude 家族、ARR $2B+（2026.04）
 - MaaS: [Claude API](knowledge/anthropic/claude-api.md) — Opus 4.8（SWE-Bench Pro 69.2%）/ Sonnet 4.6 / Haiku 4
 - AI Coding: [Claude Code](knowledge/anthropic/claude-code.md) — 终端 AI 编程
-- AI App: [Claude Cowork](knowledge/anthropic/claude-cowork.md) — 桌面通用知识工作 Agent · [Claude Teams](knowledge/anthropic/claude-teams.md) · [Claude Managed Agents](knowledge/anthropic/claude-managed-agents.md)
+- AI App: [Claude Cowork](knowledge/anthropic/claude-cowork.md) — 桌面通用知识工作 Agent · [Claude Managed Agents](knowledge/anthropic/claude-managed-agents.md)
 
 ### OpenAI
 
@@ -185,9 +146,6 @@
 
 ## 线：对比分析（阿里云视角）
 
-- [阿里云 vs AWS](knowledge/alibaba-cloud/competitive-analysis/alibaba-vs-aws/overview.md) — 云厂商全面对比
-- [阿里云 vs 火山引擎](knowledge/alibaba-cloud/competitive-analysis/alibaba-vs-volcengine/overview.md) — MaaS 定价、生态对比
-- [Qoder vs Kiro](knowledge/alibaba-cloud/competitive-analysis/qoder-vs-kiro/overview.md) — AI Coding 工具对比
 - [Qoder vs Trae](knowledge/alibaba-cloud/competitive-analysis/qoder-vs-trae/overview.md) ⭐ — 企业级 vs 个人开发者定位差异
 
 ---
@@ -198,8 +156,6 @@
 - [短剧出海](knowledge/solutions/vertical-short-drama/overview.md) — Qwen3.7-Plus 原生 VL 视频理解 + 16 语言内容生成 + OpenSearch SEO，30 天 156 万条
 - [商业地产](knowledge/solutions/commercial-real-estate/overview.md) — AI 质检、合同审查、知识库、智能客服、Qoder 提效
 - [企业自建 AI 推理平台](knowledge/solutions/enterprise-ai-platform/overview.md) ⭐ — Higress AI 网关 + 灵骏 GPU + 百炼 Fallback；含 AWS 迁移案例
-- [跨国企业 MNC](knowledge/solutions/mnc/overview.md) — 全球化部署
-- [出海方案](knowledge/solutions/going-global/overview.md) — 合规、数据主权
 
 ---
 
