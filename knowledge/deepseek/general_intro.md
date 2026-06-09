@@ -57,6 +57,8 @@ DeepSeek（全称：杭州深度求索人工智能基础技术研究有限公司
 - **论文驱动**：每个核心模型版本都伴随完整技术报告发布（V2 Paper / V3 Paper / R1 Paper）
 - **极致效率**：150 人团队产出的模型影响力对标数千人团队（OpenAI 600+ 人、Anthropic 800+ 人）
 
+> ⚠️ **文化转变信号（2026-05）**：DeepSeek 开始公开招募 **Agent Harness 产品经理**和 R&D 工程师，"不设 PM" 的传统正在随着 Agent 产品化战略而改变。[reference:32]
+
 ### 4.2 "隐士"文化
 
 - 创始人梁文锋极少公开露面，几乎不接受采访
@@ -223,6 +225,7 @@ DeepSeek（全称：杭州深度求索人工智能基础技术研究有限公司
 - **明确与华为合作**：推进国产芯片路线，降低对 Nvidia H800 的依赖[reference:13]
 - **沉默期结束**：从 V3.2（2025.12）到 V4（2026.04）间隔近 5 个月，是公司最长沉默期[reference:23]
 - **Agentic 能力跃迁**：V4-Pro Agentic Coding 达到开源 SOTA，从"语言模型"走向"Agent 基座"[reference:13]
+- **组建 Harness 团队（2026-05）**：公开招募 Agent Harness 产品经理和 R&D 工程师，正式启动桌面端 Agent 产品研发。内部对标 Claude Code，项目工作名 "Code Harness"（研究员陈德利公开确认）[reference:32]。标志着 DeepSeek 从"模型提供商"走向"Agent 产品公司"的战略拐点——Model + Harness = Agent 公式被内化为产品战略。
 
 ### 9.2 面临的核心挑战
 
@@ -231,6 +234,7 @@ DeepSeek（全称：杭州深度求索人工智能基础技术研究有限公司
 3. **芯片供应**：中美芯片禁令下，H800 后续采购受限，华为昇腾兼容性仍需验证
 4. **融资后的独立性**：梁文锋承诺"不改变方向"，但资本注入后能否保持"纯研究"文化存疑
 5. **竞争白热化**：Qwen、GLM-5、MiniMax-M3 等国产同业持续逼近，国际上 Claude/GPT 仍是标杆
+6. **Agent 产品化能力短板**：V4 模型能力强，但此前完全依赖第三方 Harness（DeepSeek-TUI、Deep Code CLI 等）定义用户体验；现在自建 Harness 团队，面临从"模型公司"到"产品公司"的组织能力转型挑战[reference:32]
 
 ### 9.3 V4 vs V3.2：Agent 场景的选型差异
 
@@ -383,10 +387,11 @@ DeepSeek 的研究主线为 **"架构创新 → 效率革命 → 推理能力涌
 | **2026.04.24** | 发布 **DeepSeek-V4**（Preview 双版本）| V4-Pro 1.6T / V4-Flash 284B，1M 上下文，明确华为芯片[reference:13][reference:14] |
 | **2026.04** | 传出 **首轮融资** 消息 | 目标估值 ≥100 亿美元，拟筹 ≥3 亿美元[reference:20] |
 | **2026.05.08** | 融资估值传闻升至 **500 亿美元** | 约 3400 亿人民币[reference:3] |
+| **2026.05** | **组建 Harness 团队**，公开招募 Agent Harness PM + R&D 工程师 | 内部对标 Claude Code，项目工作名 "Code Harness"[reference:32] |
 
 ---
 
-*最后更新：2026 年 5 月 27 日 | 基于公开报道与技术报告整理*
+*最后更新：2026 年 6 月 9 日 | 基于公开报道与技术报告整理*
 
 ## Changelog
 | 日期 | 变更内容 |
@@ -394,6 +399,7 @@ DeepSeek 的研究主线为 **"架构创新 → 效率革命 → 推理能力涌
 | 2026-05-22 | 初始创建，新增 DeepSeek 公司分析报告 |
 | 2026-05-27 | 合并 ai-native-expert 沉淀：新增 9.3「V4 vs V3.2 Agent 场景选型差异」，含 OpenClaw 集成、跨 turn 推理修复、DSML 工具调用格式、Agent benchmark；新增 reference 28-29 |
 | 2026-05-27 | 合并 ai-native-expert 沉淀：新增 9.4「V4-Flash：V3.2 的官方继任者与 TPM 迁移注意事项」，含官方路由切换证据、thinking mode TPM 陷阱、迁移建议；新增 reference 30-31 |
+| 2026-06-09 | 新增：§4.1 PM 文化转变注释、§9.1 Harness 团队组建、§9.2 Agent 产品化能力短板挑战、里程碑表追加 2026.05 Harness 团队条目；新增 reference 32-33 |
 
 ## 参考来源
 
@@ -429,3 +435,5 @@ DeepSeek 的研究主线为 **"架构创新 → 效率革命 → 推理能力涌
 - [reference:29] HuggingFace 官方博客 — DeepSeek-V4: a million-token context that agents can actually use（https://huggingface.co/blog/deepseekv4）
 - [reference:30] 阿里云百炼限流文档 — deepseek-v4-flash / deepseek-v3.2 默认 TPM 均为 1,200,000（https://help.aliyun.com/zh/model-studio/rate-limit）
 - [reference:31] DeepSeek 官方定价页 — V4-Flash 默认 thinking mode、并发限制 2500（https://api-docs.deepseek.com/quick_start/pricing）
+- [reference:32] 36氪 — DeepSeek 智能体产品要来了：组建 Harness 团队，对标 Claude Code（https://eu.36kr.com/en/p/3818407956366208）
+- [reference:33] Verdent AI — DeepSeek's Coding Plan: V4, Harness Team, and 2026 Roadmap（https://www.verdent.ai/zh-CN/guides/deepseek-coding-plan-2026）

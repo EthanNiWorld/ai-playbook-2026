@@ -55,7 +55,7 @@
 ### 技术概念类（关键选型维度）
 
 - [Agent](knowledge/ai-general-notes/agent-def.md) ⭐ — for 循环本质、Model+Harness 框架、Agent 平台战略拐点、OpenAI 三大优先级
-- [Harness](knowledge/ai-general-notes/harness.md) ⭐ — 企业战略级资产、约束治理层、Harness vs Prompt 区别、调用层容量与限流治理（多账号扩 TPM、客户端拥塞拐点）
+- [Harness](knowledge/ai-general-notes/harness.md) ⭐ — 企业战略级资产、约束治理层、Harness vs Prompt 区别、调用层容量与限流治理、Agent=Model+Harness 公式演进史、Model-Harness 协同演进厂商对比
 - [Prompt Engineering](knowledge/ai-general-notes/prompt-engineering.md) ⭐ — 防幻觉四层机制、第一性原理、博弈论应用
 - [RAG](knowledge/ai-general-notes/rag.md) — 待填充
 - [Fine-tuning](knowledge/ai-general-notes/fine-tuning.md) — 待填充
@@ -157,7 +157,7 @@
 
 ### DeepSeek（深度求索）
 
-- 公司分析: [DeepSeek 公司分析](knowledge/deepseek/general_intro.md) ⭐ — MLA+MoE 架构创新、R1 纯 RL 推理、V4 开源 SOTA、557 万美元训练成本、"DeepSeek 时刻"
+- 公司分析: [DeepSeek 公司分析](knowledge/deepseek/general_intro.md) ⭐ — MLA+MoE 架构创新、R1 纯 RL 推理、V4 开源 SOTA、557 万美元训练成本、"DeepSeek 时刻"、**Harness 团队组建（2026-05，对标 Claude Code）**
 - 模型系列:
   - [V 系列](knowledge/deepseek/deepseek-v-series.md) — V1 / V2 / V3 / V3.2 / V4
   - [R 系列](knowledge/deepseek/deepseek-r-series.md) — R1 / R1-0528 / R2

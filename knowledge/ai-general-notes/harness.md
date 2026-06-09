@@ -1,12 +1,12 @@
 # Harness（AI Agent 缰绳）
 
-> 最后更新: 2026-05-22
+> 最后更新: 2026-06-09
 > 领域: AI Engineering
 > 状态: Published
 
 <!-- SUMMARY_START -->
 **一句话说明**: Harness 是 Agent 的约束+治理层，定义 Agent 能做什么、不能做什么、何时需要人工介入；同时也覆盖调用层可靠性工程（多账号路由、限流熔断、连接池）
-**核心价值**: 模型是同质化 commodity，Harness 是真正的差异化竞争护城河；Harness 质量决定 Agent 产品的可用性上限
+**核心价值**: 模型是同质化 commodity，Harness 是真正的差异化竞争护城河；Harness Engineering 已成行业正式工程方法论（Anthropic/OpenAI/Hashimoto 共同验证）；Model-Harness 协同演进是下一层竞争前沿
 **相关产品**: [HiClaw/龙虾家族](../alibaba-cloud/ai-app/claw-family.md), [JVS Crew](../alibaba-cloud/ai-app/jvs-crew.md)
 <!-- SUMMARY_END -->
 
@@ -20,6 +20,18 @@
 - **人工介入点（Human-in-the-loop）**：关键决策节点强制人工确认
 - **监控与审计**：每步行动的可观测性、日志、回滚能力
 - **安全凭证隔离**：Agent 执行节点不接触真实 API Key
+
+### 公式演进：Agent = Model + Harness
+
+| 时间 | 事件 | 贡献 |
+|------|------|------|
+| 2025-11 | **Anthropic** 发布《Effective harnesses for long-running agents》，首次在官方资料中将 Agent Harness 作为核心概念 | 概念起点，行业头部厂商背书 |
+| 2026-02 | **Mitchell Hashimoto**（HashiCorp 联合创始人）在《My AI Adoption Journey》中正式倡导 **Harness Engineering**——Agent 犯错时应优化 Harness（运行环境），而非仅修改 Prompt | 概念升级为工程方法论 |
+| 2026-02 | **OpenAI** 发布《Harness engineering: leveraging Codex in an agent-first world》，三工程师通过 Harness 生成百万行代码 | 规模化实证验证 |
+| 2026-03 | **LangChain**（Vivek Trivedy）发布《The Anatomy of an Agent Harness》，明确提炼 `Agent = Model + Harness` 公式并系统化阐述 Harness 构成组件 | 公式正式定义并广泛传播 |
+| 2026-05 | **DeepSeek** 在官方 JD 中直接使用 Model + Harness = Agent 公式，设立专职 Harness 团队 | 公式被模型厂商内化为产品战略 |
+
+> 传播链路：Anthropic 概念起点（2025-11）→ Hashimoto/OpenAI 方法论升级（2026-02）→ LangChain 公式定义（2026-03）→ DeepSeek 战略化（2026-05）——半年内完成从「行业概念」到「厂商战略」的全链路传导。
 
 ## 核心原理
 
@@ -94,6 +106,19 @@
 | "把规则写进 Prompt 就是 Harness" | Prompt 是软约束，Harness 是系统层面的硬约束，两者不可替代 |
 | "Harness 通用化就能复用" | Harness 越通用越没价值，行业特异性才是护城河所在 |
 | "强模型不需要 Harness" | 模型越强越需要 Harness——能力越大，失控的后果越严重 |
+
+## Model-Harness 协同演进：各厂商策略对比
+
+Harness 的战略价值不仅在于治理层设计，更在于 **Model 与 Harness 能否联合设计**。各厂商策略差异显著：
+
+| 厂商 | Model-Harness 关系 | 特点 |
+|------|-------------------|------|
+| **Anthropic** | 深度协同（Claude Code 与 Claude 模型联合设计） | 模型团队和产品团队紧密耦合 |
+| **OpenAI** | 协同（Codex 与 GPT 系列联合优化） | Codex CLI 开源，产品层分离 |
+| **第三方 Harness**（如 DeepSeek-TUI） | 纯接入（只能用 API，无法影响模型） | 只能在模型之上做工程 |
+| **DeepSeek**（2026-05 起） | 明确追求深度协同，Harness 团队可反向影响模型训练方向 | 模型和产品联合设计 |
+
+**核心洞察**：当模型能力趋同时（V4 ≈ Claude ≈ GPT），竞争壁垒从「谁模型强」转移到「谁的 Harness 好」——评估任何 AI Agent 产品，要看 Harness 质量（工具权限设计、上下文管理策略、HITL 机制、错误恢复能力），而非仅看所用模型。同一模型接不同 Harness，产品体验可差一个数量级。
 
 ## 调用层 Harness：容量与限流治理
 
@@ -184,9 +209,16 @@
 - [Pluto Security：Claude Managed Agents 安全分析](https://pluto.security/blog/securing-claude-managed-agents/)
 - 2026-05-22 多账号 TPM 压测实践（参考实现脚本）
 - [百炼限流文档](https://www.alibabacloud.com/help/en/model-studio/rate-limit)
+- [Anthropic《Effective harnesses for long-running agents》](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)（2025-11）
+- [Mitchell Hashimoto《My AI Adoption Journey》](https://mitchellh.com/writing/my-ai-adoption-journey)（2026-02）
+- [OpenAI《Harness engineering: leveraging Codex in an agent-first world》](https://openai.com/index/harness-engineering-leveraging-codex/)（2026-02）
+- [LangChain《The Anatomy of an Agent Harness》](https://www.langchain.com/blog/the-anatomy-of-an-agent-harness)（2026-03）
+- [36氪：DeepSeek 智能体产品要来了](https://eu.36kr.com/en/p/3818407956366208)
+- [Verdent AI：DeepSeek's Coding Plan: V4, Harness Team, and 2026 Roadmap](https://www.verdent.ai/zh-CN/guides/deepseek-coding-plan-2026)
 
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
 | 2026-04-23 | 初始创建（修复原错误内容——原文是 RAG 模板复制残留），基于龙虾家族对话洞察：Harness 是企业战略级资产、Harness vs Prompt 区别 |
 | 2026-05-22 | 新增「调用层 Harness：容量与限流治理」主章节：多账号扩限流模式、客户端拥塞拐点（200 并发甜点 vs 500 并发自我 DDoS）、云厂商限流文档与实测差异、多账号 vs 提额 vs 自托管决策框架。来源：某推理模型双 UID 压测实践（8.5× TPM 提升、零限流验证） |
+| 2026-06-09 | 新增：公式演进（Anthropic→Hashimoto→OpenAI→LangChain→DeepSeek 传播史）、Model-Harness 协同演进厂商对比（含 DeepSeek Harness 团队战略视角）。来源：inbox/ai-knowledge-by-qoder-ai-native-agent-20260609.md（36氪、Verdent AI、Anthropic、Hashimoto、OpenAI、LangChain 原文交叉验证） |
