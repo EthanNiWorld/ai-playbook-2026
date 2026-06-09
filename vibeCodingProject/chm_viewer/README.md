@@ -33,11 +33,11 @@ A lightweight, zero-dependency web viewer for reading `.chm` files in your brows
 │    └─────────────────────────┘      │
 │                                     │
 │    📚 Previously opened books       │
-│     📕 yandorr.chm    504 files     │
+│     📕 example.chm    504 files     │
 └─────────────────────────────────────┘
          ↓ Upload & Extract
 ┌─────────────────────────────────────┐
-│ 📁 yandorr.chm                      │
+│ 📁 example.chm                      │
 │ 504 files, 12 folders               │
 │                                     │
 │ 🖼️ Gallery Mode (128 images)        │
