@@ -1,0 +1,19 @@
+# CHM Web Viewer - Python 依赖
+#
+# 本项目使用 Python 标准库，无需 pip install 任何包。
+#
+# 核心依赖（均为标准库，随 Python 自带）：
+#   - http.server    HTTP 服务器
+#   - email          multipart 文件上传解析
+#   - tempfile       临时目录管理
+#   - subprocess     调用 extract_chmLib 解压 .chm
+#   - webbrowser     自动打开浏览器
+#
+# 系统级依赖（非 Python，需手动安装）：
+#   - chmlib: 提供 extract_chmLib 命令
+#     macOS:  brew install chmlib
+#     Ubuntu/Debian:  sudo apt install libchm-bin
+#     CentOS/RHEL:    sudo yum install chmlib
+#     Arch Linux:     sudo pacman -S chmlib
+#
+# Python 版本要求：>= 3.8
