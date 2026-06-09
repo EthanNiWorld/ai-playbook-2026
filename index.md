@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-06-08
+> 最后更新：2026-06-09
 
 ## 目录
 
@@ -33,6 +33,7 @@
 | GPU 选型 / A100 / H100 / H20 | [GPU 选型决策树](knowledge/alibaba-cloud/ai-infra/gpu-product-line.md) ⭐ |
 | 灵骏 / 智算集群 / EFLOPS | [灵骏](knowledge/alibaba-cloud/ai-infra/lingjun.md) |
 | Agent 定义 / Harness / 治理层 | [Agent](knowledge/ai-general-notes/agent-def.md) ⭐ · [Harness](knowledge/ai-general-notes/harness.md) ⭐ |
+| Agent 框架 / LangChain / LangGraph / Deep Agents | [Agent 框架](knowledge/ai-general-notes/agent-frameworks.md) |
 | AI 记忆 / Memory / Dreaming | [AI Agent 记忆](knowledge/ai-general-notes/agent-memory.md) ⭐ |
 | AI 公司增长 / ARR / 飞轮 | [AI 增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ |
 | Prompt 工程 / 防幻觉 | [Prompt Engineering](knowledge/ai-general-notes/prompt-engineering.md) ⭐ |
@@ -56,6 +57,7 @@
 
 - [Agent](knowledge/ai-general-notes/agent-def.md) ⭐ — for 循环本质、Model+Harness 框架、Agent 平台战略拐点、OpenAI 三大优先级
 - [Harness](knowledge/ai-general-notes/harness.md) ⭐ — 企业战略级资产、约束治理层、Harness vs Prompt 区别、调用层容量与限流治理、Agent=Model+Harness 公式演进史、Model-Harness 协同演进厂商对比
+- [Agent 框架](knowledge/ai-general-notes/agent-frameworks.md) — LangChain / LangGraph / Deep Agents 三层递进架构、选型决策树、与闭源 Deep Agent 产品关系
 - [Prompt Engineering](knowledge/ai-general-notes/prompt-engineering.md) ⭐ — 防幻觉四层机制、第一性原理、博弈论应用
 - [RAG](knowledge/ai-general-notes/rag.md) — 待填充
 - [Fine-tuning](knowledge/ai-general-notes/fine-tuning.md) — 待填充
@@ -192,7 +194,7 @@
 ## 体：行业解决方案
 
 - [IPC 智能安防](knowledge/solutions/vertical-ipc/overview.md) — 视频监控、AI 质检
-- [短剧出海](knowledge/solutions/vertical-short-drama/overview.md) — 视频翻译、本地化
+- [短剧出海](knowledge/solutions/vertical-short-drama/overview.md) — Qwen3.7-Plus 原生 VL 视频理解 + 16 语言内容生成 + OpenSearch SEO，30 天 156 万条
 - [商业地产](knowledge/solutions/commercial-real-estate/overview.md) — AI 质检、合同审查、知识库、智能客服、Qoder 提效
 - [企业自建 AI 推理平台](knowledge/solutions/enterprise-ai-platform/overview.md) ⭐ — Higress AI 网关 + 灵骏 GPU + 百炼 Fallback；含 AWS 迁移案例
 - [跨国企业 MNC](knowledge/solutions/mnc/overview.md) — 全球化部署
