@@ -1,6 +1,6 @@
 # 通义千问 (Qwen)
 
-> 最后更新: 2026-06-04
+> 最后更新: 2026-06-11
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 
@@ -58,7 +58,12 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
   - Batch 调用 5 折；输入支持上下文缓存折扣（与 Batch 不可叠加）
   - 推理后付费限时 8 折至 2026-07-02
 - **开源**：否，API 商用闭源（仅通过百炼提供）[来源: https://www.aihub.cn/ai-model/qwen3-7-plus/]
-- **Benchmark**：SWE-bench Verified ~68.7%；Arena 综合 1156（均为 preview 阶段第三方数据）[⚠️ stable 版待验证]
+- **Benchmark**（来源: qubrid.com 六模型对比表 + benchlm.ai）：
+  - GUI Agent: ScreenSpot Pro 79.0% / AndroidWorld 81.0% / OSWorld-Verified 73.3%（BenchLM Computer Use 全球 #4，75.6 分）
+  - Visual Coding: QwenVision2Code 1,772 / QwenSVG 1,588
+  - 文档理解: OmniDocBench 1.5 91.4%（最高）/ OCR-Bench-V2 70.7%
+  - 纯文本 Agent: Deep-Planning 62.3%（最高）/ MCP-Mark 58.7%（最高）/ MRCR-v2 128K 91.7%（最高）
+  - SWE-bench Verified ~68.7%；Arena 综合 1156（preview 阶段第三方数据）[⚠️ stable 版待验证]
 
 > ⚠️ stable 版 benchmark 与精确参数官方尚未公布，建议关注 artificialanalysis.ai / LMSYS Arena 后续复测。
 
@@ -109,6 +114,68 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 | 高并发轻量调用 | **3.6-Flash** | 低延迟低成本 |
 | 私有化部署 | 3.6 开源版 | 支持本地部署 |
 
+### Plus vs Max 场景选型详解
+
+#### Max 结构性缺失的场景（Plus 独占）
+
+Max 为纯文本模型，以下场景物理上不可用：
+
+| 场景 | Plus Benchmark | 说明 |
+|------|---------------|------|
+| GUI Agent / Computer Use | ScreenSpot Pro 79.0%（> GPT-5.4 67.4%）/ AndroidWorld 81.0% / OSWorld-Verified 73.3% | BenchLM 全球排名 #4（75.6 分） |
+| Visual Coding（截图→代码） | QwenVision2Code 1,772 / QwenSVG 1,588 | Figma→React、视频→SVG |
+| 图文混合文档理解 | OmniDocBench 1.5 91.4%（全场最高）/ OCR-Bench-V2 70.7%（> GPT-5.4 59.1%） | 表格/图表/公式嵌入图片 |
+| 视频理解 | 原生视频输入 | Max 完全不支持 |
+| 物理世界感知推理 | BabyVision 70.4% / HiPhO 84.1% | 空间关系/物理直觉 |
+| 多模态知识检索 | SimpleVQA 81.7%（> GPT-5.4 69.4%）| 视觉证据 + 实时搜索 |
+
+#### 纯文本维度 Plus 也意外领先的场景
+
+| 场景 | Plus 得分 | 同表最强竞品 | Max 已知数据 |
+|------|----------|------------|------------|
+| Deep-Planning | 62.3%（最高） | Opus 4.6: 58.9% | 无公开数据 |
+| Terminal-Bench 2.0-Terminus | 70.3%（最高） | DS-V4-Pro: 67.9% | Max TB 2.0: 69.7%（不同变体） |
+| MCP-Mark | 58.7%（最高） | Opus 4.6: 56.7% | 无公开数据 |
+| MRCR-v2 128K | 91.7%（最高） | Opus 4.6: 84.0% | 无公开数据 |
+
+> 💡 **Why**：VLA（视觉-语言-动作）联合训练让 Plus 对空间结构、UI 层级、流程规划有更好内隐理解；Agent loop "看→想→写→做→验" 闭环训练目标强化了持续工具调用场景。
+
+#### Max 明确占优的场景
+
+| Benchmark | Max | Plus | 差值 |
+|-----------|-----|------|------|
+| Apex | 44.5% | 22.7% | +21.8 |
+| HLE | 41.4% | 34.7% | +6.7 |
+| HMMT 2026 | 97.1% | 92.9% | +4.2 |
+| IMOAnswerBench | 90.0% | 86.0% | +4.0 |
+| SWE-Pro | 60.6% | 57.6% | +3.0 |
+| SWE-Verified | 80.4% | 77.7% | +2.7 |
+| GPQA Diamond | 92.4% | 90.3% | +2.1 |
+
+结论：Max 仅在极端数学推理（Apex/IMO/HMMT）和重度 SWE 编码两个维度上明确领先。
+
+#### 推理速度对比
+
+| 指标 | Plus | Max | 比值 |
+|------|------|-----|------|
+| Latency (p50) TTFT | 0.91s | 1.10s | Plus TTFT 略快 |
+| Throughput (p50) | 10.0 tok/s | **47.0 tok/s** | **Max 快 4.7×** |
+
+> 数据来源：Artificial Analysis, Alibaba Cloud Int. endpoint [来源: 用户口述] ⚠️ 待官方验证
+
+Max 生成速度约为 Plus 的 4.7 倍（MoE 架构 + 无视觉 encoder 开销）。考虑价格差（Max 输出 ¥36 vs Plus ¥8），"吞吐量/元" 两者接近（Max 1.3 tok/s/¥ vs Plus 1.25 tok/s/¥）。
+
+#### 选型结论
+
+| 决策条件 | 推荐模型 |
+|----------|----------|
+| 需要看图/看屏/看视频 | **Plus**（Max 完全不能） |
+| Deep-Planning / MCP 工具链 / 128K 长程记忆 | **Plus**（benchmark 领先） |
+| 极端数学推理（Apex/IMO/HLE） | **Max** |
+| 需要极快生成速度（交互体验优先） | **Max**（4.7× throughput） |
+| 成本敏感（同等产出） | **Plus**（输出价 1/4.5） |
+| 绝大多数生产场景 | **Plus**（默认选择） |
+
 ## 接入方式
 
 | 方式 | 说明 | 适用场景 |
@@ -149,6 +216,9 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 - https://hub.baai.ac.cn/view/53628 （智源社区评测文章）
 - https://qwen.ai/blog?id=qwen3.6 （Qwen官方博客）
 - agentic LLM参考: https://artificialanalysis.ai/models?intelligence=coding-index
+- https://www.qubrid.com/blog/qwen37-plus-is-now-available-on-qubrid-ai （Qwen3.7-Plus 完整 Benchmark 六模型对比表）
+- https://benchlm.ai/best/computer-use （Computer Use AI 全球排名，Plus #4 75.6 分）
+- https://www.qbitai.com/2026/06/427730.html （量子位报道，11 小时自主开发 demo）
 - [通义千问官网](https://tongyi.aliyun.com)
 - [百炼平台](https://bailian.console.aliyun.com)
 - [Qwen GitHub](https://github.com/QwenLM)
@@ -156,6 +226,7 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-06-11 | 合并：inbox 选型分析素材 — 新增「Plus vs Max 场景选型详解」子章节（3 层对比 + benchmark 数据 + 推理速度 + 选型结论表）；更新 Plus Benchmark 详细数据（GUI Agent / Visual Coding / 文档理解 / 纯文本 Agent 四维度） |
 | 2026-06-04 | 主推模型表更新：移除已取代的 Qwen3.6-Plus / Qwen3.6-Max-Preview，主推表仅保留百炼在售的 3 个模型（Qwen3.7-Max / Qwen3.7-Plus / Qwen3.6-Flash）；历史模型单独标注 |
 | 2026-05-31 | 合并：inbox 素材 — 新增百炼 RMB 定价（¥12/¥36，5折 ¥6/¥18）、竞品定价对比表（DS-V4-Pro/GLM-5.1/GPT-5.5/Opus 4.7）、新用户 100 万 tokens 免费额度 |
 | 2026-05-31 | 新增 Qwen3.7-Max（2026.05.19 发布），包含关键基准、AA Intelligence Index 56.6、35h 自主运行、定价、局限；更新模型表、能力/场景/限制/定价；标注 Qwen3.6-Max 被 3.7-Max 取代 |

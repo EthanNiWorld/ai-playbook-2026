@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-06-09
+> 最后更新：2026-06-11
 
 ## 目录
 
@@ -10,7 +10,7 @@
 - [点：单产品知识](#点单产品知识)
   - 云厂商：[阿里云](#阿里云) · [GCP](#gcp)
   - 海外模型厂商：[Anthropic](#anthropic) · [OpenAI](#openai) · [Microsoft AI (MAI)](#microsoft-ai-mai)
-  - 中国模型厂商：[DeepSeek](#deepseek深度求索) · [MiniMax](#minimax) · [智谱 AI](#智谱-aizhipu) · [月之暗面](#月之暗面moonshot-ai)
+  - 中国模型厂商：[DeepSeek](#deepseek深度求索) · [MiniMax](#minimax) · [智谱 AI](#智谱-aizhipu) · [月之暗面](#月之暗面moonshot-ai) · [腾讯混元](#腾讯混元tencent-hunyuan)
 - [线：对比分析（阿里云视角）](#线对比分析阿里云视角)
 - [体：行业解决方案](#体行业解决方案)
 - [模板参考](#模板参考)
@@ -43,6 +43,8 @@
 | GPT-5 / ChatGPT / OpenAI / Codex | [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
 | MAI / 微软自研 / Copilot 模型 | [MAI 模型家族](knowledge/microsoft/mai-models.md) |
 | DeepSeek / R1 / V4 / 开源 | [DeepSeek](knowledge/deepseek/general_intro.md) ⭐ |
+| Hy3-preview / 腾讯混元 / Hunyuan | [Hy3-preview](knowledge/tencent/hy3-preview.md) |
+| Qwen vs Hy3 / 混元竞争分析 | [Qwen3.7 vs Hy3-preview](knowledge/alibaba-cloud/competitive-analysis/qwen-vs-hy3/overview.md) |
 | MiniMax / M3 / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
 | Kimi / 月之暗面 / Moonshot / K2.6 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
 | GLM / 智谱 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) |
@@ -142,11 +144,16 @@
 - 公司分析: [月之暗面公司分析](knowledge/moonshot/general_intro.md) — 2023 成立、估值 >$200 亿、累计融资超 376 亿元、ARR >$2 亿
 - 模型系列: [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) — K2 / K2.5 / K2.6，**K2.6 Agent Swarm（300 子 Agent）、13 小时长周期编码**
 
+### 腾讯混元（Tencent Hunyuan）
+
+- 模型: [Hy3-preview](knowledge/tencent/hy3-preview.md) — 295B MoE/21B 激活，OpenRouter 工具调用 #1，SWE-bench 74.4%，开源可自部署，价格碾压
+
 ---
 
 ## 线：对比分析（阿里云视角）
 
 - [Qoder vs Trae](knowledge/alibaba-cloud/competitive-analysis/qoder-vs-trae/overview.md) ⭐ — 企业级 vs 个人开发者定位差异
+- [Qwen3.7 vs Hy3-preview](knowledge/alibaba-cloud/competitive-analysis/qwen-vs-hy3/overview.md) — 1M上下文+深度编码+多模态 vs 性价比+开源部署，SA 打法建议
 
 ---
 

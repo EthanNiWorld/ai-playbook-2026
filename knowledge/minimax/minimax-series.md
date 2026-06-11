@@ -1,6 +1,6 @@
 # MiniMax M 系列模型
 
-> 最后更新: 2026-06-08
+> 最后更新: 2026-06-11
 > 所属厂商: MiniMax（稀宇科技）
 > 产品类别: MaaS
 > 状态: Published
@@ -140,6 +140,26 @@
 - 用户反馈：M3 速度更快、上下文能力不错，但 Token 消耗更快、变相涨价 [来源: finance.sina.com.cn]
 - 公司 2025 年营收约 7904 万美元（同比 +159%），年内亏损 18.7 亿美元 [来源: finance.sina.com.cn]
 
+### OpenRouter 排名表现（2026-06-11）
+
+| 排名 | 模型 | 周 Token 量 | 增长 |
+|------|------|-------------|------|
+| #1 | DeepSeek V4 Flash | 4.07T | 41% |
+| #2 | Hy3-preview | 3.3T | 12% |
+| #3 | **MiniMax M3** | **2.89T** | **>999%** |
+
+[来源: openrouter.ai/rankings, 2026-06-11]
+
+### M3 高调用量的驱动因素
+
+1. **"三合一"独占生态位**：1M 上下文 + 前沿编码（SWE-Bench Pro 59.0%）+ 原生多模态 + 开源权重，这个组合在开源模型里无竞品
+2. **从 M2.5 继承的"默认前端模型"地位**：开发者的分层路由策略（80% 日常用 MiniMax，20% 深推用 Opus），成本下降 17x [来源: workos.com/blog/minimax-m25-most-popular-model-openrouter]
+3. **MSA 稀疏注意力**：1M 上下文计算量仅为上代 1/20，实际推理成本远低于纸面价格
+4. **OpenClaw 生态绑定**：M3 在 OpenClaw Agent 框架使用量 #1 [来源: openrouter.ai/collections/openclaw]
+5. **Token Plan 消费级定价**：Plus ¥49/月 6 亿 token ≈ Claude 订阅 15 倍用量，包月用户天然多调用
+
+> 💡 **洞察**：OpenRouter 调用量排行的本质不是"谁最便宜"，而是"谁在开发者的默认工作流里"。Token 消耗量排行 ≠ 价格排行——驱动 token 量的是"工作流复杂度 × 用户基盘惯性 × 生态绑定"，不是单价。能承载复杂 Agent 管道的模型每次消耗巨大，总量反而更高。
+
 ## 参考资料
 
 - [MiniMax M3 官方博客](https://www.minimaxi.com/blog/minimax-m3)
@@ -148,11 +168,16 @@
 - [MiniMax 开放平台](https://platform.minimaxi.com)
 - Artificial Analysis 开源榜单
 - [新浪科技：MiniMax 新模型报道](https://finance.sina.com.cn/tech/roll/2026-06-01/doc-inhzwyqq3940096.shtml)
+- [OpenRouter 实时排名](https://openrouter.ai/rankings)
+- [M3 OpenRouter 页面](https://openrouter.ai/minimax/minimax-m3)
+- [WorkOS: M2.5 霸榜分析（分层路由策略）](https://workos.com/blog/minimax-m25-most-popular-model-openrouter)
+- [OpenClaw 使用排名](https://openrouter.ai/collections/openclaw)
 
 ## Changelog
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-06-11 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20260611.md - M3 OpenRouter 排名 #3（2.89T/周，>999% 增长）、高调用量 5 大驱动因素、Token 消耗量驱动力洞察 |
 | 2026-06-08 | 更新：M3 开源状态从"计划 10 天内开源"修正为"已确认开源权重" [来源: 用户口述 + MiniMax 官方宣传图] |
 | 2026-06-04 | 主推模型表精简：仅保留 M3（旗舰）+ M2.7（次旗舰）为主推，M2/M1 移入历史模型标注 |
 | 2026-06-01 | 合并：ai-knowledge-by-qoder-ai-native-agent-20260601.md - M3 从"即将"升级为正式发布，新增 M3 详细参数、Benchmark、定价、MSA 稀疏注意力、Token Plan、市场反应 |
