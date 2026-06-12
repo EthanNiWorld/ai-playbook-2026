@@ -23,14 +23,14 @@
 
 | 我想找… | 文档 |
 |---------|------|
-| Qwen / 通义千问 / 3.7-Plus / 3.7-Max / 旗舰 | [Qwen](knowledge/alibaba-cloud/maas/qwen.md) |
-| 万相 / Wan / 视频生成 / 图生视频 | [万相](knowledge/alibaba-cloud/maas/wan.md) |
-| HappyHorse / 快乐小马 / 图像生成 | [HappyHorse](knowledge/alibaba-cloud/maas/happyhorse.md) |
-| 百炼平台 / 多账号 / TPM 扩量 / 限流 | [百炼平台](knowledge/alibaba-cloud/maas/overview.md) |
-| Qoder / AI 编程 / IDE 插件 | [Qoder](knowledge/alibaba-cloud/ai-coding/qoder.md) |
-| QoderWork / 桌面助手 / 本地 Agent | [QoderWork](knowledge/alibaba-cloud/ai-application/qoder-work.md) |
-| MuleRun / 骡子快跑 / 云端 Agent / vs QoderWork | [MuleRun](knowledge/alibaba-cloud/ai-application/mulerun.md) |
-| GPU 选型 / A100 / H100 / H20 | [GPU 选型决策树](knowledge/alibaba-cloud/ai-infra/gpu-product-line.md) ⭐ |
+| Qwen / 通义千问 / 3.7-Plus / 3.7-Max / 旗舰 | [Qwen](knowledge/alibaba/maas/qwen.md) |
+| 万相 / Wan / 视频生成 / 图生视频 | [万相](knowledge/alibaba/maas/wan.md) |
+| HappyHorse / 快乐小马 / 图像生成 | [HappyHorse](knowledge/alibaba/maas/happyhorse.md) |
+| 百炼平台 / 多账号 / TPM 扩量 / 限流 | [百炼平台](knowledge/alibaba/maas/overview.md) |
+| Qoder / AI 编程 / IDE 插件 | [Qoder](knowledge/alibaba/ai-coding/qoder.md) |
+| QoderWork / 桌面助手 / 本地 Agent | [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) |
+| MuleRun / 骡子快跑 / 云端 Agent / vs QoderWork | [MuleRun](knowledge/alibaba/ai-application/mulerun.md) |
+| GPU 选型 / A100 / H100 / H20 | [GPU 选型决策树](knowledge/alibaba/ai-infra/gpu-product-line.md) ⭐ |
 | 灵骏 / 智算集群 / EFLOPS | 待补充 |
 | Agent 定义 / Harness / 治理层 | [Agent](knowledge/ai-general-notes/agent-def.md) ⭐ · [Harness](knowledge/ai-general-notes/harness.md) ⭐ |
 | Agent 框架 / LangChain / LangGraph / Deep Agents | [Agent 框架](knowledge/ai-general-notes/agent-frameworks.md) |
@@ -39,17 +39,17 @@
 | Prompt 工程 / 防幻觉 | [Prompt Engineering](knowledge/ai-general-notes/prompt-engineering.md) ⭐ |
 | Claude / Opus 4.8 / Sonnet / Haiku | [Claude API](knowledge/anthropic/claude-api.md) |
 | Claude Code / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) |
-| Gemini / Google | [Gemini](knowledge/gcp/maas/gemini.md) |
+| Gemini / Google | [Gemini](knowledge/google/maas/gemini.md) |
 | GPT-5 / ChatGPT / OpenAI / Codex | [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
 | MAI / 微软自研 / Copilot 模型 | [MAI 模型家族](knowledge/microsoft/mai-models.md) |
 | DeepSeek / R1 / V4 / 开源 | [DeepSeek](knowledge/deepseek/general_intro.md) ⭐ |
 | Hy3-preview / 腾讯混元 / Hunyuan | [Hy3-preview](knowledge/tencent/hy3-preview.md) |
-| Qwen vs Hy3 / 混元竞争分析 | [Qwen3.7 vs Hy3-preview](knowledge/alibaba-cloud/competitive-analysis/qwen-vs-hy3/overview.md) |
+| Qwen vs Hy3 / 混元竞争分析 | [Qwen3.7 vs Hy3-preview](knowledge/alibaba/competitive-analysis/qwen-vs-hy3/overview.md) |
 | MiniMax / M3 / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
 | Kimi / 月之暗面 / Moonshot / K2.6 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
 | GLM / 智谱 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) |
 | 企业自建推理 / Higress / AI 网关 | [企业自建 AI 推理平台](knowledge/solutions/enterprise-ai-platform/overview.md) ⭐ |
-| 数据出境 / 数据主权 / CN 版 | [MuleRun](knowledge/alibaba-cloud/ai-application/mulerun.md#mulerun全球版与骡子快跑中国版的关系) · [QoderWork](knowledge/alibaba-cloud/ai-application/qoder-work.md) |
+| 数据出境 / 数据主权 / CN 版 | [MuleRun](knowledge/alibaba/ai-application/mulerun.md#mulerun全球版与骡子快跑中国版的关系) · [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) |
 
 ---
 
@@ -78,31 +78,31 @@
 ### 阿里云
 
 **MaaS**
-- [百炼平台](knowledge/alibaba-cloud/maas/overview.md) — UID 级限流、多账号扩 TPM（8.5× 实测）、deepseek-v4-flash 压测
-- [Qwen](knowledge/alibaba-cloud/maas/qwen.md) — 3.7-Max / 3.7-Plus / 3.6、定价、benchmark
-- [万相](knowledge/alibaba-cloud/maas/wan.md) — 视频生成、首尾帧
-- [HappyHorse](knowledge/alibaba-cloud/maas/happyhorse.md) — 图像生成
+- [百炼平台](knowledge/alibaba/maas/overview.md) — UID 级限流、多账号扩 TPM（8.5× 实测）、deepseek-v4-flash 压测
+- [Qwen](knowledge/alibaba/maas/qwen.md) — 3.7-Max / 3.7-Plus / 3.6、定价、benchmark
+- [万相](knowledge/alibaba/maas/wan.md) — 视频生成、首尾帧
+- [HappyHorse](knowledge/alibaba/maas/happyhorse.md) — 图像生成
 
 **AI Coding**
-- [Qoder](knowledge/alibaba-cloud/ai-coding/qoder.md) — IDE 插件、AI 编程
+- [Qoder](knowledge/alibaba/ai-coding/qoder.md) — IDE 插件、AI 编程
 
 **AI App**
-- [QoderWork](knowledge/alibaba-cloud/ai-application/qoder-work.md) — 桌面 Agent、本地
-- [MuleRun](knowledge/alibaba-cloud/ai-application/mulerun.md) — 云端 Agent、Always-On
-- [龙虾家族](knowledge/alibaba-cloud/ai-application/claw-family.md)
-- [JVS Crew](knowledge/alibaba-cloud/ai-application/jvs-crew.md)
+- [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) — 桌面 Agent、本地
+- [MuleRun](knowledge/alibaba/ai-application/mulerun.md) — 云端 Agent、Always-On
+- [龙虾家族](knowledge/alibaba/ai-application/claw-family.md)
+- [JVS Crew](knowledge/alibaba/ai-application/jvs-crew.md)
 
 **AI Infra**
-- [GPU 产品线选型](knowledge/alibaba-cloud/ai-infra/gpu-product-line.md) ⭐ — A100/H100/H20 选型决策树
+- [GPU 产品线选型](knowledge/alibaba/ai-infra/gpu-product-line.md) ⭐ — A100/H100/H20 选型决策树
 
-### GCP
+### Google
 
 **MaaS**
-- [Gemini Enterprise Agent Platform](knowledge/gcp/maas/overview.md)
-- [Gemini](knowledge/gcp/maas/gemini.md) — 3.1 Pro（当前旗舰） / 3.5 Flash（Agent/Coding 性价比率先，含 benchmark 对比）
+- [Gemini Enterprise Agent Platform](knowledge/google/maas/overview.md)
+- [Gemini](knowledge/google/maas/gemini.md) — 3.1 Pro（当前旗舰） / 3.5 Flash（Agent/Coding 性价比率先，含 benchmark 对比）
 
 **AI Platform**
-- [Vertex AI → Agent Platform](knowledge/gcp/ai-platform/vertex-ai.md) — 训练/部署/Agent
+- [Vertex AI → Agent Platform](knowledge/google/ai-platform/vertex-ai.md) — 训练/部署/Agent
 
 ### Anthropic
 
@@ -152,8 +152,8 @@
 
 ## 线：对比分析（阿里云视角）
 
-- [Qoder vs Trae](knowledge/alibaba-cloud/competitive-analysis/qoder-vs-trae/overview.md) ⭐ — 企业级 vs 个人开发者定位差异
-- [Qwen3.7 vs Hy3-preview](knowledge/alibaba-cloud/competitive-analysis/qwen-vs-hy3/overview.md) — 1M上下文+深度编码+多模态 vs 性价比+开源部署，SA 打法建议
+- [Qoder vs Trae](knowledge/alibaba/competitive-analysis/qoder-vs-trae/overview.md) ⭐ — 企业级 vs 个人开发者定位差异
+- [Qwen3.7 vs Hy3-preview](knowledge/alibaba/competitive-analysis/qwen-vs-hy3/overview.md) — 1M上下文+深度编码+多模态 vs 性价比+开源部署，SA 打法建议
 
 ---
 
@@ -171,6 +171,6 @@
 - [AI 通用笔记模板](knowledge/ai-general-notes/_template.md)
 - [MaaS 产品模板](knowledge/_maas_template.md)
 - [产品模板](knowledge/_product_template.md)
-- [对比分析模板](knowledge/alibaba-cloud/competitive-analysis/_template.md)
+- [对比分析模板](knowledge/alibaba/competitive-analysis/_template.md)
 - [内部产品对比模板](knowledge/_internal-comparison_template.md)
 - [解决方案模板](knowledge/solutions/_template.md)
