@@ -7,7 +7,7 @@
 <!-- SUMMARY_START -->
 **一句话说明**: Harness 是 Agent 的约束+治理层，定义 Agent 能做什么、不能做什么、何时需要人工介入；同时也覆盖调用层可靠性工程（多账号路由、限流熔断、连接池）
 **核心价值**: 模型是同质化 commodity，Harness 是真正的差异化竞争护城河；Harness Engineering 已成行业正式工程方法论（Anthropic/OpenAI/Hashimoto 共同验证）；Model-Harness 协同演进是下一层竞争前沿
-**相关产品**: [HiClaw/龙虾家族](../alibaba-cloud/ai-app/claw-family.md), [JVS Crew](../alibaba-cloud/ai-app/jvs-crew.md)
+**相关产品**: [HiClaw/龙虾家族](../alibaba/ai-application/claw-family.md), [JVS Crew](../alibaba/ai-application/jvs-crew.md)
 <!-- SUMMARY_END -->
 
 ## 是什么

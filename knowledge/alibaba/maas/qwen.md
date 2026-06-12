@@ -1,6 +1,6 @@
 # 通义千问 (Qwen)
 
-> 最后更新: 2026-06-11
+> 最后更新: 2026-06-12
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 
@@ -15,7 +15,7 @@
 
 | 模型 | 定位 | 上下文 | 特点 |
 |------|------|--------|------|
-| **Qwen3.7-Max** | 旗舰 Agent | **1M tokens** | AA Intelligence Index 56.6–57（国产 #1），35小时自主运行，"The Agent Frontier" |
+| **Qwen3.7-Max** | 旗舰 Agent | **1M tokens** | AA Intelligence Index 56.6–57（国产 #1），35小时自主运行，0608 快照起支持视觉输入 |
 | **Qwen3.7-Plus** | 多模态智能体 | **1M tokens** | 原生多模态（图/视频/屏幕）+ GUI/CLI Agent + 视觉编码，纯文本接近 Max |
 | **Qwen3.6-Flash** | 轻量快速 | 256K tokens | 速度快，成本低，系列内 Flash 仍延用 3.6 代号 |
 
@@ -39,6 +39,11 @@
 Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verified 80.4 vs 80.8（平手）、HLE **41.4**（+1.4）、GPQA Diamond **92.4**（+1.1）、HMMT 2026 **97.1%**、IMOAnswerBench **90.0%**（+14.7）、Apex **44.5**（+10.0）
 
 **标志性事件**：35 小时自主编码运行（1,158 次工具调用），GPU 内核优化达 10× 加速比（vs Triton 参考）
+
+**快照版本演进**：
+- `qwen3.7-max-2026-05-20`：纯文本旗舰，仅支持思考模式
+- `qwen3.7-max-2026-06-08`（2026-06-10 上线）：**新增视觉模态理解能力**，支持文本、图像、视频输入，1M 上下文，最大输出 64K，最大图片数 2048，最大视频数 64，支持 Function Calling 和内置工具 [来源: https://help.aliyun.com/zh/model-studio/newly-released-models]
+  - 结构化输出（JSON Mode）：官方视觉模型页面标注为 "--"（不支持），但 2026-06-12 实测纯文本和视觉输入两种场景下 `response_format: {"type": "json_object"}` 均成功返回合法 JSON ⚠️ 待官方文档更新确认
 
 ### Qwen3.7-Plus
 
@@ -68,8 +73,8 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 > ⚠️ stable 版 benchmark 与精确参数官方尚未公布，建议关注 artificialanalysis.ai / LMSYS Arena 后续复测。
 
 **系列定位分工**：
-- **Qwen3.7-Max** = 文本 / Agentic Coding 旗舰（1M 全段无阶梯）
-- **Qwen3.7-Plus** = 多模态智能体（视觉 + 语言 + GUI/CLI + 视觉编码）
+- **Qwen3.7-Max** = 推理 + Agent 旗舰（0608 快照起支持视觉输入，1M 全段无阶梯）
+- **Qwen3.7-Plus** = 多模态智能体（视觉 + 语言 + GUI/CLI + 视觉编码，VLA 训练范式）
 - **Qwen3.6-Flash** = 低成本快速档（系列内未推 3.7-Flash，Flash 仍延用 3.6 代号）
 
 **竞争力要点**：
@@ -86,7 +91,7 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 | **深度推理（Max）** | AA Intelligence Index 56.6–57（国产 #1），数学/科学推理全球领先 |
 | **Agentic Coding** | Terminal-Bench 2.0 69.7，SWE-Pro 60.6；35小时自主编码运行 |
 | **超长上下文** | 1M tokens 上下文窗口，处理大型代码仓库和长文档 |
-| **多模态智能体（Plus）** | Qwen3.7-Plus 支持图/视频/屏幕输入 + GUI/CLI Agent + 视觉编码；Qwen3.7-Max 仅文本 |
+| **多模态智能体** | Qwen3.7-Plus 支持图/视频/屏幕输入 + GUI/CLI Agent + 视觉编码；Qwen3.7-Max（0608 快照起）支持图/视频输入，但无 GUI Agent 专项 benchmark |
 | **数学能力** | HMMT 2026 97.1%、IMOAnswerBench 90.0%，竞赛数学断层领先 |
 | **多语言** | WMT24++ 85.8%，覆盖 55 种语言，多语言能力领先 |
 | **开源生态** | 多尺寸开源，社区活跃（3.7-Max 除外，为 API only） |
@@ -96,7 +101,7 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 | 限制项 | 具体值 | 说明 |
 |--------|--------|------|
 | 3.7-Max 开源 | 不开放 | API only，无法私有化部署或微调 |
-| 3.7-Max 多模态 | 仅文本 | 不支持图像输入（Plus-Preview 支持） |
+| 3.7-Max 多模态（0520 快照） | 仅文本 | 0520 快照不支持图像输入；0608 快照已新增视觉能力 |
 | 3.7-Max 输出冗长 | 97M vs 中位 24M | 实际输出成本可达同类模型的 2-4× |
 | 3.6-Max 上下文 | 256K tokens | 仅为 Plus/3.7 的 1/4 |
 | 3.6-Max 稳定性 | Preview 状态 | 尚未正式 GA，生产环境建议 Plus 或 3.7-Max |
@@ -116,9 +121,9 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 
 ### Plus vs Max 场景选型详解
 
-#### Max 结构性缺失的场景（Plus 独占）
+#### Plus 有 benchmark 验证的视觉专项场景（Max-0608 尚无公开数据）
 
-Max 为纯文本模型，以下场景物理上不可用：
+Max-0608 已支持视觉输入，但以下场景 Plus 有明确 benchmark 验证，Max-0608 视觉专项能力尚待实测：
 
 | 场景 | Plus Benchmark | 说明 |
 |------|---------------|------|
@@ -169,7 +174,11 @@ Max 生成速度约为 Plus 的 4.7 倍（MoE 架构 + 无视觉 encoder 开销�
 
 | 决策条件 | 推荐模型 |
 |----------|----------|
-| 需要看图/看屏/看视频 | **Plus**（Max 完全不能） |
+| 需要看图/看屏/看视频 | 两者均可；**Plus** 有 GUI Agent benchmark 验证，**Max-0608** 视觉专项能力尚待实测 |
+| 需要强推理 + 简单看图 | **Max-0608**（推理更强） |
+| GUI 自动化 / 屏幕操作 Agent | **Plus**（ScreenSpot Pro 79.0%） |
+| 截图→代码 / 视觉编码 | **Plus**（QwenVision2Code 1,772） |
+| 需要从视觉输入提取 JSON | 两者均可（Max-0608 实测 JSON Mode 可用，但官方文档未更新） |
 | Deep-Planning / MCP 工具链 / 128K 长程记忆 | **Plus**（benchmark 领先） |
 | 极端数学推理（Apex/IMO/HLE） | **Max** |
 | 需要极快生成速度（交互体验优先） | **Max**（4.7× throughput） |
@@ -219,6 +228,8 @@ Max 生成速度约为 Plus 的 4.7 倍（MoE 架构 + 无视觉 encoder 开销�
 - https://www.qubrid.com/blog/qwen37-plus-is-now-available-on-qubrid-ai （Qwen3.7-Plus 完整 Benchmark 六模型对比表）
 - https://benchlm.ai/best/computer-use （Computer Use AI 全球排名，Plus #4 75.6 分）
 - https://www.qbitai.com/2026/06/427730.html （量子位报道，11 小时自主开发 demo）
+- https://help.aliyun.com/zh/model-studio/newly-released-models （模型上下架与更新，2026-06-10 qwen3.7-max-2026-06-08 条目）
+- https://help.aliyun.com/zh/model-studio/vision-model/ （视觉理解模型列表，含 Max-0608 参数表）
 - [通义千问官网](https://tongyi.aliyun.com)
 - [百炼平台](https://bailian.console.aliyun.com)
 - [Qwen GitHub](https://github.com/QwenLM)
@@ -226,6 +237,7 @@ Max 生成速度约为 Plus 的 4.7 倍（MoE 架构 + 无视觉 encoder 开销�
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-06-12 | 合并：inbox 素材 — Qwen3.7-Max-2026-06-08 新增视觉能力（官方日志确认 + 视觉模型页面参数表）；修正多处"Max 仅文本"过时描述；新增快照版本演进记录；更新选型结论表（Max-0608 视觉可用但专项 benchmark 待验证）；JSON Mode 实测可用标注 |
 | 2026-06-11 | 合并：inbox 选型分析素材 — 新增「Plus vs Max 场景选型详解」子章节（3 层对比 + benchmark 数据 + 推理速度 + 选型结论表）；更新 Plus Benchmark 详细数据（GUI Agent / Visual Coding / 文档理解 / 纯文本 Agent 四维度） |
 | 2026-06-04 | 主推模型表更新：移除已取代的 Qwen3.6-Plus / Qwen3.6-Max-Preview，主推表仅保留百炼在售的 3 个模型（Qwen3.7-Max / Qwen3.7-Plus / Qwen3.6-Flash）；历史模型单独标注 |
 | 2026-05-31 | 合并：inbox 素材 — 新增百炼 RMB 定价（¥12/¥36，5折 ¥6/¥18）、竞品定价对比表（DS-V4-Pro/GLM-5.1/GPT-5.5/Opus 4.7）、新用户 100 万 tokens 免费额度 |
