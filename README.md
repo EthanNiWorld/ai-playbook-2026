@@ -1,6 +1,6 @@
 # 🌐 ai-knowledge-graph
 
-> ☁️ **以阿里云 AI 全栈为核心** · 覆盖 10 厂商 · 49 篇结构化知识文档 · 4 大知识维度：通识 · 产品 · 对比 · 方案
+> ☁️ **以阿里云 AI 全栈为核心** · 覆盖 10 厂商 · 50 篇结构化知识文档 · 4 大知识维度：通识 · 产品 · 对比 · 方案
 
 <p align="center">
   <a href="index.md"><img src="https://img.shields.io/badge/📋-全局索引-blue?style=for-the-badge" alt="全局索引"></a>
@@ -24,14 +24,14 @@
 | AI 应用平台 | [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) · [MuleRun](knowledge/alibaba/ai-application/mulerun.md) · [Claw](knowledge/alibaba/ai-application/claw-family.md) · [Claude Cowork](knowledge/anthropic/claude-cowork.md) |
 | GPU / AI 基础设施 | [GPU 选型](knowledge/alibaba/ai-infra/gpu-product-line.md) |
 | 竞品对比 | [Qoder vs Trae](knowledge/alibaba/competitive-analysis/qoder-vs-trae/overview.md) |
-| AI 通识概念 | [Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) |
+| AI 通识概念 | [Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) |
 | 行业方案 | [企业 AI 平台](knowledge/solutions/enterprise-ai-platform/overview.md) · [短剧出海](knowledge/solutions/vertical-short-drama/overview.md) · [商业地产](knowledge/solutions/commercial-real-estate/overview.md) · [IPC 安防](knowledge/solutions/vertical-ipc/overview.md) |
 
 ---
 
 ## ⭐ 精华速览
 
-> 新读者从这 11 篇开始，10 分钟建立 AI 技术全景认知。
+> 新读者从这 12 篇开始，10 分钟建立 AI 技术全景认知。
 
 ### 🟦 通识基石
 
@@ -44,6 +44,7 @@
 | [模型自我进化](knowledge/ai-general-notes/agent-self-evolution.md) | MiniMax M2.7 实践：模型自主驱动训练，100+ 迭代 30% 提升 |
 | [AI Agent 记忆系统](knowledge/ai-general-notes/agent-memory.md) | ChatGPT Dreaming V3、人脑记忆工程同构、个性化护城河 |
 | [AI 公司增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) | Killer App × 企业信任 × 消费制收入，Anthropic 17 个月 47 倍 |
+| [AI Agent Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) | 三维度评估框架：操作执行力（SWE-bench/TB/OSWorld）+ 学术推理力（HLE）+ 知识工作力（GDPval-AA） |
 
 ### 🟧 产品实战
 

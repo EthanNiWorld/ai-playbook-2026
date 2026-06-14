@@ -512,7 +512,7 @@
   <div class="hero">
     <div class="hero-badge">百炼平台 &middot; 模型升级说明</div>
     <h1>升级到 <span class="highlight">Qwen3.7 系列</span><br>针对 Agent 能力全方位升级</h1>
-    <p class="hero-sub">面向 Agent 时代全新设计，四大核心能力代际跨越：工具调用（Tool Use）、编程（Coding）、执行控制（Harness）、长程任务（Long Horizon）。输出成本直降 33%，视觉理解质量大幅提升，新增 GUI 操作和屏幕交互能力。</p>
+    <p class="hero-sub">面向 Agent 时代全新设计，四大核心能力代际跨越：工具调用（Tool Use）、编程（Coding）、执行控制（Harness）、长程任务（Long Horizon）。输出成本直降 47%，视觉理解质量大幅提升，新增 GUI 操作和屏幕交互能力。</p>
   </div>
 
   <div class="content">
@@ -527,10 +527,10 @@
         <p>编程与 Agent 能力大幅提升，数学推理接近 3 倍增长。纯文本表现接近旗舰 Max，但响应更快。</p>
       </div>
       <div class="benefit-card">
-        <div class="metric">-33%</div>
+        <div class="metric">-47%</div>
         <div class="metric-label">vs Qwen3.6-Plus 输出单价</div>
         <h3>升级即降本</h3>
-        <p>输出价从 12 元/百万 Token 降至 8 元，同样调用量账单直接减少。详见下方定价表。</p>
+        <p>输出价从 $3.00 降至 $1.60 每百万 Token，同样调用量账单直接减少。详见下方定价表。</p>
       </div>
       <div class="benefit-card">
         <div class="metric">No.1</div>
@@ -573,7 +573,7 @@
         <div class="selection-card sel-plus">
           <h4>Qwen3.7-Plus</h4>
           <div class="selection-sub">多模态智能体 &middot; 性价比最优</div>
-          <p><strong>输出价降 33%，能力大幅升级。</strong>编程与 Agent 能力相比 Qwen3.6-Plus 全面领先，同时具备视觉理解、视频理解、GUI 操作等多模态能力，是绝大多数场景的最优选择。</p>
+          <p><strong>输出价降 47%，能力大幅升级。</strong>编程与 Agent 能力相比 Qwen3.6-Plus 全面领先，同时具备视觉理解、视频理解、GUI 操作等多模态能力，是绝大多数场景的最优选择。</p>
         </div>
         <div class="selection-card sel-max">
           <h4>Qwen3.7-Max</h4>
@@ -593,46 +593,118 @@
       </div>
     </div>
 
-    <!-- Pricing -->
+    <!-- Benchmark Reference -->
     <div class="pricing-section">
-      <div class="section-title">定价对比</div>
-      <div class="pricing-table-wrap">
+      <div class="section-title">Benchmark 参考（三维度评估）</div>
+      <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;">
         <table>
           <thead>
             <tr>
-              <th>模型</th>
-              <th>输入（元/百万Token）</th>
-              <th>输出（元/百万Token）</th>
-              <th>上下文</th>
-              <th>定位</th>
+              <th style="width:22%;">评估维度</th>
+              <th>Benchmark</th>
+              <th>Qwen3.7-Plus</th>
+              <th>Qwen3.7-Max</th>
+              <th>Claude Opus 4.8</th>
+              <th>GPT-5.5</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="model-name">Qwen3.7-Plus</td>
-              <td>2 <span style="color:var(--text-muted);font-size:12px;">($0.4)</span></td>
-              <td><span class="price-new">8</span> <span style="color:var(--text-muted);font-size:12px;">($1.6)</span> <span class="badge-save">&#8595; 33%</span> <span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#fff5e6;color:#d97706;font-size:11px;font-weight:600;border:1px solid #fed7aa;margin-left:4px;">限时 8 折</span></td>
-              <td>&le; 256K</td>
-              <td>多模态智能体</td>
+              <td class="model-name">Agentic coding</td>
+              <td style="color:var(--text-muted);font-size:12px;">SWE-Bench Pro</td>
+              <td><strong>57.6%</strong></td>
+              <td><strong>60.6%</strong></td>
+              <td style="color:var(--text-muted);">69.2%</td>
+              <td style="color:var(--text-muted);">58.6%</td>
             </tr>
             <tr>
-              <td class="model-name" style="color:var(--text-muted);">Qwen3.6-Plus</td>
-              <td style="color:var(--text-muted);">2</td>
-              <td><span class="price-old">12</span></td>
-              <td style="color:var(--text-muted);">&le; 256K</td>
+              <td class="model-name">Agentic terminal coding</td>
+              <td style="color:var(--text-muted);font-size:12px;">Terminal-Bench 2.1</td>
+              <td><strong>47.0%</strong> <span style="font-size:10px;color:var(--warning);">AA TB-Hard</span></td>
+              <td><strong>69.7%</strong> <span style="font-size:10px;color:var(--warning);">v2.0</span></td>
+              <td style="color:var(--text-muted);">74.6%</td>
+              <td style="color:var(--text-muted);">78.2%</td>
+            </tr>
+            <tr>
+              <td class="model-name">Multidisciplinary reasoning</td>
+              <td style="color:var(--text-muted);font-size:12px;">Humanity's Last Exam</td>
+              <td><strong>34.7%</strong></td>
+              <td><strong>41.4%</strong></td>
+              <td style="color:var(--text-muted);">57.9%</td>
+              <td style="color:var(--text-muted);">52.2%</td>
+            </tr>
+            <tr>
+              <td class="model-name">Agentic computer use</td>
+              <td style="color:var(--text-muted);font-size:12px;">OSWorld-Verified</td>
+              <td><strong>73.3%</strong></td>
               <td style="color:var(--text-muted);">&mdash;</td>
+              <td style="color:var(--text-muted);">83.4%</td>
+              <td style="color:var(--text-muted);">78.7%</td>
             </tr>
             <tr>
-              <td class="model-name">Qwen3.7-Max</td>
-              <td>12</td>
-              <td>36 <span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#fee2e2;color:#dc2626;font-size:11px;font-weight:600;border:1px solid #fecaca;margin-left:4px;">限时 5 折</span></td>
-              <td>&le; 1M</td>
-              <td>纯文本旗舰</td>
+              <td class="model-name">Knowledge work</td>
+              <td style="color:var(--text-muted);font-size:12px;">GDPval-AA (Elo)</td>
+              <td><strong>1,517</strong></td>
+              <td><strong>1,541</strong></td>
+              <td style="color:var(--text-muted);">1,890</td>
+              <td style="color:var(--text-muted);">1,769</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <p style="margin-top:12px;font-size:12px;color:var(--text-muted);line-height:1.6;">注：Qwen3.7-Plus 美金价对应 国际站 输入 $0.4 / 输出 $1.6 每百万 Token；限时折扣（Plus 8 折 / Max 5 折）在标准价基础上叠加，活动为临时性质，请以阿里云官方公告为准。</p>
+      <p style="font-size:11px;color:var(--text-muted);line-height:1.6;">数据来源：各厂商官方发布 + <a href="https://artificialanalysis.ai/evaluations/gdpval-aa" target="_blank" style="color:var(--primary);">Artificial Analysis</a> 独立评测（2026-06-14）。Terminal-Bench 标注 v2.0 的表示该模型仅有 v2.0 数据（v2.1 题目更难）。“&mdash;”表示该 benchmark 暂无公开数据。</p>
+    </div>
+
+    <!-- Pricing -->
+    <div class="pricing-section">
+      <div class="section-title">定价对比（国际站 USD 原价）</div>
+      <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:22%;">模型</th>
+              <th>输入 Token 范围</th>
+              <th>输入价（/1M tokens）</th>
+              <th>输出价（/1M tokens）</th>
+              <th>上下文</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="model-name" rowspan="2">Qwen3.7-Plus</td>
+              <td style="color:var(--text-muted);font-size:12px;">0 &lt; Token &le; 256K</td>
+              <td><strong>$0.40</strong></td>
+              <td><span class="price-new">$1.60</span></td>
+              <td rowspan="2">&le; 1M</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-muted);font-size:12px;">256K &lt; Token &le; 1M</td>
+              <td><strong>$1.20</strong></td>
+              <td><span class="price-new">$4.80</span></td>
+            </tr>
+            <tr>
+              <td class="model-name" style="color:var(--text-muted);" rowspan="2">Qwen3.6-Plus</td>
+              <td style="color:var(--text-muted);font-size:12px;">0 &lt; Token &le; 256K</td>
+              <td style="color:var(--text-muted);">$0.50</td>
+              <td><span class="price-old">$3.00</span></td>
+              <td style="color:var(--text-muted);" rowspan="2">&le; 1M</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-muted);font-size:12px;">256K &lt; Token &le; 1M</td>
+              <td style="color:var(--text-muted);">$2.00</td>
+              <td><span class="price-old">$6.00</span></td>
+            </tr>
+            <tr>
+              <td class="model-name">Qwen3.7-Max</td>
+              <td style="color:var(--text-muted);font-size:12px;">0 &lt; Token &le; 1M</td>
+              <td><strong>$2.50</strong></td>
+              <td><span class="price-new">$7.50</span></td>
+              <td>&le; 1M</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:11px;color:var(--text-muted);line-height:1.6;">数据来源：阿里云国际站 <a href="https://modelstudio.alibabacloud.com/" target="_blank" style="color:var(--primary);">Model Studio</a> 官方定价页（2026-06-14）。以上为 International 部署模式（新加坡端点）标准原价，未含任何限时折扣。Qwen-Plus 系列输出含非思考模式与思考模式（CoT+回答），两者同价。</p>
     </div>
 
     <!-- CTA -->

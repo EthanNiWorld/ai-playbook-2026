@@ -1,6 +1,6 @@
 ---
 name: ai-knowledge-miner
-description: 将 inbox/ 原始素材或 notes/ 长期笔记提炼为脱敏、结构化的知识文档，写入 knowledge/ 对应目录。支持 knowledge/ 交叉校验模式（对比已有文档 + 整合用户口述）。当用户提到"提炼"、"沉淀"、"处理 inbox"、"处理 notes"、"knowledge miner"、"对比"、"校验"时自动适用。
+description: 将 inbox/ 原始素材提炼为脱敏、结构化的知识文档，写入 knowledge/ 对应目录。支持 knowledge/ 交叉校验模式（对比已有文档 + 整合用户口述）。默认只处理 inbox/，不主动处理 notes/（除非用户明确要求）。当用户提到"提炼"、"沉淀"、"处理 inbox"、"处理 notes"、"knowledge miner"、"对比"、"校验"时自动适用。
 tools: Read, Grep, Glob, Write, SearchReplace, SearchCodebase, Bash, WebSearch, WebFetch
 ---
 
@@ -19,7 +19,7 @@ tools: Read, Grep, Glob, Write, SearchReplace, SearchCodebase, Bash, WebSearch, 
   - **`notes/` 笔记**：长期维护的个人笔记（如 Daily note），处理完**保留原文件**
   - **`knowledge/` 交叉校验**（新增）：当用户要求对比/校验已有 knowledge 文档时触发
   - **用户口述增量**（新增）：用户在对话中直接补充的事实性信息
-- 如未指定，列出 `inbox/` 和 `notes/` 下所有 `.md` 和 `.html` 文件供用户选择
+- 如未指定，**仅列出 `inbox/` 下**所有 `.md` 和 `.html` 文件供用户选择（默认不列出 `notes/`，除非用户明确要求处理笔记）
 - 读取用户指定的文件内容
 
 > 📐 **交叉校验模式（`knowledge/` + 用户口述）**

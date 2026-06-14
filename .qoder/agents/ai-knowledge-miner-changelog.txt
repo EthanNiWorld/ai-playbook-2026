@@ -1,5 +1,11 @@
 # AI Knowledge Miner Changelog
 
+## 2026-06-14
+### 优化：notes/ 默认跳过
+- Step 1 默认只列出 `inbox/` 文件，不主动列出 `notes/`（除非用户明确要求处理笔记）
+- description 更新以反映新规则
+- 原因：notes/ 是长期个人笔记，不应在每次调用 miner 时被默认列出干扰用户
+
 ## 2026-06-04
 ### 工具链完善
 - `tools` 新增 `SearchReplace` 和 `SearchCodebase`（语义搜索 + 精确合并的核心工具）

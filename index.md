@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-06-12
+> 最后更新：2026-06-14
 
 ## 目录
 
@@ -37,6 +37,7 @@
 | AI 记忆 / Memory / Dreaming | [AI Agent 记忆](knowledge/ai-general-notes/agent-memory.md) ⭐ |
 | AI 公司增长 / ARR / 飞轮 | [AI 增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ |
 | Prompt 工程 / 防幻觉 | [Prompt Engineering](knowledge/ai-general-notes/prompt-engineering.md) ⭐ |
+| SWE-bench / Terminal-Bench / OSWorld / HLE / Agent 评测 | [AI Agent Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) ⭐ |
 | Claude / Opus 4.8 / Sonnet / Haiku | [Claude API](knowledge/anthropic/claude-api.md) |
 | Claude Code / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) |
 | Gemini / Google | [Gemini](knowledge/google/maas/gemini.md) |
@@ -61,6 +62,7 @@
 - [Harness](knowledge/ai-general-notes/harness.md) ⭐ — 企业战略级资产、约束治理层、Harness vs Prompt 区别、调用层容量与限流治理、Agent=Model+Harness 公式演进史、Model-Harness 协同演进厂商对比
 - [Agent 框架](knowledge/ai-general-notes/agent-frameworks.md) — LangChain / LangGraph / Deep Agents 三层递进架构、选型决策树、与闭源 Deep Agent 产品关系
 - [Prompt Engineering](knowledge/ai-general-notes/prompt-engineering.md) ⭐ — 防幻觉四层机制、第一性原理、博弈论应用
+- [AI Agent Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) ⭐ — 三维度评估框架：操作执行力（SWE-bench Pro / Terminal-Bench / OSWorld）+ 学术推理力（HLE）+ 知识工作力（GDPval-AA）
 
 ### 概念洞察类（关键认知框架）
 
