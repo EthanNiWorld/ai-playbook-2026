@@ -1,0 +1,187 @@
+[
+  {
+    "id": "login_form",
+    "instruction": "Log in to the application using username 'user' and password 'pass'.",
+    "domain": "login",
+    "expected_action": {
+      "action": "click",
+      "target": "username input field",
+      "coords": [
+        360,
+        295
+      ]
+    },
+    "image": "data/images/login_form.png"
+  },
+  {
+    "id": "file_manager",
+    "instruction": "Open the Documents folder.",
+    "domain": "file_manager",
+    "expected_action": {
+      "action": "double_click",
+      "target": "Documents folder icon",
+      "coords": [
+        320,
+        145
+      ]
+    },
+    "image": "data/images/file_manager.png"
+  },
+  {
+    "id": "settings_dark_mode",
+    "instruction": "Enable dark mode in the settings.",
+    "domain": "settings",
+    "expected_action": {
+      "action": "click",
+      "target": "dark mode toggle switch",
+      "coords": [
+        880,
+        165
+      ]
+    },
+    "image": "data/images/settings_dark_mode.png"
+  },
+  {
+    "id": "browser_search",
+    "instruction": "Search for 'OSWorld benchmark' using the browser.",
+    "domain": "browser",
+    "expected_action": {
+      "action": "click",
+      "target": "search input box",
+      "coords": [
+        512,
+        305
+      ]
+    },
+    "image": "data/images/browser_search.png"
+  },
+  {
+    "id": "spreadsheet_sum",
+    "instruction": "Calculate the sum of values in column A and put the result in cell B1.",
+    "domain": "spreadsheet",
+    "expected_action": {
+      "action": "click",
+      "target": "cell B1",
+      "coords": [
+        240,
+        150
+      ]
+    },
+    "image": "data/images/spreadsheet_sum.png"
+  },
+  {
+    "id": "calendar_event",
+    "instruction": "Create a new calendar event for a meeting at 2 PM tomorrow.",
+    "domain": "calendar",
+    "expected_action": {
+      "action": "click",
+      "target": "New Event button",
+      "coords": [
+        875,
+        90
+      ]
+    },
+    "image": "data/images/calendar_event.png"
+  },
+  {
+    "id": "email_compose",
+    "instruction": "Compose a new email to support@example.com.",
+    "domain": "email",
+    "expected_action": {
+      "action": "click",
+      "target": "Compose button",
+      "coords": [
+        110,
+        80
+      ]
+    },
+    "image": "data/images/email_compose.png"
+  },
+  {
+    "id": "ide_run",
+    "instruction": "Run the Python script currently open in the editor.",
+    "domain": "ide",
+    "expected_action": {
+      "action": "click",
+      "target": "Run button",
+      "coords": [
+        870,
+        70
+      ]
+    },
+    "image": "data/images/ide_run.png"
+  },
+  {
+    "id": "popup_blocking",
+    "instruction": "Enable dark mode in the settings.",
+    "domain": "settings",
+    "expected_action": {
+      "action": "click",
+      "target": "close button on session expired modal",
+      "coords": [
+        720,
+        235
+      ]
+    },
+    "image": "data/images/popup_blocking.png"
+  },
+  {
+    "id": "error_message",
+    "instruction": "Log in with username 'user' and password 'pass' after the failed attempt.",
+    "domain": "login",
+    "expected_action": {
+      "action": "click",
+      "target": "password input field",
+      "coords": [
+        532,
+        415
+      ]
+    },
+    "image": "data/images/error_message.png"
+  },
+  {
+    "id": "scroll_needed",
+    "instruction": "Enable dark mode in the settings.",
+    "domain": "settings",
+    "expected_action": {
+      "action": "scroll",
+      "target": "settings page",
+      "coords": [
+        512,
+        700
+      ],
+      "value": "down"
+    },
+    "image": "data/images/scroll_needed.png"
+  },
+  {
+    "id": "notification_banner",
+    "instruction": "Search for 'OSWorld benchmark' using the browser.",
+    "domain": "browser",
+    "expected_action": {
+      "action": "click",
+      "target": "Accept button on cookie banner",
+      "coords": [
+        790,
+        693
+      ]
+    },
+    "image": "data/images/notification_banner.png"
+  },
+  {
+    "id": "cnipa_login_captcha",
+    "instruction": "Log in as a natural person on this page and complete the slider verification.",
+    "domain": "login_captcha",
+    "expected_action": {
+      "action": "drag",
+      "target": "slider puzzle piece",
+      "coords": [
+        180,
+        825,
+        420,
+        825
+      ]
+    },
+    "image": "data/images/cnipa_login_captcha.png"
+  }
+]

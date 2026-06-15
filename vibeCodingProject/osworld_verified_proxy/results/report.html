@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSWorld-Verified 单步代理测试报告</title>
+    <style>
+        :root {
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #212529;
+            --muted: #6c757d;
+            --border: #dee2e6;
+            --primary: #2563eb;
+            --success: #198754;
+            --danger: #dc3545;
+            --warning: #ffc107;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 24px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 { margin-bottom: 8px; }
+        .subtitle {
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .card h3 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .metric {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .metric small {
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 400;
+        }
+        table {
+            width: 100%;
+            background: var(--card);
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+        th {
+            background: #f1f3f5;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        tr:hover { background: #f8f9fa; }
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .tag-success { background: #d1e7dd; color: #0f5132; }
+        .tag-danger { background: #f8d7da; color: #842029; }
+        .tag-warning { background: #fff3cd; color: #664d03; }
+        .action { font-family: monospace; font-size: 13px; }
+        .reasoning {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .conclusions {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .conclusions h2 { margin-top: 0; }
+        .conclusions ul { padding-left: 20px; }
+        .conclusions li { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OSWorld-Verified 单步代理测试报告</h1>
+        <div class="subtitle">生成时间：2026-06-16 00:00:39</div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>测试任务数</h3>
+                <div class="metric">13<small> 个</small></div>
+            </div>
+            <div class="card">
+                <h3>测试模型数</h3>
+                <div class="metric">3<small> 个</small></div>
+            </div>
+            <div class="card">
+                <h3>总花费</h3>
+                <div class="metric">¥0.3130</div>
+            </div>
+            <div class="card">
+                <h3>视觉模型</h3>
+                <div class="metric">2<small> / 3</small></div>
+            </div>
+        </div>
+
+        <h2>模型概览</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>模型</th>
+                    <th>视觉支持</th>
+                    <th>成功任务</th>
+                    <th>总 Tokens</th>
+                    <th>预估成本</th>
+                    <th>平均延迟</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>qwen3.7-max-2026-06-08</strong></td><td><span class="tag tag-success">支持</span></td><td>13/13</td><td>17,418</td><td>¥0.2634</td><td>5.76s</td></tr>
+<tr><td><strong>qwen3.7-max</strong></td><td><span class="tag tag-danger">不支持</span></td><td>0/13</td><td>0</td><td>¥0.0000</td><td>0.78s</td></tr>
+<tr><td><strong>qwen3.7-plus</strong></td><td><span class="tag tag-success">支持</span></td><td>13/13</td><td>17,559</td><td>¥0.0496</td><td>5.31s</td></tr>
+            </tbody>
+        </table>
+
+        <h2>逐任务结果</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>任务</th>
+                    <th>领域</th>
+                    <th>qwen3.7-max-2026-06-08</th><th>qwen3.7-max</th><th>qwen3.7-plus</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td title="Log in to the application using username 'user' and password 'pass'."><strong>login_form</strong></td><td>login</td><td class="action"><strong>click</strong><br>Username input field<br>(500, 409)<br>value=user<div class="reasoning">I need to click on the username field to focus it before typing the username 'user'.</div></td><td class="action"><span class="tag tag-danger">error</span><div class="reasoning">Error code: 400 - {'error': {'code': 'invalid_parameter_error', 'param': None, 'message': 'The provided messages input is invalid. The error info is [Unexpected item type in content.].', 'type': 'invalid_request_error'}, 'id': 'chatcmpl-132c0fa1-9167-943c-ad80-adfc638eaa33'}</div></td><td class="action"><strong>click</strong><br>Username input field<br>(500, 408)<div class="reasoning">I need to click on the username field to focus it before typing the username 'user'.</div></td></tr>
+<tr><td title="Open the Documents folder."><strong>file_manager</strong></td><td>file_manager</td><td class="action"><strong>double_click</strong><br>Documents folder icon<br>(314, 206)<div class="reasoning">Double-clicking the Documents folder icon in the main content area will open the folder.</div></td><td class="action"><span class="tag tag-danger">error</span><div class="reasoning">Error code: 400 - {'error': {'code': 'invalid_parameter_error', 'param': None, 'message': 'The provided messages input is invalid. The error info is [Unexpected item type in content.].', 'type': 'invalid_request_error'}, 'id': 'chatcmpl-c08f43d6-a60c-9fc1-af42-cef1daf96467'}</div></td><td class="action"><strong>double_click</strong><br>Documents folder icon<br>(314, 206)<div class="reasoning">Double-clicking the Documents folder icon in the main content area will open the folder and display its contents.</div></td></tr>
+<tr><td title="Enable dark mode in the settings."><strong>settings_dark_mode</strong></td><td>settings</td><td class="action"><strong>click</strong><br>Dark mode toggle switch<br>(860, 217)<div class="reasoning">The toggle for Dark mode is currently off; clicking it will enable dark mode as required by the task.</div></td><td class="action"><span class="tag tag-danger">error</span><div class="reasoning">Error code: 400 - {'error': {'code': 'invalid_parameter_error', 'param': None, 'message': 'The provided messages input is invalid. The error info is [Unexpected item type in content.].', 'type': 'invalid_request_error'}, 'id': 'chatcmpl-70c2ada4-6e0d-953d-ad8d-4479d1082306'}</div></td><td class="action"><strong>click</strong><br>Dark mode toggle switch<br>(860, 215)<div class="reasoning">The toggle switch for Dark mode is currently off; clicking it will enable dark mode.</div></td></tr>
+<tr><td title="Search for 'OSWorld benchmark' using the browser."><strong>browser_search</strong></td><td>browser</td><td class="action"><strong>click</strong><br>Search input field<br>(500, 394)<div class="reasoning">I need to click on the search input field to focus it before typing the search query 'OSWorld benchmark'.</div></td><td class="action"><span class="tag tag-danger">error</span><div class="reasoning">Error code: 400 - {'error': {'code': 'invalid_parameter_error', 'param': None, 'message': 'The provided messages input is invalid. The error info is [Unexpected item type in content.].', 'type': 'invalid_request_error'}, 'id': 'chatcmpl-8cf81c99-3691-99f2-ad0d-eaf4bec88252'}</div></td><td class="action"><strong>click</strong><br>Search input field<br>(500, 394)<div class="reasoning">I need to click on the search input field to focus it before typing the search query 'OSWorld benchmark'.</div></td></tr>
+<tr><td title="Calculate the sum of values in column A and put the result in cell B1."><strong>spreadsheet_sum</strong></td><td>spreadsheet</td><td class="action"><strong>click</strong><br>Cell B1<br>(230, 240)<div class="reasoning">I need to click on cell B1 to select it before entering the sum of column A values (10 + 5 = 15).</div></td><td class="action"><span class="tag tag-danger">error</span><div class="reasoning">Error code: 400 - {'error': {'code': 'invalid_parameter_error', 'param': None, 'message': 'The provided messages input is invalid. The error info is [Unexpected item type in content.].', 'type': 'invalid_request_error'}, 'id': 'chatcmpl-d1edfedb-431d-9234-992f-294520cd0704'}</div></td><td class="action"><strong>click</strong><br>Cell B1<br>(230, 240)<div class="reasoning">I need to click on cell B1 to select it before entering the sum of column A values (10 + 5 = 15).</div></td></tr>
+<tr><td title="Create a new calendar event for a meeting at 2 PM tomorrow."><strong>calendar_event</strong></td><td>calendar</td><td class="action"><strong>click</strong><br>+ New Event button<br>(854, 118)<div class="reasoning">Clicking the '+ New Event' button will open a form to create a new calendar event for the meeting.</div></td><td class="action"><span class="tag tag-danger">error</span><div class="reasoning">Error code: 400 - {'error': {'code': 'invalid_parameter_error', 'param': None, 'message': 'The provided messages input is invalid. The error info is [Unexpected item type in content.].', 'type': 'invalid_request_error'}, 'id': 'chatcmpl-c40029f0-f388-9d27-b18c-ade0c58a5942'}</div></td><td class="action"><strong>click</strong><br>+ New Event button<br>(854, 118)<div class="reasoning">Clicking the '+ New Event' button will open a form to create a new calendar event where I can specify the meeting details and time.</div></td></tr>
+<tr><td title="Compose a new email to support@example.com."><strong>email_compose</strong></td><td>email</td><td class="action"><strong>click</strong><br>Compose button<br>(109, 104)<div class="reasoning">Clicking the Compose button will open a new email composition window where I can enter the recipient address support@example.com.</div></td><td class="action"><span class="tag tag-danger">error</span><div class="reasoning">Error code: 400 - {'error': {'code': 'invalid_parameter_error', 'param': None, 'message': 'The provided messages input is invalid. The error info is [Unexpected item type in content.].', 'type': 'invalid_request_error'}, 'id': 'chatcmpl-83514548-2eda-977d-93fa-e4ef9fe8d914'}</div></td><td class="action"><strong>click</strong><br>Compose button<br>(109, 104)<div class="reasoning">Clicking the Compose button will open a new email composition window where I can enter the recipient address support@example.com.</div></td></tr>
+<tr><td title="Run the Python script currently open in the editor."><strong>ide_run</strong></td><td>ide</td><td class="action"><strong>click</strong><br>Run button in the top-right corner<br>(850, 91)<div class="reasoning">Clicking the 'Run' button will execute the currently open Python script (main.py) in the IDE.</div></td><td class="action"><span class="tag tag-danger">error</span><div class="reasoning">Error code: 400 - {'error': {'code': 'invalid_parameter_error', 'param': None, 'message': 'The provided messages input is invalid. The error info is [Unexpected item type in content.].', 'type': 'invalid_request_error'}, 'id': 'chatcmpl-015c9653-8bde-9c0e-8796-25022fde2eb2'}</div></td><td class="action"><strong>click</strong><br>Run button in the top right corner<br>(850, 90)<div class="reasoning">Clicking the 'Run' button will execute the currently open Python script (main.py) in the IDE.</div></td></tr>
+<tr><td title="Enable dark mode in the settings."><strong>popup_blocking</strong></td><td>settings</td><td class="action"><strong>click</strong><br>OK button on Session Expired dialog<br>(497, 497)<div class="reasoning">The Session Expired dialog is blocking the settings interface; I need to dismiss it by clicking OK before I can interact with the dark mode toggle.</div></td><td class="action"><span class="tag tag-danger">error</span><div class="reasoning">Error code: 400 - {'error': {'code': 'invalid_parameter_error', 'param': None, 'message': 'The provided messages input is invalid. The error info is [Unexpected item type in content.].', 'type': 'invalid_request_error'}, 'id': 'chatcmpl-bf01e16d-5545-9c31-9714-50858707c095'}</div></td><td class="action"><strong>click</strong><br>OK button on Session Expired dialog<br>(498, 496)<div class="reasoning">The Session Expired dialog is blocking the settings interface; I need to dismiss it by clicking OK before I can interact with the dark mode toggle.</div></td></tr>
+<tr><td title="Log in with username 'user' and password 'pass' after the failed attempt."><strong>error_message</strong></td><td>login</td><td class="action"><strong>click</strong><br>Username input field<br>(500, 408)<br>value=user<div class="reasoning">I need to click on the username field first to enter the username 'user' before filling in the password.</div></td><td class="action"><span class="tag tag-danger">error</span><div class="reasoning">Error code: 400 - {'error': {'code': 'invalid_parameter_error', 'param': None, 'message': 'The provided messages input is invalid. The error info is [Unexpected item type in content.].', 'type': 'invalid_request_error'}, 'id': 'chatcmpl-6ec935cf-d7f6-9db8-845c-b66b5ee7a5e1'}</div></td><td class="action"><strong>click</strong><br>Username input field<br>(500, 406)<br>value=user<div class="reasoning">I need to click on the username field to enter the username 'user' as the first step in the login process after the failed attempt.</div></td></tr>
+<tr><td title="Enable dark mode in the settings."><strong>scroll_needed</strong></td><td>settings</td><td class="action"><strong>scroll</strong><br>settings page to reveal more options below<br>(500, 500)<div class="reasoning">The current view shows Account, Notifications, and Privacy sections, but dark mode is typically under appearance/display settings which are likely further down the page as indicated by the 'More settings below' tooltip.</div></td><td class="action"><span class="tag tag-danger">error</span><div class="reasoning">Error code: 400 - {'error': {'code': 'invalid_parameter_error', 'param': None, 'message': 'The provided messages input is invalid. The error info is [Unexpected item type in content.].', 'type': 'invalid_request_error'}, 'id': 'chatcmpl-9b5b7851-4583-9cee-b81d-a3bee39d5882'}</div></td><td class="action"><strong>scroll</strong><br>settings page to reveal more options below<br>(500, 500)<div class="reasoning">The dark mode setting is not visible in the current view; the tooltip 'More settings below' indicates additional options exist further down the page, so I need to scroll down to find it.</div></td></tr>
+<tr><td title="Search for 'OSWorld benchmark' using the browser."><strong>notification_banner</strong></td><td>browser</td><td class="action"><strong>click</strong><br>Search input field<br>(500, 394)<div class="reasoning">I need to click on the search input field to focus it before typing the search query 'OSWorld benchmark'.</div></td><td class="action"><span class="tag tag-danger">error</span><div class="reasoning">Error code: 400 - {'error': {'code': 'invalid_parameter_error', 'param': None, 'message': 'The provided messages input is invalid. The error info is [Unexpected item type in content.].', 'type': 'invalid_request_error'}, 'id': 'chatcmpl-9548bc90-16f9-9f06-9c8a-efc7f7f4dd39'}</div></td><td class="action"><strong>click</strong><br>Search input field<br>(500, 394)<div class="reasoning">I need to click on the search input field to focus it before typing the search query 'OSWorld benchmark'.</div></td></tr>
+<tr><td title="Log in as a natural person on this page and complete the slider verification."><strong>cnipa_login_captcha</strong></td><td>login_captcha</td><td class="action"><strong>drag</strong><br>slider verification button<br>(580, 860)<br>→ (940, 860)<div class="reasoning">The task requires completing the slider verification for natural person login. I need to drag the slider button from the left position to the right to complete the captcha verification.</div></td><td class="action"><span class="tag tag-danger">error</span><div class="reasoning">Error code: 400 - {'error': {'code': 'invalid_parameter_error', 'param': None, 'message': 'The provided messages input is invalid. The error info is [Unexpected item type in content.].', 'type': 'invalid_request_error'}, 'id': 'chatcmpl-290974f5-f285-9cb5-8712-b0b58efa6799'}</div></td><td class="action"><strong>drag</strong><br>slider verification button<br>(578, 858)<br>→ (940, 858)<div class="reasoning">The task requires completing the slider verification for natural person login. I need to drag the slider button (>) from its current position on the left to the right side to complete the captcha verification.</div></td></tr>
+            </tbody>
+        </table>
+
+        <div class="conclusions">
+            <h2>测试结论</h2>
+            <ul>
+                <li><strong>qwen3.7-max（无日期后缀）</strong>不支持视觉输入，所有带截图的任务均返回 400 错误，无法用于 GUI Agent 评测。</li>
+                <li><strong>qwen3.7-plus</strong> 与 <strong>qwen3.7-max-2026-06-08</strong> 在 13 个单步任务上表现一致，均能正确处理弹窗、滑块验证码、隐藏目标滚动等场景。</li>
+                <li>两个模型的共同短板：遇到错误提示时，都优先点击 username 字段而非红色高亮的 password 字段。</li>
+                <li>Max-0608 成本约为 Plus 的 5.3 倍，但在本轻量测试中没有展现出明显的能力优势。</li>
+                <li>当前测试为合成/简化截图，结论仅适用于「单步 action prediction」代理；真实 OSWorld-Verified 分数需在真实桌面环境中跑完整 harness。</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

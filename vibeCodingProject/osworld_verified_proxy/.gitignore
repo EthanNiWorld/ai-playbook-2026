@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 测试结果（用户自己生成）
+results/*.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
