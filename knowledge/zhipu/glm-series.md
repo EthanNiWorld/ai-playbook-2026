@@ -1,6 +1,6 @@
 # 智谱 GLM 系列模型
 
-> 最后更新: 2026-06-03
+> 最后更新: 2026-06-15
 > 所属厂商: 智谱 AI（Zhipu AI）
 > 产品类别: MaaS
 > 状态: Published
@@ -32,7 +32,7 @@
 - **模态**：纯文本输入/输出（不支持图像/视频/音频）
 - **场景**：Agentic Engineering（工程代理）、长程 Coding Agent、Autonomous Agent
 - **特点**：
-  1. **8 小时级长程任务**：全球唯一达到 8 小时级持续工作的开源模型，可在单次任务中完成规划、执行、测试、修复、交付完整闭环
+  1. **8 小时级长程任务**：全球唯一达到 8 小时级持续工作的开源模型，可在单次任务中完成规划、执行、测试、修复、交付完整闭环。技术原理：Progressive Alignment（渐进对齐）纯后训练优化 + 阶梯型策略切换能力（在优化路径碰壁时主动识别瓶颈、切换到结构性不同的方案）。详见 [长程任务](../ai-general-notes/long-horizon-task.md)
   2. **SWE-Bench Pro 58.4**：发布时全球第一，超越 GPT-5.4、Claude Opus 4.6 和 Gemini 3.1 Pro（后被 Claude Opus 4.8 的 69.2 超越，但仍略高于 GPT-5.5 的 58.6）
   3. **工程交付能力**：8 小时从零构建 Linux 桌面系统（1200+ 步骤），655 轮迭代将向量数据库 QPS 提升 6.9 倍，KernelBench Level 3 优化 3.6 倍几何平均加速比
   4. **与 GLM-5 关系**：同架构，纯后训练优化（progressive alignment），编程评分从 35.4 提升至 45.3（+28%）
@@ -50,7 +50,7 @@
 | GPQA Diamond | 86.0% | 研究生级科学推理（GLM-5 数据，5.1 未独立公布） |
 | 三大代码基准综合 | 全球第三 | 仅次于 Claude Opus 4.6 和 GPT-5.4；国产第一、开源第一 |
 
-> 来源：[智谱官方文档](https://docs.bigmodel.cn/cn/guide/models/text/glm-5.1)、[WaveSpeed AI 对比](https://wavespeed.ai/blog/posts/glm-5-1-vs-claude-gpt-gemini-deepseek-llm-comparison/)、[Lushbinary](https://lushbinary.com/blog/glm-5-1-benchmarks-breakdown-swe-bench-pro-nl2repo-cybergym/)
+> 来源：[智谱官方文档](https://docs.bigmodel.cn/cn/guide/models/text/glm-5.1)、[智谱研究文档](https://www.zhipuai.cn/zh/research/157)、[WaveSpeed AI 对比](https://wavespeed.ai/blog/posts/glm-5-1-vs-claude-gpt-gemini-deepseek-llm-comparison/)、[Lushbinary](https://lushbinary.com/blog/glm-5-1-benchmarks-breakdown-swe-bench-pro-nl2repo-cybergym/)
 
 #### GLM-5.1 定价
 
@@ -180,6 +180,7 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-06-15 | GLM-5.1 长程任务特点补充技术原理摘要（Progressive Alignment + 阶梯型策略切换），新增智谱研究文档参考链接，交叉链接 [long-horizon-task.md](../ai-general-notes/long-horizon-task.md) |
 | 2026-06-03 | 全面更新 GLM-5.1：修正发布时间为 2026.04.07（正式公告）；补充架构参数（744B MoE, 256 experts）；新增全部基准分数（SWE-Bench Pro/Verified、Terminal-Bench 2.0、NL2Repo、Coding Score、AIME 2026）；新增中国站/国际站定价；新增与 Claude Opus 4.8 / GPT-5.5 / Qwen3.7-Max 对比表；补充华为昇腾训练、MIT 协议、纯文本限制等关键信息；更新适用/不适用场景 |
 | 2026-05-28 | 新建文档，首次提炼 GLM 系列模型系列信息 |
 | 2026-05-28 | 更新主推模型为 GLM-5.1（2026.03.27），新增 GLM-5.1 详情节（8 小时级长程任务、SWE-Bench Pro 全球第一） |

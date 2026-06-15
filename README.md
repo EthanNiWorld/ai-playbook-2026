@@ -1,6 +1,6 @@
 # 🌐 ai-knowledge-graph
 
-> ☁️ **以阿里云 AI 全栈为核心** · 覆盖 10 厂商 · 50 篇结构化知识文档 · 4 大知识维度：通识 · 产品 · 对比 · 方案
+> ☁️ **以阿里云 AI 全栈为核心** · 覆盖 10 厂商 · 53 篇结构化知识文档 · 4 大知识维度：通识 · 产品 · 对比 · 方案
 
 <p align="center">
   <a href="index.md"><img src="https://img.shields.io/badge/📋-全局索引-blue?style=for-the-badge" alt="全局索引"></a>
@@ -24,7 +24,7 @@
 | AI 应用平台 | [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) · [MuleRun](knowledge/alibaba/ai-application/mulerun.md) · [Claw](knowledge/alibaba/ai-application/claw-family.md) · [Claude Cowork](knowledge/anthropic/claude-cowork.md) |
 | GPU / AI 基础设施 | [GPU 选型](knowledge/alibaba/ai-infra/gpu-product-line.md) |
 | 竞品对比 | [Qoder vs Trae](knowledge/alibaba/competitive-analysis/qoder-vs-trae/overview.md) |
-| AI 通识概念 | [Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) |
+| AI 通识概念 | [Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) |
 | 行业方案 | [企业 AI 平台](knowledge/solutions/enterprise-ai-platform/overview.md) · [短剧出海](knowledge/solutions/vertical-short-drama/overview.md) · [商业地产](knowledge/solutions/commercial-real-estate/overview.md) · [IPC 安防](knowledge/solutions/vertical-ipc/overview.md) |
 
 ---

@@ -218,7 +218,7 @@ tools: Read, Grep, Glob, Write, SearchReplace, SearchCodebase, Bash, WebSearch, 
 3. 如果内容已经存在，需要追加到合适位置，增量迭代，覆盖、删除原有内容需要与用户确认
 
 4. **归档策略**：
-   - `inbox/` 文件 → 移至 `archive/`
+   - `inbox/` 文件 → 移至 `archive/`（包括由 `knowledge-verifier` 生成并写入 `inbox/` 的校验报告，如 `knowledge-verification-YYYY-MM-DD.md`）
    - `notes/` 文件 → **保留原文件**，仅提取内容
 
 

@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-06-14
+> 最后更新：2026-06-15
 
 ## 目录
 
@@ -38,6 +38,9 @@
 | AI 公司增长 / ARR / 飞轮 | [AI 增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ |
 | Prompt 工程 / 防幻觉 | [Prompt Engineering](knowledge/ai-general-notes/prompt-engineering.md) ⭐ |
 | SWE-bench / Terminal-Bench / OSWorld / HLE / Agent 评测 | [AI Agent Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) ⭐ |
+| 长程任务 / Long Horizon / METR / 8 小时 / 策略切换 | [长程任务](knowledge/ai-general-notes/long-horizon-task.md) ⭐ |
+| 前沿模型路线 / 选型框架 / Fable 5 vs Qwen vs GPT | [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) |
+| MSA / 稀疏注意力 / MiniMax 架构 | [MSA 稀疏注意力](knowledge/minimax/msa-sparse-attention.md) |
 | Claude / Opus 4.8 / Sonnet / Haiku | [Claude API](knowledge/anthropic/claude-api.md) |
 | Claude Code / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) |
 | Gemini / Google | [Gemini](knowledge/google/maas/gemini.md) |
@@ -48,7 +51,7 @@
 | Qwen vs Hy3 / 混元竞争分析 | [Qwen3.7 vs Hy3-preview](knowledge/alibaba/competitive-analysis/qwen-vs-hy3/overview.md) |
 | MiniMax / M3 / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
 | Kimi / 月之暗面 / Moonshot / K2.6 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
-| GLM / 智谱 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) |
+| GLM / 智谱 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) |
 | 企业自建推理 / Higress / AI 网关 | [企业自建 AI 推理平台](knowledge/solutions/enterprise-ai-platform/overview.md) ⭐ |
 | 数据出境 / 数据主权 / CN 版 | [MuleRun](knowledge/alibaba/ai-application/mulerun.md#mulerun全球版与骡子快跑中国版的关系) · [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) |
 
@@ -68,6 +71,8 @@
 
 - [AI 能力边界与迭代部署](knowledge/ai-general-notes/ai-capability-and-deployment.md) ⭐ — 锯齿状能力边界、迭代部署哲学、Personal AGI 终局
 - [模型自我进化](knowledge/ai-general-notes/agent-self-evolution.md) ⭐ — 模型自驱动训练、打破人工瓶颈、100+ 轮自主迭代带来 30% 效果提升
+- [长程任务](knowledge/ai-general-notes/long-horizon-task.md) ⭐ — METR 任务完成时间线、阶梯型策略切换、GLM-5.1 8 小时级 / Fable 5 天级 / K2.6 13 小时
+- [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) — 三正交轴选型框架（时间尺度 × 模态融合 × 泛化广度）
 - [AI Agent 记忆系统](knowledge/ai-general-notes/agent-memory.md) ⭐ — ChatGPT Dreaming V3、人脑记忆工程同构、个性化护城河
 - [AI 公司增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ — Killer App × 企业信任 × 消费制收入，Anthropic 17 个月 47 倍
 
@@ -134,6 +139,7 @@
 
 - 公司分析: [MiniMax 公司分析](knowledge/minimax/general_intro.md) — 2026.01 港股 IPO（00100.HK）、海螺 AI / Talkie 全球化、M1/M2/M2.7 开源混合注意力，**M2.7 自我进化（模型自驱动训练）**
 - 模型系列: [M 系列](knowledge/minimax/minimax-series.md) — M1 / M2 / M2.7 / M3（**M3 已开源权重**，MSA 稀疏注意力、原生多模态）
+- 技术论文: [MSA 稀疏注意力](knowledge/minimax/msa-sparse-attention.md) — 块级稀疏注意力架构（arXiv:2606.13392）、Kernel 设计、选择粒度 × 硬件对齐
 - Agent: [Agent Team](knowledge/minimax/agent-team.md) — Leader–Worker–Verifier 对抗制衡多 Agent 协作系统
 
 ### 智谱 AI（Zhipu）

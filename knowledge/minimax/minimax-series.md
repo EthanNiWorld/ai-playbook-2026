@@ -1,6 +1,6 @@
 # MiniMax M 系列模型
 
-> 最后更新: 2026-06-11
+> 最后更新: 2026-06-15
 > 所属厂商: MiniMax（稀宇科技）
 > 产品类别: MaaS
 > 状态: Published
@@ -30,7 +30,7 @@
 - **开源**：已开源权重，官方定位为"业内首款同时集齐百万上下文、前沿代码能力、原生多模态三合一的开源权重重大模型" [来源: 用户口述 + MiniMax 官方宣传图] ⚠️ 待官方验证
 - **场景**：Agentic Coding、长程 Agent 任务、论文复现、CUDA 算子优化、自主训模型
 - **特点**：
-  1. **MSA 稀疏注意力**：100 万上下文下每 token 计算量仅为上代 1/20，Prefill 加速 9.7x，Decode 加速 15.6x，比 Flash-Sparse-Attention/flash-moba 快 4 倍以上 [来源: minimaxi.com/blog/minimax-m3]
+  1. **MSA 稀疏注意力**：100 万上下文下每 token 计算量仅为上代 1/20，Prefill 加速 9.7x，Decode 加速 15.6x，比 Flash-Sparse-Attention/flash-moba 快 4 倍以上 [来源: minimaxi.com/blog/minimax-m3]；技术原理详见 [MSA 论文解读](msa-sparse-attention.md)（arXiv:2606.13392）
   2. **前沿 Coding/Agent**：SWE-Bench Pro 59.0%（> GPT-5.5, > Gemini 3.1 Pro，低于 Opus 4.8 的 69.2% [来源：ai-native-expert 2026-06-02]）、Terminal Bench 2.1 66.0%、MCP Atlas 74.2%、Claw-Eval 全模型 #1 [来源: minimaxi.com/blog/minimax-m3]
   3. **原生多模态**：OmniDocBench 超过 Gemini 3.1 Pro、SVG-Bench 超过 Opus 4.8 [来源: minimaxi.com/blog/minimax-m3]
   4. **长程自主能力**：自主运行 12h 复现 ICLR 获奖论文（18 次 commit + 23 张图表）、24h CUDA 算子优化（9.4x 加速）、12h 自主训模型（PostTrainBench 0.37） [来源: minimaxi.com/blog/minimax-m3]
@@ -130,6 +130,7 @@
 
 > M3 有限时 7 天 5 折活动。支持 thinking / non-thinking 两种模式，共享定价。[来源: minimaxi.com/blog/minimax-m3]
 > M3（¥4.2）价格约为 Claude Opus 4.8（$5 ≈ ¥36）的 **约 1/8**，M2.7 时代相对 Opus 4.6 为 1/15。
+> M3 国际定价：MiniMax 官方平台 M3-Priority 永久5折价 $0.45/$1.80（≤512K），512K–1M 区间 $0.90/$3.60 [来源: api.minimax.chat]；OpenRouter 标准 M3 当前临时5折至 $0.30/$1.20（原价 $0.60/$2.40）[来源: openrouter.ai/minimax/minimax-m3，2026-06-14 核实]。
 
 ## 市场表现
 
@@ -177,6 +178,8 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-06-15 | M3 MSA 描述补充论文来源 arXiv:2606.13392，新增 [MSA 技术解读](msa-sparse-attention.md) 交叉链接 |
+| 2026-06-14 | 新增 M3 国际定价信息：M3-Priority 永久5折价 $0.45/$1.80（MiniMax 官方平台）、OpenRouter 标准 M3 临时5折 $0.30/$1.20 |
 | 2026-06-11 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20260611.md - M3 OpenRouter 排名 #3（2.89T/周，>999% 增长）、高调用量 5 大驱动因素、Token 消耗量驱动力洞察 |
 | 2026-06-08 | 更新：M3 开源状态从"计划 10 天内开源"修正为"已确认开源权重" [来源: 用户口述 + MiniMax 官方宣传图] |
 | 2026-06-04 | 主推模型表精简：仅保留 M3（旗舰）+ M2.7（次旗舰）为主推，M2/M1 移入历史模型标注 |

@@ -1,23 +1,86 @@
 # Anthropic Claude 模型
 
-> 最后更新: 2026-06-03
+> 最后更新: 2026-06-15
 > 所属厂商: Anthropic
 > 产品类别: MaaS
 > 状态: Published
 
-**定位**: Anthropic 旗舰模型系列，强调 Constitutional AI 安全对齐、长文本理解与高精度推理
-**当前主推**: Claude Opus 4.8（2026.05.28，**1M 上下文**）
+> **定位**: Anthropic 旗舰模型系列，强调 Constitutional AI 安全对齐、长文本理解与高精度推理
+**当前最强**: Claude Fable 5（2026.06.09，Mythos-class 首个公开模型，**1M 上下文**）
+**前旗舰**: Claude Opus 4.8（2026.05.28）
 **适用**: 高精度推理、复杂长文本分析、代码生成、企业级 Agent、合规要求高场景
-**不适用**: 预算敏感场景、超高并发低成本推理
+**不适用**: 预算敏感场景、超高并发低成本推理、涉及网络安全/生物化学敏感查询
 
 ## 当前主推模型
 
 | 模型 | 定位 | 上下文 | 特点 | 推出时间 |
 |------|------|--------|------|----------|
-| **Claude Opus 4.8** | 旗舰 | **1M** | SWE-Bench Pro 69.2%，诚实度4×提升，动态工作流，effort控制 | 2026.05.28 |
-| **Claude Opus 4.7** | 前旗舰 | **1M** | 视觉能力3×提升，编程显著跃升，xhigh 推理等级，128K 最大输出 | 2026.04.16 |
+| **Claude Fable 5** | **Mythos-class 旗舰** | **1M** | SWE-Bench Pro 80.3%，Stripe 50M行Ruby迁移1天完成，敏感查询自动降级至Opus 4.8 | 2026.06.09 |
+| **Claude Opus 4.8** | 前旗舰 | **1M** | SWE-Bench Pro 69.2%，诚实度4×提升，动态工作流，effort控制 | 2026.05.28 |
+| **Claude Opus 4.7** | 次前旗舰 | **1M** | 视觉能力3×提升，编程显著跃升，xhigh 推理等级，128K 最大输出 | 2026.04.16 |
 | **Claude Sonnet 4.6** | 均衡旗舰 | 200K | 性价比旗舰，编程/推理均衡 | 2026.03 |
-| **Claude Haiku 4** | 轻量极速 | 200K | 极速响应，编程能力显著提升 | 2026.04 |
+| **Claude Haiku 4.5** | 轻量极速 | 200K | 极速响应，最具性价比 | 2026 |
+
+### Claude Fable 5
+
+- **模型 ID**：claude-fable-5
+- **公司**：Anthropic
+- **时间**：2026 年 6 月 9 日
+- **上下文**：**1M tokens**，最大输出 128K tokens
+- **定价**：$10/$50 per 1M input/output tokens（Prompt Caching Write $12.50/MTok，Read $1/MTok）
+- **定位**：Mythos-class 首个公开版本，介于 Opus 4.8 和限制级 Mythos 5 之间
+- **核心升级**：
+  1. **编程能力大幅领先**：SWE-Bench Pro 80.3%（+11.1pp vs Opus 4.8 69.2%），FrontierCode Diamond split 29.3%（远超 Opus 4.8 的 13.4% 和 GPT-5.5 的 5.7%）
+  2. **长程 Agent 突破（days-long 自主执行）**：在 Agent Harness（Claude Code / Claude Managed Agents）中可连续工作数天，官方 Prompting Guide 明确「autonomous runs can extend for hours」；Stripe 用 1 天完成原本 50M 行 Ruby codebase 需 2 个月才能完成的迁移；Slay the Spire 持久记忆测试下表现提升 3× vs Opus 4.8
+  3. **主动自验证（Proactive Self-Verification）**：自动编写测试代码校验自己写的代码；用 Vision 比对产出物与原始设计稿；长任务中按固定间隔主动自检；进展汇报前强制审计工具结果，消除虚构进度报告
+  4. **并行子 Agent 委托**：比上代显著更可靠地派遣和维持多个并行子 Agent，可信赖地管理长时间运行的子 Agent 通信
+  5. **视觉能力 SOTA**：可从截图重建 web app 源码；完整通关 Pokémon FireRed 仅凭原始游戏截图（无地图辅助）；GDP.pdf（视觉文档推理）29.8% 领跑竞品
+  6. **内置降级保护**：涉及**网络安全、生物化学、模型蒸馏**的查询自动由 Opus 4.8 代答，发生频率 <5% 会话。这意味着约 1/20 的会话实际运行的不是 Fable 5
+  7. **知识工作领先**：Hebbia Finance Benchmark SOTA，IMC 交易分析评测全面领先；GDP.pdf 29.8% > GPT-5.5 24.9% > Opus 4.8 22.5%
+  8. **Token 效率更高**：同等任务下 token 消耗优于前代模型
+- **可用渠道**：Claude API（claude-fable-5）、Amazon Bedrock；订阅计划（Pro/Max/Team/Enterprise）含免费期至 2026.06.22，之后需用 usage credits
+- **注意**：订阅用户免费使用窗口 2026.06.22 截止，之后回归前须等容量扩充
+
+#### Fable 5 编程基准对比
+
+| 基准 | Fable 5 | Opus 4.8 | GPT-5.5 | Gemini 3.1 Pro |
+|------|---------|----------|---------|----------------|
+| SWE-Bench Pro | **80.3%** | 69.2% | 58.6% | 54.2% |
+| FrontierCode Diamond | **29.3%** | 13.4% | 5.7% | — |
+| GDP.pdf（视觉）| **29.8%** | 22.5% | 24.9% | 16.7% |
+| BioMysteryBench（fallback至Opus 4.8）| 40.0% | 40.0% | — | — |
+| ExploitBench（fallback至Opus 4.8）| 40.0% | 40.0% | 34.0% | — |
+
+> 注：Fable 5 在网络安全/生物查询上降级至 Opus 4.8 作答，因此其公开分数等于 Opus 4.8 的分数；Mythos 5（无限制版）在这些领域远超前者。
+
+---
+
+### Claude Mythos 5
+
+- **模型 ID**：claude-mythos-5
+- **公司**：Anthropic
+- **时间**：2026 年 6 月 9 日（限制访问）
+- **上下文**：**1M tokens**，最大输出 128K tokens
+- **定价**：$10/$50 per 1M input/output tokens（与 Fable 5 相同）
+- **定位**：Fable 5 同底座模型，**去除了网络安全限制**；目前仅通过 Project Glasswing 向美国政府网络防御者和关键基础设施提供商开放
+- **核心能力（对比 Fable 5/Opus 4.8）**：
+  1. **网络安全无上限**：ExploitBench 78.0%，约为 Opus 4.8（40.0%）的 2 倍，远超 GPT-5.5（34.0%）
+  2. **生物科学研究**：BioMysteryBench 46.1% > Opus 4.8（40.0%）> Mythos Preview（29.6%）；蛋白质设计加速约 10×，14 个靶点中 9 个获强候选；某 E. coli 蛋白质新机制假设已被另一实验室独立证实
+  3. **独立科研能力**：138 物种单细胞数据训练的基因组学模型，性能超过 Science 期刊论文发表的模型，且参数量仅为其 1/100
+- **访问限制**：仅 Project Glasswing 合作伙伴；另有独立生物安全研究轨道（保留网络安全限制，仅开放生物化学限制）计划向特定研究人员开放
+- **合规要求**：所有 Mythos-class 流量须 30 天数据留存，人工访问日志，自动删除；不用于训练
+
+#### Mythos 5 关键基准
+
+| 基准 | Mythos 5 | Fable 5（降级后） | Opus 4.8 | Mythos Preview |
+|------|----------|-----------------|----------|----------------|
+| ExploitBench | **78.0%** | 40.0% | 40.0% | 69.0% |
+| BioMysteryBench | **46.1%** | 40.0% | 40.0% | 29.6% |
+| SWE-Bench Pro | **80.3%** | **80.3%** | 69.2% | 77.8% |
+
+> 来源：[Anthropic June 9, 2026 发布公告](https://www.anthropic.com/news)；[Vellum AI 基准分析](https://www.vellum.ai/blog/claude-fable-5-and-mythos-5-benchmarks-explained)
+
+---
 
 ### Claude Opus 4.8
 
@@ -138,14 +201,31 @@
 
 ## 定价（API）
 
-| 模型 | 输入 ($/1M tokens) | 输出 ($/1M tokens) |
-|------|---------------------|---------------------|
-| **Claude Opus 4.8** | $5.00 | $25.00 |
-| **Claude Opus 4.8 Fast** | $10.00 | $50.00 |
-| **Claude Sonnet 4.6** | $3.00 | $15.00 |
-| **Claude Haiku 4** | $0.80 | $4.00 |
+| 模型 | 输入 ($/1M tokens) | 输出 ($/1M tokens) | Prompt Cache Write | Prompt Cache Read |
+|------|---------------------|---------------------|-------------------|-------------------|
+| **Claude Fable 5** | $10.00 | $50.00 | $12.50 | $1.00 |
+| **Claude Mythos 5** | $10.00 | $50.00 | — | — |
+| **Claude Opus 4.8** | $5.00 | $25.00 | $6.25 | $0.50 |
+| **Claude Opus 4.8 Fast** | $10.00 | $50.00 | — | — |
+| **Claude Sonnet 4.6** | $3.00 | $15.00 | $3.75 | $0.30 |
+| **Claude Haiku 4.5** | $1.00 | $5.00 | $1.25 | $0.10 |
 
-## 竞品对比（vs Gemini 3.1 Pro）
+> 来源：[Anthropic 官方定价页](https://www.anthropic.com/pricing)（2026.06.14 核实）
+
+> **价格对比参考**：Fable 5/Mythos 5 是 Opus 4.8 的 **2 倍**；不到早期 Mythos Preview 的 **一半**；早期 Opus 4.1 原价 $15/$75，Fable 5 的性价比已有质的飞跃。
+
+## 竞品对比
+
+### Fable 5 vs 全家桶（2026.06.09）
+
+| 维度 | Fable 5 | Opus 4.8 | GPT-5.5 | Gemini 3.1 Pro |
+|------|---------|----------|---------|----------------|
+| SWE-Bench Pro | **80.3%** | 69.2% | 58.6% | 54.2% |
+| FrontierCode Diamond | **29.3%** | 13.4% | 5.7% | — |
+| GDP.pdf（视觉） | **29.8%** | 22.5% | 24.9% | 16.7% |
+| 定价（输入/输出） | $10/$50 | $5/$25 | — | — |
+
+### Opus 4.8 vs Gemini 3.1 Pro
 
 Opus 4.8 发布后，Anthropic 与 Google 在 AI Coding 核心基准上的差距进一步拉大：
 
@@ -164,17 +244,24 @@ Opus 4.8 发布后，Anthropic 与 Google 在 AI Coding 核心基准上的差距
 
 ## 参考资料
 
+- [Anthropic 官方定价页](https://www.anthropic.com/pricing)（2026.06.14 核实）
+- [Vellum AI: Fable 5 & Mythos 5 Benchmarks Explained](https://www.vellum.ai/blog/claude-fable-5-and-mythos-5-benchmarks-explained)
+- [AppStackBuilder: Claude Fable 5 & Mythos 5 Launch](https://appstackbuilder.com/blog/claude-fable-5-mythos-5-launch-2026)
+- [Forbes: Anthropic's Fable 5 AI Model Offers More Power At A Higher Price](https://www.forbes.com/sites/ronschmelzer/2026/06/10/anthropic-fable-5-ai-model-cost/)
 - [Anthropic 官方博客 — Claude Opus 4.8](https://www.anthropic.com/news/claude-opus-4-8)
+- [Claude Fable 5 官方产品页](https://www.anthropic.com/claude/fable)
+- [Prompting Claude Fable 5（官方 Prompting Guide）](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5)
 - [Anthropic 官方博客 — Claude Opus 4.7](https://www.anthropic.com/news/claude-opus-4-7)
 - [TechCrunch: Anthropic releases Opus 4.8 with new dynamic workflow tool](https://techcrunch.com/2026/05/28/anthropic-releases-opus-4-8-with-new-dynamic-workflow-tool/)
 - [Anthropic API 文档](https://docs.anthropic.com)
 - [Claude API Platform](https://console.anthropic.com)
-- [Claude Model Release Timeline（独立整理）](https://hidekazu-konishi.com/entry/anthropic_claude_model_release_timeline.html)
-- 定价： https://platform.claude.com/docs/zh-CN/about-claude/pricing
+- 定价：https://platform.claude.com/docs/zh-CN/about-claude/pricing
 ## Changelog
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-06-15 | 合并 ai-native-expert 素材：Fable 5 新增「days-long 自主执行」和「主动自验证（Proactive Self-Verification）」详细行为描述（来自官方 Prompting Guide）；补充并行子 Agent 委托能力 |
+| 2026-06-14 | 新增 Claude Fable 5（2026.06.09）与 Claude Mythos 5 完整信息：定价 $10/$50、Mythos-class 架构、自动降级机制、SWE-Bench Pro 80.3%、关键 benchmarks；更新 Haiku 为 4.5；定价表补全 Prompt Caching；更新竞品对比 |
 | 2026-06-03 | 合并 ai-native-expert 素材：新增 Agentic 基准（Online-Mind2Web 84%）、Legal Agent Benchmark、Tool calling 改进、Messages API 系统条目、42 天迭代策略分析 |
 | 2026-05-31 | 更新 Opus 4.8（2026.05.28 发布），包含关键基准（SWE-Bench Pro 69.2%等）、诚实度4×提升、fast mode降价、与Gemini 3.1 Pro竞品对比 |
 | 2026-05-28 | 新建文档，首次提炼 Claude Opus 4.7 系列信息 |

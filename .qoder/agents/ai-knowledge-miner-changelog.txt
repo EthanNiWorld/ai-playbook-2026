@@ -1,6 +1,10 @@
 # AI Knowledge Miner Changelog
 
 ## 2026-06-14
+### 归档策略补充：knowledge-verifier 校验报告同样归档
+- Step 6 归档策略明确：`inbox/` 下的所有文件处理完均移至 `archive/`，包括由 `knowledge-verifier` 生成并写入 `inbox/` 的校验报告（如 `knowledge-verification-YYYY-MM-DD.md`）
+
+## 2026-06-14
 ### 优化：notes/ 默认跳过
 - Step 1 默认只列出 `inbox/` 文件，不主动列出 `notes/`（除非用户明确要求处理笔记）
 - description 更新以反映新规则

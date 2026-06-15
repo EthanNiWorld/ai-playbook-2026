@@ -356,6 +356,91 @@
     margin: 0 auto;
   }
   .source { font-size: 11px; color: var(--text-muted); opacity: 0.7; margin-top: 6px; }
+
+  /* Benchmark & Pricing Tables */
+  .data-section { max-width: 1100px; margin: 0 auto; padding: 60px 24px; }
+  .data-table-wrap {
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    overflow-x: auto;
+    margin-bottom: 12px;
+  }
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 900px;
+  }
+  .data-table thead th {
+    background: var(--bg-card);
+    padding: 12px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-bottom: 2px solid rgba(255,106,0,0.2);
+    white-space: nowrap;
+  }
+  .data-table thead th.col-highlight {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  .data-table thead th.col-prev {
+    color: rgba(154,160,166,0.6);
+    font-weight: 400;
+  }
+  .data-table thead th.col-comp {
+    color: var(--text-muted);
+  }
+  .data-table tbody td {
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text-muted);
+  }
+  .data-table tbody tr:hover { background: var(--bg-card-hover); }
+  .data-table .dim-name { font-weight: 600; color: var(--text); }
+  .data-table .bench-name { color: var(--text-muted); font-size: 11px; }
+  .data-table .val-highlight {
+    color: var(--primary);
+    font-weight: 700;
+  }
+  .data-table .val-normal { color: var(--text-muted); }
+  .data-table .val-small {
+    font-size: 10px;
+    color: rgba(154,160,166,0.5);
+  }
+  .price-val {
+    color: var(--green);
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .price-save {
+    display: inline-block;
+    background: rgba(52,168,83,0.15);
+    color: var(--green);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 6px;
+    margin-left: 4px;
+  }
+  .price-note {
+    font-size: 10px;
+    color: rgba(154,160,166,0.5);
+  }
+  .data-footnote {
+    font-size: 11px;
+    color: rgba(154,160,166,0.5);
+    line-height: 1.7;
+  }
+  .data-footnote a {
+    color: var(--primary);
+    text-decoration: none;
+    opacity: 0.8;
+  }
+  .data-footnote a:hover { opacity: 1; }
   .footer {
     text-align: center;
     padding: 30px;
@@ -378,7 +463,7 @@
 <!-- ==================== HERO ==================== -->
 <section class="hero">
   <div class="hero-content">
-    <div class="badge">ALIBABA CLOUD · BAILIAN · AGENT ERA FLAGSHIP</div>
+    <div class="badge">ALIBABA CLOUD · MODEL STUDIO · AGENT ERA FLAGSHIP</div>
     <h1>Qwen3.7-Max</h1>
     <p class="subtitle">The Agent Frontier — 面向智能体时代打造的旗舰模型<br>亚太第一 · Arena 国产模型榜首 · Agent 优先设计</p>
     <div class="hero-stats">
@@ -388,7 +473,7 @@
       </div>
       <div class="hero-stat">
         <div class="num">69.7</div>
-        <div class="label">Terminal-Bench 2.0<br>Agentic Coding 国产领先</div>
+        <div class="label">TB 2.0（Qwen 官方）<br>Agentic Coding 国产领先</div>
       </div>
       <div class="hero-stat">
         <div class="num">35h</div>
@@ -435,41 +520,51 @@
 
 <div class="divider"></div>
 
-<!-- ==================== 两大主推场景 ==================== -->
+<!-- ==================== 三大主推场景 ==================== -->
 <section class="section">
-  <h2 class="section-title">两大主推场景</h2>
-  <p class="section-subtitle">Qwen3.7-Max 的核心战场：Agentic Coding + Agent 平台</p>
+  <h2 class="section-title">三大主推场景</h2>
+  <p class="section-subtitle">Qwen3.7-Max 的三大战场：Agentic Coding · Agent 平台 · 办公生产力</p>
 
   <div class="winback-grid">
+    <!-- 场景 A：Agentic Coding -->
     <div class="winback-card">
-      <span class="vs-badge">场景一：Agentic Coding</span>
-      <h3>AI Coding 工具的最佳底座模型</h3>
-      <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">Terminal-Bench 2.0 得分 69.7 国产领先，SWE-bench Pro 60.6 超越 Opus 4.6。已验证可在主流 AI Coding 工具中无缝替换底层模型。</p>
-      <div class="tool-strip">
-        <div class="tool-chip"><span class="dot" style="background:var(--green)"></span>Claude Code</div>
-        <div class="tool-chip"><span class="dot" style="background:var(--blue)"></span>CodeBuddy</div>
-        <div class="tool-chip"><span class="dot" style="background:var(--primary)"></span>Trae CN</div>
-        <div class="tool-chip"><span class="dot" style="background:#9C27B0"></span>Qwen Code</div>
-        <div class="tool-chip"><span class="dot" style="background:var(--gold)"></span>OpenClaw</div>
+      <span class="vs-badge">场景一：Agentic Coding（编程智能体）</span>
+      <h3>Vibe Coding · 生产力场景 · 代码研发提效</h3>
+      <p style="color:var(--text-muted);font-size:14px;margin-bottom:12px"><strong style="color:var(--text)">客户画像：</strong>Vibe Coding 类客户、生产力场景、代码研发提效，通过 Qoder / Claude Code 等 Coding Agent 工具接入。</p>
+      <div style="margin-bottom:12px">
+        <p style="color:var(--text);font-size:14px;font-weight:600;margin-bottom:6px">核心优势：</p>
+        <p style="color:var(--text-muted);font-size:13px;line-height:1.8">• 能力国内 SOTA，SWE-Bench Pro 60.6%、Terminal-Bench 2.0 69.7 国产领先<br>• 兼容 Claude Code API 协议，Anthropic 协议直接复用，零改造接入<br>• 在 Claude Code / OpenClaw / Qwen Code 等框架下均稳定输出</p>
       </div>
-      <div class="callout" style="margin-top:16px;margin-bottom:0">
-        <strong>客户价值：</strong>在 Claude Code / Trae CN 等工具中，只需更改 2 个环境变量（base_url + api_key），即可将底层模型替换为 Qwen3.7-Max，Agent 体验不变，成本大幅下降。
+      <div class="callout" style="margin-top:0;margin-bottom:0">
+        <strong>打法策略：</strong>以 Claude Code 替代方案为切入点（Anthropic 协议直接复用）；在头部互联网客户打标杆，核心切量 GLM-5.1 与 DeepSeek-V4-Pro，平替 Claude。
       </div>
     </div>
 
+    <!-- 场景 B：通用 Agent 平台 -->
     <div class="winback-card">
-      <span class="vs-badge">场景二：Agent 应用平台</span>
-      <h3>企业级 Agent 平台的旗舰推理引擎</h3>
-      <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">1M 上下文 + 65K 最大输出 + 长时自主执行，专为需要数百步工具调用的 Agent 平台设计。</p>
-      <div class="tool-strip">
-        <div class="tool-chip"><span class="dot" style="background:var(--green)"></span>QoderWork</div>
-        <div class="tool-chip"><span class="dot" style="background:var(--blue)"></span>OpenClaw</div>
-        <div class="tool-chip"><span class="dot" style="background:var(--primary)"></span>Hermes</div>
-        <div class="tool-chip"><span class="dot" style="background:#9C27B0"></span>MCP 协议</div>
-        <div class="tool-chip"><span class="dot" style="background:var(--gold)"></span>百炼 Agent 编排</div>
+      <span class="vs-badge">场景二：通用 Agent 平台</span>
+      <h3>Vibe Working · 多 Agent 协作 · 企业级工具调用</h3>
+      <p style="color:var(--text-muted);font-size:14px;margin-bottom:12px"><strong style="color:var(--text)">客户画像：</strong>Vibe Working 类客户、生产力提效，通过 QoderWork / OpenClaw / Hermes 等 Agent 工具接入。</p>
+      <div style="margin-bottom:12px">
+        <p style="color:var(--text);font-size:14px;font-weight:600;margin-bottom:6px">核心优势：</p>
+        <p style="color:var(--text-muted);font-size:13px;line-height:1.8">• 国内 SOTA，工具调用能力大幅增强，MCP-Mark 60.8 超 Opus 4.6<br>• OpenClaw / LangChain / AutoGen 框架深度兼容<br>• 1M 上下文 + 65K 最大输出，避免长任务失忆</p>
       </div>
-      <div class="callout" style="margin-top:16px;margin-bottom:0">
-        <strong>客户价值：</strong>MCP-Mark 评测 60.8（超 Opus 4.6 的 56.7）。Agent 平台客户可获得更强的工具调用准确性 + 更低的单次调用成本。
+      <div class="callout" style="margin-top:0;margin-bottom:0">
+        <strong>打法策略：</strong>以多 Agent 协作 Demo 打动决策者，主打工具调用能力 + 性价比优势。
+      </div>
+    </div>
+
+    <!-- 场景 C：办公生产力自动化 -->
+    <div class="winback-card">
+      <span class="vs-badge">场景三：办公生产力自动化</span>
+      <h3>企业 IT 部门 · 政务数字化 · SaaS 服务商</h3>
+      <p style="color:var(--text-muted);font-size:14px;margin-bottom:12px"><strong style="color:var(--text)">客户画像：</strong>企业 IT 部门、政务、SaaS 服务商。</p>
+      <div style="margin-bottom:12px">
+        <p style="color:var(--text);font-size:14px;font-weight:600;margin-bottom:6px">核心优势：</p>
+        <p style="color:var(--text-muted);font-size:13px;line-height:1.8">• Knowledge work（GDPval-AA 1,541）和跨学科推理能力（HLE 41.4%）能力国内第一<br>• CoWorkBench 65.2，支持复杂多 Agent 工作流编排<br>• 数小时完成以往 1–2 周的复杂项目</p>
+      </div>
+      <div class="callout" style="margin-top:0;margin-bottom:0">
+        <strong>打法策略：</strong>以"数小时完成 X 类项目"为卖点，推广 Responses API 原生工具调用能力。
       </div>
     </div>
   </div>
@@ -477,19 +572,163 @@
 
 <div class="divider"></div>
 
+<!-- ==================== BENCHMARK 参考 ==================== -->
+<section class="data-section">
+  <h2 class="section-title">Benchmark 参考（三维度评估）</h2>
+  <p class="section-subtitle">Agentic Coding · Terminal · Computer Use · 多学科推理 · 知识工作</p>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:14%;">评估维度</th>
+          <th style="width:12%;">Benchmark</th>
+          <th class="col-highlight">Qwen3.7-Max</th>
+          <th>Qwen3.7-Plus</th>
+          <th class="col-comp">DeepSeek-V4-Pro</th>
+          <th class="col-comp">GLM-5.1</th>
+          <th class="col-comp">Claude Opus 4.8</th>
+          <th class="col-comp">GPT-5.5</th>
+          <th class="col-comp">Gemini 3.5 Flash</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="dim-name">Agentic coding</td>
+          <td class="bench-name">SWE-Bench Pro</td>
+          <td class="val-highlight">60.6%</td>
+          <td class="val-normal">57.6%</td>
+          <td class="val-normal">52.1%</td>
+          <td class="val-normal">58.4%</td>
+          <td class="val-normal">69.2%</td>
+          <td class="val-normal">58.6%</td>
+          <td class="val-normal">55.1%</td>
+        </tr>
+        <tr>
+          <td class="dim-name">Agentic terminal coding</td>
+          <td class="bench-name">AA Terminal-Bench Hard</td>
+          <td class="val-highlight">50.8% <span class="val-small">TB 2.0: 69.7%</span></td>
+          <td class="val-normal">47.0% <span class="val-small">TB 2.0: 70.3%</span></td>
+          <td class="val-normal">46.2%</td>
+          <td class="val-normal">43.2%</td>
+          <td class="val-normal">54.7%</td>
+          <td class="val-normal">60.6%</td>
+          <td class="val-normal">&mdash; <span class="val-small">TB 2.1: 76.2%</span></td>
+        </tr>
+        <tr>
+          <td class="dim-name">Agentic computer use</td>
+          <td class="bench-name">OSWorld-Verified</td>
+          <td class="val-highlight">&mdash;</td>
+          <td class="val-normal">73.3%</td>
+          <td class="val-normal">&mdash;</td>
+          <td class="val-normal">&mdash;</td>
+          <td class="val-normal">83.4%</td>
+          <td class="val-normal">78.7%</td>
+          <td class="val-normal">78.4%</td>
+        </tr>
+        <tr>
+          <td class="dim-name">Multidisciplinary reasoning</td>
+          <td class="bench-name">Humanity's Last Exam</td>
+          <td class="val-highlight">41.4%</td>
+          <td class="val-normal">34.7%</td>
+          <td class="val-normal">35.9%</td>
+          <td class="val-normal">28.0%</td>
+          <td class="val-normal">57.9%</td>
+          <td class="val-normal">52.2%</td>
+          <td class="val-normal">40.2%</td>
+        </tr>
+        <tr>
+          <td class="dim-name">Knowledge work</td>
+          <td class="bench-name">GDPval-AA (Elo)</td>
+          <td class="val-highlight">1,541</td>
+          <td class="val-normal">1,517</td>
+          <td class="val-normal">1,554</td>
+          <td class="val-normal">1,535</td>
+          <td class="val-normal">1,890</td>
+          <td class="val-normal">1,769</td>
+          <td class="val-normal">1,656</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="data-footnote">数据来源：各厂商官方发布 + <a href="https://artificialanalysis.ai/evaluations/terminalbench-hard" target="_blank">Artificial Analysis</a> 独立评测（2026-06-14 记录）。Terminal-Bench 行统一采用 AA Terminal-Bench Hard 基准；Qwen3.7-Plus 的 TB 2.0 官方博客分数 70.3% 以小字背书展示。Qwen3.7-Plus HLE 34.7% 来源于 Qwen 官方博客（特定推理设置），其余模型 HLE 来自 AA 标准设置。SWE-Bench Pro 数据来源：Qwen 官方博客对比表。"&mdash;"表示该 benchmark 暂无公开数据。DeepSeek-V4-Pro / GLM-5.1 / MiniMax M3 不在 Model Studio，数据来源为各自官方技术报告与 Artificial Analysis。Gemini 3.5 Flash 来源：<a href="https://deepmind.google/models/model-cards/gemini-3-5-flash/" target="_blank">Google DeepMind Model Card</a>（2026-05-19 发布）；Terminal-Bench 行为 TB 2.1 版本（与 AA TB Hard 基准不同）。</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==================== 定价对比 ==================== -->
+<section class="data-section">
+  <h2 class="section-title">定价对比（国际站 USD 原价）</h2>
+  <p class="section-subtitle">Qwen3.7-Max 以旗舰定位提供最强 Agent 能力，性价比依然突出</p>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:14%;">定价维度</th>
+          <th style="width:12%;">单位</th>
+          <th class="col-highlight">Qwen3.7-Max</th>
+          <th>Qwen3.7-Plus</th>
+          <th class="col-comp">DeepSeek-V4-Pro</th>
+          <th class="col-comp">GLM-5.1</th>
+          <th class="col-comp">Claude Opus 4.8</th>
+          <th class="col-comp">GPT-5.5</th>
+          <th class="col-comp">Gemini 3.5 Flash</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="dim-name">输入价</td>
+          <td class="bench-name">$/1M tokens</td>
+          <td><span style="text-decoration:line-through;color:rgba(154,160,166,0.5);">$2.50</span> <span class="price-val">$1.25</span> <span class="price-save">限时5折</span></td>
+          <td class="val-normal">$0.40 <span class="price-note">&le;256K&dagger;</span></td>
+          <td class="val-normal">$0.435</td>
+          <td class="val-normal">$0.98</td>
+          <td class="val-normal">$5.00</td>
+          <td class="val-normal">$5.00</td>
+          <td class="val-normal">$1.50</td>
+        </tr>
+        <tr>
+          <td class="dim-name">缓存输入价</td>
+          <td class="bench-name">$/1M tokens</td>
+          <td><span style="text-decoration:line-through;color:rgba(154,160,166,0.5);">$0.625</span> <span class="price-val">$0.313</span> <span class="price-save">限时5折</span></td>
+          <td class="val-normal">$0.10 <span class="price-note">&le;256K&dagger;</span></td>
+          <td class="val-normal">$0.0036</td>
+          <td class="val-normal">&mdash;</td>
+          <td class="val-normal">$0.50</td>
+          <td class="val-normal">$0.50</td>
+          <td class="val-normal">$0.15</td>
+        </tr>
+        <tr>
+          <td class="dim-name">输出价</td>
+          <td class="bench-name">$/1M tokens</td>
+          <td><span style="text-decoration:line-through;color:rgba(154,160,166,0.5);">$7.50</span> <span class="price-val">$3.75</span> <span class="price-save">限时5折</span></td>
+          <td class="val-normal">$1.60 <span class="price-save">-47%</span> <span class="price-note">&le;256K&dagger;</span></td>
+          <td class="val-normal">$0.87</td>
+          <td class="val-normal">$3.08</td>
+          <td class="val-normal">$25.00</td>
+          <td class="val-normal">$30.00</td>
+          <td class="val-normal">$9.00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="data-footnote">&dagger; Qwen3.7-Plus 256K&ndash;1M 范围定价：输入 $1.20、输出 $4.80。Qwen 系列定价来源：阿里云国际站 <a href="https://modelstudio.alibabacloud.com/" target="_blank">Model Studio</a>（2026-06-14），International 部署模式。Qwen3.7-Max 当前显示限时5折价（原价已标注，活动截止日期以百炼官方公告为准）；Qwen3.7-Plus 为标准原价。DeepSeek-V4-Pro 来源：<a href="https://api-docs.deepseek.com/quick_start/pricing" target="_blank">DeepSeek 官方 API</a>（官方定价，原限时折扣已于 2026-05-22 永久化）；GLM-5.1 来源：<a href="https://openrouter.ai/z-ai/glm-5.1" target="_blank">OpenRouter</a>；MiniMax M3-Priority 来源：<a href="https://api.minimax.chat/" target="_blank">MiniMax 官方平台</a>（永久5折价，&Dagger; &le;512K 区间；512K&ndash;1M 输入 $0.90、输出 $3.60）；OpenRouter 标准 M3 当前临时5折至 $0.30/$1.20 [来源: <a href="https://openrouter.ai/minimax/minimax-m3" target="_blank">OpenRouter</a>]；Claude Opus 4.8 来源：<a href="https://www.anthropic.com/pricing" target="_blank">Anthropic</a>；GPT-5.5 来源：<a href="https://openai.com/api/pricing/" target="_blank">OpenAI</a>；Gemini 3.5 Flash 来源：<a href="https://deepmind.google/models/model-cards/gemini-3-5-flash/" target="_blank">Google DeepMind</a>（全球区域价格，非全球区域输入 $1.65、输出 $9.90）。</p>
+</section>
+
+<div class="divider"></div>
+
 <!-- ==================== CTA ==================== -->
 <section class="cta">
   <h2>5 分钟接入 Qwen3.7-Max</h2>
-  <p>百炼平台一键开通 · OpenAI / Anthropic 双协议兼容 · 新用户赠 100 万 Tokens</p>
+  <p>Model Studio 一键开通 · OpenAI / Anthropic 双协议兼容 · 新用户赠 100 万 Tokens</p>
   <a href="https://bailian.console.alibabacloud.com" class="cta-btn" target="_blank">开通 Model Studio →</a>
   <a href="https://www.alibabacloud.com/help/en/model-studio/" class="cta-secondary" target="_blank">查看 API 文档</a>
 </section>
 
 <!-- ==================== Footer ==================== -->
 <div class="footer">
-  <p>© 2026 Alibaba Cloud · 百炼平台 · 仅供内部销售参考</p>
-  <p style="margin-top:6px">数据来源：Qwen 官方博客、Artificial Analysis、DataLearner、阿里云开发者社区 · 更新至 2026-06-14</p>
-  <p style="margin-top:6px">⚠️ 部分 benchmark 为 vendor-published（截至 2026-05 数据，对标 Claude Opus 4.6），建议以实际业务验证为准。定价/能力可能随时更新。</p>
+  <p>© 2026 Alibaba Cloud · Model Studio · 仅供内部销售参考</p>
+  <p style="margin-top:6px">数据来源：Qwen 官方博客、Artificial Analysis、DataLearner、阿里云开发者社区 · 更新至 2026-06-15</p>
+  <p style="margin-top:6px">⚠️ 部分 benchmark 为 vendor-published，建议以实际业务验证为准。定价/能力可能随时更新。</p>
 </div>
 
 </body>

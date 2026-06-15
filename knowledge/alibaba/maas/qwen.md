@@ -73,13 +73,13 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 > ⚠️ stable 版 benchmark 与精确参数官方尚未公布，建议关注 artificialanalysis.ai / LMSYS Arena 后续复测。
 
 **系列定位分工**：
-- **Qwen3.7-Max** = 推理 + Agent 旗舰（0608 快照起支持视觉输入，1M 全段无阶梯）
-- **Qwen3.7-Plus** = 多模态智能体（视觉 + 语言 + GUI/CLI + 视觉编码，VLA 训练范式）
+- **Qwen3.7-Max** = 推理 + Agent 旗舰（~~纯文本~~ → 0608 快照起支持视觉输入，但视觉专项 benchmark 尚待验证；1M 全段无阶梯）
+- **Qwen3.7-Plus** = 多模态智能体（视觉 + 语言 + GUI/CLI + 视觉编码，VLA 训练范式，视觉场景首选）
 - **Qwen3.6-Flash** = 低成本快速档（系列内未推 3.7-Flash，Flash 仍延用 3.6 代号）
 
 **竞争力要点**：
 - vs Qwen3.6-Plus（上一代）：输出价从 ¥12 降至 ¥8（-33%），256K-1M 输出从 ¥48 降至 ¥24（-50%），能力升级同时降价
-- vs Qwen3.7-Max：256K 内输入成本仅为 Max 的 1/6、输出约 1/4.5；Max 仅在 SWE-bench/复杂长链路 Agentic Coding 上明显占优
+- vs Qwen3.7-Max：256K 内输入成本仅为 Max 的 1/6、输出约 1/4.5；Max 仅在 SWE-bench/复杂长链路 Agentic Coding 上明显占优；**视觉相关场景（GUI Agent / 视觉编码 / 图文文档理解）Plus 为首选**，Max-0608 视觉专项能力尚待实测
 - vs 海外同档（Claude Haiku 4 / GPT-4o-mini）：价位接近，但 Plus 独有 1M 上下文 + 多模态智能体组合
 
 ## 核心能力与限制
@@ -237,6 +237,7 @@ Max 生成速度约为 Plus 的 4.7 倍（MoE 架构 + 无视觉 encoder 开销�
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-06-14 | 同步 HTML 选型页变更：系列定位分工更新 Max 不再是纯文本旗舰（0608 快照起支持视觉）；Plus 竞争力要点补充视觉场景首选定位 |
 | 2026-06-12 | 合并：inbox 素材 — Qwen3.7-Max-2026-06-08 新增视觉能力（官方日志确认 + 视觉模型页面参数表）；修正多处"Max 仅文本"过时描述；新增快照版本演进记录；更新选型结论表（Max-0608 视觉可用但专项 benchmark 待验证）；JSON Mode 实测可用标注 |
 | 2026-06-11 | 合并：inbox 选型分析素材 — 新增「Plus vs Max 场景选型详解」子章节（3 层对比 + benchmark 数据 + 推理速度 + 选型结论表）；更新 Plus Benchmark 详细数据（GUI Agent / Visual Coding / 文档理解 / 纯文本 Agent 四维度） |
 | 2026-06-04 | 主推模型表更新：移除已取代的 Qwen3.6-Plus / Qwen3.6-Max-Preview，主推表仅保留百炼在售的 3 个模型（Qwen3.7-Max / Qwen3.7-Plus / Qwen3.6-Flash）；历史模型单独标注 |
