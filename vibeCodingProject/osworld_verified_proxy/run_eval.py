@@ -13,10 +13,11 @@ import config
 
 
 # DashScope 百炼定价（¥ / 1M tokens），用于成本估算
-# 以 2026-06-12 官方公示价格为基线；Max 若仍处 5 折期，请手动调低。
+# 以 2026-06-12 官方公示价格为基线；Max 若仍处5折期，请手动调低。
 PRICING_CNY = {
     "qwen3.7-plus": {"input": 2.0, "output": 8.0},
     "qwen3.7-max-2026-06-08": {"input": 12.0, "output": 36.0},
+    "kimi-k2.7-code": {"input": 6.5, "output": 27.0},
 }
 
 # 1024x768 PNG 在 Qwen vision encoder 下的 token 估算（单张约 1500–2500 tokens）

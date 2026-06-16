@@ -11,10 +11,12 @@ DASHSCOPE_BASE_URL = os.getenv(
     "https://dashscope.aliyuncs.com/compatible-mode/v1",
 )
 
-# 默认测试模型
+# 默认测试模型（全部可测模型，含视觉与非视觉版本）
 DEFAULT_MODELS = [
     "qwen3.7-plus",
     "qwen3.7-max-2026-06-08",
+    "kimi-k2.7-code",
+    "qwen3.7-max",  # 注意：当前别名指向纯文本快照，视觉任务会失败
 ]
 
 # 路径配置（均使用相对路径，确保可移植）

@@ -179,12 +179,20 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         </table>
 
         <div class="conclusions">
+            <h2>技术差异总结</h2>
+            <ul>
+                {tech_diff}
+            </ul>
+        </div>
+
+        <div class="conclusions">
             <h2>测试结论</h2>
             <ul>
                 <li><strong>qwen3.7-max（无日期后缀）</strong>不支持视觉输入，所有带截图的任务均返回 400 错误，无法用于 GUI Agent 评测。</li>
-                <li><strong>qwen3.7-plus</strong> 与 <strong>qwen3.7-max-2026-06-08</strong> 在 13 个单步任务上表现一致，均能正确处理弹窗、滑块验证码、隐藏目标滚动等场景。</li>
-                <li>两个模型的共同短板：遇到错误提示时，都优先点击 username 字段而非红色高亮的 password 字段。</li>
-                <li>Max-0608 成本约为 Plus 的 5.3 倍，但在本轻量测试中没有展现出明显的能力优势。</li>
+                <li><strong>qwen3.7-plus</strong>、<strong>qwen3.7-max-2026-06-08</strong> 与 <strong>kimi-k2.7-code</strong> 在 13 个单步任务上动作判断一致，均能正确处理弹窗、滑块验证码、隐藏目标滚动等场景。</li>
+                <li>三个视觉模型的共同短板：遇到错误提示时，都优先点击 username 字段而非红色高亮的 password 字段。</li>
+                <li>成本排序：Plus（¥0.05）&lt; Kimi（¥0.19）&lt; Max-0608（¥0.26）。Plus 性价比最高。</li>
+                <li>Kimi 默认 thinking 模式，输出 token 更多、延迟更长，且返回归一化坐标（0–1），与 Qwen 的绝对像素坐标不同。</li>
                 <li>当前测试为合成/简化截图，结论仅适用于「单步 action prediction」代理；真实 OSWorld-Verified 分数需在真实桌面环境中跑完整 harness。</li>
             </ul>
         </div>
@@ -226,6 +234,134 @@ def format_reasoning(pred: dict) -> str:
     if not reasoning or reasoning.startswith("Failed to parse"):
         return ""
     return f'<div class="reasoning">{reasoning}</div>'
+
+
+def _is_normalized_coord(coords: list) -> bool:
+    """判断坐标是否为 0–1 归一化值。"""
+    if not coords or len(coords) < 2:
+        return False
+    try:
+        x, y = float(coords[0]), float(coords[1])
+        return 0.0 <= x <= 1.0 and 0.0 <= y <= 1.0
+    except (TypeError, ValueError):
+        return False
+
+
+def analyze_differences(results: list[dict]) -> str:
+    """基于结果数据自动生成技术差异 bullet points。"""
+    bullets = []
+
+    # 1. 视觉支持
+    non_vision = [r for r in results if r.get("completed_tasks", 0) == 0]
+    for r in non_vision:
+        model = r.get("model", "unknown")
+        bullets.append(f"<li><strong>{model}</strong> 不支持视觉输入（或当前别名指向纯文本版本），所有含截图任务失败。</li>")
+
+    vision_results = [r for r in results if r.get("completed_tasks", 0) > 0]
+
+    # 2. 坐标格式
+    coord_formats = {}
+    for r in vision_results:
+        model = r.get("model", "unknown")
+        normalized = False
+        absolute = False
+        for task in r.get("tasks", []):
+            pred = task.get("predicted", {})
+            coords = pred.get("coords", [])
+            if _is_normalized_coord(coords):
+                normalized = True
+            elif coords and all(isinstance(c, (int, float)) and c > 1 for c in coords[:2]):
+                absolute = True
+        if normalized and not absolute:
+            coord_formats[model] = "归一化坐标（0–1）"
+        elif absolute and not normalized:
+            coord_formats[model] = "绝对像素坐标"
+        elif normalized and absolute:
+            coord_formats[model] = "混合坐标"
+
+    if len(set(coord_formats.values())) > 1:
+        bullets.append("<li><strong>坐标表示不一致</strong>：")
+        bullets.append("<ul>")
+        for model, fmt in coord_formats.items():
+            bullets.append(f"<li>{model}：{fmt}</li>")
+        bullets.append("</ul></li>")
+
+    # 3. Drag 终点表示
+    drag_repr = {}
+    for r in vision_results:
+        model = r.get("model", "unknown")
+        uses_end_coords = False
+        uses_value = False
+        for task in r.get("tasks", []):
+            pred = task.get("predicted", {})
+            if pred.get("action") == "drag":
+                if pred.get("end_coords"):
+                    uses_end_coords = True
+                if pred.get("value"):
+                    uses_value = True
+        if uses_end_coords and not uses_value:
+            drag_repr[model] = "end_coords 字段"
+        elif uses_value and not uses_end_coords:
+            drag_repr[model] = "value 字段（字符串）"
+        elif uses_end_coords and uses_value:
+            drag_repr[model] = "end_coords + value"
+
+    if len(set(drag_repr.values())) > 1:
+        bullets.append("<li><strong>Drag 终点格式不一致</strong>：")
+        bullets.append("<ul>")
+        for model, repr_fmt in drag_repr.items():
+            bullets.append(f"<li>{model}：{repr_fmt}</li>")
+        bullets.append("</ul></li>")
+
+    # 4. 输出 token / thinking 模式
+    if vision_results:
+        out_tokens_rank = sorted(
+            vision_results,
+            key=lambda r: r.get("total_output_tokens", 0),
+            reverse=True,
+        )
+        if len(out_tokens_rank) > 1 and out_tokens_rank[0].get("total_output_tokens", 0) > 1.5 * out_tokens_rank[1].get("total_output_tokens", 0):
+            model = out_tokens_rank[0].get("model", "unknown")
+            out_tok = out_tokens_rank[0].get("total_output_tokens", 0)
+            bullets.append(f"<li><strong>{model}</strong> 输出 token 显著更多（{out_tok} tokens），可能与默认 thinking / reasoning 模式有关。</li>")
+
+    # 5. 延迟
+    max_latency = 0
+    slowest_model = ""
+    slowest_task = ""
+    for r in vision_results:
+        model = r.get("model", "unknown")
+        for task in r.get("tasks", []):
+            lat = task.get("latency_seconds", 0)
+            if lat > max_latency:
+                max_latency = lat
+                slowest_model = model
+                slowest_task = task.get("id", "")
+    if max_latency > 30:
+        bullets.append(f"<li><strong>最长延迟</strong>：{slowest_model} 在任务 <code>{slowest_task}</code> 上耗时 {max_latency:.1f}s，远高于平均水平。</li>")
+
+    # 6. 成本
+    if vision_results:
+        cost_rank = sorted(vision_results, key=lambda r: r.get("total_cost_cny", 0))
+        if len(cost_rank) > 1:
+            cheapest = cost_rank[0].get("model", "unknown")
+            most_exp = cost_rank[-1].get("model", "unknown")
+            bullets.append(f"<li><strong>成本差异</strong>：{cheapest} 最便宜，{most_exp} 最贵，相差约 {cost_rank[-1].get('total_cost_cny', 0) / max(cost_rank[0].get('total_cost_cny', 0.0001), 0.0001):.1f} 倍。</li>")
+
+    # 7. 共同错误模式：error_message 任务是否点 username
+    for r in vision_results:
+        model = r.get("model", "unknown")
+        for task in r.get("tasks", []):
+            if task.get("id") == "error_message":
+                pred = task.get("predicted", {})
+                target = pred.get("target", "").lower()
+                if "username" in target and "password" not in target:
+                    bullets.append(f"<li><strong>错误状态理解</strong>：{model} 在 error_message 任务中优先点击 username 字段，未针对红色高亮的 password 字段进行修复。</li>")
+
+    if not bullets:
+        bullets.append("<li>本次测试未发现显著技术差异。</li>")
+
+    return "\n".join(bullets)
 
 
 def generate(results_dir: str, output_path: str):
@@ -311,6 +447,8 @@ def generate(results_dir: str, output_path: str):
             f"</tr>"
         )
 
+    tech_diff = analyze_differences(results)
+
     html = HTML_TEMPLATE.format(
         generated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         total_tasks=total_tasks,
@@ -320,6 +458,7 @@ def generate(results_dir: str, output_path: str):
         model_rows="\n".join(model_rows),
         task_model_headers=task_model_headers,
         task_rows="\n".join(task_rows),
+        tech_diff=tech_diff,
     )
 
     with open(output_path, "w", encoding="utf-8") as f:
@@ -338,8 +477,8 @@ def main():
     parser.add_argument(
         "--output",
         type=str,
-        default=os.path.join(config.RESULTS_DIR, "report.html"),
-        help="输出 HTML 路径",
+        default=os.path.join(config.RESULTS_DIR, f"report_{datetime.now().strftime('%Y%m%d')}.html"),
+        help="输出 HTML 路径，默认 report_YYYYMMDD.html",
     )
     args = parser.parse_args()
 

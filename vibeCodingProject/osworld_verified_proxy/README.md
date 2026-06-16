@@ -23,8 +23,8 @@ osworld_verified_proxy/
 │   ├── tasks.json             # 任务清单（任务描述 + 截图路径 + 期望动作）
 │   └── images/                # 截图目录
 └── results/
-    └── {model_name}.json      # 每个模型的原始输出结果
-    └── report.html            # HTML 汇总报告
+    ├── {model_name}.json      # 每个模型的原始输出结果
+    └── report_YYYYMMDD.html   # HTML 汇总报告（按生成日期命名）
 ```
 
 ## 快速开始
@@ -44,7 +44,7 @@ pip3 install -r requirements.txt
 
 ```bash
 # 请先设置环境变量（将 YOUR_API_KEY 替换为你的真实 API Key）
-export DASHSCOPE_API_KEY=YOUR_API_KEY
+export DASHSCOPE_API_KEY="YOUR_API_KEY"
 
 # 可选：如果使用非默认 endpoint
 export DASHSCOPE_BASE_URL="https://your-workspace.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1"
@@ -85,7 +85,7 @@ python3 compare_results.py \
 python3 generate_report.py
 ```
 
-报告会输出到 `results/report.html`，包含模型概览、逐任务结果、测试结论。
+报告会输出到 `results/report_YYYYMMDD.html`（如 `report_20260616.html`），包含模型概览、逐任务结果、技术差异总结与测试结论。
 
 ## 已测试模型
 
@@ -93,6 +93,7 @@ python3 generate_report.py
 |------|----------|-------------|------|------|
 | `qwen3.7-plus` | ✅ | 13/13 | ¥0.05 | 原生多模态，成本低 |
 | `qwen3.7-max-2026-06-08` | ✅ | 13/13 | ¥0.26 | 0608 快照起支持视觉 |
+| `kimi-k2.7-code` | ✅ | 13/13 | ¥0.19 | Moonshot 代码模型，默认 thinking 模式，输出归一化坐标 |
 | `qwen3.7-max`（无日期） | ❌ | 0/13 | ¥0 | 当前别名指向纯文本版本，不支持图片输入 |
 
 ## 测试任务清单
