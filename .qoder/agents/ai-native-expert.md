@@ -89,19 +89,43 @@ tools: Read, Grep, Glob, WebFetch, WebSearch, Write
 
 > **概念洞察**请用 `⭐ #ai-general-notes` 标签标注，提醒 ai-knowledge-miner 优先提炼到 `knowledge/ai-general-notes/`。
 
-**Inbox 条目格式**：
+**Inbox 条目格式**（按类型分级）：
+
+#### 轻量模板（事实问答 / 选型分析）
+
+适用于具体模型/产品的参数、能力、定价、竞品对比等。
 
 ```markdown
 ---
 # {YYYY-MM-DD} {主题}
-## 原始对话
-- 如果信息已经是处理过的相对完整数据可以元数据插入这里，再做后续类型、归档建议等补充。
 
 ## 类型
-{事实问答 / 概念洞察 / 选型分析}
+{事实问答 / 选型分析}
 
 ## 归档建议
-{knowledge/xxx/yyy.md}（文件名需顾名思义，如 agent-team.md、claude-code.md）
+{knowledge/xxx/yyy.md}
+
+## 核心内容
+{结构化回答——What & How + Why 合并呈现，含来源标注}
+
+## 数据源
+- {URL 或官方文档}
+---
+```
+
+#### 完整模板（概念洞察）
+
+适用于 AI 概念的底层理解、第一性原理结论、可迁移判断框架。
+
+```markdown
+---
+# {YYYY-MM-DD} {主题}
+
+## 类型
+概念洞察
+
+## 归档建议
+⭐ knowledge/ai-general-notes/{主题}.md
 
 ## 原始问题
 {完整保留用户原始提问}
@@ -112,10 +136,10 @@ tools: Read, Grep, Glob, WebFetch, WebSearch, Write
 ## 之所以然（Why）
 {为什么这样设计？底层约束/权衡/商业逻辑是什么？}
 
-## 洞察提炼（概念洞察类必填）
+## 洞察提炼
 > ⭐ #ai-general-notes/{主题}
 > 用 1-3 句话：这个认知的底层逻辑 + 可推广场景
-> 在用一句大白话解释，爷爷奶奶都能听懂的那种
+> 再用一句大白话解释，爷爷奶奶都能听懂的那种
 
 ## 数据源
 - {URL 或官方文档}
