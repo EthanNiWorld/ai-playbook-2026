@@ -1,17 +1,24 @@
 """
-测试 qwen3.7-max-2026-06-08 是否支持结构化输出（JSON Mode）
+测试 qwen3.7-max-2026-06-08 美国节点（International）调用情况
+base_url = https://dashscope-us.aliyuncs.com/compatible-mode/v1
+key = DASHSCOPE_API_KEY_US (来自 .env)
+
 测试三个场景：
   1. 纯文本 + response_format=json_object
   2. 视觉输入 + response_format=json_object
-  3. 视觉输入 + prompt 中要求 JSON（不用 response_format）
+  3. 视觉输入 + prompt 中要求 JSON（兜底方案）
 """
 import os
 import json
+from dotenv import load_dotenv
 from openai import OpenAI
 
+# 加载项目根目录 .env
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+
 client = OpenAI(
-    api_key=os.getenv("DASHSCOPE_API_KEY"),
-    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+    api_key=os.getenv("DASHSCOPE_API_KEY_US"),
+    base_url="https://dashscope-us.aliyuncs.com/compatible-mode/v1",
 )
 
 MODEL = "qwen3.7-max-2026-06-08"
