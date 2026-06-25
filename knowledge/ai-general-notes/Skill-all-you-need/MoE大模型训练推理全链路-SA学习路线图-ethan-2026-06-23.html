@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoE 大模型训练 &amp; 推理全链路 · SA 学习路线图</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card-bg: #1a1d28;
+    --card-border: #2a2d3a;
+    --text: #e4e6ef;
+    --text-secondary: #9498a8;
+    --accent: #5b8def;
+    --accent2: #00c9a7;
+    --accent3: #f59e0b;
+    --accent4: #ef4444;
+    --tier1: #22c55e;
+    --tier2: #f59e0b;
+    --tier3: #94a3b8;
+    --gradient-1: linear-gradient(135deg, #5b8def, #7c3aed);
+    --gradient-2: linear-gradient(135deg, #00c9a7, #5b8def);
+    --gradient-3: linear-gradient(135deg, #f59e0b, #ef4444);
+    --gradient-4: linear-gradient(135deg, #ef4444, #ec4899);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.72;
+    counter-reset: section;
+  }
+
+  /* ── Nav ── */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(15,17,23,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--card-border);
+    padding: 0 24px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .nav a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 14px 18px;
+    display: inline-block;
+    border-bottom: 2px solid transparent;
+    transition: .2s;
+  }
+  .nav a:hover, .nav a.active { color: #fff; border-bottom-color: var(--accent); }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--gradient-1);
+    padding: 72px 32px 64px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 80px; background: linear-gradient(transparent, var(--bg));
+  }
+  .hero h1 {
+    font-size: 2.6rem; font-weight: 800; letter-spacing: -0.02em;
+    color: #fff; margin-bottom: 12px;
+  }
+  .hero .subtitle {
+    font-size: 1.1rem; color: rgba(255,255,255,0.75); font-weight: 400;
+  }
+  .hero .badge-row {
+    margin-top: 20px; display: flex; gap: 10px;
+    justify-content: center; flex-wrap: wrap;
+  }
+  .hero .badge {
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; color: #fff;
+  }
+
+  /* ── Container ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ── Section ── */
+  .section { margin-top: 56px; }
+  .section-title {
+    font-size: 1.55rem; font-weight: 800; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+    padding-bottom: 16px; border-bottom: 1px solid var(--card-border);
+  }
+  .section-title .num {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; font-weight: 800; flex-shrink: 0;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: 14px; padding: 28px 32px; margin-bottom: 20px;
+  }
+  .card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; color: #fff; }
+  .card p, .card li { color: var(--text-secondary); font-size: 0.95rem; }
+  .card ul { padding-left: 20px; }
+
+  /* ── Flow ── */
+  .flow-block {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: 14px; padding: 32px; margin-bottom: 24px;
+    position: relative; overflow: hidden;
+  }
+  .flow-label {
+    font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; margin-bottom: 20px; display: inline-block;
+    padding: 5px 14px; border-radius: 6px;
+  }
+  .flow-label.train { background: rgba(91,141,239,0.2); color: var(--accent); }
+  .flow-label.infer { background: rgba(0,201,167,0.2); color: var(--accent2); }
+  .flow-label.reason { background: rgba(245,158,11,0.2); color: var(--accent3); }
+
+  .flow-row {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    align-items: flex-start; margin-bottom: 10px;
+  }
+  .flow-step {
+    background: #232636; border: 1px solid var(--card-border);
+    border-radius: 10px; padding: 14px 16px; flex: 1; min-width: 110px;
+    text-align: center; position: relative;
+  }
+  .flow-step .step-num { font-size: 0.7rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  .flow-step .step-title { font-weight: 700; font-size: 0.88rem; color: #fff; margin-bottom: 4px; }
+  .flow-step .step-desc { font-size: 0.76rem; color: var(--text-secondary); }
+  .flow-step.wide { flex: 2; }
+  .flow-arrow {
+    display: flex; align-items: center; color: var(--accent);
+    font-size: 1.2rem; font-weight: 700; flex-shrink: 0; padding-top: 10px;
+  }
+  .flow-note {
+    margin-top: 16px; padding: 12px 18px;
+    background: rgba(91,141,239,0.06); border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; font-size: 0.85rem; color: var(--text-secondary);
+  }
+  .flow-note strong { color: #fff; }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+  th {
+    background: #232636; padding: 12px 16px; text-align: left;
+    font-weight: 700; color: #fff; border-bottom: 2px solid var(--card-border);
+  }
+  td {
+    padding: 10px 16px; border-bottom: 1px solid var(--card-border);
+    color: var(--text-secondary); vertical-align: top;
+  }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  th.center, td.center { text-align: center; }
+
+  /* ── Tier badges ── */
+  .tier { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+  .tier.t1 { background: rgba(34,197,94,0.2); color: var(--tier1); }
+  .tier.t2 { background: rgba(245,158,11,0.2); color: var(--tier2); }
+  .tier.t3 { background: rgba(148,163,184,0.2); color: var(--tier3); }
+
+  /* ── Highlight boxes ── */
+  .hbox {
+    border: 1px solid var(--card-border); border-radius: 10px;
+    padding: 20px 24px; margin: 16px 0;
+  }
+  .hbox.info { background: rgba(91,141,239,0.07); border-left: 4px solid var(--accent); }
+  .hbox.success { background: rgba(0,201,167,0.07); border-left: 4px solid var(--accent2); }
+  .hbox.warning { background: rgba(245,158,11,0.07); border-left: 4px solid var(--accent3); }
+  .hbox.danger { background: rgba(239,68,68,0.07); border-left: 4px solid var(--accent4); }
+  .hbox strong { color: #fff; }
+
+  .check { color: var(--tier1); font-weight: 700; }
+  .cross { color: var(--accent4); }
+
+  /* ── Roadmap grid ── */
+  .roadmap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 768px) { .roadmap-grid { grid-template-columns: 1fr; } }
+  .roadmap-col { border-radius: 14px; overflow: hidden; }
+  .roadmap-col-header {
+    padding: 16px 20px; font-weight: 800; font-size: 1rem; text-align: center; color: #fff;
+  }
+  .t1-bg { background: var(--gradient-1); }
+  .t2-bg { background: var(--gradient-2); }
+  .t3-bg { background: var(--gradient-3); }
+  .roadmap-item {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-top: none; padding: 18px 20px;
+  }
+  .roadmap-item:last-child { border-radius: 0 0 14px 14px; }
+  .roadmap-item .item-num { font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; display: block; }
+  .roadmap-item .item-title { font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .roadmap-item ul { list-style: none; padding: 0; }
+  .roadmap-item li {
+    font-size: 0.82rem; color: var(--text-secondary); padding: 2px 0;
+    padding-left: 14px; position: relative;
+  }
+  .roadmap-item li::before {
+    content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700;
+  }
+
+  /* ── Timeline ── */
+  .timeline { position: relative; padding-left: 32px; margin: 20px 0; }
+  .timeline::before {
+    content: ''; position: absolute; left: 12px; top: 0; bottom: 0;
+    width: 2px; background: var(--card-border);
+  }
+  .tl-item { position: relative; margin-bottom: 20px; }
+  .tl-item::before {
+    content: ''; position: absolute; left: -24px; top: 8px;
+    width: 10px; height: 10px; border-radius: 50%;
+    border: 2px solid var(--accent); background: var(--bg);
+  }
+  .tl-date {
+    font-size: 0.78rem; font-weight: 700; color: var(--accent);
+    margin-bottom: 4px; letter-spacing: 0.04em;
+  }
+  .tl-title { font-weight: 700; color: #fff; font-size: 0.95rem; }
+  .tl-desc { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
+
+  /* ── Two-col ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center; margin-top: 60px; padding: 24px;
+    color: var(--text-secondary); font-size: 0.8rem;
+    border-top: 1px solid var(--card-border);
+  }
+  .footer a { color: var(--accent); text-decoration: none; }
+
+  /* ── Misc ── */
+  .tag {
+    display: inline-block; padding: 2px 10px; border-radius: 5px;
+    font-size: 0.72rem; font-weight: 700; margin-right: 4px;
+  }
+  .tag.ds { background: rgba(91,141,239,0.2); color: #5b8def; }
+  .tag.qw { background: rgba(124,58,237,0.2); color: #a78bfa; }
+  .tag.gl { background: rgba(0,201,167,0.2); color: #00c9a7; }
+  .tag.mm { background: rgba(245,158,11,0.2); color: #f59e0b; }
+  .tag.oa { background: rgba(239,68,68,0.2); color: #f87171; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<nav class="nav">
+  <a href="#train">训练全链路</a>
+  <a href="#infer">推理全链路</a>
+  <a href="#reasoning">推理时计算</a>
+  <a href="#compare">四家技术对比</a>
+  <a href="#papers">技术演进时间线</a>
+  <a href="#roadmap">SA 学习路线图</a>
+</nav>
+
+<!-- ═══════════ HERO ═══════════ -->
+<div class="hero">
+  <h1>MoE 大模型训练 &amp; 推理全链路</h1>
+  <p class="subtitle">从预训练到部署，从 KV Cache 到 Reasoning — SA 一站式知识地图</p>
+  <div class="badge-row">
+    <span class="badge">🔬 DeepSeek · 47 个职位</span>
+    <span class="badge">🧠 GLM-5.2 · 1M 上下文</span>
+    <span class="badge">⚡ Qwen3 · Thinking Mode</span>
+    <span class="badge">🔮 MiniMax-01 · 4M 上下文</span>
+    <span class="badge">📅 2026-06-23</span>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ════════════════════════════════════════════ -->
+<!-- 第一部分：训练全链路                         -->
+<!-- ════════════════════════════════════════════ -->
+<div class="section" id="train">
+  <div class="section-title">
+    <span class="num" style="background:rgba(91,141,239,0.2);color:var(--accent)">一</span>
+    训练全链路：MoE 模型从 0 到 1（15 步）
+  </div>
+
+  <!-- 预训练 -->
+  <div class="flow-block">
+    <span class="flow-label train">预训练阶段 Pre-training</span>
+
+    <div class="flow-row">
+      <div class="flow-step">
+        <div class="step-num">[1]</div>
+        <div class="step-title">数据收集</div>
+        <div class="step-desc">多源并行抓取<br>Common Crawl / GitHub<br>Wikipedia / 论文</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">[2]</div>
+        <div class="step-title">数据清洗</div>
+        <div class="step-desc">分 shard 并行<br>去重 / 质量过滤<br>MinHash / SimHash</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">[3]</div>
+        <div class="step-title">数据配比</div>
+        <div class="step-desc">代码 20%<br>网页 60%<br>数学 10% / 书籍 5%</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">[4]</div>
+        <div class="step-title">分词器训练</div>
+        <div class="step-desc">BPE / SentencePiece<br>词汇量 50K-256K</div>
+      </div>
+    </div>
+
+    <div class="flow-row">
+      <div class="flow-step">
+        <div class="step-num">[5]</div>
+        <div class="step-title">架构设计</div>
+        <div class="step-desc">Dense vs MoE<br>专家数 / top-k<br>路由策略 / 辅助 loss</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">[6]</div>
+        <div class="step-title">小规模验证</div>
+        <div class="step-desc">1/100 规模<br>多组超参并行<br>Scaling Law 外推</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step wide">
+        <div class="step-num">[7]</div>
+        <div class="step-title">大规模预训练（核心）</div>
+        <div class="step-desc">
+          <strong>DP × TP × PP × EP</strong> 四维并行<br>
+          all-to-all 通信 · 负载均衡 · 万卡集群<br>
+          10T-20T tokens · 数周至数月 · 千万美元级
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-note">
+      <strong>MoE 特有挑战：</strong>EP（Expert Parallelism）将不同专家分布到不同 GPU，每个 token 只去 top-k 专家，需要 all-to-all 通信。Dense 层和 MoE 层在同一集群上混合使用不同并行策略。负载不均衡（热门 vs 冷门专家）需要辅助 loss 强制均衡。
+    </div>
+  </div>
+
+  <!-- 后训练 -->
+  <div class="flow-block">
+    <span class="flow-label train">后训练阶段 Post-training</span>
+
+    <div class="flow-row">
+      <div class="flow-step">
+        <div class="step-num">[8]</div>
+        <div class="step-title">SFT</div>
+        <div class="step-desc">监督微调<br>高质量示例训练<br>1万~100万条</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">[9]</div>
+        <div class="step-title">RM 训练</div>
+        <div class="step-desc">Reward Model<br>偏好对标注<br>（可跳过）</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step wide">
+        <div class="step-num">[10]</div>
+        <div class="step-title">RL 对齐（核心）</div>
+        <div class="step-desc">
+          <strong>三选一：</strong>PPO（Critic） / GRPO（组内比较） / DPO（非RL）<br>
+          <span class="tag gl">GLM-5.2</span> Critic-Based PPO + Anti-Hack<br>
+          <span class="tag ds">DeepSeek-R1</span> GRPO
+        </div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">[11]</div>
+        <div class="step-title">能力专项</div>
+        <div class="step-desc">代码 RL<br>数学 RL<br>Agent RL<br>（可并行）</div>
+      </div>
+    </div>
+
+    <div class="flow-row">
+      <div class="flow-step">
+        <div class="step-num">[12]</div>
+        <div class="step-title">基准评估</div>
+        <div class="step-desc">MMLU / SWE-bench<br>HumanEval / AIME<br>全 benchmark 并行</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">[13]</div>
+        <div class="step-title">安全测试</div>
+        <div class="step-desc">红队攻击<br>越狱 / 偏见<br>隐私泄露</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">[14]</div>
+        <div class="step-title">推理优化</div>
+        <div class="step-desc">量化 / 投机解码<br>KV-cache 压缩<br>Continuous Batching</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">[15]</div>
+        <div class="step-title">部署上线</div>
+        <div class="step-desc">vLLM / SGLang<br>K8s / 灰度发布<br>监控告警</div>
+      </div>
+    </div>
+
+    <div class="flow-note">
+      <strong>串行依赖：</strong>数据 → 清洗 → 配比 → 分词器 → 预训练 → SFT → RL → 部署（不可跳过）。<br>
+      <strong>可并行：</strong>数据收集（多源）、数据清洗（分 shard）、架构搜索（多组超参）、预训练内部（4D 并行）、RL 采样（多 rollout worker）、能力专项（代码/数学/Agent 分开）、基准评估（全 benchmark 同时跑）。
+    </div>
+  </div>
+
+  <!-- PPO vs GRPO vs DPO -->
+  <div class="card">
+    <h3>PPO vs GRPO vs DPO — 为什么 GLM-5.2 选择 PPO？</h3>
+    <p>长程编程任务（如"花 10 小时优化 CUDA kernel"）的轨迹太长，必须压缩（compaction）。一条超长轨迹变成 N 条子轨迹，不同 rollout 的 N 不同。GRPO 的组内标准化假设"每个 rollout 产生 1 个 reward"彻底崩塌。PPO 的 Critic 可以独立估计每个子轨迹的 token 级 advantage，长度无关。</p>
+    <table>
+      <thead><tr><th>维度</th><th>PPO</th><th>GRPO</th><th>DPO</th></tr></thead>
+      <tbody>
+        <tr><td><strong>本质</strong></td><td>强化学习（Actor-Critic）</td><td>强化学习（无 Critic）</td><td><span class="cross">非 RL</span>（直接偏好优化）</td></tr>
+        <tr><td><strong>Advantage 来源</strong></td><td>Critic 网络学习 V(s)</td><td>G 个 rollout 组内标准化</td><td>不需要</td></tr>
+        <tr><td><strong>额外模型</strong></td><td>需要 Critic</td><td>不需要</td><td>不需要</td></tr>
+        <tr><td><strong>在线采样</strong></td><td><span class="check">✅</span></td><td><span class="check">✅</span></td><td><span class="cross">❌</span></td></tr>
+        <tr><td><strong>适用场景</strong></td><td>长程复杂探索（编程 Agent）</td><td>有明确 reward（数学推理）</td><td>偏好对齐（安全/有用）</td></tr>
+        <tr><td><strong>代表模型</strong></td><td><span class="tag gl">GLM-5.2</span></td><td><span class="tag ds">DeepSeek-R1</span></td><td>Llama 3</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- 第二部分：推理全链路                         -->
+<!-- ════════════════════════════════════════════ -->
+<div class="section" id="infer">
+  <div class="section-title">
+    <span class="num" style="background:rgba(0,201,167,0.2);color:var(--accent2)">二</span>
+    推理全链路：从模型部署到用户响应
+  </div>
+
+  <div class="hbox success">
+    <strong>训练 vs 推理：</strong>训练的目标是<strong>吞吐量最大化</strong>（离线批处理），推理的目标是<strong>延迟最小化 + 质量最优化</strong>（在线实时服务）。两条完全不同的技术栈。
+  </div>
+
+  <!-- 推理流程 -->
+  <div class="flow-block">
+    <span class="flow-label infer">阶段 0：模型部署</span>
+    <div class="flow-row">
+      <div class="flow-step">
+        <div class="step-num">[1]</div>
+        <div class="step-title">模型导出</div>
+        <div class="step-desc">PyTorch → 推理格式<br>HuggingFace / ModelScope<br>TensorRT-LLM / GGUF</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">[2]</div>
+        <div class="step-title">量化压缩</div>
+        <div class="step-desc">INT8 / INT4 / FP8<br>AWQ / GPTQ<br>显存降低 2-4×</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">[3]</div>
+        <div class="step-title">引擎加载</div>
+        <div class="step-desc">vLLM / SGLang<br>TensorRT-LLM<br>llama.cpp</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">[4]</div>
+        <div class="step-title">服务启动</div>
+        <div class="step-desc">加载权重到 GPU<br>预分配 KV Cache<br>K8s / 负载均衡</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-block">
+    <span class="flow-label infer">阶段 1：单次请求处理</span>
+    <div class="flow-row">
+      <div class="flow-step">
+        <div class="step-num">[5]</div>
+        <div class="step-title">分词</div>
+        <div class="step-desc">Tokenizer<br>"写一个快排"<br>→ 8 tokens<br>~0.1ms</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step wide">
+        <div class="step-num">[6]</div>
+        <div class="step-title">Prefill（预填充）</div>
+        <div class="step-desc">
+          一次算完所有输入 token<br>
+          并行计算 attention → 生成 KV Cache<br>
+          <strong>⚡ 计算密集（compute-bound）</strong><br>
+          ~10ms
+        </div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step wide">
+        <div class="step-num">[7]</div>
+        <div class="step-title">Decode（解码）</div>
+        <div class="step-desc">
+          逐个生成输出 token<br>
+          复用 KV Cache → 每次只算 1 token<br>
+          <strong>🐌 内存密集（memory-bound）</strong><br>
+          ~500ms（占 98% 延迟）
+        </div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">[8]</div>
+        <div class="step-title">输出</div>
+        <div class="step-desc">去分词<br>返回文本<br>~0.1ms</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prefill vs Decode -->
+  <div class="card">
+    <h3>推理最核心的矛盾：Prefill vs Decode</h3>
+    <div class="two-col">
+      <div class="hbox info">
+        <strong>Prefill（预填充）</strong><br>
+        ✅ 一次处理所有输入 token<br>
+        ✅ 并行计算，GPU 利用率高<br>
+        ✅ 延迟 = O(1) 次前向<br>
+        ⚠️ 计算密集（矩阵乘法）
+      </div>
+      <div class="hbox warning">
+        <strong>Decode（解码）</strong><br>
+        ❌ 一次只生成 1 个 token<br>
+        ❌ GPU 大部分时间在等显存<br>
+        ❌ 延迟 = O(N) 次前向<br>
+        ⚠️ 内存密集（读 KV Cache）
+      </div>
+    </div>
+    <div class="hbox danger" style="margin-top:12px">
+      <strong>瓶颈：</strong>假设输入 1000 tokens + 输出 500 tokens，总延迟 ~510ms，Decode 占 98%。而 Decode 阶段 GPU 利用率极低——每次只算 1 个 token 的矩阵乘法，大部分时间在等显存读取 KV Cache。
+    </div>
+  </div>
+
+  <!-- 推理优化技术 -->
+  <div class="card">
+    <h3>推理的瓶颈全部在 Decode 阶段 → 对应的优化技术</h3>
+    <table>
+      <thead><tr><th>瓶颈</th><th>技术</th><th>代表方案</th><th>原理</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>KV Cache 显存爆炸</strong></td>
+          <td>KV Cache 压缩</td>
+          <td><span class="tag ds">MLA</span> <span class="tag gl">IndexShare</span> <span class="tag mm">Lightning</span></td>
+          <td>低秩压缩 / 稀疏化 / 线性注意力替代</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>KV Cache 分级</td>
+          <td><span class="tag gl">LayerSplit</span></td>
+          <td>GPU → CPU → 磁盘三级管理</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>PagedAttention</td>
+          <td>vLLM</td>
+          <td>分页管理，不连续分配，减少碎片</td>
+        </tr>
+        <tr>
+          <td><strong>Decode 太慢</strong></td>
+          <td>投机解码</td>
+          <td><span class="tag ds">MTP</span> <span class="tag gl">MTP+KVShare</span></td>
+          <td>一次预测多个 token</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>Continuous Batching</td>
+          <td>vLLM</td>
+          <td>多个请求拼在一起算，提高 GPU 利用率</td>
+        </tr>
+        <tr>
+          <td><strong>GPU 利用率低</strong></td>
+          <td>Prefill-Decode 分离</td>
+          <td>DistServe / Mooncake</td>
+          <td>Prefill 和 Decode 用不同 GPU</td>
+        </tr>
+        <tr>
+          <td><strong>显存不够</strong></td>
+          <td>量化</td>
+          <td>INT8 / INT4 / FP8</td>
+          <td>降低权重精度，显存降低 2-4×</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- MoE 推理特殊性 -->
+  <div class="card">
+    <h3>MoE 推理的特殊性</h3>
+    <div class="two-col">
+      <div class="hbox success">
+        <strong>✅ 优势：推理时计算量远小于 Dense</strong><br>
+        每个 token 只激活 top-k 专家（如 8/256）<br>
+        671B 总量 → 实际激活 ~37B<br>
+        → 推理速度远快于同规模 Dense 模型
+      </div>
+      <div class="hbox warning">
+        <strong>⚠️ 挑战：</strong><br>
+        专家分布在不同 GPU → all-to-all 通信<br>
+        热门专家 GPU 过载<br>
+        推理时负载均衡比训练时更难
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- 第三部分：推理时计算（Reasoning）              -->
+<!-- ════════════════════════════════════════════ -->
+<div class="section" id="reasoning">
+  <div class="section-title">
+    <span class="num" style="background:rgba(245,158,11,0.2);color:var(--accent3)">三</span>
+    推理时计算（Reasoning）：用更多算力换更好质量
+  </div>
+
+  <div class="hbox info">
+    <strong>推理优化两大方向：</strong><br>
+    <strong>方向 A：系统优化</strong> — 让每一步计算更快、更省（KV Cache 压缩、量化、投机解码、Continuous Batching）。衡量：TTFT、TPOT、吞吐量。<br>
+    <strong>方向 B：推理时计算（Reasoning）</strong> — 花更多算力生成更好的答案（Chain-of-Thought、Best-of-N、Verifier、Tree Search）。衡量：准确率、HLE 分数、AIME 分数。
+  </div>
+
+  <div class="card">
+    <h3>推理时计算的演进路线</h3>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-date">2023</div>
+        <div class="tl-title">简单 CoT（"Let's think step by step"）</div>
+        <div class="tl-desc">在 prompt 中加一句"让我们一步步思考"，模型生成更长的推理链</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">2024 Q3</div>
+        <div class="tl-title"><span class="tag oa">OpenAI o1</span> 隐藏式推理链</div>
+        <div class="tl-desc">推理时大规模搜索，隐藏推理链（黑盒），首次展示推理时计算的价值</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">2025.01</div>
+        <div class="tl-title"><span class="tag ds">DeepSeek-R1</span> 公开推理链</div>
+        <div class="tl-desc">GRPO 训练推理链，公开可见（白盒），引发行业跟进</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">2025.01</div>
+        <div class="tl-title"><span class="tag mm">MiniMax-M1</span> Lightning Attention</div>
+        <div class="tl-desc">线性注意力支撑超长推理链，4M 上下文</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">2025.04</div>
+        <div class="tl-title"><span class="tag qw">Qwen3</span> Thinking Mode 开关</div>
+        <div class="tl-desc">同一模型可开启/关闭思考，推理时计算从模型特性变为用户可控</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">2026.06</div>
+        <div class="tl-title"><span class="tag gl">GLM-5.2</span> Effort Level 分级</div>
+        <div class="tl-desc">High/Max 多级 effort，推理时算力可控且粒度精细</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>各家 Reasoning 方案对比</h3>
+    <table>
+      <thead><tr><th></th><th><span class="tag ds">DeepSeek-R1</span></th><th><span class="tag qw">Qwen3</span></th><th><span class="tag gl">GLM-5.2</span></th><th><span class="tag mm">MiniMax-M1</span></th></tr></thead>
+      <tbody>
+        <tr><td><strong>推理模式</strong></td><td>始终思考</td><td>开关式（Thinking/Non-thinking）</td><td>多级（High/Max effort）</td><td>始终思考</td></tr>
+        <tr><td><strong>推理链可见</strong></td><td><span class="check">✅</span> 可见</td><td><span class="check">✅</span> Thinking 模式可见</td><td>取决于 effort</td><td><span class="check">✅</span> 可见</td></tr>
+        <tr><td><strong>训练方法</strong></td><td>GRPO</td><td>混合 RL</td><td>Critic-Based PPO</td><td>未公开</td></tr>
+        <tr><td><strong>核心创新</strong></td><td>冷启动数据 + GRPO</td><td>同一模型双模式</td><td>effort level 控制</td><td>4M 上下文支撑超长推理</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>推理时计算的核心公式</h3>
+    <div class="hbox info">
+      <strong>答案质量 = f(推理时算力)</strong><br>
+      ├─ <strong>Chain-of-Thought：</strong>生成更多 token → 更多思考 → 更好的答案<br>
+      ├─ <strong>Best-of-N：</strong>生成 N 个答案 → 选最好的 → 质量 ↑，成本 ↑ N 倍<br>
+      ├─ <strong>Verifier：</strong>生成答案 → 验证 → 不对就重试 → 质量 ↑，成本 ↑<br>
+      └─ <strong>Tree Search：</strong>分支探索 → 评估 → 选择最优路径 → 质量 ↑↑，成本 ↑↑↑<br><br>
+      <strong>本质：</strong>用推理时的算力换取训练时无法达到的质量。
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- 第四部分：四家技术全景对比                     -->
+<!-- ════════════════════════════════════════════ -->
+<div class="section" id="compare">
+  <div class="section-title">
+    <span class="num" style="background:rgba(239,68,68,0.2);color:var(--accent4)">四</span>
+    四家推理优化技术全景对比
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>技术维度</th>
+        <th><span class="tag ds">DeepSeek</span></th>
+        <th><span class="tag qw">Qwen</span></th>
+        <th><span class="tag mm">MiniMax</span></th>
+        <th><span class="tag gl">GLM（智谱）</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>KV Cache 压缩</strong></td>
+        <td><strong>MLA</strong>（多头潜在注意力）<br>低秩联合压缩 K/V<br>~15× 压缩（93.3% reduction）</td>
+        <td><strong>GQA</strong>（分组查询注意力）<br>减少 KV 头数<br>~4× 压缩</td>
+        <td><strong>Lightning Attention</strong><br>线性注意力 O(n)<br>无需 KV Cache<br>1M 训练 / 4M 推理</td>
+        <td><strong>IndexShare</strong><br>稀疏注意力索引器共享<br>FLOPs 降低 2.9×</td>
+      </tr>
+      <tr>
+        <td><strong>投机解码</strong></td>
+        <td><strong>MTP</strong>（多 Token 预测）<br>一次预测多个 token</td>
+        <td>未公开</td>
+        <td>未公开</td>
+        <td><strong>MTP + KVShare</strong><br>接受长度 +20%</td>
+      </tr>
+      <tr>
+        <td><strong>长上下文</strong></td>
+        <td>128K-1M<br>（MLA 支撑）</td>
+        <td>128K-1M<br>（YaRN 扩展）</td>
+        <td><strong>4M</strong><br>（Lightning Attention<br>1M 训练 / 4M 推理外推）</td>
+        <td><strong>1M 实测可用</strong><br>（IndexShare + 编码Agent专项训练）</td>
+      </tr>
+      <tr>
+        <td><strong>推理时计算</strong></td>
+        <td>GRPO 训练推理链（R1）</td>
+        <td><strong>Thinking Mode 开关</strong></td>
+        <td>超长上下文支撑推理</td>
+        <td><strong>Effort Level 分级</strong></td>
+      </tr>
+      <tr>
+        <td><strong>MoE 推理</strong></td>
+        <td>细粒度专家 + 共享专家</td>
+        <td>Dense 为主</td>
+        <td>MoE（456B 总量，45.9B 激活）</td>
+        <td>MoE</td>
+      </tr>
+      <tr>
+        <td><strong>推理引擎</strong></td>
+        <td>vLLM/SGLang 自研优化</td>
+        <td>vLLM/SGLang</td>
+        <td>自研</td>
+        <td>自研 LayerSplit</td>
+      </tr>
+      <tr>
+        <td><strong>核心论文</strong></td>
+        <td>DeepSeek-V2 (2024.05)</td>
+        <td>Qwen2.5 (2024.09)</td>
+        <td>MiniMax-01 (2025.01)</td>
+        <td>IndexShare (2026.03)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- KV Cache 三条路线 -->
+  <div class="card">
+    <h3>KV Cache 压缩：三条路线竞合</h3>
+    <div class="two-col">
+      <div class="hbox info">
+        <strong>路线 A：低秩压缩</strong><br>
+        <span class="tag ds">DeepSeek MLA</span><br>
+        把 K/V 投影到低维空间 → 存潜在向量 → 计算时解压
+      </div>
+      <div class="hbox success">
+        <strong>路线 B：线性注意力</strong><br>
+        <span class="tag mm">MiniMax Lightning</span><br>
+        把 O(n²) 变成 O(n) → 不需要 KV Cache
+      </div>
+    </div>
+    <div class="hbox warning" style="margin-top:12px">
+      <strong>路线 C：稀疏注意力</strong><br>
+      <span class="tag gl">GLM IndexShare</span> — 只关注最相关的 token → 索引器共享 → 减少计算量
+    </div>
+    <p style="margin-top:12px;color:var(--text-secondary)"><strong>趋势判断：</strong>这三条路线不是互斥的，未来可能融合（MLA + 稀疏 + 线性）。</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- 第五部分：技术演进时间线                       -->
+<!-- ════════════════════════════════════════════ -->
+<div class="section" id="papers">
+  <div class="section-title">
+    <span class="num" style="background:rgba(124,58,237,0.2);color:#a78bfa">五</span>
+    关键技术论文时间线 &amp; 趋势判断
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-date">2023.12</div>
+      <div class="tl-title">YaRN (arXiv:2309.00071)</div>
+      <div class="tl-desc">RoPE 频率插值，无需微调即可扩展上下文。被 <span class="tag qw">Qwen2.5</span> 采用，支撑 128K 上下文。让"长上下文"从架构创新变成"后训练扩展"。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2024.05</div>
+      <div class="tl-title">DeepSeek-V2 (arXiv:2405.04434)</div>
+      <div class="tl-desc"><strong>MLA：</strong>将 K 和 V 联合压缩到低维潜在空间，KV Cache 减少 ~10×。<strong>DeepSeekMoE：</strong>细粒度专家 + 共享专家。定义了 MoE 推理优化的新范式。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2024.12</div>
+      <div class="tl-title">DeepSeek-V3 (arXiv:2412.19437)</div>
+      <div class="tl-desc"><strong>MTP：</strong>预测未来多个 token，用于投机解码。<strong>辅助损失自由的负载均衡：</strong>bias 动态调整。投机解码从"独立 draft model"变成"原生 MTP 模块"。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2025.01</div>
+      <div class="tl-title">MiniMax-01 (arXiv:2501.08313)</div>
+      <div class="tl-desc"><strong>Lightning Attention：</strong>线性注意力替代 softmax 注意力，复杂度 O(n) 而非 O(n²)，天然支持超长上下文。混合架构：softmax attention + lightning attention。<strong>4M token 上下文窗口</strong>（推理外推，训练 1M）。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2025.04</div>
+      <div class="tl-title">Qwen3</div>
+      <div class="tl-desc"><strong>Thinking Mode：</strong>同一模型支持思考/非思考双模式。混合推理训练：让模型学会何时需要思考。推理时计算从"模型特性"变为"用户可控开关"。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2026.03</div>
+      <div class="tl-title">GLM IndexShare (arXiv:2603.12201)</div>
+      <div class="tl-desc">每 4 层共享稀疏注意力索引器。1M 上下文 FLOPs 降低 2.9×。稀疏注意力的工程化落地。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2026.06</div>
+      <div class="tl-title">GLM-5.2</div>
+      <div class="tl-desc"><strong>MTP + KVShare：</strong>消除训练-推理不一致。<strong>Critic-Based PPO + Anti-Hack：</strong>长程 Agent RL。<strong>LayerSplit：</strong>三级 KV-cache 管理。长程编程 Agent 的完整技术栈。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>四大技术趋势</h3>
+    <table>
+      <thead><tr><th>趋势</th><th>2023→2024</th><th>2025</th><th>2026</th><th>方向</th></tr></thead>
+      <tbody>
+        <tr><td><strong>KV Cache 压缩</strong></td><td>MLA 低秩压缩</td><td>Lightning 线性注意力</td><td>IndexShare 稀疏注意力</td><td>三条路线竞合，未来可能融合</td></tr>
+        <tr><td><strong>投机解码</strong></td><td>DeepSeek 首创 MTP</td><td>行业跟进</td><td>GLM MTP+KVShare +20%</td><td>正在成为 MoE 模型标配</td></tr>
+        <tr><td><strong>推理时计算</strong></td><td>o1 隐藏推理链（黑盒）</td><td>R1 公开推理链（白盒）<br>Qwen3 开关式</td><td>GLM-5.2 分级式</td><td>越来越强调用户可控和粒度精细</td></tr>
+        <tr><td><strong>长上下文</strong></td><td>YaRN 扩展（能跑 128K）</td><td>MLA 压缩 / Lightning 4M 极限</td><td>IndexShare + 编码Agent 专项训练</td><td>不再比"谁更长"，比"谁更可靠"</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- 第六部分：DeepSeek 招聘需求                    -->
+<!-- ════════════════════════════════════════════ -->
+<div class="section" id="jobs">
+  <div class="section-title">
+    <span class="num" style="background:rgba(0,201,167,0.2);color:var(--accent2)">六</span>
+    DeepSeek 招聘需求关键词提取（47 个职位）
+  </div>
+
+  <table>
+    <thead><tr><th>类别</th><th>高频关键词</th><th>出现职位</th><th>代表性职位</th></tr></thead>
+    <tbody>
+      <tr><td><strong>RL / 对齐</strong></td><td>PPO、DPO、GRPO、Actor-Critic、RLHF、RLAIF、过程奖励、偏好学习</td><td>4+</td><td>Agent深度学习算法研究员</td></tr>
+      <tr><td><strong>Agent 系统</strong></td><td>Agent Loop、Tool Use、MCP、Function Calling、Planning、Reasoning、Memory、Subagent、Multi-Agent</td><td>5+</td><td>Agent Harness 研发工程师</td></tr>
+      <tr><td><strong>分布式训练</strong></td><td>DP、TP、PP、EP、all-to-all、NCCL、RDMA、RoCEv2、IB、NVLink</td><td>4+</td><td>超算网络研发工程师</td></tr>
+      <tr><td><strong>推理优化</strong></td><td>KV Cache、投机解码、量化、Flash Attention、Continuous Batching、Prefill-Decode</td><td>3+</td><td>核心系统研发工程师</td></tr>
+      <tr><td><strong>数据工程</strong></td><td>数据清洗、去重、质量评估、标注方案、数据 Pipeline、评测体系</td><td>3+</td><td>Agent 数据策略工程师</td></tr>
+      <tr><td><strong>系统工程</strong></td><td>K8s、Docker、GPU 集群、异构计算、算子编译器、Profiling、Rust/C++</td><td>5+</td><td>全栈开发工程师</td></tr>
+      <tr><td><strong>模型架构</strong></td><td>MoE、Dense、GQA、MLA、稀疏注意力、长上下文</td><td>3+</td><td>深度学习研发工程师</td></tr>
+      <tr><td><strong>Agent 产品</strong></td><td>Claude Code、Cursor、Vibe Coding、Prompt Engineering、Context Engineering</td><td>4+</td><td>Agent Harness 研发工程师</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- 第七部分：SA 学习路线图                        -->
+<!-- ════════════════════════════════════════════ -->
+<div class="section" id="roadmap">
+  <div class="section-title">
+    <span class="num" style="background:rgba(34,197,94,0.2);color:var(--tier1)">七</span>
+    SA 学习重点矩阵（按优先级排序）
+  </div>
+
+  <div class="hbox success">
+    <strong>方法论：</strong>基于 DeepSeek 47 个职位 × GLM-5.2 × Qwen3 × MiniMax-01 × 训练推理全流程交叉验证，按出现频率和深度确定权重。第一梯队占 60% 精力，第二梯队 30%，第三梯队 10%。
+  </div>
+
+  <div class="roadmap-grid">
+    <div class="roadmap-col">
+      <div class="roadmap-col-header t1-bg">⭐⭐⭐ 第一梯队 · 60% 精力</div>
+      <div class="roadmap-item">
+        <span class="item-num" style="color:var(--tier1)">01</span>
+        <div class="item-title">RL 与对齐</div>
+        <ul>
+          <li>PPO：Actor-Critic / clip / GAE</li>
+          <li>GRPO：组内相对优势 / 无 Critic</li>
+          <li>DPO：直接偏好优化 / Bradley-Terry</li>
+          <li>RLHF / RLAIF 流程</li>
+          <li>PPO/GRPO/DPO 适用场景决策</li>
+        </ul>
+      </div>
+      <div class="roadmap-item">
+        <span class="item-num" style="color:var(--tier1)">02</span>
+        <div class="item-title">MoE 架构与分布式训练</div>
+        <ul>
+          <li>专家路由 / top-k / 辅助 loss</li>
+          <li>4D 并行：DP × TP × PP × EP</li>
+          <li>all-to-all vs all-reduce</li>
+          <li>DeepSeek 细粒度专家设计</li>
+          <li>GLM IndexShare</li>
+        </ul>
+      </div>
+      <div class="roadmap-item">
+        <span class="item-num" style="color:var(--tier1)">03</span>
+        <div class="item-title">后训练全流程</div>
+        <ul>
+          <li>SFT 原理与局限</li>
+          <li>Agentic RL：slime / rollout / reward</li>
+          <li>Anti-Hack：两级检测机制</li>
+          <li>OPD 多专家融合</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="roadmap-col">
+      <div class="roadmap-col-header t2-bg">⭐⭐ 第二梯队 · 30% 精力</div>
+      <div class="roadmap-item">
+        <span class="item-num" style="color:var(--tier2)">04</span>
+        <div class="item-title">推理系统优化</div>
+        <ul>
+          <li>Prefill vs Decode 二元结构</li>
+          <li>KV Cache 原理与瓶颈</li>
+          <li>MLA / Lightning / IndexShare 三条路线</li>
+          <li>投机解码：MTP / draft model</li>
+          <li>量化：INT8/INT4/FP8</li>
+          <li>Continuous Batching / PagedAttention</li>
+          <li>Prefill-Decode 分离架构</li>
+        </ul>
+      </div>
+      <div class="roadmap-item">
+        <span class="item-num" style="color:var(--tier2)">05</span>
+        <div class="item-title">推理时计算（Reasoning）</div>
+        <ul>
+          <li>CoT / Best-of-N / Verifier / Tree Search</li>
+          <li>o1 → R1 → Qwen3 → GLM-5.2 演进</li>
+          <li>Thinking Mode 开关机制</li>
+          <li>Effort Level 分级控制</li>
+        </ul>
+      </div>
+      <div class="roadmap-item">
+        <span class="item-num" style="color:var(--tier2)">06</span>
+        <div class="item-title">Agent 系统架构</div>
+        <ul>
+          <li>Agent Loop / Tool Use / MCP</li>
+          <li>Planning & Reasoning 范式</li>
+          <li>Memory / Subagent / Multi-Agent</li>
+        </ul>
+      </div>
+      <div class="roadmap-item">
+        <span class="item-num" style="color:var(--tier2)">07</span>
+        <div class="item-title">数据工程</div>
+        <ul>
+          <li>清洗管线 / 配比策略</li>
+          <li>Agent 训练数据构造</li>
+          <li>SWE-bench / FrontierSWE 等</li>
+          <li>数据与 RL 闭环迭代</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="roadmap-col">
+      <div class="roadmap-col-header t3-bg">⭐ 第三梯队 · 10% 精力</div>
+      <div class="roadmap-item">
+        <span class="item-num" style="color:var(--tier3)">08</span>
+        <div class="item-title">高性能网络与集群</div>
+        <ul>
+          <li>RDMA / RoCEv2 / InfiniBand</li>
+          <li>all-to-all / all-reduce</li>
+          <li>NVLink / NVSwitch / NCCL</li>
+        </ul>
+      </div>
+      <div class="roadmap-item">
+        <span class="item-num" style="color:var(--tier3)">09</span>
+        <div class="item-title">模型架构基础</div>
+        <ul>
+          <li>Transformer / Attention 变体</li>
+          <li>MHA→MQA→GQA→MLA</li>
+          <li>RoPE / YaRN 长上下文扩展</li>
+          <li>MoE vs Dense FLOPs 权衡</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- 第八部分：交叉验证 & 关键洞察                  -->
+<!-- ════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span class="num" style="background:rgba(91,141,239,0.2);color:var(--accent)">八</span>
+    知识点 × 招聘需求 × 技术栈 交叉验证
+  </div>
+
+  <table>
+    <thead><tr><th>知识点</th><th class="center"><span class="tag ds">DS</span></th><th class="center"><span class="tag gl">GLM</span></th><th class="center"><span class="tag qw">Qwen</span></th><th class="center"><span class="tag mm">MM</span></th><th class="center">权重</th></tr></thead>
+    <tbody>
+      <tr><td>RL / 对齐（PPO/DPO/GRPO）</td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center">—</td><td class="center"><span class="tier t1">⭐⭐⭐</span></td></tr>
+      <tr><td>MoE 分布式训练</td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center">—</td><td class="center"><span class="check">✅</span></td><td class="center"><span class="tier t1">⭐⭐⭐</span></td></tr>
+      <tr><td>后训练流程</td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center">—</td><td class="center"><span class="tier t1">⭐⭐⭐</span></td></tr>
+      <tr><td>推理系统优化</td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center"><span class="tier t2">⭐⭐</span></td></tr>
+      <tr><td>推理时计算（Reasoning）</td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center"><span class="tier t2">⭐⭐</span></td></tr>
+      <tr><td>Agent 系统架构</td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center">—</td><td class="center">—</td><td class="center"><span class="tier t2">⭐⭐</span></td></tr>
+      <tr><td>数据工程</td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center">—</td><td class="center">—</td><td class="center"><span class="tier t2">⭐⭐</span></td></tr>
+      <tr><td>高性能网络</td><td class="center"><span class="check">✅</span></td><td class="center">—</td><td class="center">—</td><td class="center">—</td><td class="center"><span class="tier t3">⭐</span></td></tr>
+      <tr><td>模型架构基础</td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center">—</td><td class="center">—</td><td class="center"><span class="tier t3">⭐</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="hbox info">
+    <strong>🔑 面试必问三点：</strong><br>
+    1. PPO vs GRPO vs DPO 的区别和适用场景（为什么 GLM-5.2 选 PPO？为什么 DeepSeek-R1 选 GRPO？）<br>
+    2. MoE 的 4D 并行（DP × TP × PP × EP）中 EP 的工作原理和 all-to-all 通信挑战<br>
+    3. Prefill vs Decode 的二元结构，以及围绕 Decode 阶段的三条 KV Cache 优化路线（MLA / 线性注意力 / 稀疏注意力）
+  </div>
+
+  <div class="hbox warning">
+    <strong>⚠️ 高频陷阱：</strong><br>
+    「DPO 是 RL 算法」— <span class="cross">错！</span> 本质是分类任务（MLE），不是 RL。<br>
+    「GRPO 比 PPO 好」— <span class="cross">不一定！</span> 长程编程 Agent 场景下因轨迹压缩导致组内比较失效。<br>
+    「推理只关心速度」— <span class="cross">不全面！</span> 推理时计算（Reasoning）用更多算力换更好质量，与系统优化同等重要。
+  </div>
+
+  <div class="hbox success">
+    <strong>🚀 一句话总结：</strong><br>
+    <strong>RL 对齐 + MoE 训练 + 推理系统优化 + 推理时计算</strong> 是 SA 必须能讲透的四大硬核知识。预训练决定了模型的<strong>知识上限</strong>，后训练决定了模型的<strong>行为下限</strong>，推理系统优化决定了<strong>服务成本</strong>，推理时计算决定了<strong>答案质量</strong>。四者缺一不可。
+  </div>
+</div>
+
+<!-- ═══════════════ Footer ═══════════════ -->
+<div class="footer">
+  <p>基于 <a href="https://z.ai/blog/glm-5.2" target="_blank">GLM-5.2 技术博客</a> · <a href="https://docs.bigmodel.cn/cn/guide/models/text/glm-5.2" target="_blank">GLM-5.2 官方文档</a> · <a href="https://app.mokahr.com/social-recruitment/high-flyer/140576#/jobs" target="_blank">DeepSeek 招聘</a> · MiniMax-01 · Qwen3 交叉分析</p>
+  <p style="margin-top:4px">生成时间：2026-06-23</p>
+</div>
+</div>
+</body>
+</html>

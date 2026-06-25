@@ -26,7 +26,8 @@ node_modules/
 # 知识飞轮 - 敏感/临时目录
 inbox/*.md
 archive/*.md
-notes/maas_sales_advice_ethan*
+# ai-general-notes 下文件名包含 ethan（大小写不敏感）
+knowledge/ai-general-notes/*[Ee][Tt][Hh][Aa][Nn]*
 notes/SkillYourAllYouNeed_202606*
 
 .qoder/repowiki/*
