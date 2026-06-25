@@ -270,8 +270,8 @@
     <span class="badge">🔬 DeepSeek · 47 个职位</span>
     <span class="badge">🧠 GLM-5.2 · 1M 上下文</span>
     <span class="badge">⚡ Qwen3 · Thinking Mode</span>
-    <span class="badge">🔮 MiniMax-01 · 4M 上下文</span>
-    <span class="badge">📅 2026-06-23</span>
+    <span class="badge">🔮 MiniMax M3 · 1M 上下文</span>
+    <span class="badge">📅 2026-06-25</span>
   </div>
 </div>
 
@@ -699,7 +699,7 @@
         <th>技术维度</th>
         <th><span class="tag ds">DeepSeek</span></th>
         <th><span class="tag qw">Qwen</span></th>
-        <th><span class="tag mm">MiniMax</span></th>
+        <th><span class="tag mm">MiniMax（M3, 2026.06）</span></th>
         <th><span class="tag gl">GLM（智谱）</span></th>
       </tr>
     </thead>
@@ -708,7 +708,7 @@
         <td><strong>KV Cache 压缩</strong></td>
         <td><strong>MLA</strong>（多头潜在注意力）<br>低秩联合压缩 K/V<br>~15× 压缩（93.3% reduction）</td>
         <td><strong>GQA</strong>（分组查询注意力）<br>减少 KV 头数<br>~4× 压缩</td>
-        <td><strong>Lightning Attention</strong><br>线性注意力 O(n)<br>无需 KV Cache<br>1M 训练 / 4M 推理</td>
+        <td><strong>MSA</strong>（MiniMax Sparse Attention）<br>blockwise 稀疏注意力<br>GQA + Index Branch<br>1/20 per-token compute</td>
         <td><strong>IndexShare</strong><br>稀疏注意力索引器共享<br>FLOPs 降低 2.9×</td>
       </tr>
       <tr>
@@ -722,21 +722,21 @@
         <td><strong>长上下文</strong></td>
         <td>128K-1M<br>（MLA 支撑）</td>
         <td>128K-1M<br>（YaRN 扩展）</td>
-        <td><strong>4M</strong><br>（Lightning Attention<br>1M 训练 / 4M 推理外推）</td>
+        <td><strong>1M</strong><br>（MSA，9× Prefill / 15× Decode 加速）</td>
         <td><strong>1M 实测可用</strong><br>（IndexShare + 编码Agent专项训练）</td>
       </tr>
       <tr>
         <td><strong>推理时计算</strong></td>
         <td>GRPO 训练推理链（R1）</td>
         <td><strong>Thinking Mode 开关</strong></td>
-        <td>超长上下文支撑推理</td>
+        <td>未公开</td>
         <td><strong>Effort Level 分级</strong></td>
       </tr>
       <tr>
         <td><strong>MoE 推理</strong></td>
         <td>细粒度专家 + 共享专家</td>
         <td>Dense 为主</td>
-        <td>MoE（456B 总量，45.9B 激活）</td>
+        <td>MoE</td>
         <td>MoE</td>
       </tr>
       <tr>
@@ -750,7 +750,7 @@
         <td><strong>核心论文</strong></td>
         <td>DeepSeek-V2 (2024.05)</td>
         <td>Qwen2.5 (2024.09)</td>
-        <td>MiniMax-01 (2025.01)</td>
+        <td>MSA (2026.06)</td>
         <td>IndexShare (2026.03)</td>
       </tr>
     </tbody>
@@ -767,15 +767,15 @@
       </div>
       <div class="hbox success">
         <strong>路线 B：线性注意力</strong><br>
-        <span class="tag mm">MiniMax Lightning</span><br>
+        <span class="tag mm">MiniMax-01 Lightning（上一代）</span><br>
         把 O(n²) 变成 O(n) → 不需要 KV Cache
       </div>
     </div>
     <div class="hbox warning" style="margin-top:12px">
       <strong>路线 C：稀疏注意力</strong><br>
-      <span class="tag gl">GLM IndexShare</span> — 只关注最相关的 token → 索引器共享 → 减少计算量
+      <span class="tag gl">GLM IndexShare</span> + <span class="tag mm">MiniMax M3 MSA</span> — 只关注最相关的 token → 减少计算量。IndexShare 共享索引器，MSA 用 GQA+Index Branch 做 blockwise Top-k
     </div>
-    <p style="margin-top:12px;color:var(--text-secondary)"><strong>趋势判断：</strong>这三条路线不是互斥的，未来可能融合（MLA + 稀疏 + 线性）。</p>
+    <p style="margin-top:12px;color:var(--text-secondary)"><strong>趋势判断：</strong>路线 B（线性注意力）在 MiniMax-01 上达到 4M 推理外推，但 M3 转向了路线 C（MSA 稀疏注意力），说明稀疏注意力在 2026 年成为主流方向。三条路线未来可能融合。</p>
   </div>
 </div>
 
@@ -821,6 +821,11 @@
     </div>
     <div class="tl-item">
       <div class="tl-date">2026.06</div>
+      <div class="tl-title">MiniMax M3 (MSA: arXiv:2606.13392)</div>
+      <div class="tl-desc"><strong>MSA：</strong>blockwise 稀疏注意力，GQA + Index Branch，Top-k KV block 选择。1M 上下文，1/20 per-token compute，9× Prefill / 15× Decode。原生多模态（Step 0 联合训练）。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2026.06</div>
       <div class="tl-title">GLM-5.2</div>
       <div class="tl-desc"><strong>MTP + KVShare：</strong>消除训练-推理不一致。<strong>Critic-Based PPO + Anti-Hack：</strong>长程 Agent RL。<strong>LayerSplit：</strong>三级 KV-cache 管理。长程编程 Agent 的完整技术栈。</div>
     </div>
@@ -831,10 +836,10 @@
     <table>
       <thead><tr><th>趋势</th><th>2023→2024</th><th>2025</th><th>2026</th><th>方向</th></tr></thead>
       <tbody>
-        <tr><td><strong>KV Cache 压缩</strong></td><td>MLA 低秩压缩</td><td>Lightning 线性注意力</td><td>IndexShare 稀疏注意力</td><td>三条路线竞合，未来可能融合</td></tr>
+        <tr><td><strong>KV Cache 压缩</strong></td><td>MLA 低秩压缩</td><td>Lightning 线性注意力</td><td>IndexShare + MSA 稀疏注意力（双方案）</td><td>稀疏注意力成为 2026 主流；线性注意力退潮</td></tr>
         <tr><td><strong>投机解码</strong></td><td>DeepSeek 首创 MTP</td><td>行业跟进</td><td>GLM MTP+KVShare +20%</td><td>正在成为 MoE 模型标配</td></tr>
         <tr><td><strong>推理时计算</strong></td><td>o1 隐藏推理链（黑盒）</td><td>R1 公开推理链（白盒）<br>Qwen3 开关式</td><td>GLM-5.2 分级式</td><td>越来越强调用户可控和粒度精细</td></tr>
-        <tr><td><strong>长上下文</strong></td><td>YaRN 扩展（能跑 128K）</td><td>MLA 压缩 / Lightning 4M 极限</td><td>IndexShare + 编码Agent 专项训练</td><td>不再比"谁更长"，比"谁更可靠"</td></tr>
+        <tr><td><strong>长上下文</strong></td><td>YaRN 扩展（能跑 128K）</td><td>Lightning 4M 极限（外推）</td><td>IndexShare/MSA 1M 实测可用</td><td>不再比"谁更长"，比"谁更可靠"</td></tr>
       </tbody>
     </table>
   </div>
@@ -874,7 +879,7 @@
   </div>
 
   <div class="hbox success">
-    <strong>方法论：</strong>基于 DeepSeek 47 个职位 × GLM-5.2 × Qwen3 × MiniMax-01 × 训练推理全流程交叉验证，按出现频率和深度确定权重。第一梯队占 60% 精力，第二梯队 30%，第三梯队 10%。
+    <strong>方法论：</strong>基于 DeepSeek 47 个职位 × GLM-5.2 × Qwen3 × MiniMax M3 × 训练推理全流程交叉验证，按出现频率和深度确定权重。第一梯队占 60% 精力，第二梯队 30%，第三梯队 10%。
   </div>
 
   <div class="roadmap-grid">
@@ -995,7 +1000,7 @@
   </div>
 
   <table>
-    <thead><tr><th>知识点</th><th class="center"><span class="tag ds">DS</span></th><th class="center"><span class="tag gl">GLM</span></th><th class="center"><span class="tag qw">Qwen</span></th><th class="center"><span class="tag mm">MM</span></th><th class="center">权重</th></tr></thead>
+    <thead><tr><th>知识点</th><th class="center"><span class="tag ds">DS</span></th><th class="center"><span class="tag gl">GLM</span></th><th class="center"><span class="tag qw">Qwen</span></th><th class="center"><span class="tag mm">M3</span></th><th class="center">权重</th></tr></thead>
     <tbody>
       <tr><td>RL / 对齐（PPO/DPO/GRPO）</td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center">—</td><td class="center"><span class="tier t1">⭐⭐⭐</span></td></tr>
       <tr><td>MoE 分布式训练</td><td class="center"><span class="check">✅</span></td><td class="center"><span class="check">✅</span></td><td class="center">—</td><td class="center"><span class="check">✅</span></td><td class="center"><span class="tier t1">⭐⭐⭐</span></td></tr>
@@ -1031,8 +1036,8 @@
 
 <!-- ═══════════════ Footer ═══════════════ -->
 <div class="footer">
-  <p>基于 <a href="https://z.ai/blog/glm-5.2" target="_blank">GLM-5.2 技术博客</a> · <a href="https://docs.bigmodel.cn/cn/guide/models/text/glm-5.2" target="_blank">GLM-5.2 官方文档</a> · <a href="https://app.mokahr.com/social-recruitment/high-flyer/140576#/jobs" target="_blank">DeepSeek 招聘</a> · MiniMax-01 · Qwen3 交叉分析</p>
-  <p style="margin-top:4px">生成时间：2026-06-23</p>
+  <p>基于 <a href="https://z.ai/blog/glm-5.2" target="_blank">GLM-5.2 博客</a> · <a href="https://www.minimax.io/blog/minimax-m3" target="_blank">MiniMax M3 博客</a> · <a href="https://app.mokahr.com/social-recruitment/high-flyer/140576#/jobs" target="_blank">DeepSeek 招聘</a> · <a href="https://arxiv.org/abs/2606.13392" target="_blank">MSA</a> · <a href="https://arxiv.org/abs/2603.12201" target="_blank">IndexShare</a> · <a href="https://arxiv.org/abs/2501.08313" target="_blank">MiniMax-01</a> · <a href="https://arxiv.org/abs/2405.04434" target="_blank">DeepSeek-V2</a> · <a href="https://arxiv.org/abs/2412.19437" target="_blank">DeepSeek-V3</a></p>
+  <p style="margin-top:4px">生成时间：2026-06-25</p>
 </div>
 </div>
 </body>
