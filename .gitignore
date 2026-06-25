@@ -28,7 +28,9 @@ inbox/*.md
 archive/*.md
 # ai-general-notes 下文件名包含 ethan（大小写不敏感）
 knowledge/ai-general-notes/*[Ee][Tt][Hh][Aa][Nn]*
-notes/SkillYourAllYouNeed_202606*
+# notes 目录内容（保留 .gitkeep 维持目录结构）
+notes/*
+!notes/.gitkeep
 
 .qoder/repowiki/*
 # 废弃的 PRD 版本
