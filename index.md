@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-06-15
+> 最后更新：2026-06-26
 
 ## 目录
 
@@ -28,6 +28,7 @@
 | HappyHorse / 快乐小马 / 图像生成 | [HappyHorse](knowledge/alibaba/maas/happyhorse.md) |
 | 百炼平台 / 多账号 / TPM 扩量 / 限流 | [百炼平台](knowledge/alibaba/maas/overview.md) |
 | Qoder / AI 编程 / IDE 插件 | [Qoder](knowledge/alibaba/ai-coding/qoder.md) |
+| Qoder 架构 / Harness 逆向 / 执行日志分析 | [Qoder IDE 架构逆向分析](knowledge/alibaba/ai-coding/qoder_survey_20260622.md) |
 | QoderWork / 桌面助手 / 本地 Agent | [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) |
 | MuleRun / 骡子快跑 / 云端 Agent / vs QoderWork | [MuleRun](knowledge/alibaba/ai-application/mulerun.md) |
 | GPU 选型 / A100 / H100 / H20 | [GPU 选型决策树](knowledge/alibaba/ai-infra/gpu-product-line.md) ⭐ |
@@ -49,6 +50,7 @@
 | DeepSeek / R1 / V4 / 开源 | [DeepSeek](knowledge/deepseek/general_intro.md) ⭐ |
 | Hy3-preview / 腾讯混元 / Hunyuan | [Hy3-preview](knowledge/tencent/hy3-preview.md) |
 | Qwen vs Hy3 / 混元竞争分析 | [Qwen3.7 vs Hy3-preview](knowledge/alibaba/competitive-analysis/qwen-vs-hy3/overview.md) |
+| Qwen vs Doubao / 豆包竞争分析 | [Qwen3.7-Max vs Doubao-Seed-2.1 Pro](knowledge/alibaba/competitive-analysis/qwen-vs-doubao/overview.md) |
 | MiniMax / M3 / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
 | Kimi / 月之暗面 / Moonshot / K2.6 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
 | GLM / 智谱 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) |
@@ -65,6 +67,7 @@
 - [Harness](knowledge/ai-general-notes/harness.md) ⭐ — 企业战略级资产、约束治理层、Harness vs Prompt 区别、调用层容量与限流治理、Agent=Model+Harness 公式演进史、Model-Harness 协同演进厂商对比
 - [Agent 框架](knowledge/ai-general-notes/agent-frameworks.md) — LangChain / LangGraph / Deep Agents 三层递进架构、选型决策树、与闭源 Deep Agent 产品关系
 - [Prompt Engineering](knowledge/ai-general-notes/prompt-engineering.md) ⭐ — 防幻觉四层机制、第一性原理、博弈论应用
+- [推理深度控制](knowledge/ai-general-notes/reasoning-effort.md) — reasoning_effort / thinking_budget 已成推理模型标配，Agent 场景动态调节策略
 - [AI Agent Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) ⭐ — 三维度评估框架：操作执行力（SWE-bench Pro / Terminal-Bench / OSWorld）+ 学术推理力（HLE）+ 知识工作力（GDPval-AA）
 
 ### 概念洞察类（关键认知框架）
@@ -92,6 +95,7 @@
 
 **AI Coding**
 - [Qoder](knowledge/alibaba/ai-coding/qoder.md) — IDE 插件、AI 编程
+- [Qoder IDE 架构逆向分析](knowledge/alibaba/ai-coding/qoder_survey_20260622.md) — 基于执行日志逆向 Agent=Model+Harness 五子系统架构
 
 **AI App**
 - [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) — 桌面 Agent、本地
@@ -152,6 +156,10 @@
 - 公司分析: [月之暗面公司分析](knowledge/moonshot/general_intro.md) — 2023 成立、估值 >$200 亿、累计融资超 376 亿元、ARR >$2 亿
 - 模型系列: [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) — K2 / K2.5 / K2.6，**K2.6 Agent Swarm（300 子 Agent）、13 小时长周期编码**
 
+### 字节跳动
+
+- 模型系列: [Doubao-Seed-2.1](knowledge/bytedance/doubao-seed-2.1.md) — Pro（旗舰）/ Turbo（轻量），Coding+Agent 时代生产级模型，GDPval 最高分
+
 ### 腾讯混元（Tencent Hunyuan）
 
 - 模型: [Hy3-preview](knowledge/tencent/hy3-preview.md) — 295B MoE/21B 激活，OpenRouter 工具调用 #1，SWE-bench 74.4%，开源可自部署，价格碾压
@@ -162,6 +170,7 @@
 
 - [Qoder vs Trae](knowledge/alibaba/competitive-analysis/qoder-vs-trae/overview.md) ⭐ — 企业级 vs 个人开发者定位差异
 - [Qwen3.7 vs Hy3-preview](knowledge/alibaba/competitive-analysis/qwen-vs-hy3/overview.md) — 1M上下文+深度编码+多模态 vs 性价比+开源部署，SA 打法建议
+- [Qwen vs Doubao](knowledge/alibaba/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先（TB 2.1 +3.5, SWE-Pro +3.1）+ 1M 上下文 vs Agent 规划更强，SA 打法建议
 
 ---
 
