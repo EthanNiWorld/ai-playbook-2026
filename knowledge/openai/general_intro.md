@@ -76,6 +76,7 @@ OpenAI的使命宣言在9年间（2015-2025）历经6次修改[reference:13][ref
 | **GPT-5.3-Codex** | 2026年2月6日 | 编程专项模型[reference:30] |
 | **GPT-5.4** | 2026年3月 | 最新旗舰模型，首次具备**原生电脑操控能力**（Native Computer Use），可自动执行点击、填表、跨软件导航等操作任务[reference:31] |
 | **GPT-5.5** | 2026年4月23日 | 最新迭代版本，面向Plus、Pro、Business和Enterprise用户开放[reference:32] |
+| **GPT-5.6 系列** | 2026年6月26日 | 三模型分层架构：Sol（旗舰推理）/ Terra（均衡通用）/ Luna（经济轻量），另有 Sol Ultra 高算力模式。TerminalBench 2.1 最高 91.9%（Sol Ultra），HealthBench Pro 60.5。**有限预览中**，约 20 家经美国政府审批的合作伙伴可用[来源: OpenAI 官方博客, System Card] |
 
 **已退役模型**（2026年2月13日生效）：GPT-4o、GPT-4.1、GPT-4.1 mini、o4-mini、GPT-5 Instant、GPT-5 Thinking等[reference:33]
 

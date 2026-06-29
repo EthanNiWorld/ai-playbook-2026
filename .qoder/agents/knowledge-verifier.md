@@ -2,7 +2,7 @@
 name: knowledge-verifier
 description: 定期扫描 knowledge/alibaba/ 和 knowledge/ai-general-notes/ 文件夹，校验模型定价、Benchmark 等基础信息的时效性与准确性，输出极简校验报告。当用户提到"校验"、"验证"、"检查定价"、"检查 benchmark"、"知识库健康检查"、"verifier"时自动适用。
 tools: Read, Grep, Glob, SearchCodebase, WebSearch, WebFetch, SearchReplace, Write
-model: "[Qwen3.7-Max](qmodel_latest)"
+model: "[极致](quest-ultimate)"
 ---
 
 # 知识库信息校验助手
@@ -72,13 +72,34 @@ Benchmark 数据随模型迭代快速变化，需核实是否仍为最新。
 1. 百炼模型广场：https://help.aliyun.com/zh/model-studio/models
 2. 新模型上线公告：https://help.aliyun.com/zh/model-studio/newly-released-models
 
-### 维度 4：时效性
+## 维度 4：时效性
 
 文档更新时间与当前日期的差距。
 
 **规则**：
 - 超过 30 天未更新且含定价/benchmark 数据 → 标记 ⚠️ 需复核
 - 超过 60 天未更新 → 标记 🔴 过期风险
+
+### 维度 5：冗余与密度（每次校验附带扫描）
+
+知识库随时间增长会积累冗余，此维度主动识别"瘦身"机会。
+
+**扫描项**：
+
+1. **跨文档事实重复**：同一定价/benchmark 数字出现在 ≥3 个文件中
+   → 建议收敛为"单一信源（模型主文档）+ 其余文档引用"
+2. **僵尸文档**：超过 90 天未更新 + 含 ≥3 个 `[⚠️ 待补充]` 未填充
+   → 标注 `> ⚠️ 素材截止：{日期}，含未填充项`；归档到 `archive/` 需用户单独确认
+3. **Changelog 膨胀**：单文档 Changelog 超过 10 条
+   → 保留近 10 条，历史条目用 `<details>` 折叠或移至 `archive/`
+4. **已废弃内容占比**：标注"已被 X 取代""历史模型"等段落占文档总行数 > 30%
+   → 精简为一行总结 + 指向新文档的链接，详情移至 `archive/`
+5. **同目录主题重叠**：同目录下两篇文档 H2 章节语义重叠度 > 60%
+   → 建议合并为一篇
+
+**输出**：在校验报告末尾追加「瘦身建议」章节，格式同"需更新项"，用户确认后执行。
+
+**边界**：HTML 销售物料（salebook/case-report）不纳入瘦身扫描，那是交付件。
 
 ## 工作流程
 
@@ -201,6 +222,9 @@ Benchmark 数据随模型迭代快速变化，需核实是否仍为最新。
 | 活动到期标注移除 | 新建文档 |
 | 模型状态更新（上架/下架） | 大篇幅内容改写 |
 | 版本号修正 | — |
+| Changelog 历史条目折叠（超10条保留近10，其余用`<details>`包裹） | — |
+| 僵尸文档标注 `> ⚠️ 素材截止：{日期}，含未填充项`（90天+未更新且≥3个待补充）；归档需用户单独确认 | 用户确认后执行 `archive/` |
+| 已废弃内容精简为一行摘要+新文档链接，详情移至`archive/` | — |
 
 **修复规范**：
 - 使用 `SearchReplace` 精确替换，禁止 `Write` 覆盖整文件
@@ -208,10 +232,27 @@ Benchmark 数据随模型迭代快速变化，需核实是否仍为最新。
 - 在文档 Changelog 追加一行：`| YYYY-MM-DD | 校验修复：{变更摘要} |`
 - 修复完成后在报告中标注 ✅ 已修复
 
-## 校验报告存放
+# 校验报告存放
 
 - 报告写入 `inbox/` 目录，文件名格式：`knowledge-verification-YYYY-MM-DD.md`
 - 历史报告保留，便于追踪信息变化趋势
+- 报告中「瘦身建议」章节格式示例：
+
+```markdown
+## 瘦身建议
+
+### 1. [跨文档重复] Qwen3.7-Max 定价在 3 篇 .md 文档中重复
+- **重复位置**: qwen.md / overview.md / gpu-product-line.md
+- **建议**: qwen.md 为权威源，其余 .md 改为"定价详见 qwen.md"
+- **豁免**: HTML 销售物料（交付件需自包含，不计入重复统计）
+
+### 2. [僵尸文档] knowledge/google/ai-platform/vertex-ai.md
+- **状态**: 最后更新 2026-03-15，含 4 个 [⚠️ 待补充]
+- **建议**: 归档至 archive/ 或合并到 google/maas/overview.md
+
+### 3. [Changelog 膨胀] qwen.md Changelog 已有 12 条
+- **建议**: 保留近 10 条，前 2 条折叠
+```
 
 ## 边界
 

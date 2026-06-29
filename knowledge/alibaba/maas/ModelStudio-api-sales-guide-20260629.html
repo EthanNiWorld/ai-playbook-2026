@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Studio API 销售快速指南</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap');
+
+  :root {
+    --primary: #4f46e5;
+    --primary-light: #818cf8;
+    --primary-dark: #3730a3;
+    --accent: #06b6d4;
+    --success: #059669;
+    --warning: #d97706;
+    --surface: #ffffff;
+    --surface-alt: #f8fafc;
+    --text: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --border: #e2e8f0;
+    --radius: 16px;
+    --shadow-sm: 0 2px 8px rgba(79,70,229,0.06);
+    --shadow-md: 0 8px 30px rgba(79,70,229,0.10);
+    --shadow-lg: 0 20px 60px rgba(79,70,229,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(180deg, #e0e7ff 0%, #eef2ff 40%, #f8fafc 100%);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 920px;
+    margin: 0 auto;
+    background: var(--surface);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 20px 60px rgba(0,0,0,0.08);
+    border-radius: 0 0 24px 24px;
+    overflow: hidden;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #0f0a2e 0%, #1e1b4b 30%, #312e81 60%, #4338ca 100%);
+    color: #fff;
+    padding: 56px 56px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -20%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(129,140,248,0.25) 0%, transparent 60%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30%; left: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 60%);
+    border-radius: 50%;
+    animation: float 10s ease-in-out infinite reverse;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 24px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    margin-bottom: 20px;
+    color: rgba(255,255,255,0.9);
+    position: relative; z-index: 1;
+    animation: fadeInUp 0.6s ease-out;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: #34d399;
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1.3;
+    margin-bottom: 14px;
+    position: relative; z-index: 1;
+    letter-spacing: -0.5px;
+    animation: fadeInUp 0.6s ease-out 0.1s both;
+  }
+  .hero h1 .highlight {
+    background: linear-gradient(90deg, #c4b5fd, #67e8f9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    font-size: 15px;
+    color: rgba(255,255,255,0.75);
+    max-width: 620px;
+    position: relative; z-index: 1;
+    line-height: 1.7;
+    font-weight: 300;
+    animation: fadeInUp 0.6s ease-out 0.2s both;
+  }
+
+  /* Content */
+  .content { padding: 48px 56px 56px; }
+
+  /* Section title */
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--primary);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::before {
+    content: '';
+    width: 20px; height: 2.5px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 2px;
+  }
+
+  /* Principle cards */
+  .principle-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .principle-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .principle-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .principle-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .principle-card:hover::before { opacity: 1; }
+  .principle-card .icon { font-size: 28px; margin-bottom: 10px; }
+  .principle-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .principle-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+  /* Notice */
+  .notice {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 1px solid #fde68a;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 48px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    box-shadow: 0 4px 16px rgba(217,119,6,0.08);
+  }
+  .notice-icon {
+    font-size: 18px; flex-shrink: 0;
+    width: 32px; height: 32px;
+    background: rgba(217,119,6,0.1);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .notice h3 { font-size: 14px; font-weight: 700; color: #92400e; margin-bottom: 4px; }
+  .notice p { font-size: 13px; color: #78350f; line-height: 1.7; }
+
+  /* Model table */
+  .model-section { margin-bottom: 48px; }
+  .model-subsection {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .model-subsection::before {
+    content: '';
+    width: 4px; height: 4px;
+    background: var(--primary);
+    border-radius: 50%;
+  }
+  .table-wrap {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    background: var(--surface-alt);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    color: var(--text-secondary);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #f5f3ff; }
+  .model-name { font-weight: 700; color: var(--text); }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    margin-left: 6px;
+  }
+  .badge-plus { background: #dbeafe; color: #1e40af; }
+  .badge-max { background: #ede9fe; color: #5b21b6; }
+  .badge-green { background: #d1fae5; color: #065f46; }
+  .badge-orange { background: #fed7aa; color: #9a3412; }
+
+  /* Selection formula */
+  .formula {
+    background: linear-gradient(135deg, var(--surface-alt), #eef2ff);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .formula h4 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+  .formula ul { list-style: none; padding: 0; }
+  .formula li {
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .formula li::before { content: "→"; color: var(--primary); font-weight: 700; }
+  .formula li strong { color: var(--primary-dark); }
+  .formula .hint {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* PTU section */
+  .ptu-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+  }
+  .ptu-card {
+    background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+    border: 1px solid #c7d2fe;
+    border-radius: var(--radius);
+    padding: 24px 16px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .ptu-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+  .ptu-card .emoji { font-size: 28px; margin-bottom: 8px; }
+  .ptu-card .label { font-size: 14px; font-weight: 700; color: var(--primary-dark); }
+  .ptu-card .desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
+
+  /* Scenario cards */
+  .scenario-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .scenario-card {
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .scenario-card:hover { transform: translateY(-4px); }
+  .scenario-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+  }
+  .scenario-card .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .scenario-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; position: relative; }
+  .scenario-card p { font-size: 12px; line-height: 1.7; opacity: 0.9; position: relative; }
+  .sc-wan { background: linear-gradient(135deg, #312e81, #6366f1); box-shadow: 0 8px 32px rgba(99,102,241,0.3); }
+  .sc-hh { background: linear-gradient(135deg, #0c6478, #06b6d4); box-shadow: 0 8px 32px rgba(6,182,212,0.3); }
+
+  /* CTA */
+  .cta {
+    text-align: center;
+    padding: 36px 24px;
+    background: linear-gradient(135deg, #f8fafc, #eef2ff, #f5f3ff);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+  .cta p { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+  .cta strong { color: var(--text); }
+  .cta .links {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .cta .links a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+  .cta .links a:hover { color: var(--primary-dark); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 24px 56px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--surface-alt);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero, .content { padding-left: 20px; padding-right: 20px; }
+    .hero h1 { font-size: 24px; }
+    .principle-grid, .ptu-grid { grid-template-columns: 1fr; }
+    .scenario-grid { grid-template-columns: 1fr; }
+    table { font-size: 12px; }
+    thead th, tbody td { padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">📋 Model Studio · API 销售快速指南</div>
+    <h1><span class="highlight">百炼 API</span> 产品线速览</h1>
+    <p class="hero-sub">一套 API Key 调用多家模型，OpenAI 兼容协议，涵盖 LLM 推理、视觉分析、视频生成全场景。适合快速了解产品线与选型决策。</p>
+  </div>
+
+  <div class="content">
+
+    <!-- 核心原则 -->
+    <div class="section-title">核心销售原则 Core Principle</div>
+    <div style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid #c7d2fe;border-radius:var(--radius);padding:28px 28px 24px;margin-bottom:48px;box-shadow:var(--shadow-sm);">
+      <div style="font-size:20px;font-weight:800;color:var(--primary-dark);margin-bottom:6px;">永远推荐当前最新版本模型</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Always recommend the latest model version</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--surface);border-radius:12px;border:1px solid var(--border);">
+          <span style="font-size:18px;flex-shrink:0;">①</span>
+          <div><strong style="color:var(--text);">能力更强</strong> — <span style="color:var(--text-secondary);font-size:13px;">新模型 benchmark 全面领先，客户体验立竿见影</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--surface);border-radius:12px;border:1px solid var(--border);">
+          <span style="font-size:18px;flex-shrink:0;">②</span>
+          <div><strong style="color:var(--text);">老模型不打折</strong> — <span style="color:var(--text-secondary);font-size:13px;">历史版本不降价，花同样的钱不如直接用新的</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--surface);border-radius:12px;border:1px solid var(--border);">
+          <span style="font-size:18px;flex-shrink:0;">③</span>
+          <div><strong style="color:var(--text);">老模型无法扩容</strong> — <span style="color:var(--text-secondary);font-size:13px;">资源优先保障新模型，老版本限流无扩容路径</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice">
+      <div class="notice-icon">💡</div>
+      <div>
+        <h3>成本敏感场景</h3>
+        <p>可开通阿里云国际站账号，调用北京节点模型，适合海外客户或需要额外吞吐补充的场景。</p>
+      </div>
+    </div>
+
+    <!-- LLM 产品线 -->
+    <div class="model-section">
+      <div class="section-title">LLM 产品线推荐 LLM Product Line</div>
+
+      <div class="model-subsection">Qwen 系列（自研主力）</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>模型</th><th>适用场景</th><th>特点</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="model-name">Qwen3.7-Plus</span><span class="badge badge-plus">性价比之王</span></td>
+              <td>对话、客服、实时交互<br>VL 视觉分析</td>
+              <td>多模态（图/视频/屏幕）<br>1M 上下文 · 响应快</td>
+            </tr>
+            <tr>
+              <td><span class="model-name">Qwen3.7-Max</span><span class="badge badge-max">旗舰Agent</span></td>
+              <td>长任务（>3秒出结果）<br>PPT生成 · 调研分析<br>AI Coding · Agentic应用</td>
+              <td>旗舰推理 · 1M 上下文<br>35h 自主运行 · Agent 最强</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="formula">
+        <h4>选型口诀</h4>
+        <ul>
+          <li>需要<strong>秒级响应</strong>（对话 / 客服 / VL 识别）→ <strong>Plus</strong></li>
+          <li>需要<strong>深度思考</strong>（代码 / 分析 / Agent / 长链路任务）→ <strong>Max</strong></li>
+        </ul>
+        <div class="hint">90% 客户用 Plus 就够了，Max 是极端场景的旗舰保障</div>
+      </div>
+
+      <div class="model-subsection">第三方模型（百炼同样支持）</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>模型</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="model-name">GLM-5.2（智谱）</td><td>百炼直接调用，无需对接智谱独立接口</td></tr>
+            <tr><td class="model-name">DeepSeek-V4</td><td>高性价比推理模型，百炼直接调用</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:8px;padding-left:4px;">百炼统一入口 = 一套 API Key 调多家模型，OpenAI 兼容协议，迁移零成本。</div>
+    </div>
+
+    <!-- API 计费模式 -->
+    <div class="model-section">
+      <div class="section-title">LLM API 计费模式 Billing Modes</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>模式</th><th>适用场景</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="model-name">按量付费</span><span class="badge badge-green">默认</span></td>
+              <td>用量波动、初期验证</td>
+              <td>按 Token 用量计费，弹性伸缩<br><span style="font-size:11px;color:var(--warning);">扩容需联系商务经理 T+1 按需申请</span></td>
+            </tr>
+            <tr>
+              <td><span class="model-name">TPM 预留</span><span class="badge badge-orange">稳定</span></td>
+              <td>恒定吞吐<br>核心业务不接受限流</td>
+              <td>预留固定 TPM 额度，保障吞吐稳定性<br>与按量付费共享算力池，适合生产环境关键链路</td>
+            </tr>
+            <tr>
+              <td><span class="model-name">PTU</span><span class="badge badge-max">高性能</span></td>
+              <td>高吞吐 + 极致延迟</td>
+              <td>Provisioned Throughput Unit · <strong>专属算力池</strong><br><strong style="color:var(--primary);">1.5~2× Token/秒 生成速度</strong>，资源独占不受共享池波动</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="notice" style="background:linear-gradient(135deg,#fef3c7,#fffbeb);margin-bottom:16px;">
+        <div class="notice-icon">⚠️</div>
+        <div>
+          <h3>PTU / TPM 预留支持的模型</h3>
+          <p>Qwen3.7-Max、Qwen3.7-Plus、GLM-5.1、DeepSeek-V4 等核心模型。</p>
+        </div>
+      </div>
+
+      <div class="model-subsection" style="margin-top:16px;">PTU 核心优势</div>
+      <div class="ptu-grid">
+        <div class="ptu-card">
+          <div class="emoji">🚀</div>
+          <div class="label">高速</div>
+          <div class="desc">生成速度达标准 API 的 1.5~2 倍</div>
+        </div>
+        <div class="ptu-card">
+          <div class="emoji">🔒</div>
+          <div class="label">独占</div>
+          <div class="desc">专属资源，不受共享池波动</div>
+        </div>
+        <div class="ptu-card">
+          <div class="emoji">📈</div>
+          <div class="label">可预测</div>
+          <div class="desc">固定吞吐，SLA 承诺保障</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 视频生成 -->
+    <div class="model-section">
+      <div class="section-title">视频生成产品线 Video Generation</div>
+      <div class="scenario-grid">
+        <div class="scenario-card sc-wan">
+          <div class="tag">通用视频</div>
+          <h4>Wan2.7 系列</h4>
+          <p>短视频、营销素材、产品展示<br>支持 T2V / I2V / R2V / 视频编辑<br>全链路覆盖</p>
+        </div>
+        <div class="scenario-card sc-hh">
+          <div class="tag">电商首选</div>
+          <h4>HappyHorse 1.1</h4>
+          <p>电商广告、商品视频、多语言营销<br>7 语言口型同步 · 音视频联合生成<br>Artificial Analysis 盲测双冠</p>
+        </div>
+      </div>
+      <div class="formula">
+        <h4>选型口诀</h4>
+        <ul>
+          <li><strong>通用视频创作 / 短视频 / 产品展示</strong> → Wan2.7</li>
+          <li><strong>电商广告 / 商品视频 / 多语言批量</strong> → HappyHorse 1.1（效果更优）</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+      <p>如需更详细的技术选型或专属报价方案，请联系<strong>阿里云商务团队</strong>或<strong>AI架构师</strong></p>
+      <div class="links" style="margin-top:14px;">
+        <a href="https://bailian.console.alibabacloud.com" target="_blank">Model Studio 控制台</a> &middot;
+        <a href="https://www.alibabacloud.com/help/en/model-studio/models" target="_blank">模型广场</a> &middot;
+        <a href="https://www.alibabacloud.com/help/en/model-studio/model-pricing" target="_blank">API 定价</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    阿里云 Model Studio · API 销售快速指南 · 2026年6月
+  </div>
+
+</div>
+</body>
+</html>

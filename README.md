@@ -104,7 +104,7 @@ mindmap
       DeepSeek
         V4 对话 / R1 推理
       OpenAI
-        GPT-5.5 / GPT-5.4 / GPT-5.3-Codex
+        GPT-5.6 Sol/Terra/Luna / GPT-5.5 / GPT-5.4
         Codex App: 多 Agent 编排平台
       Microsoft AI
         MAI-Thinking-1 / MAI-Code-1-Flash

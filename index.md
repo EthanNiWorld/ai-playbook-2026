@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-06-26
+> 最后更新：2026-06-29
 
 ## 目录
 
@@ -45,8 +45,8 @@
 | MSA / 稀疏注意力 / MiniMax 架构 | [MSA 稀疏注意力](knowledge/minimax/msa-sparse-attention.md) |
 | Claude / Opus 4.8 / Sonnet / Haiku | [Claude API](knowledge/anthropic/claude-api.md) |
 | Claude Code / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) |
-| Gemini / Google | [Gemini](knowledge/google/maas/gemini.md) |
-| GPT-5 / ChatGPT / OpenAI / Codex | [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
+| Gemini / Google / Computer Use | [Gemini](knowledge/google/maas/gemini.md) |
+| GPT-5 / GPT-5.6 / ChatGPT / OpenAI / Codex | [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
 | MAI / 微软自研 / Copilot 模型 | [MAI 模型家族](knowledge/microsoft/mai-models.md) |
 | DeepSeek / R1 / V4 / 开源 | [DeepSeek](knowledge/deepseek/general_intro.md) ⭐ |
 | Hy3-preview / 腾讯混元 / Hunyuan | [Hy3-preview](knowledge/tencent/hy3-preview.md) |
@@ -112,7 +112,7 @@
 
 **MaaS**
 - [Gemini Enterprise Agent Platform](knowledge/google/maas/overview.md)
-- [Gemini](knowledge/google/maas/gemini.md) — 3.1 Pro（当前旗舰） / 3.5 Flash（Agent/Coding 性价比率先，含 benchmark 对比）
+- [Gemini](knowledge/google/maas/gemini.md) — 3.1 Pro（当前旗舰） / 3.5 Flash（Agent/Coding 性价比率先，**6/24 新增 Computer Use**，含 benchmark 对比）
 
 **AI Platform**
 - [Vertex AI → Agent Platform](knowledge/google/ai-platform/vertex-ai.md) — 训练/部署/Agent
@@ -127,7 +127,7 @@
 ### OpenAI
 
 - 公司分析: [OpenAI 公司分析](knowledge/openai/general_intro.md) — GPT-5 系列、ChatGPT、Native Computer Use
-- 模型系列: [GPT-5 系列](knowledge/openai/gpt-5-series.md) — GPT-5 / 5.2 / 5.3 / 5.4 / 5.5
+- 模型系列: [GPT-5 系列](knowledge/openai/gpt-5-series.md) — GPT-5 / 5.2 / 5.3 / 5.4 / 5.5 / **5.6（Sol/Terra/Luna，有限预览）**
 - AI Coding: [Codex](knowledge/openai/codex.md) — 多形态 AI 编程 Agent 平台（CLI/IDE/Web/桌面），多 Agent 编排
 
 ### Microsoft AI (MAI)

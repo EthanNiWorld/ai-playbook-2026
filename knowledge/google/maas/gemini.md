@@ -1,13 +1,13 @@
 # Gemini
 
-> 最后更新: 2026-06-09
+> 最后更新: 2026-06-29
 > 所属厂商: GCP
 > 产品类别: MaaS
 
 **定位**: Google 自研多模态大模型系列，原生支持文本+图像+音频+视频多模态输入输出
-**适用**: 多模态理解与生成、企业知识管理、Agent 基础模型、代码生成
+**适用**: 多模态理解与生成、企业知识管理、Agent 基础模型、代码生成、计算机操控
 **不适用**: 需要私有化部署的场景（Gemini 仅通过 API / GCP 平台提供）
-**当前主推**: Gemini 3.x 系列，当前旗舰 Gemini 3.1 Pro（2026.02.19 发布，推理与知识密度最强），I/O 2026 发布 Gemini 3.5 Flash（Flash 速度 + 超越 3.1 Pro 的 Agent/Coding，4x 推理速度）、Gemini Omni Flash（原生音视频），Gemini 3.5 Pro 预计 2026.06 发布
+**当前主推**: Gemini 3.x 系列，当前旗舰 Gemini 3.1 Pro（2026.02.19 发布，推理与知识密度最强），I/O 2026 发布 Gemini 3.5 Flash（Flash 速度 + 超越 3.1 Pro 的 Agent/Coding，4x 推理速度，**6/24 新增 Computer Use 内置工具**）、Gemini Omni Flash（原生音视频），Gemini 3.5 Pro 预计 2026.06 发布
 
 ## 当前主推模型
 
@@ -32,6 +32,7 @@
 | **原生多模态** | 文本+图像+音频+视频统一理解与生成，不需要拼接多个模型 |
 | **超长上下文** | 1M+ tokens，支持整仓库代码/超长文档一次性分析 |
 | **Agent 基座** | Gemini Enterprise Agent Platform 的核心引擎，ADK 2.0 默认模型 |
+| **Computer Use** | 3.5 Flash 内置计算机操控工具（2026.06.24），可跨浏览器/桌面/移动端自主操作 UI |
 | **TPU 原生优化** | 在 TPU 8t/8i 上推理效率极致优化，推理性价比领先 |
 | **MCP 原生支持** | 通过 MCP 协议调用 GCP 全系服务 |
 
@@ -105,6 +106,25 @@ Google 将前沿能力线压到 Flash 层级，打破"Pro=难题, Flash=跑量"�
 - **3.5 Flash** 优化工具调用链路 & 长程规划 → Agent 场景占优
 - Finance Agent v2 的 +14.9 分暴涨是最强证据
 
+### Computer Use 能力（2026.06.24 新增）
+
+> 来源：[Google Blog — Introducing computer use in Gemini 3.5 Flash](https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-computer-use-gemini-3-5-flash/)
+
+**功能更新，非新模型发布**——底层仍为 5 月 19 日 Google I/O 2026 发布的 Gemini 3.5 Flash。
+
+| 维度 | 说明 |
+|------|------|
+| **能力** | Computer Use 成为 3.5 Flash 的内置工具（built-in tool），开发者可构建能"看、推理、行动"的 Agent |
+| **跨平台** | 支持浏览器、桌面、移动端三种环境 |
+| **前序** | 此前仅作为独立 Gemini 2.5 computer use 模型提供，现已原生集成到 Gemini Flash 主线 |
+| **交付方式** | Gemini API + Gemini Enterprise Agent Platform |
+| **OSWorld-Verified** | 78.4%（已在 benchmark 表中列出），接近 GPT-5.5 的 78.7% |
+
+**安全机制**：
+- 针对 prompt injection 风险进行定向对抗训练
+- 两个可选企业级安全防护系统：敏感/不可逆操作需显式用户确认；检测到间接 prompt injection 时自动停止任务
+- 建议结合安全沙箱、human-in-the-loop 验证和严格访问控制使用
+
 ## 适用场景
 
 ### ✅ 适用
@@ -157,6 +177,7 @@ Gemini 通过 **Gemini Enterprise Agent Platform** 统一交付（见 [`vertex-a
 ## 参考资料
 
 - [Google Blog - Gemini 3.5](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-5/)
+- [Google Blog — Introducing computer use in Gemini 3.5 Flash](https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-computer-use-gemini-3-5-flash/)
 - [Gemini 3.5 Flash Model Card](https://deepmind.google/models/model-cards/gemini-3-5-flash/)
 - [LLM Stats - Gemini 3.5 Flash Launch](https://llm-stats.com/blog/research/gemini-3.5-flash-launch)
 - [Gemini Flash 产品页](https://deepmind.google/models/gemini/flash/)
@@ -164,6 +185,7 @@ Gemini 通过 **Gemini Enterprise Agent Platform** 统一交付（见 [`vertex-a
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-06-29 | 合并：Gemini 3.5 Flash Computer Use 官网调研 — 新增 Computer Use 内置工具章节（2026.06.24 发布，跨平台支持，安全机制），核心能力表新增 Computer Use 行，当前主推描述更新 |
 | 2026-06-09 | 合并：Gemini 3.5 Flash 深度分析 — 补充 benchmark 详细对比表（vs 3.1 Pro）、定价、战略意图、Antigravity 2.0、Managed Agents、Gemini Spark、真实落地案例、诚实弱点、3.5 Pro 预期、参考资料 |
 | 2026-06-09 | 修正：Gemini 3 Pro / 3.1 Pro 版本关系——3 Pro 为上代旗舰，3.1 Pro 为当前旗舰；适用场景表同步修正 |
 | 2026-05-31 | 修正：Gemini 2.5→3.x 系列为最新代。新增 Gemini 3 Pro、3.5 Flash、Omni Flash、3.1 Pro/Flash。标注 Gemini 3.5 Pro 预计 2026.06 发布 |
