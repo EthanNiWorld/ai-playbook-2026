@@ -122,7 +122,7 @@ mindmap
         GLM-5.1 旗舰 / GLM-5
       月之暗面
         Kimi K2.6 / Agent Swarm
-字节跳动
+      字节跳动
         Doubao-Seed-2.1 Pro / Turbo
       腾讯混元
         Hy3-preview
