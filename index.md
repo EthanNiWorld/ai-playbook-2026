@@ -27,6 +27,7 @@
 | 万相 / Wan / 视频生成 / 图生视频 | [万相](knowledge/alibaba/maas/wan.md) |
 | HappyHorse / 快乐小马 / 图像生成 | [HappyHorse](knowledge/alibaba/maas/happyhorse.md) |
 | 百炼平台 / 多账号 / TPM 扩量 / 限流 | [百炼平台](knowledge/alibaba/maas/overview.md) |
+| 百炼安全 / SOC 2 / CMaaS / 数据主权 / 隔离 | [百炼安全合规](knowledge/alibaba/maas/security-compliance_cn.md) |
 | Qoder / AI 编程 / IDE 插件 | [Qoder](knowledge/alibaba/ai-coding/qoder.md) |
 | Qoder 架构 / Harness 逆向 / 执行日志分析 | [Qoder IDE 架构逆向分析](knowledge/alibaba/ai-coding/qoder_survey_20260622.md) |
 | QoderWork / 桌面助手 / 本地 Agent | [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) |
@@ -89,6 +90,7 @@
 
 **MaaS**
 - [百炼平台](knowledge/alibaba/maas/overview.md) — UID 级限流、多账号扩 TPM（8.5× 实测）、deepseek-v4-flash 压测
+- [百炼安全合规](knowledge/alibaba/maas/security-compliance_cn.md) — 算力隔离、SOC 2、ISO 42001、CMaaS、Geo-fencing、SLA
 - [Qwen](knowledge/alibaba/maas/qwen.md) — 3.7-Max / 3.7-Plus / 3.6、定价、benchmark
 - [万相](knowledge/alibaba/maas/wan.md) — 视频生成、首尾帧
 - [HappyHorse](knowledge/alibaba/maas/happyhorse.md) — 图像生成

@@ -35,6 +35,18 @@ tools: Read, Grep, Glob, Write, SearchReplace, SearchCodebase, Bash, WebSearch, 
 > 
 > **跳过**：Step 2（合并检测）、Step 3（脱敏）、Step 4（模板格式化）、Step 5（事实校验）
 
+> ⚡ **QA 问答快捷通道（售前问答、安全评估、FAQ 等问答类素材）**
+> 
+> 如果素材本身已经是结构化的问答文档（如 ai-presales-qa 输出、安全评估应答、FAQ 整理），内容已经包含结论、细节和参考链接，**无需按模板重新格式化，直接原样放入对应目录**。
+> 
+> 处理流程：
+> 1. **识别归属**：根据内容主题判断目标目录（如安全合规 → `knowledge/alibaba/maas/security-compliance_cn.md`）
+> 2. **直接移动**：将文件从 `inbox/` 移到对应的 `knowledge/{厂商}/{品类}/` 目录，保留原始内容不做改动
+> 3. **更新 index.md**：追加条目
+> 4. **归档 inbox 源文件**（用户确认后）
+> 
+> **跳过**：Step 3（脱敏）、Step 4（模板格式化）、Step 5（事实校验）——QA 内容在生成时已经过脱敏和自检
+
 ### Step 1.5 — 确认提炼范围（仅 notes/ 需要，HTML 快捷通道跳过）
 
 如果素材来源是 `notes/`：
