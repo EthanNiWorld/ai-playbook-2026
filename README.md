@@ -33,6 +33,19 @@
 
 > 新读者从这 12 篇开始，10 分钟建立 AI 技术全景认知。
 
+### 🟧 阿里云产品实战
+
+| 文档 | 一句话价值 |
+|------|-----------|
+| [百炼平台](knowledge/alibaba/maas/overview.md) | UID 级限流、多账号扩 TPM（8.5× 实测）、deepseek-v4-flash 压测 |
+| [百炼安全合规](knowledge/alibaba/maas/security-compliance_cn.md) | SOC 2 / ISO 42001 / CMaaS / Geo-fencing，企业级安全应答 |
+| [Qwen3.7 系列](knowledge/alibaba/maas/qwen.md) | Max（编码旗舰）/ Plus（性价比）/ 3.6（轻量），1M 上下文 |
+| [万相 Wan2.7](knowledge/alibaba/maas/wan.md) | 视频生成旗舰、首尾帧控制、费用估算 |
+| [Qoder](knowledge/alibaba/ai-coding/qoder.md) | 企业级 AI Coding IDE，vs Claude Code / Trae 定位差异 |
+| [GPU 产品线选型](knowledge/alibaba/ai-infra/gpu-product-line.md) | 阿里云 GPU 全线产品对比 + 场景选型决策树 |
+| [企业自建 AI 平台](knowledge/solutions/enterprise-ai-platform/overview.md) | Higress AI 网关 + 灵骏 GPU + 百炼 Fallback 完整方案 |
+| [Qoder vs Trae](knowledge/alibaba/competitive-analysis/qoder-vs-trae/overview.md) | 企业级 vs 个人开发者 AI Coding 定位差异 |
+
 ### 🟦 通识基石
 
 | 文档 | 一句话价值 |
@@ -46,13 +59,10 @@
 | [AI 公司增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) | Killer App × 企业信任 × 消费制收入，Anthropic 17 个月 47 倍 |
 | [AI Agent Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) | 三维度评估框架：操作执行力（SWE-bench/TB/OSWorld）+ 学术推理力（HLE）+ 知识工作力（GDPval-AA） |
 
-### 🟧 产品实战
+### 🔵 他厂精选
 
 | 文档 | 一句话价值 |
 |------|-----------|
-| [GPU 产品线选型](knowledge/alibaba/ai-infra/gpu-product-line.md) | 阿里云 GPU 全线产品对比 + 场景选型决策树 |
-| [企业自建 AI 平台](knowledge/solutions/enterprise-ai-platform/overview.md) | Higress AI 网关 + 灵骏 GPU + 百炼 Fallback 完整方案 |
-| [Qoder vs Trae](knowledge/alibaba/competitive-analysis/qoder-vs-trae/overview.md) | 企业级 vs 个人开发者 AI Coding 定位差异 |
 | [MiniMax Agent Team](knowledge/minimax/agent-team.md) | Leader–Worker–Verifier 对抗制衡、多 Agent runtime 设计哲学 |
 
 ---

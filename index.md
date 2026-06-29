@@ -86,18 +86,23 @@
 
 > 分组顺序：**云厂商**（阿里云 / Google）→ **海外模型厂商** → **中国模型厂商**。
 
-### 阿里云
+### 🟧 阿里云（核心阵地，15 篇深度文档）
 
-**MaaS**
+> **从底层算力到上层应用，覆盖 MaaS / AI Coding / AI App / AI Infra / 竞品对比全链路。**
+
+**MaaS（模型即服务）**
 - [百炼平台](knowledge/alibaba/maas/overview.md) — UID 级限流、多账号扩 TPM（8.5× 实测）、deepseek-v4-flash 压测
 - [百炼安全合规](knowledge/alibaba/maas/security-compliance_cn.md) — 算力隔离、SOC 2、ISO 42001、CMaaS、Geo-fencing、SLA
-- [Qwen](knowledge/alibaba/maas/qwen.md) — 3.7-Max / 3.7-Plus / 3.6、定价、benchmark
-- [万相](knowledge/alibaba/maas/wan.md) — 视频生成、首尾帧
+- [Qwen](knowledge/alibaba/maas/qwen.md) — 3.7-Max（编码旗舰）/ 3.7-Plus（性价比）/ 3.6（轻量），1M 上下文
+- [万相](knowledge/alibaba/maas/wan.md) — 视频生成旗舰、首尾帧控制
 - [HappyHorse](knowledge/alibaba/maas/happyhorse.md) — 图像生成
+- [Qwen Demo](knowledge/alibaba/maas/qwen-demo-20260420.md) · [Wan Demo](knowledge/alibaba/maas/wan-demo-20260420.md) — 产品演示素材
+- [百炼 API 销售指南](knowledge/alibaba/maas/ModelStudio-api-sales-guide-20260629.md) — 售前话术、模型选型、客户问答
 
 **AI Coding**
-- [Qoder](knowledge/alibaba/ai-coding/qoder.md) — IDE 插件、AI 编程
+- [Qoder](knowledge/alibaba/ai-coding/qoder.md) — 企业级 AI Coding IDE 插件
 - [Qoder IDE 架构逆向分析](knowledge/alibaba/ai-coding/qoder_survey_20260622.md) — 基于执行日志逆向 Agent=Model+Harness 五子系统架构
+- [Qoder Credits 省钱指南](knowledge/alibaba/ai-coding/qoder-credits-saving-tips.png) — 额度优化实战
 
 **AI App**
 - [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) — 桌面 Agent、本地
@@ -105,8 +110,13 @@
 - [龙虾家族](knowledge/alibaba/ai-application/claw-family.md)
 - [JVS Crew](knowledge/alibaba/ai-application/jvs-crew.md)
 
-**AI Infra**
+**AI Infra（GPU 算力）**
 - [GPU 产品线选型](knowledge/alibaba/ai-infra/gpu-product-line.md) ⭐ — A100/H100/H20 选型决策树
+
+**竞品对比（阿里云视角）**
+- [Qoder vs Trae](knowledge/alibaba/competitive-analysis/qoder-vs-trae/overview.md) — 企业级 vs 个人开发者定位差异
+- [Qwen3.7 vs Hy3-preview](knowledge/alibaba/competitive-analysis/qwen-vs-hy3/overview.md) — 1M上下文+深度编码+多模态 vs 性价比+开源部署
+- [Qwen vs Doubao](knowledge/alibaba/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先 + 1M 上下文优势
 
 ### Google
 
