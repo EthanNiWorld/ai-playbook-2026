@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-06-29
+> 最后更新：2026-06-30
 
 ## 目录
 
@@ -31,6 +31,7 @@
 | Qoder / AI 编程 / IDE 插件 | [Qoder](knowledge/alibaba/ai-coding/qoder.md) |
 | Qoder 架构 / Harness 逆向 / 执行日志分析 | [Qoder IDE 架构逆向分析](knowledge/alibaba/ai-coding/qoder_survey_20260622.md) |
 | QoderWork / 桌面助手 / 本地 Agent | [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) |
+| 万镜一刻 / WonderClip / AI视频创作 / 短剧 | [万镜一刻](knowledge/alibaba/ai-application/wonderclip万镜一刻.md) |
 | MuleRun / 骡子快跑 / 云端 Agent / vs QoderWork | [MuleRun](knowledge/alibaba/ai-application/mulerun.md) |
 | GPU 选型 / A100 / H100 / H20 | [GPU 选型决策树](knowledge/alibaba/ai-infra/gpu-product-line.md) ⭐ |
 | 灵骏 / 智算集群 / EFLOPS | 待补充 |
@@ -42,6 +43,7 @@
 | SWE-bench / Terminal-Bench / OSWorld / HLE / Agent 评测 | [AI Agent Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) ⭐ |
 | 长程任务 / Long Horizon / METR / 8 小时 / 策略切换 | [长程任务](knowledge/ai-general-notes/long-horizon-task.md) ⭐ |
 | 前沿模型路线 / 选型框架 / Fable 5 vs Qwen vs GPT | [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) |
+| 推测解码 / Speculative Decoding / DSpark / 推理加速 | [推测解码](knowledge/ai-general-notes/speculative-decoding.md) ⭐ |
 | MSA / 稀疏注意力 / MiniMax 架构 | [MSA 稀疏注意力](knowledge/minimax/msa-sparse-attention.md) |
 | Claude / Opus 4.8 / Sonnet / Haiku | [Claude API](knowledge/anthropic/claude-api.md) |
 | Claude Code / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) |
@@ -77,6 +79,7 @@
 - [模型自我进化](knowledge/ai-general-notes/agent-self-evolution.md) ⭐ — 模型自驱动训练、打破人工瓶颈、100+ 轮自主迭代带来 30% 效果提升
 - [长程任务](knowledge/ai-general-notes/long-horizon-task.md) ⭐ — METR 任务完成时间线、阶梯型策略切换、GLM-5.1 8 小时级 / Fable 5 天级 / K2.6 13 小时
 - [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) — 三正交轴选型框架（时间尺度 × 模态融合 × 泛化广度）
+- [推测解码](knowledge/ai-general-notes/speculative-decoding.md) ⭐ — draft-and-verify 范式、DSpark/DFlash/Eagle3 方法对比、模型+系统联合优化趋势
 - [AI Agent 记忆系统](knowledge/ai-general-notes/agent-memory.md) ⭐ — ChatGPT Dreaming V3、人脑记忆工程同构、个性化护城河
 - [AI 公司增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ — Killer App × 企业信任 × 消费制收入，Anthropic 17 个月 47 倍
 
@@ -86,7 +89,7 @@
 
 > 分组顺序：**云厂商**（阿里云 / Google）→ **海外模型厂商** → **中国模型厂商**。
 
-### 🟧 阿里云（核心阵地，15 篇深度文档）
+### 🟧 阿里云（核心阵地，16 篇深度文档）
 
 > **从底层算力到上层应用，覆盖 MaaS / AI Coding / AI App / AI Infra / 竞品对比全链路。**
 
@@ -105,6 +108,7 @@
 - [Qoder Credits 省钱指南](knowledge/alibaba/ai-coding/qoder-credits-saving-tips.png) — 额度优化实战
 
 **AI App**
+- [万镜一刻](knowledge/alibaba/ai-application/wonderclip万镜一刻.md) — 全链路AI视频创作平台，短漫剧+营销，HappyHorse+Wan，$18–$12,000/月
 - [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) — 桌面 Agent、本地
 - [MuleRun](knowledge/alibaba/ai-application/mulerun.md) — 云端 Agent、Always-On
 - [龙虾家族](knowledge/alibaba/ai-application/claw-family.md)

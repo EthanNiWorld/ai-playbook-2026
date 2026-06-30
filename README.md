@@ -1,6 +1,6 @@
 # 🌐 ai-knowledge-graph
 
-> ☁️ **以阿里云 AI 全栈为核心** · 覆盖 11 厂商 · 57 篇结构化知识文档 · 4 大知识维度：通识 · 产品 · 对比 · 方案
+> ☁️ **以阿里云 AI 全栈为核心** · 覆盖 11 厂商 · 58 篇结构化知识文档 · 4 大知识维度：通识 · 产品 · 对比 · 方案
 
 <p align="center">
   <a href="index.md"><img src="https://img.shields.io/badge/📋-全局索引-blue?style=for-the-badge" alt="全局索引"></a>
@@ -24,7 +24,7 @@
 | AI 应用平台 | [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) · [MuleRun](knowledge/alibaba/ai-application/mulerun.md) · [Claw](knowledge/alibaba/ai-application/claw-family.md) · [Claude Cowork](knowledge/anthropic/claude-cowork.md) |
 | GPU / AI 基础设施 | [GPU 选型](knowledge/alibaba/ai-infra/gpu-product-line.md) |
 | 竞品对比 | [Qoder vs Trae](knowledge/alibaba/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy3](knowledge/alibaba/competitive-analysis/qwen-vs-hy3/overview.md) · [Qwen vs Doubao](knowledge/alibaba/competitive-analysis/qwen-vs-doubao/overview.md) |
-| AI 通识概念 | [Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [推理深度控制](knowledge/ai-general-notes/reasoning-effort.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) |
+| AI 通识概念 | [Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [推理深度控制](knowledge/ai-general-notes/reasoning-effort.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [推测解码](knowledge/ai-general-notes/speculative-decoding.md) · [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) |
 | 行业方案 | [企业 AI 平台](knowledge/solutions/enterprise-ai-platform/overview.md) · [短剧出海](knowledge/solutions/vertical-short-drama/overview.md) · [商业地产](knowledge/solutions/commercial-real-estate/overview.md) · [IPC 安防](knowledge/solutions/vertical-ipc/overview.md) |
 
 ---
@@ -96,6 +96,7 @@ mindmap
       模型自我进化
       AI Agent 记忆系统
       AI 公司增长飞轮
+      推测解码与推理加速
     点:厂商与产品
       阿里云
         MaaS: Qwen3.7 / Wan / HappyHorse
@@ -112,7 +113,7 @@ mindmap
       MiniMax
         M3 旗舰 / M2.7 / Agent Team
       DeepSeek
-        V4 对话 / R1 推理
+        V4 对话 / R1 推理 / DSpark 推理加速
       OpenAI
         GPT-5.6 Sol/Terra/Luna / GPT-5.5 / GPT-5.4
         Codex App: 多 Agent 编排平台

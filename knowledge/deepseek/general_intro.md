@@ -311,6 +311,26 @@ V4-Flash 的 CSA+HCA 混合注意力架构使得单 token FLOPs 降到 V3.2 的 
 - Agent / 复杂推理场景：保持 thinking 默认，但需重新评估 TPM 预算（实际吐量约为名义配额的 20-50%）
 - V3.2 将于 **2026.07.24 完全下线**，迁移窗口明确
 
+### 9.5 DSpark：V4 推理加速模块（2026-06-27）
+
+DSpark 是 DeepSeek 联合北京大学开源的推测解码（Speculative Decoding）推理加速框架，论文全称 *"DSpark: Confidence-Scheduled Speculative Decoding with Semi-Autoregressive Generation"*。
+
+**不是新模型**，而是在 V4-Flash / V4-Pro 同一份 checkpoint 上附加推测解码模块（目标模型权重完全冻结）。HuggingFace 上的 `DeepSeek-V4-Flash-DSpark` 和 `DeepSeek-V4-Pro-DSpark` 均为"同模型 + DSpark 模块"的打包产物，MIT 许可。
+
+**两个核心创新**：
+1. **半自回归生成**：并行骨干 + 轻量顺序头（Markov/RNN Head），解决并行草稿的 suffix decay 问题
+2. **置信度调度验证**：根据草稿 token 存活概率和服务器负载动态决定验证范围，避免高并发下浪费算力
+
+**生产环境性能**（来自 DSpark 论文）：
+- V4-Flash：聚合吞吐 +51%（@80 tok/s/user SLA），单用户生成快 60%–85%
+- V4-Pro：聚合吞吐 +52%（@35 tok/s/user SLA），单用户生成快 57%–78%
+
+> 完整技术分析（含 DSpark vs DFlash vs Eagle3 对比、部署要点）见 [推测解码](../ai-general-notes/speculative-decoding.md)
+
+**配套开源**：DeepSpec（GitHub），推测解码训练评估代码库，含 DSpark / DFlash / Eagle3 三种方法。
+
+> DeepSeek 使用自研推理服务栈（PTX 级 GPU 优化 + 定制 kernel），DSpark 已直接集成到其 API 后端。第三方框架（SGLang、vLLM）的 DSpark 集成仍在推进中。
+
 ---
 
 ## 十、数据使用建议
@@ -388,6 +408,7 @@ DeepSeek 的研究主线为 **"架构创新 → 效率革命 → 推理能力涌
 | **2026.04** | 传出 **首轮融资** 消息 | 目标估值 ≥100 亿美元，拟筹 ≥3 亿美元[reference:20] |
 | **2026.05.08** | 融资估值传闻升至 **500 亿美元** | 约 3400 亿人民币[reference:3] |
 | **2026.05** | **组建 Harness 团队**，公开招募 Agent Harness PM + R&D 工程师 | 内部对标 Claude Code，项目工作名 "Code Harness"[reference:32] |
+| **2026.06.27** | 联合北大开源 **DSpark** 推测解码框架 + **DeepSpec** 代码库 | V4-Flash/Pro 推理吞吐 +51%–52%，MIT 许可 |
 
 ---
 
@@ -400,6 +421,7 @@ DeepSeek 的研究主线为 **"架构创新 → 效率革命 → 推理能力涌
 | 2026-05-27 | 合并 ai-native-expert 沉淀：新增 9.3「V4 vs V3.2 Agent 场景选型差异」，含 OpenClaw 集成、跨 turn 推理修复、DSML 工具调用格式、Agent benchmark；新增 reference 28-29 |
 | 2026-05-27 | 合并 ai-native-expert 沉淀：新增 9.4「V4-Flash：V3.2 的官方继任者与 TPM 迁移注意事项」，含官方路由切换证据、thinking mode TPM 陷阱、迁移建议；新增 reference 30-31 |
 | 2026-06-09 | 新增：§4.1 PM 文化转变注释、§9.1 Harness 团队组建、§9.2 Agent 产品化能力短板挑战、里程碑表追加 2026.05 Harness 团队条目；新增 reference 32-33 |
+| 2026-06-30 | 新增 §9.5「DSpark：V4 推理加速模块」：半自回归 + 置信度调度，V4-Flash/Pro 吞吐 +51%–52%，DeepSpec 开源；里程碑表追加 2026.06.27 DSpark 条目 |
 
 ## 参考来源
 
