@@ -25,3 +25,17 @@ alwaysApply: true
    - 读取根目录已有的文件
    - 修改根目录已有的文件
    - 在子目录中创建文件（不受此规则限制）
+
+4. **浏览器子代理截图隔离**：调用浏览器子代理（Browser Agent）时，必须在 prompt 中明确要求：
+   - 所有 `take_screenshot` 调用必须指定 `filePath` 参数，路径统一为 `/tmp/xxx.png`
+   - 禁止省略 `filePath`（省略会默认保存到工作区根目录）
+   - 示例指令："截图时请指定 filePath 为 /tmp/页面名称.png"
+
+## 背景与解决的问题
+
+> **为什么需要这条规则**：工作区根目录是 Git 仓库顶层，在此创建文件会被 `git add` 自动扫描并可能误提交。
+> Agent 在执行任务时可能自动创建配置文件、临时截图、中间产物等，用户未察觉就一并提交，污染仓库历史。
+> **Browser Agent 特殊情况**：2026-06-30 分析 wonderclip.ai 时，调用 Browser Agent 因未指定 `filePath`，
+> `take_screenshot` 默认将 4 张临时截图保存到根目录并被提交。Browser Agent 是 IDE 内置能力，
+> 不受 `.qoder/rules/` 直接约束，规则只能通过主 Agent 在 prompt 中传递给子代理。
+> **解决什么问题**：防止根目录被意外文件污染，确保所有新文件创建都经过用户确认，Browser Agent 截图强制隔离到 `/tmp/`。
