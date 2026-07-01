@@ -66,6 +66,8 @@ tools: Read, Grep, Glob, WebFetch, WebSearch, Write
 
 每次回答后，将优质内容沉淀到 inbox 目录。
 
+**日期获取（强制）**：创建或命名文件前，必须先执行 `date +%Y%m%d` 获取当天实际日期，禁止使用对话开始时的系统时间。
+
 **文件命名规范**：`inbox/ai-knowledge-by-qoder-ai-native-agent-YYYYMMDD.md`
 - 当天文件已存在则追加，用 `---` 分隔条目
 - 当天不存在则新建

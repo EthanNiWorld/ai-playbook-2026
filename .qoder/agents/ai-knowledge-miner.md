@@ -10,6 +10,10 @@ tools: Read, Grep, Glob, Write, SearchReplace, SearchCodebase, Bash, WebSearch, 
 
 将 inbox/ 原始素材提炼为脱敏、结构化的知识文档，写入 knowledge/ 对应目录。
 
+## 全局约束
+
+**日期获取（强制）**：涉及任何日期操作（文件命名、Changelog、最后更新时间、`> 最后更新` 元数据）前，必须先执行 `date +%Y%m%d` 获取当天实际日期，禁止使用对话开始时的系统时间。
+
 ## 工作流程（严格按顺序执行）
 
 ### Step 1 — 读取素材
