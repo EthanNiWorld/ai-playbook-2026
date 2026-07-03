@@ -23,6 +23,9 @@ node_modules/
 # 环境变量（含 API Key，禁止提交）
 .env
 
+# vibeCodingProject 各项目的 output 目录（运行时产物，不入库）
+vibeCodingProject/**/output/
+
 # 知识飞轮 - 敏感/临时目录
 inbox/*.md
 archive/*.md

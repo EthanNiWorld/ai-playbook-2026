@@ -25,6 +25,8 @@
 |---------|------|
 | Qwen / 通义千问 / 3.7-Plus / 3.7-Max / 旗舰 | [Qwen](knowledge/alibaba/maas/qwen.md) |
 | 万相 / Wan / 视频生成 / 图生视频 | [万相](knowledge/alibaba/maas/wan.md) |
+| CosyVoice / 语音合成 / TTS / 声音复刻 | [CosyVoice](knowledge/alibaba/maas/cosyvoice.md) |
+| FunASR / 语音识别 / ASR / 说话人分离 | [FunASR](knowledge/alibaba/maas/funasr.md) |
 | HappyHorse / 快乐小马 / 图像生成 | [HappyHorse](knowledge/alibaba/maas/happyhorse.md) |
 | 百炼平台 / 多账号 / TPM 扩量 / 限流 | [百炼平台](knowledge/alibaba/maas/overview.md) |
 | 百炼安全 / SOC 2 / CMaaS / 数据主权 / 隔离 | [百炼安全合规](knowledge/alibaba/maas/security-compliance_cn.md) |
@@ -98,6 +100,8 @@
 - [百炼安全合规](knowledge/alibaba/maas/security-compliance_cn.md) — 算力隔离、SOC 2、ISO 42001、CMaaS、Geo-fencing、SLA
 - [Qwen](knowledge/alibaba/maas/qwen.md) — 3.7-Max（编码旗舰）/ 3.7-Plus（性价比）/ 3.6（轻量），1M 上下文
 - [万相](knowledge/alibaba/maas/wan.md) — 视频生成旗舰、首尾帧控制
+- [CosyVoice](knowledge/alibaba/maas/cosyvoice.md) — TTS 主推引擎，声音复刻+声音设计+指令控制，将替代 Qwen-TTS
+- [FunASR](knowledge/alibaba/maas/funasr.md) — ASR 主推引擎，六大能力一站式语音识别，将替代 Qwen3-ASR
 - [HappyHorse](knowledge/alibaba/maas/happyhorse.md) — 图像生成
 - [Qwen Demo](knowledge/alibaba/maas/qwen-demo-20260420.md) · [Wan Demo](knowledge/alibaba/maas/wan-demo-20260420.md) — 产品演示素材
 - [百炼 API 销售指南](knowledge/alibaba/maas/ModelStudio-api-sales-guide-20260629.md) — 售前话术、模型选型、客户问答
