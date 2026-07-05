@@ -368,19 +368,31 @@ def design_voice(voice_prompt, preview_text, prefix, language):
         return f"❌ 错误: {e}", "", None
 
 
-def synthesize(voice_id, text):
-    """语音合成 —— 使用指定音色合成语音，上传 OSS 并保存到 generated_audio.json"""
+def synthesize(voice_id, text, style_instruction):
+    """语音合成 —— 使用指定音色合成语音，支持风格指令"""
     if not voice_id:
-        return "❌ 请输入 Voice ID", None
+        return "❌ 请输入 Voice ID", None, ""
     if not text:
-        return "❌ 请输入合成文本", None
+        return "❌ 请输入合成文本", None, ""
 
     try:
-        synthesizer = SpeechSynthesizer(model=TARGET_MODEL, voice=voice_id)
+        # 构建 SpeechSynthesizer 参数
+        synth_kwargs = {"model": TARGET_MODEL, "voice": voice_id}
+
+        # 风格指令通过 instruction 参数传入（非文本拼接）
+        instruction_text = ""
+        if style_instruction and style_instruction.strip():
+            instruction_text = style_instruction.strip()
+            # 去掉可能的方括号包裹
+            if instruction_text.startswith("[") and instruction_text.endswith("]"):
+                instruction_text = instruction_text[1:-1]
+            synth_kwargs["instruction"] = instruction_text
+
+        synthesizer = SpeechSynthesizer(**synth_kwargs)
         audio_data = synthesizer.call(text)
 
         if not audio_data:
-            return "❌ 合成失败：返回空音频", None
+            return "❌ 合成失败：返回空音频", None, ""
 
         rid = synthesizer.get_last_request_id()
         delay = synthesizer.get_first_package_delay()
@@ -398,12 +410,28 @@ def synthesize(voice_id, text):
             audio_url = f"上传 OSS 失败: {e}"
 
         status = f"✅ 合成成功\nRequest ID: {rid}\n首包延迟: {delay}ms\n文件大小: {len(audio_data)} bytes"
+        if instruction_text:
+            status += f"\n风格指令: {instruction_text}"
         if audio_url and not audio_url.startswith("上传"):
             status += f"\nOSS: {audio_url[:60]}..."
-        return status, out_path
+
+        # 原始 JSON（调试用）
+        raw_info = {
+            "request_id": rid,
+            "model": TARGET_MODEL,
+            "voice_id": voice_id,
+            "instruction": instruction_text or None,
+            "text": text,
+            "first_package_delay_ms": round(delay, 2),
+            "file_size_bytes": len(audio_data),
+            "audio_url": audio_url if audio_url and not audio_url.startswith("上传") else None,
+        }
+        raw_json = json.dumps(raw_info, ensure_ascii=False, indent=2)
+
+        return status, out_path, raw_json
 
     except Exception as e:
-        return f"❌ 错误: {e}", None
+        return f"❌ 错误: {e}", None, ""
 
 
 def list_voices(prefix_filter):
@@ -777,6 +805,21 @@ with gr.Blocks(title="TTS (CosyVoice v3.5-plus) & ASR (fun-asr) Demo", css=CSS, 
                     placeholder="例如：cosyvoice-v3.5-plus-vc-myvoice-xxxxx",
                     elem_classes=["mono"],
                 )
+                tts_style = gr.Dropdown(
+                    label="风格指令（可选，不改原文）",
+                    choices=[
+                        ("温暖亲切，像跟朋友聊天", "温暖亲切，语速自然舒缓，带有微笑感"),
+                        ("专业播音，沉稳有力", "沉稳有力，语速适中均匀，具有专业播音的权威感"),
+                        ("活泼欢快，声音上扬", "活泼欢快，声音上扬，充满活力和感染力"),
+                        ("轻柔细语，安静温柔", "轻柔细语，安静温柔，像睡前故事的感觉"),
+                        ("自信大气，商务正式", "自信大气，语速适中，商务正式风格"),
+                        ("自定义...", ""),
+                    ],
+                    value=None,
+                    interactive=True,
+                    allow_custom_value=True,
+                    info="通过 instruction 参数控制语音风格，原文不会被修改",
+                )
                 tts_text = gr.Textbox(
                     label="合成文本",
                     placeholder="请输入要合成的文本内容...",
@@ -787,6 +830,14 @@ with gr.Blocks(title="TTS (CosyVoice v3.5-plus) & ASR (fun-asr) Demo", css=CSS, 
             with gr.Column():
                 tts_status = gr.Textbox(label="状态", lines=5, interactive=False)
                 tts_audio = gr.Audio(label="合成结果", type="filepath")
+                with gr.Accordion("原始 JSON（调试用）", open=False):
+                    tts_raw_json = gr.Textbox(
+                        label="",
+                        lines=10,
+                        interactive=False,
+                        elem_classes=["mono"],
+                        show_label=False,
+                    )
 
         # Dropdown 选择后自动填充 Voice ID
         tts_voice_dropdown.change(
@@ -797,8 +848,8 @@ with gr.Blocks(title="TTS (CosyVoice v3.5-plus) & ASR (fun-asr) Demo", css=CSS, 
 
         tts_btn.click(
             synthesize,
-            inputs=[tts_voice_id, tts_text],
-            outputs=[tts_status, tts_audio],
+            inputs=[tts_voice_id, tts_text, tts_style],
+            outputs=[tts_status, tts_audio, tts_raw_json],
         )
 
         # 切换到 TTS Tab 时自动刷新音色下拉列表
