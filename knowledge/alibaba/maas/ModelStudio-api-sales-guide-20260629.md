@@ -72,6 +72,52 @@
 
 ---
 
+## 五、推荐模型清单（Proposed Model List · 2026-07）
+
+> 以下为客户当前应选用的最新在售模型，**新项目请优先选用**，避免使用旧版本。
+
+### Agentic LLM 模型
+
+| 类别 | 模型 | 说明 |
+|------|------|------|
+| **推理** | qwen3.7-max | 旗舰推理，适合长任务、Agent、Coding |
+| **推理** | qwen3.7-plus | 性价比之王，适合对话、客服、VL视觉 |
+| **推理+编程** | deepseek-v4-pro | 高性价比推理模型 |
+| **推理+编程** | deepseek-v4-flash | 高性价比轻量推理 |
+| **推理+编程** | glm-5.2 | 智谱通用旗舰 |
+| **推理+编程** | kimi-k2.7-code | 月之暗面编程强项 |
+
+### 视频生成
+
+| 类别 | 模型 |
+|------|------|
+| **图生视频** | wan2.7-i2v, happyhorse-1.1-i2v |
+| **文生视频** | wan2.7-t2v, happyhorse-1.1-t2v |
+| **视频编辑** | wan2.7-videoedit, happyhorse-1.0-video-edit |
+| **参考生视频** | wan2.7-r2v, happyhorse-1.1-r2v |
+
+### 图片生成
+
+| 模型 |
+|------|
+| qwen-image-2.0-pro, wan2.7-image-pro |
+
+### ASR & TTS
+
+| 模型 |
+|------|
+| cosyvoice-v3.5-plus（语音合成）, fun-asr（语音识别） |
+
+### Embedding（向量嵌入）
+
+| 模型 |
+|------|
+| text-embedding-v4 |
+
+> ⚠️ 以上为截至当前在售的最新推荐模型。重点推荐agentic LLM和AIGC模型。
+
+---
+
 ## 附：快速入口
 
 - Model Studio 控制台：https://bailian.console.alibabacloud.com
