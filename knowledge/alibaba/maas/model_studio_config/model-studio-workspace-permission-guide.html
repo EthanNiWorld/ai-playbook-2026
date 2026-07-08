@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>百炼 RAM 子账户配置指南 — 国际站</title>
+  <style>
+    :root {
+      --primary: #1677ff; --primary-bg: #e6f4ff;
+      --warning: #fa8c16; --warning-bg: #fff7e6;
+      --success: #52c41a; --success-bg: #f6ffed;
+      --error: #ff4d4f; --error-bg: #fff2f0;
+      --text: #1f1f1f; --text2: #595959;
+      --border: #d9d9d9; --bg: #fafafa;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);line-height:1.8;max-width:960px;margin:0 auto;padding:40px 24px 80px;background:#fff}
+    h1{font-size:26px;font-weight:700;margin-bottom:8px}
+    h2{font-size:20px;font-weight:600;margin-top:40px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--primary)}
+    h3{font-size:16px;font-weight:600;margin-top:28px;margin-bottom:12px}
+    h4{font-size:15px;font-weight:600;margin-top:20px;margin-bottom:8px}
+    p{margin-bottom:12px;color:var(--text2)}
+    .meta{font-size:13px;color:#8c8c8c;margin-bottom:32px;padding-bottom:16px;border-bottom:1px solid #f0f0f0}
+    .alert{padding:14px 18px;border-radius:8px;margin:14px 0;font-size:14px}
+    .alert-error{background:var(--error-bg);border-left:4px solid var(--error)}
+    .alert-warning{background:var(--warning-bg);border-left:4px solid var(--warning)}
+    .alert-info{background:var(--primary-bg);border-left:4px solid var(--primary)}
+    .alert-success{background:var(--success-bg);border-left:4px solid var(--success)}
+    .alert strong{display:block;margin-bottom:4px}
+    .alert code{background:rgba(0,0,0,.06);padding:2px 6px;border-radius:3px;font-size:13px;font-family:"SF Mono","Fira Code",Consolas,monospace}
+    table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+    th,td{padding:10px 14px;text-align:left;border:1px solid var(--border)}
+    th{background:var(--bg);font-weight:600}
+    td{color:var(--text2)}
+    ol,ul{margin:12px 0;padding-left:24px;color:var(--text2)}
+    li{margin-bottom:6px}
+    code{font-family:"SF Mono","Fira Code",Consolas,monospace;font-size:13px;background:var(--bg);padding:2px 6px;border-radius:3px;border:1px solid #f0f0f0}
+    a{color:var(--primary);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .path-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px 20px;margin:12px 0;font-size:14px;line-height:2}
+    .path-box .arrow{color:var(--primary);margin:0 4px}
+    .path-box code{background:#fff}
+    .divider{border:none;border-top:1px solid #f0f0f0;margin:32px 0}
+    .step-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:18px 22px;margin:12px 0}
+    .step-card h4{margin-bottom:8px}
+    .step-card .alert{margin-top:10px;margin-bottom:0}
+    .step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--primary);color:#fff;border-radius:50%;font-size:14px;font-weight:700;margin-right:10px;flex-shrink:0}
+    .console-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;background:var(--primary);color:#fff;border-radius:6px;font-size:14px;font-weight:500;text-decoration:none;margin:6px 4px 6px 0;transition:opacity .2s}
+    .console-btn:hover{opacity:.85;text-decoration:none;color:#fff}
+    .console-btn svg{width:16px;height:16px;fill:currentColor}
+    .console-btn-secondary{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+    .console-btn-secondary:hover{background:var(--primary-bg);color:var(--primary)}
+    .link-group{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+    .ref-links{margin-top:24px;padding:16px 20px;background:var(--bg);border-radius:8px;font-size:13px}
+    .ref-links li{margin-bottom:6px}
+    .toc{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:20px 28px;margin:24px 0}
+    .toc h4{margin-bottom:12px;font-size:15px}
+    .toc ol{padding-left:20px;margin:0}
+    .toc li{margin-bottom:4px;font-size:14px}
+    blockquote{background:var(--bg);border-left:4px solid var(--border);padding:12px 20px;margin:12px 0;font-size:14px;color:var(--text2);border-radius:0 8px 8px 0}
+    footer{margin-top:48px;padding-top:16px;border-top:1px solid #f0f0f0;font-size:12px;color:#bfbfbf;text-align:center}
+    .region-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+    .region-tabs a{display:inline-block;padding:5px 14px;background:var(--primary-bg);border-radius:4px;font-size:13px;font-weight:500}
+    .region-tabs a:hover{background:var(--primary);color:#fff;text-decoration:none}
+    figure{margin:14px 0 8px;text-align:center}
+    figure img{max-width:100%;height:auto;border:1px solid var(--border);border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.06);background:#fff}
+    figcaption{font-size:12px;color:#8c8c8c;margin-top:6px;line-height:1.6}
+    .screenshot{max-width:780px;margin:0 auto}
+  </style>
+</head>
+<body>
+
+<h1>百炼 RAM 子账户配置指南（国际站）</h1>
+<p style="font-size:16px;color:var(--text);margin-bottom:4px">6 步完成 Kimi K2.7-code 模型调用权限配置 &nbsp;|&nbsp; 含 13 张实操截图</p>
+<div class="meta">
+  适用产品：Alibaba Cloud Model Studio 国际站 &nbsp;&nbsp;|&nbsp;&nbsp; 文档定位：<strong>实操速查</strong>（概念性内容请见文末附录 A）&nbsp;&nbsp;|&nbsp;&nbsp;更新日期：2026-07-08
+</div>
+
+<!-- ==================== 快捷入口 ==================== -->
+<div style="background:var(--primary-bg);border:1px solid #91caff;border-radius:8px;padding:16px 20px;margin-bottom:32px">
+  <strong style="display:block;margin-bottom:8px;color:var(--primary)">🚀 快速控制台入口</strong>
+  <div class="link-group">
+    <a class="console-btn" href="https://ram.console.alibabacloud.com/users" target="_blank">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      RAM 控制台（创建用户）
+    </a>
+    <a class="console-btn console-btn-secondary" href="https://bailian.console.alibabacloud.com/cn-beijing?tab=model#/efm/business_management" target="_blank">
+      百炼控制台 · 业务空间管理
+    </a>
+  </div>
+  <p style="font-size:13px;color:var(--text2);margin:8px 0 4px"><strong>百炼控制台（选择地域）：</strong></p>
+  <div class="region-tabs">
+    <a href="https://bailian.console.alibabacloud.com/cn-beijing" target="_blank">🇨🇳 华北2（北京）</a>
+    <a href="https://modelstudio.console.alibabacloud.com/ap-southeast-1" target="_blank">🇸🇬 新加坡 Singapore</a>
+    <a href="https://modelstudio.console.alibabacloud.com/us-east-1" target="_blank">🇺🇸 弗吉尼亚 Virginia</a>
+    <a href="https://modelstudio.console.alibabacloud.com/cn-hongkong" target="_blank">🇭🇰 中国香港 Hong Kong</a>
+    <a href="https://modelstudio.console.alibabacloud.com/eu-central-1" target="_blank">🇩🇪 法兰克福 Frankfurt</a>
+  </div>
+  <p style="font-size:12px;color:#8c8c8c;margin-top:6px">本指南所有路径均基于<strong>阿里云国际站</strong>（<code>alibabacloud.com</code>）。国际站账号体系、计费、API 端点与大陆站（<code>aliyun.com</code>）<strong>不互通</strong>。</p>
+</div>
+
+<!-- ==================== 目录 ==================== -->
+<div class="toc">
+  <h4>目录</h4>
+  <ol>
+    <li><a href="#sec1">一、问题场景与错误信息</a></li>
+    <li><a href="#sec2">二、核心操作流程（6 步搞定）</a></li>
+    <li><a href="#sec3">三、可能遇到的问题与解决方案</a></li>
+    <li><a href="#sec4">四、相关链接</a></li>
+    <li><a href="#app-a">附录 A：概念性速查（可选阅读）</a></li>
+    <li><a href="#app-b">附录 B：国际站控制台链接速查表</a></li>
+  </ol>
+</div>
+
+<!-- ==================== 1. 问题场景 ==================== -->
+<h2 id="sec1">一、问题场景与错误信息</h2>
+
+<div class="alert alert-error">
+  <strong>典型错误 1（API 调用 403）</strong>
+  <code>httpCode: 403</code>，<code>AccessDenied.Unpurchased</code><br>
+  场景：RAM 子账户通过其创建的 API Key 调用 <code>kimi-k2.7-code</code> 模型时触发。
+</div>
+
+<div class="alert alert-error">
+  <strong>典型错误 2（控制台无权限）</strong>
+  <code>"You do not have access permissions to this workspace, or the workspace does not exist"</code><br>
+  场景：RAM 子账户登录百炼控制台后看到锁形图标与刷新按钮。
+</div>
+
+<p>两个错误的根因都指向<strong>业务空间授权缺失</strong>，解决方案见<a href="#sec2">第二章</a>与<a href="#sec3">第三章</a>。</p>
+
+<!-- ==================== 2. 核心操作流程 ==================== -->
+<h2 id="sec2">二、核心操作流程（6 步搞定）</h2>
+
+<div class="alert alert-info">
+  <strong>场景说明</strong>
+  以<u>阿里云国际站（主账号）</u>为例，为三方模型 <code>kimi-k2.7-code</code> 配置 RAM 子账户调用权限。所用控制台为<strong>国际站百炼</strong>（<code>bailian.console.alibabacloud.com/cn-beijing</code>，华北2 北京节点）。完整概念与字段说明见<a href="https://www.alibabacloud.com/help/zh/model-studio/permission-management-overview#deef361444p3k" target="_blank">官方文档《百炼权限管理》</a>。
+</div>
+
+<!-- Step 1 -->
+<div class="step-card">
+  <h4><span class="step-num">1</span>主账号创建 RAM 用户</h4>
+  <p>主账号登录 <a href="https://ram.console.alibabacloud.com/users" target="_blank">RAM 控制台</a> → 身份管理 → 用户 → 创建用户。</p>
+  <p>用户名称示例：<code>kimi-k2.7-code_RAM-Test</code>（最多 64 字符，支持英文、数字、下划线、连字符、点号）。勾选<strong>使用控制台访问</strong>。</p>
+  <figure class="screenshot">
+    <img src="images/01-ram-add-user.png" alt="RAM 用户创建 - 登录名称与访问方式配置">
+    <figcaption>图 1：RAM 添加用户页面</figcaption>
+  </figure>
+  <div class="alert alert-info">
+    <strong>说明</strong>
+    本指南<strong>仅针对百炼 API-Key</strong>调用场景。AccessKey ID / Secret 仅在需要同时调用其他阿里云 OpenAPI 时才需创建，两者账号体系与控制台不同，详见<a href="https://www.alibabacloud.com/help/zh/model-studio/permission-management-overview#deef361444p3k" target="_blank">官方文档</a>。
+  </div>
+</div>
+
+<!-- Step 2 -->
+<div class="step-card">
+  <h4><span class="step-num">2</span>为 RAM 用户授予超级管理员策略</h4>
+  <p>在 RAM 控制台为目标用户<strong>新增授权</strong>，搜索并勾选以下策略：</p>
+  <table>
+    <thead><tr><th>权限策略</th><th>说明</th><th>是否必须</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>AliyunBailianFullAccess</code></td>
+        <td>百炼平台超级管理员，可跨业务空间管理</td>
+        <td>✅ 必须</td>
+      </tr>
+      <tr>
+        <td><code>AliyunBSSOrderAccess</code></td>
+        <td>购买预付费模型时使用</td>
+        <td>⚠️ 按需</td>
+      </tr>
+    </tbody>
+  </table>
+  <figure class="screenshot">
+    <img src="images/02-ram-grant-bailian-fullaccess.png" alt="RAM 新增授权">
+    <figcaption>图 2：选择主体为 RAM 用户，策略勾选 <code>AliyunBailianFullAccess</code></figcaption>
+  </figure>
+</div>
+
+<!-- Step 3 -->
+<div class="step-card">
+  <h4><span class="step-num">3</span>主账号 RAM 登录设置</h4>
+  <p>返回 RAM 用户详情 → <strong>认证管理</strong> → 启用控制台登录：</p>
+  <div class="path-box">
+    RAM 控制台 <span class="arrow">→</span> 用户 <span class="arrow">→</span> <code>kimi-k2.7-code_RAM-Test</code> <span class="arrow">→</span> 认证管理 <span class="arrow">→</span> 启用控制台登录
+  </div>
+  <figure class="screenshot">
+    <img src="images/03-ram-user-console-login-entry.png" alt="认证管理页签">
+    <figcaption>图 3：用户详情 → 认证管理 → 控制台访问 → "启用控制台登录"</figcaption>
+  </figure>
+  <figure class="screenshot">
+    <img src="images/04-ram-enable-console-login-dialog.png" alt="启用控制台登录弹窗">
+    <figcaption>图 4：弹窗中<strong>控制台访问:开启</strong>、<strong>密码:自动生成</strong>、<strong>重置密码:无需</strong>、<strong>MFA:不要求</strong></figcaption>
+  </figure>
+  <figure class="screenshot">
+    <img src="images/05-mfa-skip-binding.png" alt="MFA 跳过">
+    <figcaption>图 5：首次登录提示绑定 MFA，<strong>测试环境点右上角"跳过绑定"</strong></figcaption>
+  </figure>
+</div>
+
+<!-- Step 4 -->
+<div class="step-card">
+  <h4><span class="step-num">4</span>主账号创建业务空间并授权 kimi 模型</h4>
+  <p>主账号访问 <a href="https://bailian.console.alibabacloud.com/cn-beijing?tab=model#/efm/business_management" target="_blank">百炼控制台（业务空间管理）</a>，点击<strong>新增业务空间</strong>，输入名称 <code>kimi-k2.7-workspace</code>，地域默认<strong>华北2（北京）</strong>。</p>
+  <figure class="screenshot">
+    <img src="images/06-bailian-create-workspace.png" alt="百炼创建业务空间">
+    <figcaption>图 6：业务空间管理 → 新增业务空间 <code>kimi-k2.7-workspace</code></figcaption>
+  </figure>
+  <div class="alert alert-info">
+    <strong>无隔离需求？</strong>
+    可<strong>跳过本步骤</strong>直接使用 <code>Default 业务空间</code>，其内置所有模型授权。最多创建 20 个业务空间。
+  </div>
+
+  <h4 style="margin-top:16px">4.1 授权 kimi-k2.7-code 模型调用</h4>
+  <p>进入 <code>kimi-k2.7-workspace</code> → <strong>模型列表</strong> → 搜索 <code>kimi</code>，找到 <code>kimi-k2.7-code</code> → 打开<strong>模型调用</strong>开关 → 保存。</p>
+  <figure class="screenshot">
+    <img src="images/07-bailian-model-authorize-kimi.png" alt="kimi 模型授权">
+    <figcaption>图 7：<code>kimi-k2.7-code</code> 模型调用开关打开后变为"<strong>已授权</strong>"</figcaption>
+  </figure>
+</div>
+
+<!-- Step 5 -->
+<div class="step-card">
+  <h4><span class="step-num">5</span>在业务空间内添加 RAM 用户</h4>
+  <p>在 <code>kimi-k2.7-workspace</code> → <strong>账号管理</strong> → 新增用户：</p>
+  <figure class="screenshot">
+    <img src="images/08-bailian-add-ram-user.png" alt="添加 RAM 用户">
+    <figcaption>图 8：账号管理 → 新增用户 → 选择 RAM 用户 <code>kimi-k2.7-code_RAM-Test</code></figcaption>
+  </figure>
+  <p>填写要点：</p>
+  <ul>
+    <li><strong>类型：</strong>RAM 用户</li>
+    <li><strong>RAM 用户：</strong>下拉选择 <code>kimi-k2.7-code_RAM-Test@&lt;主账号 UID&gt;.onaliyun.com</code></li>
+    <li><strong>显示名称：</strong><code>kimi-ram-user</code></li>
+  </ul>
+  <p>新增后在<strong>编辑权限</strong>中勾选该 RAM 用户可访问的<strong>业务空间</strong>、<strong>页面</strong>与<strong>API 权限</strong>。</p>
+  <figure class="screenshot">
+    <img src="images/09-bailian-grant-workspace-access.png" alt="编辑权限">
+    <figcaption>图 9：编辑权限 → 业务空间页签 → 勾选 <code>kimi-k2.7-workspace</code></figcaption>
+  </figure>
+  <div class="alert alert-warning">
+    <strong>关键点</strong>
+    仅"加入空间"不包含任何模型权限，调用模型必须<strong>单独勾选模型授权</strong>（已在第 4 步开启）。
+  </div>
+</div>
+
+<!-- Step 6 -->
+<div class="step-card">
+  <h4><span class="step-num">6</span>RAM 账户登录后创建 API-Key</h4>
+  <p>RAM 用户登录百炼控制台（地域 <code>cn-beijing</code>）→ <strong>API-Key</strong> → 创建 API Key：</p>
+  <figure class="screenshot">
+    <img src="images/10-bailian-create-api-key.png" alt="创建 API Key">
+    <figcaption>图 10：归属业务空间选 <code>kimi-k2.7-workspace</code>，描述填 <code>kimi-api-key</code></figcaption>
+  </figure>
+  <p>确定后弹出<strong>保存 API Key</strong>对话框：</p>
+  <figure class="screenshot">
+    <img src="images/11-bailian-save-api-key.png" alt="保存 API Key">
+    <figcaption>图 11：<strong>务必点击"下载"保存明文</strong>，关闭后无法再查看</figcaption>
+  </figure>
+  <div class="alert alert-error">
+    <strong>⚠️ 不可逆加密</strong>
+    离开此对话框后，<strong>将无法再次界面查询 Key 的明文</strong>。请立刻<strong>复制或点击下载</strong>保存。
+  </div>
+  <p>保存后即可以该 Key 调用 <code>kimi-k2.7-code</code> 模型。端点示例：</p>
+  <div class="path-box">
+    API Key：<code>sk-ws-*************.*************************</code>（脱敏示例）<br>
+    API Host：<code>ws-sy**********.cn-beijing.maas.aliyuncs.com</code><br>
+    OpenAI 兼容：<code>https://ws-sy**********.cn-beijing.maas.aliyuncs.com/compatible-mode/v1</code>
+  </div>
+</div>
+
+<!-- ==================== 3. 问题与解决方案 ==================== -->
+<h2 id="sec3">三、可能遇到的问题与解决方案</h2>
+
+<!-- 问题 1 -->
+<h3>问题 1：RAM 账号登录后看到"无业务空间权限"</h3>
+<figure class="screenshot">
+  <img src="images/12-ram-no-workspace-access.png" alt="无业务空间权限">
+  <figcaption>图 12：RAM 账号登录后看到"您没有该业务空间权限或业务空间不存在"</figcaption>
+</figure>
+<p><strong>根因：</strong>该 RAM 用户<strong>未被添加到任何业务空间的成员列表</strong>。百炼不会自动继承 RAM 用户的任何权限。</p>
+<p><strong>解决：</strong>主账号在百炼控制台 → 切换到目标业务空间 → <strong>账号管理</strong> → 新增用户 → 选择该 RAM 用户 → 编辑权限勾选业务空间与模型权限。</p>
+
+<!-- 问题 2 -->
+<h3>问题 2：调用模型返回 403 Model access denied</h3>
+<figure class="screenshot">
+  <img src="images/13-bailian-workspace-kimi-authorized.png" alt="模型已授权验证">
+  <figcaption>图 13：业务空间 <code>kimi-k2.7-workspace</code> 内 <code>kimi-k2.7-code</code> 状态为"<strong>已授权</strong>"</figcaption>
+</figure>
+<p><strong>根因：</strong>RAM 子账户建的 API Key 所在的那个业务空间，没开通 <code>kimi-k2.7-code</code> 的调用权限。子业务空间默认什么都不授权。</p>
+
+<p><strong>排查思路（两跳走）</strong></p>
+<div class="step-card">
+  <h4><span class="step-num">①</span>先查这个 API Key 属于哪个业务空间</h4>
+  <p>百炼控制台 → 左侧 <strong>API-Key</strong> 菜单。问题报的 Key 在这里能看到一行，里面"<strong>所归属业务空间</strong>"列会直接告诉你这个 Key 归在哪个空间下（例如 <code>kimi-k2.7-workspace</code>）。</p>
+  <figure class="screenshot">
+    <img src="images/14-api-key-shows-workspace.png" alt="API Key 列表展示所归属业务空间">
+    <figcaption>图 14：API Key 列表的"<strong>所归属业务空间</strong>"列直接展示 Key 归属</figcaption>
+  </figure>
+</div>
+<div class="step-card">
+  <h4><span class="step-num">②</span>再看这个业务空间有没有授权目标模型</h4>
+  <p>主账号切到该业务空间 → 左侧 <strong>模型列表</strong> → 搜索 <code>kimi-k2.7-code</code> → 看"<strong>模型调用</strong>"列的开关状态：</p>
+  <ul>
+    <li>✅ <strong>已授权</strong> → 说明不是这个问题，继续看 <a href="https://common-buy.alibabacloud.com/" target="_blank">阿里云控制台</a>是否完成该模型的付费开通</li>
+    <li>未授权 → 打开开关 → 保存即可。实时生效，几秒钟后再调一次</li>
+  </ul>
+  <figure class="screenshot">
+    <img src="images/15-bailian-workspace-kimi-authorized.png" alt="空间内模型授权状态">
+    <figcaption>图 15：业务空间 <code>kimi-k2.7-workspace</code> 内 <code>kimi-k2.7-code</code> 为"<strong>已授权</strong>"状态</figcaption>
+  </figure>
+</div>
+
+<!-- 其他问题速查 -->
+<h3>其他高频问题速查</h3>
+<table>
+  <thead><tr><th>症状</th><th>可能根因</th><th>修复路径</th></tr></thead>
+  <tbody>
+    <tr><td>API Key 创建后立即被禁用</td><td>主账号欠费 / 业务空间被删除 / RAM 用户被移除</td><td>检查<a href="https://billing-cost.alibabacloud.com/" target="_blank">费用中心</a>与业务空间状态</td></tr>
+    <tr><td>调用报 401 Invalid API key</td><td>API Key 复制不完整 / <code>base_url</code> 配错地域</td><td>重新下载 API Key，检查 <code>base_url</code> 与业务空间地域一致</td></tr>
+    <tr><td>调用报 400 InvalidParameter.ModelAccessDenied</td><td>API Key 归属业务空间未启用该模型</td><td>同<a href="#sec3">问题 2</a>，在业务空间 → 模型列表中开启对应模型</td></tr>
+    <tr><td>子业务空间配额耗尽</td><td>限流阈值过低或突发流量</td><td>业务空间 → 模型列表 → 调高请求数 / Token 限流</td></tr>
+  </tbody>
+</table>
+<div class="alert alert-info">
+  <strong>排除项</strong>
+  以下问题与百炼 / Model Studio 无关，请走 RAM 或 DashScope 自身渠道排查：<br>
+  · <strong>RAM 登录密码错误 / MFA 反复弹出</strong> → <a href="https://ram.console.alibabacloud.com/" target="_blank">RAM 控制台</a> 重置密码或调整 MFA 设置<br>
+  · <strong>DashScope SDK 报 InvalidParameter</strong> → 参见 <a href="https://bailian.console.alibabacloud.com/cn-beijing?tab=doc#/doc/?type=model&url=2713036" target="_blank">应用 API 参考</a> 核对 SDK 参数与 base_url
+</div>
+
+<!-- ==================== 4. 相关链接 ==================== -->
+<h2 id="sec4">四、相关链接</h2>
+
+<p>概念性内容（身份管理体系、角色矩阵、API Key 规则等）以<strong>官方文档</strong>为准，本指南不重复展开：</p>
+
+<div class="link-group">
+  <a class="console-btn" href="https://www.alibabacloud.com/help/zh/model-studio/permission-management-overview#deef361444p3k" target="_blank">
+    📖 官方文档《百炼权限管理》（中文）
+  </a>
+  <a class="console-btn console-btn-secondary" href="https://bailian.console.alibabacloud.com/cn-beijing?tab=doc#/doc/?type=model&url=2713036" target="_blank">
+    📖 应用 API 参考（控制台内嵌）
+  </a>
+</div>
+
+<table>
+  <thead><tr><th>资源</th><th>链接</th></tr></thead>
+  <tbody>
+    <tr><td>百炼权限管理（中文）</td><td><a href="https://www.alibabacloud.com/help/zh/model-studio/permission-management-overview" target="_blank">https://www.alibabacloud.com/help/zh/model-studio/permission-management-overview</a></td></tr>
+    <tr><td>百炼权限管理 - 业务空间授权（中文锚点）</td><td><a href="https://www.alibabacloud.com/help/zh/model-studio/permission-management-overview#deef361444p3k" target="_blank">…#deef361444p3k</a></td></tr>
+    <tr><td>应用 API 参考（控制台内嵌）</td><td><a href="https://bailian.console.alibabacloud.com/cn-beijing?tab=doc#/doc/?type=model&url=2713036" target="_blank">bailian.console.alibabacloud.com/cn-beijing?tab=doc#/doc/?type=model&url=2713036</a></td></tr>
+    <tr><td>RAM 用户管理（国际站）</td><td><a href="https://ram.console.alibabacloud.com/users" target="_blank">https://ram.console.alibabacloud.com/users</a></td></tr>
+    <tr><td>Manage workspace members（English）</td><td><a href="https://www.alibabacloud.com/help/en/model-studio/member-management" target="_blank">…/help/en/model-studio/member-management</a></td></tr>
+    <tr><td>Get an API Key（English）</td><td><a href="https://www.alibabacloud.com/help/en/model-studio/get-api-key" target="_blank">…/help/en/model-studio/get-api-key</a></td></tr>
+    <tr><td>AliyunBailianFullAccess policy details</td><td><a href="https://www.alibabacloud.com/help/en/ram/developer-reference/aliyunbailianfullaccess" target="_blank">…/aliyunbailianfullaccess</a></td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 附录 A：概念性速查 ==================== -->
+<hr class="divider">
+<h2 id="app-a" style="border-bottom-color:var(--text2)">附录 A：概念性速查（可选阅读）</h2>
+
+<p>本章将原"身份管理体系 / 角色权限 / API Key 规则"等概念性内容<strong>压缩为一张表</strong>，便于速查。详细字段与边界规则请以<a href="https://www.alibabacloud.com/help/zh/model-studio/permission-management-overview#deef361444p3k" target="_blank">官方文档</a>为准。</p>
+
+<h4>A.1 三种角色对比</h4>
+<table>
+  <thead>
+    <tr><th>能力</th><th>超级管理员<br><small>含 AliyunBailianFullAccess</small></th><th>业务空间管理员</th><th>普通用户</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>模型调用授权 / 限流</td><td>✅</td><td>—</td><td>—</td></tr>
+    <tr><td>用户管理 / 页面权限 / API Key</td><td>✅</td><td>✅（限本空间）</td><td>—</td></tr>
+    <tr><td>访问被授权的空间 / 页面 / 资源</td><td>✅</td><td>✅</td><td>✅</td></tr>
+    <tr><td>OpenAPI 接口权限（数据/知识库/Prompt）</td><td>需 RAM 加 <code>AliyunBailianDataFullAccess</code></td><td>同上</td><td>同上</td></tr>
+  </tbody>
+</table>
+
+<h4>A.2 业务空间行为差异</h4>
+<table>
+  <thead><tr><th>空间类型</th><th>模型调用授权</th><th>限流设置</th><th>模型调优</th></tr></thead>
+  <tbody>
+    <tr><td><span class="badge badge-success">默认业务空间</span></td><td>所有模型默认可调用</td><td>❌ 不可设置</td><td>所有支持调优的模型可调优</td></tr>
+    <tr><td><span class="badge badge-warning">子业务空间</span></td><td>初始<strong>无任何</strong>模型权限，需手动开启</td><td>✅ 可设置请求数 / Token 限流</td><td>初始无权限，需手动开启</td></tr>
+  </tbody>
+</table>
+
+<h4>A.3 API Key 关键规则</h4>
+<ul>
+  <li>单个 API Key <strong>只能归属一个地域内的一个业务空间</strong>，不能转移</li>
+  <li>API Key 的可调用功能 = <strong>归属业务空间</strong>的权限（不受用户控制台权限影响）</li>
+  <li>无需为不同模型创建不同的 API Key</li>
+  <li>RAM 账号被移出业务空间 → API Key 失效；重新加入后恢复</li>
+  <li>RAM 账号在 RAM 控制台被删除 → API Key 永久失效</li>
+</ul>
+
+<h4>A.4 常见误区速览</h4>
+<table>
+  <thead><tr><th>误区</th><th>正确理解</th></tr></thead>
+  <tbody>
+    <tr><td>拥有 <code>AliyunBailianFullAccess</code> 就能调用所有模型</td><td>该策略仅授予管理操作能力，模型调用权限需在业务空间中单独开启</td></tr>
+    <tr><td>RAM 用户创建后自动拥有默认空间权限</td><td>百炼不会自动添加 RAM 用户到任何业务空间，需手动添加</td></tr>
+    <tr><td>子业务空间和默认空间行为一致</td><td>子业务空间初始无任何模型权限，必须手动授权</td></tr>
+    <tr><td>API Key 可以跨空间使用</td><td>API Key 只能归属一个地域内的一个业务空间，不能转移</td></tr>
+    <tr><td>不同模型需要不同的 API Key</td><td>无需为不同模型创建不同的 API Key</td></tr>
+  </tbody>
+</table>
+
+<h4>A.5 快速 FAQ</h4>
+<dl>
+  <dt><strong>Q：如何获取业务空间 ID？</strong></dt>
+  <dd>参考 <a href="https://www.alibabacloud.com/help/en/model-studio/obtain-the-app-id-and-workspace-id" target="_blank">Get the Workspace ID</a>。</dd>
+  <dt><strong>Q：权限变更后多久生效？</strong></dt>
+  <dd>权限变更<strong>实时生效</strong>，刷新页面即可。</dd>
+  <dt><strong>Q：如何撤销某个用户的权限？</strong></dt>
+  <dd>业务空间 → 权限管理 → 删除用户。此操作会同时使该用户在该空间的 API Key 失效。</dd>
+</dl>
+
+<!-- ==================== 附录 B：国际站链接速查 ==================== -->
+<h2 id="app-b" style="border-bottom-color:var(--success)">附录 B：国际站控制台链接速查表</h2>
+
+<table>
+  <thead>
+    <tr><th>功能</th><th>新加坡 ap-southeast-1</th><th>弗吉尼亚 us-east-1</th><th>中国香港 cn-hongkong</th><th>法兰克福 eu-central-1</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>百炼首页</strong></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/ap-southeast-1" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/us-east-1" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/cn-hongkong" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/eu-central-1" target="_blank">打开</a></td>
+    </tr>
+    <tr>
+      <td><strong>全局管理</strong></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/ap-southeast-1?tab=globalset#/efm/business_management" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/us-east-1?tab=globalset#/efm/business_management" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/cn-hongkong?tab=globalset#/efm/business_management" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/eu-central-1?tab=globalset#/efm/business_management" target="_blank">打开</a></td>
+    </tr>
+    <tr>
+      <td><strong>成员管理</strong></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/ap-southeast-1#/efm/member_management" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/us-east-1#/efm/member_management" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/cn-hongkong#/efm/member_management" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/eu-central-1#/efm/member_management" target="_blank">打开</a></td>
+    </tr>
+    <tr>
+      <td><strong>模型列表</strong></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/ap-southeast-1#/efm/model_list" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/us-east-1#/efm/model_list" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/cn-hongkong#/efm/model_list" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/eu-central-1#/efm/model_list" target="_blank">打开</a></td>
+    </tr>
+    <tr>
+      <td><strong>API Key 管理</strong></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/ap-southeast-1#/api-key" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/us-east-1#/api-key" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/cn-hongkong#/api-key" target="_blank">打开</a></td>
+      <td><a href="https://modelstudio.console.alibabacloud.com/eu-central-1#/api-key" target="_blank">打开</a></td>
+    </tr>
+    <tr>
+      <td><strong>RAM 用户管理</strong></td>
+      <td colspan="4" style="text-align:center"><a href="https://ram.console.alibabacloud.com/users" target="_blank">https://ram.console.alibabacloud.com/users</a>（全局，不分地域）</td>
+    </tr>
+    <tr>
+      <td><strong>创建 RAM 用户</strong></td>
+      <td colspan="4" style="text-align:center"><a href="https://ram.console.alibabacloud.com/users/new" target="_blank">https://ram.console.alibabacloud.com/users/new</a>（全局，不分地域）</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="alert alert-info" style="margin-top:20px">
+  <strong>北京节点（cn-beijing）入口</strong>
+  完整 6 步案例使用 <code>bailian.console.alibabacloud.com/cn-beijing</code> 域名（与上表 <code>modelstudio.console.alibabacloud.com/...</code> 域名不同，二者账号互通但页面路径略有差异）。
+</div>
+
+<footer>
+  Alibaba Cloud Model Studio 权限管理实操指南（国际站）&nbsp;&nbsp;|&nbsp;&nbsp;2026-07-08
+</footer>
+
+</body>
+</html>
