@@ -7,7 +7,7 @@
 <!-- SUMMARY_START -->
 **一句话说明**: 评估 AI Agent 需看三个正交维度：**操作执行力**（SWE-bench Pro / Terminal-Bench / OSWorld）、**学术推理力**（HLE）和**知识工作力**（GDPval-AA）
 **核心价值**: 编码产品看操作执行力；科研场景看学术推理力；企业专业脑力劳动（法律/财务/医疗）看知识工作力。三者正交，不会 HLE ≠ 不会思考
-**相关产品**: [Claude API](../anthropic/claude-api.md), [Qwen](../alibaba/maas/qwen.md), [Gemini](../google/maas/gemini.md), [GPT-5 系列](../openai/gpt-5-series.md)
+**相关产品**: [Claude API](../anthropic/claude-api.md), [Qwen](../../alibaba-ai-hub/maas/qwen.md), [Gemini](../google/maas/gemini.md), [GPT-5 系列](../openai/gpt-5-series.md)
 <!-- SUMMARY_END -->
 
 ## 是什么

@@ -7,7 +7,7 @@
 <!-- SUMMARY_START -->
 **一句话说明**: 让 LLM 具备自主规划、使用工具、完成复杂任务的能力；本质是一个不确定性受控的 for 循环
 **核心价值**: 从"对话助手"升级为"自主执行助手"——模型从被动回答变为主动感知、规划、行动；模型从产品本身转变为产品的一部分，厚软件层成为新壁垒
-**相关产品**: [HiClaw/龙虾家族](../alibaba/ai-application/claw-family.md), [JVS Crew](../alibaba/ai-application/jvs-crew.md), [Claude Managed Agents](../anthropic/claude-managed-agents.md), [OpenAI Codex](https://openai.com/codex)
+**相关产品**: [HiClaw/龙虾家族](../../alibaba-ai-hub/ai-application/claw-family.md), [JVS Crew](../../alibaba-ai-hub/ai-application/jvs-crew.md), [Claude Managed Agents](../anthropic/claude-managed-agents.md), [OpenAI Codex](https://openai.com/codex)
 <!-- SUMMARY_END -->
 
 ## 是什么
@@ -79,8 +79,8 @@ Agent = Model（大脑）+ Harness（缰绳+鞍具）
 
 | 能力 | 阿里云 | Anthropic | OpenAI | 开源 |
 |------|--------|-----------|--------|------|
-| 托管 Agent 平台 | [JVS Crew](../alibaba/ai-application/jvs-crew.md)、百炼龙虾 | [Claude Managed Agents](../anthropic/claude-managed-agents.md) | Codex Agent 平台 | OpenClaw、LangGraph |
-| 多 Agent 框架 | [HiClaw](../alibaba/ai-application/claw-family.md)（Manager-Worker） | 无内置框架 | 规划中 | CrewAI、AutoGen |
+| 托管 Agent 平台 | [JVS Crew](../../alibaba-ai-hub/ai-application/jvs-crew.md)、百炼龙虾 | [Claude Managed Agents](../anthropic/claude-managed-agents.md) | Codex Agent 平台 | OpenClaw、LangGraph |
+| 多 Agent 框架 | [HiClaw](../../alibaba-ai-hub/ai-application/claw-family.md)（Manager-Worker） | 无内置框架 | 规划中 | CrewAI、AutoGen |
 | Agent 执行环境 | 无影 AgentBay（沙箱） | gVisor disposable 运行时 | 统一 Agent 基础设施 | Docker 自托管 |
 | 企业 SSO/RBAC | JVS Crew（含 AAD） | 暂不支持（2026-04公测版） | 支持 | 需自建 |
 | 编程 Agent | Qoder | Claude Code | Codex | Continue、Aider |

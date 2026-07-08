@@ -7,14 +7,14 @@
 from pathlib import Path
 from typing import Optional
 
-from config import get_knowledge_base_path, get_notes_path
+from config import get_knowledge_base_path, get_notes_path, get_alibaba_hub_path
 
 
 def load_model_knowledge(model_name: str) -> str:
     """
     根据模型名加载对应知识文档全文。
     搜索逻辑：
-    1. knowledge/alibaba/maas/ 下按关键词匹配
+    1. alibaba-ai-hub/maas/ 下按关键词匹配
     2. 其他厂商目录按关键词匹配
     返回文档全文或空字符串
     """
@@ -25,10 +25,11 @@ def load_model_knowledge(model_name: str) -> str:
     # "Wan2.7" → ["wan", "2.7"]
     keywords = _extract_keywords(model_lower)
 
-    # 搜索优先级：alibaba/maas > 其他目录
+    # 搜索优先级：alibaba-ai-hub/maas > 阿里云全栈 > knowledge 其他目录
+    hub = get_alibaba_hub_path()
     search_dirs = [
-        kb / "alibaba" / "maas",
-        kb / "alibaba",
+        hub / "maas",
+        hub,
         kb,
     ]
 
@@ -55,8 +56,7 @@ def load_sales_strategy() -> str:
 
 def load_competitive_analysis(model_name: str) -> str:
     """加载与模型相关的竞品分析文档"""
-    kb = get_knowledge_base_path()
-    comp_dir = kb / "alibaba" / "competitive-analysis"
+    comp_dir = get_alibaba_hub_path() / "competitive-analysis"
     if not comp_dir.exists():
         return ""
 
@@ -78,8 +78,7 @@ def load_competitive_analysis(model_name: str) -> str:
 
 def list_available_models() -> list[str]:
     """列出本地知识库中有文档的模型/产品"""
-    kb = get_knowledge_base_path()
-    maas_dir = kb / "alibaba" / "maas"
+    maas_dir = get_alibaba_hub_path() / "maas"
     models = []
     if maas_dir.exists():
         for f in maas_dir.iterdir():

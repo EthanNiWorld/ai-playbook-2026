@@ -61,7 +61,7 @@ class SalebookState(TypedDict, total=False):
 ## 节点设计
 
 ### intake (`nodes/intake.py`)
-- 读取本地 `knowledge/alibaba/maas/` 按模型名模糊匹配
+- 读取本地 `alibaba-ai-hub/maas/` 按模型名模糊匹配
 - 加载 `notes/maas_sales_advice_ethan_2026.md` 销售策略
 - 识别数据缺口 → 联网搜索 DuckDuckGo 补全
 
@@ -175,7 +175,7 @@ python web.py   # → http://localhost:7860
 
 ## HTML 设计系统
 
-复用 `knowledge/alibaba/maas/qwen3.7-max-salebook.html` 的视觉规范：
+复用 `alibaba-ai-hub/maas/qwen3.7-max-salebook.html` 的视觉规范：
 - 背景: `#0F1419`
 - 卡片: `#1A1F2E`，圆角 16px
 - 强调: 橙色渐变 `#FF6A00 → #EE0979`

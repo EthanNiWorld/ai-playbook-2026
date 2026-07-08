@@ -7,7 +7,7 @@
 <!-- SUMMARY_START -->
 **一句话说明**: 前沿模型的「Agent 能力」不是单一维度，而是至少三个正交轴：**时间尺度（能跑多久）、模态融合（能理解多少种输入）、泛化广度（能覆盖多少领域）**
 **核心价值**: 选型时不应问「谁最强」，应问「我的任务在哪个轴上最需要极致」
-**相关产品**: [Claude API](../anthropic/claude-api.md), [Qwen](../alibaba/maas/qwen.md), [GPT-5 系列](../openai/gpt-5-series.md)
+**相关产品**: [Claude API](../anthropic/claude-api.md), [Qwen](../../alibaba-ai-hub/maas/qwen.md), [GPT-5 系列](../openai/gpt-5-series.md)
 <!-- SUMMARY_END -->
 
 ## 是什么
@@ -63,7 +63,7 @@
 | 输入价格 $/M | $10.00 | $2.50（5 折 $1.25） | $5.00 | $0.98 |
 | 输出价格 $/M | $50.00 | $7.50（5 折 $3.75） | $30.00 | $3.08 |
 
-> 详细产品分析见各厂商对应文档：[Claude API](../anthropic/claude-api.md) · [Qwen](../alibaba/maas/qwen.md) · [GPT-5 系列](../openai/gpt-5-series.md) · [GLM 系列](../zhipu/glm-series.md)
+> 详细产品分析见各厂商对应文档：[Claude API](../anthropic/claude-api.md) · [Qwen](../../alibaba-ai-hub/maas/qwen.md) · [GPT-5 系列](../openai/gpt-5-series.md) · [GLM 系列](../zhipu/glm-series.md)
 
 ## 最佳实践
 

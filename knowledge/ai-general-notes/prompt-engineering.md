@@ -7,7 +7,7 @@
 <!-- SUMMARY_START -->
 **一句话说明**: 通过精心设计的提示词引导 LLM 输出期望结果，核心是改变信息生产的结构性成本而非道德约束
 **核心价值**: 提升模型输出的质量、可控性和可信度，降低幻觉率 60-80%
-**相关产品**: [阿里云百炼](../../alibaba/maas/overview.md), [AWS Bedrock](../../aws/maas/overview.md), [Claude API](../../anthropic/claude-api.md)
+**相关产品**: [阿里云百炼](../../alibaba-ai-hub/maas/overview.md), [Claude API](../../knowledge/anthropic/claude-api.md)
 <!-- SUMMARY_END -->
 
 ## 是什么

@@ -23,19 +23,19 @@
 
 | 我想找… | 文档 |
 |---------|------|
-| Qwen / 通义千问 / 3.7-Plus / 3.7-Max / 旗舰 | [Qwen](knowledge/alibaba/maas/qwen.md) |
-| 万相 / Wan / 视频生成 / 图生视频 | [万相](knowledge/alibaba/maas/wan.md) |
-| CosyVoice / 语音合成 / TTS / 声音复刻 | [CosyVoice](knowledge/alibaba/maas/cosyvoice.md) |
-| FunASR / 语音识别 / ASR / 说话人分离 | [FunASR](knowledge/alibaba/maas/funasr.md) |
-| HappyHorse / 快乐小马 / 图像生成 | [HappyHorse](knowledge/alibaba/maas/happyhorse.md) |
-| 百炼平台 / 多账号 / TPM 扩量 / 限流 | [百炼平台](knowledge/alibaba/maas/overview.md) |
-| 百炼安全 / SOC 2 / CMaaS / 数据主权 / 隔离 | [百炼安全合规](knowledge/alibaba/maas/security-compliance_cn.md) |
-| Qoder / AI 编程 / IDE 插件 | [Qoder](knowledge/alibaba/ai-coding/qoder.md) |
-| Qoder 架构 / Harness 逆向 / 执行日志分析 | [Qoder IDE 架构逆向分析](knowledge/alibaba/ai-coding/qoder_survey_20260622.md) |
-| QoderWork / 桌面助手 / 本地 Agent | [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) |
-| 万镜一刻 / WonderClip / AI视频创作 / 短剧 | [万镜一刻](knowledge/alibaba/ai-application/wonderclip万镜一刻.md) |
-| MuleRun / 骡子快跑 / 云端 Agent / vs QoderWork | [MuleRun](knowledge/alibaba/ai-application/mulerun.md) |
-| GPU 选型 / A100 / H100 / H20 | [GPU 选型决策树](knowledge/alibaba/ai-infra/gpu-product-line.md) ⭐ |
+| Qwen / 通义千问 / 3.7-Plus / 3.7-Max / 旗舰 | [Qwen](alibaba-ai-hub/maas/qwen.md) |
+| 万相 / Wan / 视频生成 / 图生视频 | [万相](alibaba-ai-hub/maas/wan.md) |
+| CosyVoice / 语音合成 / TTS / 声音复刻 | [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) |
+| FunASR / 语音识别 / ASR / 说话人分离 | [FunASR](alibaba-ai-hub/maas/funasr.md) |
+| HappyHorse / 快乐小马 / 图像生成 | [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) |
+| 百炼平台 / 多账号 / TPM 扩量 / 限流 | [百炼平台](alibaba-ai-hub/maas/overview.md) |
+| 百炼安全 / SOC 2 / CMaaS / 数据主权 / 隔离 | [百炼安全合规](alibaba-ai-hub/maas/model_studio_security-compliance_cn.md) |
+| Qoder / AI 编程 / IDE 插件 | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) |
+| Qoder 架构 / Harness 逆向 / 执行日志分析 | [Qoder IDE 架构逆向分析](alibaba-ai-hub/ai-coding/qoder_survey_20260622.md) |
+| QoderWork / 桌面助手 / 本地 Agent | [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) |
+| 万镜一刻 / WonderClip / AI视频创作 / 短剧 | [万镜一刻](alibaba-ai-hub/ai-application/wonderclip万镜一刻.md) |
+| MuleRun / 骡子快跑 / 云端 Agent / vs QoderWork | [MuleRun](alibaba-ai-hub/ai-application/mulerun.md) |
+| GPU 选型 / A100 / H100 / H20 | [GPU 选型决策树](alibaba-ai-hub/ai-infra/gpu-product-line.md) ⭐ |
 | 灵骏 / 智算集群 / EFLOPS | 待补充 |
 | Agent 定义 / Harness / 治理层 | [Agent](knowledge/ai-general-notes/agent-def.md) ⭐ · [Harness](knowledge/ai-general-notes/harness.md) ⭐ |
 | Agent 框架 / LangChain / LangGraph / Deep Agents | [Agent 框架](knowledge/ai-general-notes/agent-frameworks.md) |
@@ -53,14 +53,14 @@
 | GPT-5 / GPT-5.6 / ChatGPT / OpenAI / Codex | [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
 | MAI / 微软自研 / Copilot 模型 | [MAI 模型家族](knowledge/microsoft/mai-models.md) |
 | DeepSeek / R1 / V4 / 开源 | [DeepSeek](knowledge/deepseek/general_intro.md) ⭐ |
-| Hy3-preview / 腾讯混元 / Hunyuan | [Hy3-preview](knowledge/tencent/hy3-preview.md) |
-| Qwen vs Hy3 / 混元竞争分析 | [Qwen3.7 vs Hy3-preview](knowledge/alibaba/competitive-analysis/qwen-vs-hy3/overview.md) |
-| Qwen vs Doubao / 豆包竞争分析 | [Qwen3.7-Max vs Doubao-Seed-2.1 Pro](knowledge/alibaba/competitive-analysis/qwen-vs-doubao/overview.md) |
+| Hy3 / 腾讯混元 / Hunyuan | [Hy3](knowledge/tencent/hy3.md) |
+| Qwen vs Hy3 / 混元竞争分析 | [Qwen3.7 vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) |
+| Qwen vs Doubao / 豆包竞争分析 | [Qwen3.7-Max vs Doubao-Seed-2.1 Pro](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
 | MiniMax / M3 / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
 | Kimi / 月之暗面 / Moonshot / K2.6 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
 | GLM / 智谱 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) |
-| 企业自建推理 / Higress / AI 网关 | [企业自建 AI 推理平台](knowledge/solutions/enterprise-ai-platform/overview.md) ⭐ |
-| 数据出境 / 数据主权 / CN 版 | [MuleRun](knowledge/alibaba/ai-application/mulerun.md#mulerun全球版与骡子快跑中国版的关系) · [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) |
+| 企业自建推理 / Higress / AI 网关 | [企业自建 AI 推理平台](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) ⭐ |
+| 数据出境 / 数据主权 / CN 版 | [MuleRun](alibaba-ai-hub/ai-application/mulerun.md#mulerun全球版与骡子快跑中国版的关系) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) |
 
 ---
 
@@ -91,40 +91,40 @@
 
 > 分组顺序：**云厂商**（阿里云 / Google）→ **海外模型厂商** → **中国模型厂商**。
 
-### 🟧 阿里云（核心阵地，22 篇深度文档）
+### 🟧 阿里云（核心阵地，26 篇深度文档）
 
 > **从底层算力到上层应用，覆盖 MaaS / AI Coding / AI App / AI Infra / 竞品对比全链路。**
 
 **MaaS（模型即服务）**
-- [百炼平台](knowledge/alibaba/maas/overview.md) — UID 级限流、多账号扩 TPM（8.5× 实测）、deepseek-v4-flash 压测
-- [百炼安全合规](knowledge/alibaba/maas/security-compliance_cn.md) — 算力隔离、SOC 2、ISO 42001、CMaaS、Geo-fencing、SLA
-- [Qwen](knowledge/alibaba/maas/qwen.md) — 3.7-Max（编码旗舰）/ 3.7-Plus（性价比）/ 3.6（轻量），1M 上下文
-- [万相](knowledge/alibaba/maas/wan.md) — 视频生成旗舰、首尾帧控制
-- [CosyVoice](knowledge/alibaba/maas/cosyvoice.md) — TTS 主推引擎，声音复刻+声音设计+指令控制，将替代 Qwen-TTS
-- [FunASR](knowledge/alibaba/maas/funasr.md) — ASR 主推引擎，六大能力一站式语音识别，将替代 Qwen3-ASR
-- [HappyHorse](knowledge/alibaba/maas/happyhorse.md) — 图像生成
-- [Qwen Demo](knowledge/alibaba/maas/qwen-demo-20260420.md) · [Wan Demo](knowledge/alibaba/maas/wan-demo-20260420.md) — 产品演示素材
-- [百炼 API 销售指南](knowledge/alibaba/maas/ModelStudio-api-sales-guide-20260629.md) — 售前话术、模型选型、客户问答
+- [百炼平台](alibaba-ai-hub/maas/overview.md) — UID 级限流、多账号扩 TPM（8.5× 实测）、deepseek-v4-flash 压测
+- [百炼安全合规](alibaba-ai-hub/maas/model_studio_security-compliance_cn.md) — 算力隔离、SOC 2、ISO 42001、CMaaS、Geo-fencing、SLA
+- [Qwen](alibaba-ai-hub/maas/qwen.md) — 3.7-Max（编码旗舰）/ 3.7-Plus（性价比）/ 3.6（轻量），1M 上下文
+- [万相](alibaba-ai-hub/maas/wan.md) — 视频生成旗舰、首尾帧控制
+- [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) — TTS 主推引擎，声音复刻+声音设计+指令控制，将替代 Qwen-TTS
+- [FunASR](alibaba-ai-hub/maas/funasr.md) — ASR 主推引擎，六大能力一站式语音识别，将替代 Qwen3-ASR
+- [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) — 图像生成
+- [Qwen Demo](alibaba-ai-hub/maas/qwen-demo-20260420.md) · [Wan Demo](alibaba-ai-hub/maas/wan-demo-20260420.md) — 产品演示素材
+- [百炼 API 销售指南](alibaba-ai-hub/maas/ModelStudio-api-sales-guide-20260629.md) — 售前话术、模型选型、客户问答
 
 **AI Coding**
-- [Qoder](knowledge/alibaba/ai-coding/qoder.md) — 企业级 AI Coding IDE 插件
-- [Qoder IDE 架构逆向分析](knowledge/alibaba/ai-coding/qoder_survey_20260622.md) — 基于执行日志逆向 Agent=Model+Harness 五子系统架构
-- [Qoder Credits 省钱指南](knowledge/alibaba/ai-coding/qoder-credits-saving-tips.png) — 额度优化实战
+- [Qoder](alibaba-ai-hub/ai-coding/qoder.md) — 企业级 AI Coding IDE 插件
+- [Qoder IDE 架构逆向分析](alibaba-ai-hub/ai-coding/qoder_survey_20260622.md) — 基于执行日志逆向 Agent=Model+Harness 五子系统架构
+- [Qoder Credits 省钱指南](alibaba-ai-hub/ai-coding/qoder-credits-saving-tips.png) — 额度优化实战
 
 **AI App**
-- [万镜一刻](knowledge/alibaba/ai-application/wonderclip万镜一刻.md) — 全链路AI视频创作平台，短漫剧+营销，HappyHorse+Wan，$18–$12,000/月
-- [QoderWork](knowledge/alibaba/ai-application/qoder-work.md) — 桌面 Agent、本地
-- [MuleRun](knowledge/alibaba/ai-application/mulerun.md) — 云端 Agent、Always-On
-- [龙虾家族](knowledge/alibaba/ai-application/claw-family.md)
-- [JVS Crew](knowledge/alibaba/ai-application/jvs-crew.md)
+- [万镜一刻](alibaba-ai-hub/ai-application/wonderclip万镜一刻.md) — 全链路AI视频创作平台，短漫剧+营销，HappyHorse+Wan，$18–$12,000/月
+- [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) — 桌面 Agent、本地
+- [MuleRun](alibaba-ai-hub/ai-application/mulerun.md) — 云端 Agent、Always-On
+- [龙虾家族](alibaba-ai-hub/ai-application/claw-family.md)
+- [JVS Crew](alibaba-ai-hub/ai-application/jvs-crew.md)
 
 **AI Infra（GPU 算力）**
-- [GPU 产品线选型](knowledge/alibaba/ai-infra/gpu-product-line.md) ⭐ — A100/H100/H20 选型决策树
+- [GPU 产品线选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) ⭐ — A100/H100/H20 选型决策树
 
 **竞品对比（阿里云视角）**
-- [Qoder vs Trae](knowledge/alibaba/competitive-analysis/qoder-vs-trae/overview.md) — 企业级 vs 个人开发者定位差异
-- [Qwen3.7 vs Hy3-preview](knowledge/alibaba/competitive-analysis/qwen-vs-hy3/overview.md) — 1M上下文+深度编码+多模态 vs 性价比+开源部署
-- [Qwen vs Doubao](knowledge/alibaba/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先 + 1M 上下文优势
+- [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) — 企业级 vs 个人开发者定位差异
+- [Qwen3.7 vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) — 1M上下文+深度编码+多模态 vs 性价比+开源部署
+- [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先 + 1M 上下文优势
 
 ### Google
 
@@ -182,24 +182,24 @@
 
 ### 腾讯混元（Tencent Hunyuan）
 
-- 模型: [Hy3-preview](knowledge/tencent/hy3-preview.md) — 295B MoE/21B 激活，OpenRouter 工具调用 #1，SWE-bench 74.4%，开源可自部署，价格碾压
+- 模型: [Hy3](knowledge/tencent/hy3.md) — 295B MoE/21B 激活，OpenRouter 工具调用 #1，SWE-bench 74.4%，开源可自部署，价格碾压
 
 ---
 
 ## 线：对比分析（阿里云视角）
 
-- [Qoder vs Trae](knowledge/alibaba/competitive-analysis/qoder-vs-trae/overview.md) ⭐ — 企业级 vs 个人开发者定位差异
-- [Qwen3.7 vs Hy3-preview](knowledge/alibaba/competitive-analysis/qwen-vs-hy3/overview.md) — 1M上下文+深度编码+多模态 vs 性价比+开源部署，SA 打法建议
-- [Qwen vs Doubao](knowledge/alibaba/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先（TB 2.1 +3.5, SWE-Pro +3.1）+ 1M 上下文 vs Agent 规划更强，SA 打法建议
+- [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) ⭐ — 企业级 vs 个人开发者定位差异
+- [Qwen3.7 vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) — 1M上下文+深度编码+多模态 vs 性价比+开源部署，SA 打法建议
+- [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先（TB 2.1 +3.5, SWE-Pro +3.1）+ 1M 上下文 vs Agent 规划更强，SA 打法建议
 
 ---
 
 ## 体：行业解决方案
 
-- [IPC 智能安防](knowledge/solutions/vertical-ipc/overview.md) — 视频监控、AI 质检
-- [短剧出海](knowledge/solutions/vertical-short-drama/overview.md) — Qwen3.7-Plus 原生 VL 视频理解 + 16 语言内容生成 + OpenSearch SEO，30 天 156 万条
-- [商业地产](knowledge/solutions/commercial-real-estate/overview.md) — AI 质检、合同审查、知识库、智能客服、Qoder 提效
-- [企业自建 AI 推理平台](knowledge/solutions/enterprise-ai-platform/overview.md) ⭐ — Higress AI 网关 + 灵骏 GPU + 百炼 Fallback；含 AWS 迁移案例
+- [IPC 智能安防](alibaba-ai-hub/ai-industry-solutions/vertical-ipc/overview.md) — 视频监控、AI 质检
+- [短剧出海](alibaba-ai-hub/ai-industry-solutions/vertical-short-drama/overview.md) — Qwen3.7-Plus 原生 VL 视频理解 + 16 语言内容生成 + OpenSearch SEO，30 天 156 万条
+- [商业地产](alibaba-ai-hub/ai-industry-solutions/commercial-real-estate/overview.md) — AI 质检、合同审查、知识库、智能客服、Qoder 提效
+- [企业自建 AI 推理平台](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) ⭐ — Higress AI 网关 + 灵骏 GPU + 百炼 Fallback；含 AWS 迁移案例
 
 ---
 
@@ -208,6 +208,6 @@
 - [AI 通用笔记模板](knowledge/ai-general-notes/_template.md)
 - [MaaS 产品模板](knowledge/_maas_template.md)
 - [产品模板](knowledge/_product_template.md)
-- [对比分析模板](knowledge/alibaba/competitive-analysis/_template.md)
+- [对比分析模板](alibaba-ai-hub/competitive-analysis/_template.md)
 - [内部产品对比模板](knowledge/_internal-comparison_template.md)
-- [解决方案模板](knowledge/solutions/_template.md)
+- [解决方案模板](alibaba-ai-hub/ai-industry-solutions/_template.md)

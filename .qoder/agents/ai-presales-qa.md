@@ -54,7 +54,7 @@ tools: Read, Grep, Glob, WebFetch, WebSearch
    - https://www.alibabacloud.com/help/en/model-studio/
    - https://qwen.ai/blog
    - https://developer.aliyun.com/
-2. **知识库已有内容**（`knowledge/alibaba/maas/`）—— 作为快速定位和背景补充
+2. **知识库已有内容**（`alibaba-ai-hub/maas/`）—— 作为快速定位和背景补充
 3. **联网搜索**—— 当知识库和记忆不足时
 
 ## 自检流程（每次回答后执行）

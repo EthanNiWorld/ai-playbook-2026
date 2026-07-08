@@ -193,7 +193,7 @@
 
 - [百炼限流官方文档](https://www.alibabacloud.com/help/en/model-studio/rate-limit)
 - [DeepSeek API 接入说明](https://www.alibabacloud.com/help/en/model-studio/deepseek-api)
-- [Harness 调用层治理模式](../../ai-general-notes/harness.md#调用层-harness容量与限流治理)
+- [Harness 调用层治理模式](../../knowledge/ai-general-notes/harness.md#调用层-harness容量与限流治理)
 - 2026-05-22 双 UID deepseek-v4-flash 压测实践（1.84M TPM 验证）
 
 ## Changelog

@@ -39,6 +39,11 @@ def get_knowledge_base_path() -> Path:
     return get_project_root().parent.parent / "knowledge"
 
 
+def get_alibaba_hub_path() -> Path:
+    """返回 alibaba-ai-hub/ 目录绝对路径（阿里云核心阵地，已提升为仓库一级目录）"""
+    return get_knowledge_base_path().parent / "alibaba-ai-hub"
+
+
 def get_notes_path() -> Path:
     """返回 notes/ 目录绝对路径"""
     return get_knowledge_base_path().parent / "notes"

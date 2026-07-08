@@ -7,7 +7,7 @@
 <!-- SUMMARY_START -->
 **一句话说明**: reasoning_effort / thinking_budget 是 2026 年推理模型的标配能力，在"思考质量 vs 成本延迟"的 Pareto 前沿上提供动态调节点
 **核心价值**: Agent 场景下，Harness 应根据当前步骤难度动态选择 thinking depth——规划用 high，工具调用用 medium，格式转换用 minimal
-**相关产品**: [Qwen](../alibaba/maas/qwen.md), [Claude API](../anthropic/claude-api.md), [GPT-5 系列](../openai/gpt-5-series.md), [Doubao-Seed-2.1](../bytedance/doubao-seed-2.1.md)
+**相关产品**: [Qwen](../../alibaba-ai-hub/maas/qwen.md), [Claude API](../anthropic/claude-api.md), [GPT-5 系列](../openai/gpt-5-series.md), [Doubao-Seed-2.1](../bytedance/doubao-seed-2.1.md)
 <!-- SUMMARY_END -->
 
 ## 是什么

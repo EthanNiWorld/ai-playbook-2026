@@ -32,7 +32,7 @@ tools: Read, Grep, Glob, Write, SearchReplace, SearchCodebase, Bash, WebSearch, 
 > HTML 文件是已成型的销售物料/展示文档（如 salebook、case report），**无需提炼、无需按模板格式化、无需事实校验**。
 > 
 > 处理流程：
-> 1. **识别归属**：根据文件名和内容判断属于哪个厂商/品类（如 `qwen3.7-max-salebook.html` → `knowledge/alibaba-cloud/maas/`）
+> 1. **识别归属**：根据文件名和内容判断属于哪个厂商/品类（如 `qwen3.7-max-salebook.html` → `alibaba-ai-hub/maas/`）
 > 2. **直接移动**：将 HTML 文件从 `inbox/` 移到对应的 `knowledge/{厂商}/{品类}/` 目录
 > 3. **更新 README 计数**（如 knowledge/ 下文件总数变化）
 > 4. **归档 inbox 源文件**（已移动，无需额外归档）
@@ -44,7 +44,7 @@ tools: Read, Grep, Glob, Write, SearchReplace, SearchCodebase, Bash, WebSearch, 
 > 如果素材本身已经是结构化的问答文档（如 ai-presales-qa 输出、安全评估应答、FAQ 整理），内容已经包含结论、细节和参考链接，**无需按模板重新格式化，直接原样放入对应目录**。
 > 
 > 处理流程：
-> 1. **识别归属**：根据内容主题判断目标目录（如安全合规 → `knowledge/alibaba/maas/security-compliance_cn.md`）
+> 1. **识别归属**：根据内容主题判断目标目录（如安全合规 → `alibaba-ai-hub/maas/security-compliance_cn.md`）
 > 2. **直接移动**：将文件从 `inbox/` 移到对应的 `knowledge/{厂商}/{品类}/` 目录，保留原始内容不做改动
 > 3. **更新 index.md**：追加条目
 > 4. **归档 inbox 源文件**（用户确认后）
@@ -68,15 +68,16 @@ tools: Read, Grep, Glob, Write, SearchReplace, SearchCodebase, Bash, WebSearch, 
 | AI 领域通识 | `knowledge/ai-general-notes/{子领域}.md` | `knowledge/ai-general-notes/_template.md` |
 | MaaS 模型知识 | `knowledge/{厂商}/maas/{模型}.md`（单模型）<br>`knowledge/{厂商}/{系列}-series.md`（模型系列） | `knowledge/_maas_template.md` |
 | 单产品知识 | 云厂商: `knowledge/{厂商}/{品类}/{产品}.md`<br>纯模型厂商: `knowledge/{厂商}/{产品}.md` | `knowledge/_product_template.md` |
-| 厂商竞争分析 | `knowledge/alibaba-cloud/competitive-analysis/{a-vs-b}/overview.md` | `knowledge/alibaba-cloud/competitive-analysis/_template.md` |
+| 厂商竞争分析 | `alibaba-ai-hub/competitive-analysis/{a-vs-b}/overview.md` | `alibaba-ai-hub/competitive-analysis/_template.md` |
 | **内部产品对比** | `knowledge/{厂商}/{品类}/{product-a}-vs-{product-b}.md` | `knowledge/_internal-comparison_template.md` |
-| 行业解决方案 | `knowledge/solutions/{客群}/overview.md` | `knowledge/solutions/_template.md` |
+| 行业解决方案 | `alibaba-ai-hub/ai-industry-solutions/{客群}/overview.md` | `alibaba-ai-hub/ai-industry-solutions/_template.md` |
 
 > **内部产品对比 vs 厂商竞争分析**：
 > - **内部产品对比**：同厂商下两个产品的对比（如 MuleRun vs QoderWork），关注场景分工和选型决策
 > - **厂商竞争分析**：跨厂商的竞品对比（如 Qoder vs Kiro），关注市场定位和竞争优势
 
 > **云厂商**（`alibaba-cloud` / `aws` / `gcp`）：品类取 `ai-coding` / `ai-application` / `ai-platform` / `ai-infra` / `maas`
+> **⚠️ 阿里云特例**：阿里云已提升为仓库一级目录，所有阿里云内容（含 MaaS / AI Coding / AI Application / AI Infra / 竞品分析 / 行业方案）归档到 `alibaba-ai-hub/` 下，**不在 `knowledge/` 内**；行业方案归档到 `alibaba-ai-hub/ai-industry-solutions/`。
 > **纯模型厂商**（`minimax` / `deepseek` / `openai` / `anthropic` / `zhipu` 等）：直接写入厂商根目录，无需品类子目录。Agent、Harness 等能力属模型能力延伸，非独立产品线。
 
 3. **语义搜索与智能合并（强化版）**：
@@ -230,7 +231,7 @@ tools: Read, Grep, Glob, Write, SearchReplace, SearchCodebase, Bash, WebSearch, 
 2. **新建文档**（仅在无相关文档或用户确认需要独立文档时）：
    - 将文档写入 `knowledge/` 对应目录
    - 更新 `/index.md` 追加条目，更新最后更新时间
-   - **⚠️ 链接前缀**：index.md 位于仓库根目录，所有链接必须以 `knowledge/` 开头（如 `[Qwen](knowledge/alibaba-cloud/maas/qwen.md)`），禁止省略前缀
+   - **⚠️ 链接前缀**：index.md 位于仓库根目录，阿里云内容链接以 `alibaba-ai-hub/` 开头（如 `[Qwen](alibaba-ai-hub/maas/qwen.md)`），其他厂商以 `knowledge/` 开头，禁止省略前缀
 
 3. 如果内容已经存在，需要追加到合适位置，增量迭代，覆盖、删除原有内容需要与用户确认
 

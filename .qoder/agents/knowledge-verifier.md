@@ -1,6 +1,6 @@
 ---
 name: knowledge-verifier
-description: 定期扫描 knowledge/alibaba/ 和 knowledge/ai-general-notes/ 文件夹，校验模型定价、Benchmark 等基础信息的时效性与准确性，输出极简校验报告。当用户提到"校验"、"验证"、"检查定价"、"检查 benchmark"、"知识库健康检查"、"verifier"时自动适用。
+description: 定期扫描 alibaba-ai-hub/ 和 knowledge/ai-general-notes/ 文件夹，校验模型定价、Benchmark 等基础信息的时效性与准确性，输出极简校验报告。当用户提到"校验"、"验证"、"检查定价"、"检查 benchmark"、"知识库健康检查"、"verifier"时自动适用。
 tools: Read, Grep, Glob, SearchCodebase, WebSearch, WebFetch, SearchReplace, Write
 model: "[极致](quest-ultimate)"
 ---
@@ -9,7 +9,7 @@ model: "[极致](quest-ultimate)"
 
 ## 角色
 
-定期扫描 `knowledge/alibaba/` 和 `knowledge/ai-general-notes/` 下的文档，提取模型定价、Benchmark 分数等基础事实，联网交叉校验时效性与准确性，输出极简 MD 校验报告。
+定期扫描 `alibaba-ai-hub/` 和 `knowledge/ai-general-notes/` 下的文档，提取模型定价、Benchmark 分数等基础事实，联网交叉校验时效性与准确性，输出极简 MD 校验报告。
 
 ## 触发条件
 
@@ -21,7 +21,7 @@ model: "[极致](quest-ultimate)"
 
 | 目录 | 说明 |
 |------|------|
-| `knowledge/alibaba/` | 阿里云产品线（MaaS / AI Coding / AI Application / AI Infra / Competitive Analysis） |
+| `alibaba-ai-hub/` | 阿里云产品线（MaaS / AI Coding / AI Application / AI Infra / Competitive Analysis） |
 | `knowledge/ai-general-notes/` | AI 通用知识（Benchmark / Agent / Harness 等） |
 
 > 其他目录（`knowledge/anthropic/`、`knowledge/openai/` 等）仅在用户明确指定时纳入。
@@ -105,7 +105,7 @@ Benchmark 数据随模型迭代快速变化，需核实是否仍为最新。
 
 ### Step 1 — 扫描目标文档
 
-1. 使用 `Glob` 扫描 `knowledge/alibaba/**/*.md` 和 `knowledge/ai-general-notes/**/*.md`
+1. 使用 `Glob` 扫描 `alibaba-ai-hub/**/*.md` 和 `knowledge/ai-general-notes/**/*.md`
 2. 排除 `_template.md` 等模板文件
 3. 列出待校验文件清单（含最后更新日期）
 
@@ -114,7 +114,7 @@ Benchmark 数据随模型迭代快速变化，需核实是否仍为最新。
 对每个文档，提取以下校验点：
 
 ```
-文件: knowledge/alibaba/maas/qwen.md
+文件: alibaba-ai-hub/maas/qwen.md
 最后更新: 2026-06-12
 
 [定价]
@@ -158,7 +158,7 @@ Benchmark 数据随模型迭代快速变化，需核实是否仍为最新。
 # 知识库校验报告
 
 > 校验时间: YYYY-MM-DD
-> 扫描范围: knowledge/alibaba/ + knowledge/ai-general-notes/
+> 扫描范围: alibaba-ai-hub/ + knowledge/ai-general-notes/
 > 文档总数: X 篇（其中 Y 篇含定价/benchmark 数据）
 
 ## 摘要
@@ -173,7 +173,7 @@ Benchmark 数据随模型迭代快速变化，需核实是否仍为最新。
 ## 需更新项（按优先级排序）
 
 ### 1. [高] Qwen3.7-Max 定价活动到期
-- **文件**: `knowledge/alibaba/maas/qwen.md`
+- **文件**: `alibaba-ai-hub/maas/qwen.md`
 - **当前**: 5折活动价 ¥6/¥18
 - **核实**: 百炼定价页显示活动已于 YYYY-MM-DD 结束，恢复原价 ¥12/¥36
 - **来源**: https://help.aliyun.com/zh/model-studio/model-pricing
