@@ -1,6 +1,6 @@
 # Qoder
 
-> 最后更新: 2026-07-01
+> 最后更新: 2026-07-09
 > 所属厂商: Alibaba (Alibaba Cloud)
 > 产品类别: AI Coding
 > 状态: Published
@@ -129,6 +129,7 @@ Qoder 采用 Credit 计量制而非纯席位订阅，背后逻辑：
 | 产品 | 云市场链接 |
 |------|------------|
 | Teams 席位 | https://marketplace.alibabacloud.com/products/201076001/sgcmgj00036615.html |
+| Enterprise 席位 | https://marketplace.alibabacloud.com/products/201076001/sgcmgj00036896.html |
 | 组织共享资源包 | https://marketplace.alibabacloud.com/products/201076001/sgcmgj00036655.html |
 
 ### 开通流程
@@ -189,4 +190,5 @@ Qoder 采用 Credit 计量制而非纯席位订阅，背后逻辑：
 | 2026-04-20 | 初始创建（Draft） |
 | 2026-05-26 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20260526.md - 完善产品定位、4大核心模式、计费模式、安全合规、竞品对照 |
 | 2026-06-08 | 增量：用户口述 - 新增 Qoder CLI 技术栈演进（Go → TypeScript，7人30天）及切换原因分析 |
-| 2026-07-01 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20260701.md - 新增 Enterprise 版本能力与计费模型、产品形态补全、席位管理规则；修正“企业版待发布”为已发布；移除消耗优先级中的“个人资源包”（Teams/Enterprise 成员不可购买） |
+| 2026-07-01 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20260701.md - 新增 Enterprise 版本能力与计费模型、产品形态补全、席位管理规则；修正"企业版待发布"为已发布；移除消耗优先级中的"个人资源包"（Teams/Enterprise 成员不可购买） |
+| 2026-07-09 | 增量：用户口述 - 补充 Enterprise 席位云市场下单链接 |

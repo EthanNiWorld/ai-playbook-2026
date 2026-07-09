@@ -1,6 +1,6 @@
 # MuleRun（骡子快跑）
 
-> 最后更新: 2026-06-02
+> 最后更新: 2026-07-09
 > 所属厂商: 阿里云
 > 产品类别: AI App
 > 状态: Published
@@ -47,7 +47,7 @@ MuleRun 为每个用户分配一台云端计算机，Agent 在上面持续运行
 | 发布时间 | 2026.05.20 | ebrun.com |
 | 服务覆盖 | 43 个国家 | ebrun.com |
 | 官网 | mulerun.com | — |
-| 阿里云市场 | market.aliyun.com（Team 版） | — |
+| 阿里云市场 | MuleRun Enterprise / Teams 版（见下表） |
 
 ### 核心限制
 
@@ -181,6 +181,13 @@ MuleRun:   用户（Web/iOS）→ 云端 Debian VM → 云端 Drive + Computer U
 | 图形验证码拖拽 | ✅ | ⚠️ 吃力 | ❌ | ✅ | ❌ |
 | 数据主权 | 出境（全球版） | 须选 QoderWork CN | 不出境（本地） | 出境 | 出境 |
 
+### 阿里云市场下单链接
+
+| 产品 | 云市场链接 |
+|------|------------|
+| MuleRun Enterprise | https://marketplace.alibabacloud.com/products/56680002/sgcmgj00036791.html |
+| MuleRun Teams | https://marketplace.alibabacloud.com/products/56680002/sgcmgj00036799.html |
+
 ## 在阿里云 AI 生态中的位置
 
 ```
@@ -203,6 +210,7 @@ MuleRun 是阿里云 AI 生态的"最后一公里"——从基础设施到终端
 | 日期 | 变更内容 |
 |------|----------|
 | 2026-06-02 | 新增实测发现：MuleRun 可解决图形验证码拖拽问题，QoderWork 吃力；对比表+竞品表+场景参考同步更新 |
+| 2026-07-09 | 增量：用户口述 - 补充 MuleRun Enterprise 和 Teams 阿里云市场下单链接 |
 | 2026-06-02 | 深度对比分析重构：新增来源校验列、底层架构差异图、场景化选型决策树；脱敏负责人姓名；调和"常搭配"与"内置模型"矛盾；用户补充事实统一标注 ⚠️ 待验证 |
 | 2026-06-02 | 增量更新：新增 HTML 网站发布、内置 SOTA 生图/生视频模型、云端 Drive + 本地存储能力；对比表新增 HTML 发布 / 内置模型 / 数据主权维度；新增 MuleRun 全球版 vs 骡子快跑 CN 关系说明；补充场景参考 |
 | 2026-06-01 | 新建文档，基于 ai-native-expert 素材提炼 MuleRun 全面解析 + QoderWork 对比 |
