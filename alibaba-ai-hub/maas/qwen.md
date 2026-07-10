@@ -1,6 +1,6 @@
 # 通义千问 (Qwen)
 
-> 最后更新: 2026-06-12
+> 最后更新: 2026-07-10
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 
@@ -61,7 +61,7 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
   - **多模态/GUI 操作为 Qwen3.7 系列最强**
 - **定价**：¥2/¥8 per 1M input/output tokens（≤256K）；¥6/¥24（256K-1M）；思考与非思考同价 [来源: https://help.aliyun.com/zh/model-studio/model-pricing]
   - Batch 调用 5 折；输入支持上下文缓存折扣（与 Batch 不可叠加）
-  - 推理后付费限时 8 折至 2026-07-02
+  - 推理后付费限时 8 折（截止日期以百炼控制台为准）
 - **开源**：否，API 商用闭源（仅通过百炼提供）[来源: https://www.aihub.cn/ai-model/qwen3-7-plus/]
 - **Benchmark**（来源: qubrid.com 六模型对比表 + benchlm.ai）：
   - GUI Agent: ScreenSpot Pro 79.0% / AndroidWorld 81.0% / OSWorld-Verified 73.3%（BenchLM Computer Use 全球 #4，75.6 分）
@@ -237,6 +237,7 @@ Max 生成速度约为 Plus 的 4.7 倍（MoE 架构 + 无视觉 encoder 开销�
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-07-10 | 校验修复：移除 Plus "8折至 2026-07-02" 过期到期日，改为"截止日期以百炼控制台为准" |
 | 2026-06-14 | 同步 HTML 选型页变更：系列定位分工更新 Max 不再是纯文本旗舰（0608 快照起支持视觉）；Plus 竞争力要点补充视觉场景首选定位 |
 | 2026-06-12 | 合并：inbox 素材 — Qwen3.7-Max-2026-06-08 新增视觉能力（官方日志确认 + 视觉模型页面参数表）；修正多处"Max 仅文本"过时描述；新增快照版本演进记录；更新选型结论表（Max-0608 视觉可用但专项 benchmark 待验证）；JSON Mode 实测可用标注 |
 | 2026-06-11 | 合并：inbox 选型分析素材 — 新增「Plus vs Max 场景选型详解」子章节（3 层对比 + benchmark 数据 + 推理速度 + 选型结论表）；更新 Plus Benchmark 详细数据（GUI Agent / Visual Coding / 文档理解 / 纯文本 Agent 四维度） |

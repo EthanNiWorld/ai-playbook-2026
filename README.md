@@ -5,7 +5,7 @@
 <table align="center">
 <tr>
 <td align="center" width="25%"><br><h2>12</h2><b>覆盖厂商</b><br><sub>阿里 · Google · Anthropic · OpenAI…</sub><br><br></td>
-<td align="center" width="25%"><br><h2>66</h2><b>结构化文档</b><br><sub>深度分析 · 持续更新</sub><br><br></td>
+<td align="center" width="25%"><br><h2>67</h2><b>结构化文档</b><br><sub>深度分析 · 持续更新</sub><br><br></td>
 <td align="center" width="25%"><br><h2>4</h2><b>知识维度</b><br><sub>通识 · 产品 · 对比 · 方案</sub><br><br></td>
 <td align="center" width="25%"><br><h2>☁️</h2><b>阿里云为核心</b><br><sub>MaaS · Coding · App · Infra</sub><br><br></td>
 </tr>
@@ -73,7 +73,7 @@
 **📚 AI 通识**
 > Agent · Harness · Prompt · Benchmark
 
-[Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [推测解码](knowledge/ai-general-notes/speculative-decoding.md) · [前沿模型](knowledge/ai-general-notes/frontier-model-positioning.md)
+[Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [ReAct](knowledge/ai-general-notes/Memory-ReAct.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [推测解码](knowledge/ai-general-notes/speculative-decoding.md) · [前沿模型](knowledge/ai-general-notes/frontier-model-positioning.md)
 
 </td>
 </tr>
@@ -108,6 +108,7 @@
 | [AI 能力边界](knowledge/ai-general-notes/ai-capability-and-deployment.md) | 锯齿状能力边界、迭代部署哲学、Personal AGI 终局 |
 | [模型自我进化](knowledge/ai-general-notes/agent-self-evolution.md) | MiniMax M2.7 实践：模型自主驱动训练，100+ 迭代 30% 提升 |
 | [AI Agent 记忆系统](knowledge/ai-general-notes/agent-memory.md) | ChatGPT Dreaming V3、人脑记忆工程同构、个性化护城河 |
+| [ReAct 范式](knowledge/ai-general-notes/Memory-ReAct.md) | Reasoning and Acting 范式，LLM Agent 最小可行范式，Memory 是最后一公里 |
 | [AI 公司增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) | Killer App × 企业信任 × 消费制收入，Anthropic 17 个月 47 倍 |
 | [AI Agent Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) | 三维度评估框架：操作执行力（SWE-bench/TB/OSWorld）+ 学术推理力（HLE）+ 知识工作力（GDPval-AA） |
 
@@ -147,6 +148,7 @@ mindmap
       AI 能力边界
       模型自我进化
       AI Agent 记忆系统
+      ReAct 范式
       AI 公司增长飞轮
       推测解码与推理加速
     点:厂商与产品
@@ -229,8 +231,8 @@ flowchart LR
 │   └── ai-industry-solutions/ ← 🟩 行业方案（企业AI平台 / 短剧出海 / IPC / 商业地产）
 ├── inbox/              ← 📥 原始素材暂存（处理后自动归档）
 ├── archive/            ← 🗄️ 已处理素材备份
-├── knowledge/          ← 🎯 结构化知识库（通识 + 他厂商，40 篇）
-│   ├── ai-general-notes/   ← 🟦 AI 通识（13 篇：Agent / Harness / Prompt / 记忆 / 增长飞轮 / Benchmark…）
+├── knowledge/          ← 🎯 结构化知识库（通识 + 他厂商，41 篇）
+│   ├── ai-general-notes/   ← 🟦 AI 通识（14 篇：Agent / Harness / Prompt / 记忆 / ReAct / 增长飞轮 / Benchmark…）
 │   ├── google/             ← 🔵 Google（3 篇：MaaS / Platform）
 │   ├── anthropic/          ← 🔵 Anthropic（5 篇：MaaS / Coding / App）
 │   ├── openai/             ← 🔵 OpenAI（3 篇：公司分析 / GPT-5系列 / Codex）

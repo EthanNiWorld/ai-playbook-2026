@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-07-06
+> 最后更新：2026-07-10
 
 ## 目录
 
@@ -38,6 +38,7 @@
 | GPU 选型 / A100 / H100 / H20 | [GPU 选型决策树](alibaba-ai-hub/ai-infra/gpu-product-line.md) ⭐ |
 | 灵骏 / 智算集群 / EFLOPS | 待补充 |
 | Agent 定义 / Harness / 治理层 | [Agent](knowledge/ai-general-notes/agent-def.md) ⭐ · [Harness](knowledge/ai-general-notes/harness.md) ⭐ |
+| ReAct / 推理+行动 / Thought-Action-Observation | [ReAct 范式](knowledge/ai-general-notes/Memory-ReAct.md) ⭐ |
 | Agent 框架 / LangChain / LangGraph / Deep Agents | [Agent 框架](knowledge/ai-general-notes/agent-frameworks.md) |
 | AI 记忆 / Memory / Dreaming | [AI Agent 记忆](knowledge/ai-general-notes/agent-memory.md) ⭐ |
 | AI 公司增长 / ARR / 飞轮 | [AI 增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ |
@@ -83,6 +84,7 @@
 - [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) — 三正交轴选型框架（时间尺度 × 模态融合 × 泛化广度）
 - [推测解码](knowledge/ai-general-notes/speculative-decoding.md) ⭐ — draft-and-verify 范式、DSpark/DFlash/Eagle3 方法对比、模型+系统联合优化趋势
 - [AI Agent 记忆系统](knowledge/ai-general-notes/agent-memory.md) ⭐ — ChatGPT Dreaming V3、人脑记忆工程同构、个性化护城河
+- [ReAct 范式](knowledge/ai-general-notes/Memory-ReAct.md) ⭐ — Reasoning and Acting 范式、Thought-Action-Observation 循环、Memory 是最后一公里
 - [AI 公司增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ — Killer App × 企业信任 × 消费制收入，Anthropic 17 个月 47 倍
 
 ---
