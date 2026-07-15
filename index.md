@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-07-10
+> 最后更新：2026-07-15
 
 ## 目录
 
@@ -28,6 +28,7 @@
 | CosyVoice / 语音合成 / TTS / 声音复刻 | [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) |
 | FunASR / 语音识别 / ASR / 说话人分离 | [FunASR](alibaba-ai-hub/maas/funasr.md) |
 | HappyHorse / 快乐小马 / 图像生成 | [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) |
+| Fun-Music / 音乐生成 / AI 作曲 / 歌词生成歌曲 | [Fun-Music](alibaba-ai-hub/maas/fun-music.md) |
 | 百炼平台 / 多账号 / TPM 扩量 / 限流 | [百炼平台](alibaba-ai-hub/maas/overview.md) |
 | 百炼安全 / SOC 2 / CMaaS / 数据主权 / 隔离 | [百炼安全合规](alibaba-ai-hub/maas/model_studio_security-compliance_cn.md) |
 | Qoder / AI 编程 / IDE 插件 | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) |
@@ -93,7 +94,7 @@
 
 > 分组顺序：**云厂商**（阿里云 / Google）→ **海外模型厂商** → **中国模型厂商**。
 
-### 🟧 阿里云（核心阵地，26 篇深度文档）
+### 🟧 阿里云（核心阵地，27 篇深度文档）
 
 > **从底层算力到上层应用，覆盖 MaaS / AI Coding / AI App / AI Infra / 竞品对比全链路。**
 
@@ -105,6 +106,7 @@
 - [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) — TTS 主推引擎，声音复刻+声音设计+指令控制，将替代 Qwen-TTS
 - [FunASR](alibaba-ai-hub/maas/funasr.md) — ASR 主推引擎，六大能力一站式语音识别，将替代 Qwen3-ASR
 - [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) — 图像生成
+- [Fun-Music](alibaba-ai-hub/maas/fun-music.md) — AI 音乐生成，歌词到歌曲端到端，fun-music-v1 实测
 - [Qwen Demo](alibaba-ai-hub/maas/qwen-demo-20260420.md) · [Wan Demo](alibaba-ai-hub/maas/wan-demo-20260420.md) — 产品演示素材
 - [百炼 API 销售指南](alibaba-ai-hub/maas/ModelStudio-api-sales-guide-20260629.md) — 售前话术、模型选型、客户问答
 

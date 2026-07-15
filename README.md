@@ -5,7 +5,7 @@
 <table align="center">
 <tr>
 <td align="center" width="25%"><br><h2>12</h2><b>覆盖厂商</b><br><sub>阿里 · Google · Anthropic · OpenAI…</sub><br><br></td>
-<td align="center" width="25%"><br><h2>67</h2><b>结构化文档</b><br><sub>深度分析 · 持续更新</sub><br><br></td>
+<td align="center" width="25%"><br><h2>68</h2><b>结构化文档</b><br><sub>深度分析 · 持续更新</sub><br><br></td>
 <td align="center" width="25%"><br><h2>4</h2><b>知识维度</b><br><sub>通识 · 产品 · 对比 · 方案</sub><br><br></td>
 <td align="center" width="25%"><br><h2>☁️</h2><b>阿里云为核心</b><br><sub>MaaS · Coding · App · Infra</sub><br><br></td>
 </tr>
@@ -27,7 +27,7 @@
 <td width="50%" valign="top">
 
 **☁️ 阿里云 AI 全栈**
-> 26 篇 · MaaS / Coding / App / Infra / 行业方案 全链路
+> 27 篇 · MaaS / Coding / App / Infra / 行业方案 全链路
 
 [百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) · [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun.md) · [Claw](alibaba-ai-hub/ai-application/claw-family.md) · [GPU](alibaba-ai-hub/ai-infra/gpu-product-line.md)
 
@@ -122,11 +122,11 @@
 
 ## ☁️ 阿里云 AI 全栈速览
 
-> **26 篇深度文档，覆盖从底层算力到上层应用的完整 AI 产品矩阵（含行业方案）。**
+> **27 篇深度文档，覆盖从底层算力到上层应用的完整 AI 产品矩阵（含行业方案）。**
 
 | 层级 | 核心产品 | 快速入口 |
 |------|---------|---------|
-| 🧠 **MaaS 模型即服务** | 百炼 · Qwen3.7 · Wan2.7 · HappyHorse | [百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) |
+| 🧠 **MaaS 模型即服务** | 百炼 · Qwen3.7 · Wan2.7 · HappyHorse · Fun-Music | [百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) · [Fun-Music](alibaba-ai-hub/maas/fun-music.md) |
 | ⌨️ **AI Coding** | Qoder（企业级 AI Coding） | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [Qoder 架构分析](alibaba-ai-hub/ai-coding/qoder_survey_20260622.md) · [vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) |
 | 🤖 **AI 应用平台** | QoderWork · MuleRun · Claw · JVS Crew | [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun.md) · [Claw](alibaba-ai-hub/ai-application/claw-family.md) · [JVS Crew](alibaba-ai-hub/ai-application/jvs-crew.md) |
 | ⚡ **AI Infra（GPU 算力）** | GPU 选型 | [GPU 选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) |
@@ -222,8 +222,8 @@ flowchart LR
 
 ```
 .
-├── alibaba-ai-hub/     ← 🟧 阿里云 AI 全栈（核心阵地·主推，26 篇）
-│   ├── maas/                  ← MaaS 模型服务（百炼 / Qwen / Wan / CosyVoice / FunASR / HappyHorse）
+├── alibaba-ai-hub/     ← 🟧 阿里云 AI 全栈（核心阵地·主推，27 篇）
+│   ├── maas/                  ← MaaS 模型服务（百炼 / Qwen / Wan / CosyVoice / FunASR / HappyHorse / Fun-Music）
 │   ├── ai-coding/             ← Qoder（企业级 AI Coding IDE）
 │   ├── ai-application/        ← QoderWork / MuleRun / Claw / JVS Crew / 万镜一刻
 │   ├── ai-infra/              ← GPU 选型

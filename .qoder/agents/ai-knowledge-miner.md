@@ -77,8 +77,13 @@ tools: Read, Grep, Glob, Write, SearchReplace, SearchCodebase, Bash, WebSearch, 
 > - **厂商竞争分析**：跨厂商的竞品对比（如 Qoder vs Kiro），关注市场定位和竞争优势
 
 > **云厂商**（`alibaba-cloud` / `aws` / `gcp`）：品类取 `ai-coding` / `ai-application` / `ai-platform` / `ai-infra` / `maas`
-> **⚠️ 阿里云特例**：阿里云已提升为仓库一级目录，所有阿里云内容（含 MaaS / AI Coding / AI Application / AI Infra / 竞品分析 / 行业方案）归档到 `alibaba-ai-hub/` 下，**不在 `knowledge/` 内**；行业方案归档到 `alibaba-ai-hub/ai-industry-solutions/`。
+> **⚠️ 阿里云特例**：阿里云已提升为仓库一级目录，所有阿里云内容（含 MaaS / AI Coding / AI Application / AI Infra / 竞品分析 / 行业方案）归档到 `alibaba-ai-hub/` 下，**不在 `knowledge/` 内**；行业方案归档到 `alibaba-ai-hub/ai-industry-solutions/`。**但模板选择仍按内容类型，不受目录影响**——例如阿里云 MaaS 模型（如 `alibaba-ai-hub/maas/fun-music.md`）仍使用 `_maas_template.md`，而非 `_product_template.md`。
 > **纯模型厂商**（`minimax` / `deepseek` / `openai` / `anthropic` / `zhipu` 等）：直接写入厂商根目录，无需品类子目录。Agent、Harness 等能力属模型能力延伸，非独立产品线。
+>
+> **模板选择优先级**：先按内容类型选模板，再按厂商调整目标路径。
+> - 内容是模型/API 服务（如语音合成、音乐生成、LLM） → `_maas_template.md`
+> - 内容是独立产品/工具/平台（如 IDE、Agent 框架） → `_product_template.md`
+> - 不要因为阿里云归档到 `alibaba-ai-hub/` 就改用 `_product_template.md`
 
 3. **语义搜索与智能合并（强化版）**：
    
