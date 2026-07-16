@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, initial-scale=1.0">
+<title>MineGuard AI — Mining Safety Monitor | Qwen3.7-Plus VL</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  :root {
+    --bg:#080c18; --bg-card:#0f1629; --bg-card-alt:#151d33;
+    --border:#1c2744; --border-hi:#2a3a5c;
+    --text:#e2e8f0; --dim:#8896b3; --muted:#556380;
+    --blue:#3b82f6; --blue-g:rgba(59,130,246,.25);
+    --green:#10b981; --green-bg:rgba(16,185,129,.1);
+    --amber:#f59e0b; --amber-bg:rgba(245,158,11,.1);
+    --red:#ef4444; --red-bg:rgba(239,68,68,.12);
+    --cyan:#22d3ee;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);width:100vw;height:100vh;overflow:hidden}
+
+  /* ── Top Bar ── */
+  .top{height:52px;background:linear-gradient(90deg,#0c1225,#111b35);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:20px;position:relative;z-index:10}
+  .top .logo{font-weight:800;font-size:15px;letter-spacing:-.3px;display:flex;align-items:center;gap:9px}
+  .top .logo i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
+  .sep{width:1px;height:26px;background:var(--border-hi)}
+  .top .meta{font-size:12.5px;color:var(--dim);display:flex;align-items:center;gap:6px}
+  .live-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:bk 1s infinite}
+  .badge{font-size:10.5px;font-weight:700;padding:4px 11px;border-radius:5px;background:linear-gradient(135deg,#3b82f6,#7c3aed);color:#fff;letter-spacing:.4px}
+  .top .right{margin-left:auto;display:flex;gap:14px;align-items:center}
+  .clock{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--dim)}
+  @keyframes bk{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* ── Grid ── */
+  .grid{display:grid;grid-template-columns:1fr 1fr minmax(320px,400px);grid-template-rows:1fr 1fr;gap:10px;padding:10px 14px;height:calc(100vh - 52px)}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative}
+  .ch{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12.5px;font-weight:600}
+  .tag{font-size:9.5px;padding:3px 8px;border-radius:4px;font-weight:600;letter-spacing:.3px}
+  .tag-r{background:var(--red-bg);color:var(--red)}
+  .tag-b{background:var(--blue-g);color:var(--blue)}
+  .tag-g{background:var(--green-bg);color:var(--green)}
+
+  /* ── Camera ── */
+  .cam{position:relative;width:100%;height:100%;background:#0a0f1e;display:flex;align-items:center;justify-content:center}
+  .cam svg{width:100%;height:100%}
+  .cam-lbl{position:absolute;top:10px;left:12px;font-size:10.5px;font-weight:700;color:#fff;background:rgba(0,0,0,.55);padding:3px 10px;border-radius:4px;display:flex;align-items:center;gap:5px;backdrop-filter:blur(4px)}
+  .cam-lbl .r{color:var(--red)}
+  .cam-ts{position:absolute;bottom:10px;right:12px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:rgba(255,255,255,.6);background:rgba(0,0,0,.45);padding:2px 8px;border-radius:3px}
+
+  /* Scan */
+  .scan{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(59,130,246,.7),transparent);box-shadow:0 0 30px rgba(59,130,246,.4),0 0 80px rgba(59,130,246,.15);opacity:0;animation:scn 2.5s ease-in-out infinite}
+  .scan.on{opacity:1}
+  @keyframes scn{0%{top:5%;opacity:0}8%{opacity:1}92%{opacity:1}100%{top:95%;opacity:0}}
+
+  /* Detect boxes */
+  .det{position:absolute;border:2.5px solid;border-radius:3px;opacity:0;transition:opacity .4s,transform .3s}
+  .det.on{opacity:1}
+  .det.ok{border-color:var(--green)}
+  .det.ng{border-color:var(--red);animation:pulse 1.2s infinite}
+  .det.wn{border-color:var(--amber)}
+  .det-lbl{position:absolute;top:-24px;left:-2px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:3px;white-space:nowrap;backdrop-filter:blur(4px)}
+  .det.ok .det-lbl{background:var(--green);color:#fff}
+  .det.ng .det-lbl{background:var(--red);color:#fff}
+  .det.wn .det-lbl{background:var(--amber);color:#111}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.45)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
+
+  /* Progress ring */
+  .ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0;transition:opacity .4s;z-index:5}
+  .ring.on{opacity:1}
+  .ring svg{transform:rotate(-90deg)}
+  .ring circle{fill:none;stroke-width:4}
+  .ring .trk{stroke:rgba(255,255,255,.08)}
+  .ring .fil{stroke:var(--cyan);stroke-dasharray:220;stroke-dashoffset:220;stroke-linecap:round;transition:stroke-dashoffset 1.8s ease-out}
+  .ring .fil.go{stroke-dashoffset:0}
+  .ring-txt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+  .ring-pct{font-size:15px;font-weight:800;color:var(--cyan);font-family:'JetBrains Mono',monospace}
+  .ring-lbl{font-size:8px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-top:1px}
+
+  /* PPE grid */
+  .ppe{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px 12px}
+  .ppe-i{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg-card-alt);border-radius:8px;font-size:12px;opacity:0;transform:scale(.92);transition:all .35s cubic-bezier(.16,1,.3,1)}
+  .ppe-i.on{opacity:1;transform:scale(1)}
+  .ppe-ic{font-size:20px}
+  .ppe-nm{flex:1;font-weight:500}
+  .ppe-st{font-size:9.5px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:.4px}
+  .ppe-st.y{background:var(--green-bg);color:var(--green)}
+  .ppe-st.n{background:var(--red-bg);color:var(--red)}
+
+  /* Alerts */
+  .al{display:flex;gap:9px;padding:9px 12px;border-radius:7px;margin:0 10px;font-size:11.5px;line-height:1.5;opacity:0;transform:translateX(25px);transition:all .45s cubic-bezier(.16,1,.3,1)}
+  .al.on{opacity:1;transform:translateX(0)}
+  .al.cr{background:var(--red-bg);border-left:3px solid var(--red)}
+  .al.wr{background:var(--amber-bg);border-left:3px solid var(--amber)}
+  .al.ok{background:var(--green-bg);border-left:3px solid var(--green)}
+  .al-ic{font-size:16px;flex-shrink:0;margin-top:1px}
+  .al-tx strong{display:block;font-size:11.5px;margin-bottom:1px}
+  .al-tx span{color:var(--dim);font-size:10.5px}
+  .al-tm{margin-left:auto;font-size:9.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;white-space:nowrap;align-self:flex-start;margin-top:2px}
+
+  /* Stats */
+  .stats{display:flex}
+  .st{flex:1;text-align:center;padding:10px 6px;border-right:1px solid var(--border);opacity:0;transition:opacity .4s}
+  .st:last-child{border-right:none}
+  .st.on{opacity:1}
+  .st-n{font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace}
+  .st-n.b{background:linear-gradient(135deg,var(--blue),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .st-n.r{background:linear-gradient(135deg,var(--red),#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .st-n.g{background:linear-gradient(135deg,var(--green),#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .st-l{font-size:9px;color:var(--muted);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+  /* Report */
+  .rpt{margin:0 10px 10px;padding:12px 14px;background:linear-gradient(135deg,rgba(59,130,246,.07),rgba(99,102,241,.05));border:1px solid rgba(59,130,246,.18);border-radius:9px;font-size:11.5px;line-height:1.8;opacity:0;transition:opacity .7s}
+  .rpt.on{opacity:1}
+  .rpt-t{font-weight:700;font-size:12.5px;margin-bottom:4px;display:flex;align-items:center;gap:5px}
+  .rpt-l{color:var(--dim)}
+  .rpt-l strong{color:var(--text)}
+  .rpt-hl{color:var(--amber);font-weight:600}
+
+  /* JSON */
+  .json{flex:1;background:#0a0e1a;border-radius:7px;margin:0 10px 10px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.65;overflow:hidden;color:var(--dim);position:relative}
+  .json .cur{display:inline-block;width:6px;height:13px;background:var(--cyan);margin-left:1px;animation:cbk .7s step-end infinite;vertical-align:text-bottom}
+  @keyframes cbk{0%,100%{opacity:1}50%{opacity:0}}
+  .jk{color:#7dd3fc} .js{color:#86efac} .jn{color:#fbbf24} .jb{color:#c084fc}
+
+  /* Watermark */
+  .wm{position:absolute;bottom:6px;right:14px;font-size:9.5px;color:rgba(255,255,255,.12);font-weight:500;letter-spacing:.4px}
+</style>
+</head>
+<body>
+<!-- Top Bar -->
+<div class="top">
+  <div class="logo"><i></i>MineGuard AI — Intelligent Safety Monitoring</div>
+  <div class="sep"></div>
+  <div class="meta"><span class="live-dot"></span><span style="color:var(--red);font-weight:600">LIVE</span>&nbsp; Site: Pilbara West Pit · Zone B-3</div>
+  <div class="sep"></div>
+  <div class="meta">📷 CAM-07 · Crushing Area · 4K 30fps</div>
+  <div class="right">
+    <div class="badge">Powered by Qwen3.7-Plus VL</div>
+    <div class="clock" id="clk">2026-07-16 14:32:08 AWST</div>
+  </div>
+</div>
+
+<!-- Grid -->
+<div class="grid">
+  <!-- Main Camera -->
+  <div class="card" style="grid-row:1/3;grid-column:1">
+    <div class="cam" id="mainCam">
+      <svg viewBox="0 0 960 480" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0f1628"/><stop offset="100%" stop-color="#1a2540"/></linearGradient>
+          <linearGradient id="gnd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a3a28"/><stop offset="100%" stop-color="#2a1e12"/></linearGradient>
+          <radialGradient id="light1" cx="50%" cy="30%"><stop offset="0%" stop-color="rgba(255,200,80,.15)"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="2" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="960" height="480" fill="url(#sky)"/>
+        <rect width="960" height="480" fill="url(#light1)"/>
+        <!-- Terrain -->
+        <path d="M0,195 Q150,170 300,185 T600,175 T960,185 L960,480 L0,480Z" fill="#352818" opacity=".5"/>
+        <path d="M0,235 Q250,215 500,228 T960,222 L960,480 L0,480Z" fill="url(#gnd)"/>
+        <!-- Terraces -->
+        <path d="M80,275 L310,255 L330,278 L100,300Z" fill="#4e3e2e" stroke="#5d4d3d" stroke-width=".8"/>
+        <path d="M60,310 L360,285 L380,312 L80,340Z" fill="#42322a" stroke="#514131" stroke-width=".8"/>
+        <path d="M40,350 L390,320 L410,352 L60,382Z" fill="#3a2a1e" stroke="#4a3a2e" stroke-width=".8"/>
+        <!-- Excavator -->
+        <rect x="380" y="278" width="90" height="52" rx="5" fill="#d4a020" opacity=".9"/>
+        <rect x="370" y="260" width="40" height="24" rx="4" fill="#c89a18" opacity=".9"/>
+        <rect x="375" y="265" width="30" height="14" rx="2" fill="#1a2540" opacity=".5"/>
+        <line x1="415" y1="268" x2="495" y2="232" stroke="#b89015" stroke-width="7" stroke-linecap="round"/>
+        <ellipse cx="385" cy="332" rx="12" ry="10" fill="#222"/>
+        <ellipse cx="455" cy="332" rx="12" ry="10" fill="#222"/>
+        <circle cx="405" cy="258" r="4" fill="#ffd700" filter="url(#glow)" opacity=".95"/>
+        <!-- Haul truck -->
+        <rect x="590" y="300" width="110" height="55" rx="5" fill="#e0b020" opacity=".85"/>
+        <rect x="580" y="288" width="44" height="28" rx="4" fill="#d0a018" opacity=".85"/>
+        <rect x="584" y="293" width="34" height="16" rx="2" fill="#1a2540" opacity=".45"/>
+        <ellipse cx="600" cy="357" rx="14" ry="11" fill="#222"/>
+        <ellipse cx="685" cy="357" rx="14" ry="11" fill="#222"/>
+        <circle cx="598" cy="286" r="3.5" fill="#ffd700" filter="url(#glow)" opacity=".9"/>
+        <!-- Conveyor -->
+        <line x1="740" y1="345" x2="910" y2="248" stroke="#555" stroke-width="6"/>
+        <line x1="744" y1="345" x2="914" y2="248" stroke="#444" stroke-width="3.5"/>
+        <rect x="900" y="228" width="45" height="32" rx="3" fill="#4a4a5a" opacity=".75"/>
+        <circle cx="922" cy="226" r="3" fill="#ff3333" opacity=".8" filter="url(#glow)"/>
+        <!-- Floodlights -->
+        <circle cx="200" cy="200" r="60" fill="rgba(255,200,100,.04)"/>
+        <circle cx="700" cy="220" r="50" fill="rgba(255,200,100,.03)"/>
+
+        <!-- ═══ Worker 1 — Full PPE (near excavator) ═══ -->
+        <g transform="translate(330,295)">
+          <ellipse cx="0" cy="28" rx="10" ry="3" fill="rgba(0,0,0,.3)"/>
+          <line x1="-9" y1="8" x2="-14" y2="28" stroke="#ccc" stroke-width="3" stroke-linecap="round"/>
+          <line x1="9" y1="8" x2="14" y2="28" stroke="#ccc" stroke-width="3" stroke-linecap="round"/>
+          <rect x="-8" y="-8" width="16" height="20" rx="2" fill="#f97316" opacity=".85"/>
+          <line x1="-2" y1="-2" x2="-2" y2="12" stroke="#fbbf24" stroke-width="1.5" opacity=".6"/>
+          <line x1="2" y1="-2" x2="2" y2="12" stroke="#fbbf24" stroke-width="1.5" opacity=".6"/>
+          <line x1="-8" y1="-2" x2="-18" y2="10" stroke="#ccc" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="8" y1="-2" x2="18" y2="8" stroke="#ccc" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="0" cy="-18" r="10" fill="#e8ddd0"/>
+          <ellipse cx="0" cy="-26" rx="12" ry="6" fill="#f59e0b"/>
+          <rect x="-13" y="-24" width="26" height="4" rx="1" fill="#d97706"/>
+        </g>
+
+        <!-- ═══ Worker 2 — NO hard hat (near truck) ═══ -->
+        <g transform="translate(560,325)">
+          <ellipse cx="0" cy="28" rx="10" ry="3" fill="rgba(0,0,0,.3)"/>
+          <line x1="-8" y1="8" x2="-12" y2="28" stroke="#ccc" stroke-width="3" stroke-linecap="round"/>
+          <line x1="8" y1="8" x2="12" y2="28" stroke="#ccc" stroke-width="3" stroke-linecap="round"/>
+          <rect x="-8" y="-8" width="16" height="20" rx="2" fill="#f97316" opacity=".85"/>
+          <line x1="-2" y1="-2" x2="-2" y2="12" stroke="#fbbf24" stroke-width="1.5" opacity=".6"/>
+          <line x1="2" y1="-2" x2="2" y2="12" stroke="#fbbf24" stroke-width="1.5" opacity=".6"/>
+          <line x1="-8" y1="-2" x2="-16" y2="10" stroke="#ccc" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="8" y1="-2" x2="20" y2="4" stroke="#ccc" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="0" cy="-18" r="10" fill="#e8ddd0"/>
+          <!-- Hair, no hat -->
+          <path d="M-8,-24 Q0,-32 8,-24" fill="#4a3728" opacity=".7"/>
+        </g>
+
+        <!-- ═══ Worker 3 — NO vest (at conveyor) ═══ -->
+        <g transform="translate(810,265)">
+          <ellipse cx="0" cy="28" rx="10" ry="3" fill="rgba(0,0,0,.3)"/>
+          <line x1="-8" y1="8" x2="-12" y2="28" stroke="#ccc" stroke-width="3" stroke-linecap="round"/>
+          <line x1="8" y1="8" x2="12" y2="28" stroke="#ccc" stroke-width="3" stroke-linecap="round"/>
+          <!-- No vest, plain shirt -->
+          <rect x="-8" y="-8" width="16" height="20" rx="2" fill="#6b7280" opacity=".8"/>
+          <line x1="-8" y1="-2" x2="-16" y2="10" stroke="#ccc" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="8" y1="-2" x2="16" y2="8" stroke="#ccc" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="0" cy="-18" r="10" fill="#e8ddd0"/>
+          <ellipse cx="0" cy="-26" rx="12" ry="6" fill="#e8e8e8"/>
+          <rect x="-13" y="-24" width="26" height="4" rx="1" fill="#d0d0d0"/>
+        </g>
+        <!-- Dust -->
+        <circle cx="480" cy="340" r="35" fill="rgba(160,130,80,.06)"/>
+        <circle cx="670" cy="360" r="25" fill="rgba(160,130,80,.04)"/>
+      </svg>
+
+      <div class="scan" id="scan"></div>
+
+      <!-- Detection boxes (positioned over workers in SVG viewBox coords) -->
+      <div class="det ok" id="d1" style="left:31%;top:55%;width:5%;height:22%">
+        <div class="det-lbl">Worker #1 · Full PPE ✓</div>
+      </div>
+      <div class="det ng" id="d2" style="left:55%;top:62%;width:5%;height:22%">
+        <div class="det-lbl">⚠ Worker #2 · NO Hard Hat</div>
+      </div>
+      <div class="det wn" id="d3" style="left:81%;top:48%;width:5%;height:22%">
+        <div class="det-lbl">⚠ Worker #3 · No Hi-Vis Vest</div>
+      </div>
+
+      <div class="ring" id="ring">
+        <svg width="80" height="80"><circle class="trk" cx="40" cy="40" r="35"/><circle class="fil" id="ringFill" cx="40" cy="40" r="35"/></svg>
+        <div class="ring-txt"><div class="ring-pct" id="ringPct">0%</div><div class="ring-lbl">Analyzing</div></div>
+      </div>
+
+      <div class="cam-lbl"><span class="r">●</span> REC · CAM-07</div>
+      <div class="cam-ts" id="ts1">2026-07-16 14:32:08.241</div>
+    </div>
+  </div>
+
+  <!-- CAM-12 -->
+  <div class="card">
+    <div class="ch"><span>📷 CAM-12 · Haul Road Entry</span><span class="tag tag-r">LIVE</span></div>
+    <div class="cam" style="height:calc(100% - 38px)">
+      <svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <rect width="480" height="210" fill="#111828"/>
+        <path d="M0,80 Q120,65 240,72 T480,68 L480,210 L0,210Z" fill="#2e2218"/>
+        <path d="M0,115 L480,95 L480,140 L0,160Z" fill="#484848" opacity=".55"/>
+        <line x1="0" y1="138" x2="480" y2="118" stroke="#666" stroke-width="1.2" stroke-dasharray="18,12" opacity=".4"/>
+        <rect x="180" y="88" width="75" height="32" rx="4" fill="#d8a820" opacity=".7"/>
+        <rect x="170" y="82" width="32" height="20" rx="3" fill="#c89818" opacity=".7"/>
+        <rect x="174" y="86" width="24" height="12" rx="1.5" fill="#111828" opacity=".4"/>
+        <ellipse cx="192" cy="122" rx="10" ry="8" fill="#222"/>
+        <ellipse cx="244" cy="122" rx="10" ry="8" fill="#222"/>
+        <!-- Barrier -->
+        <rect x="370" y="78" width="5" height="44" fill="#dc2626" opacity=".65" rx="1"/>
+        <rect x="395" y="78" width="5" height="44" fill="#dc2626" opacity=".65" rx="1"/>
+        <rect x="365" y="74" width="40" height="6" rx="2" fill="#dc2626" opacity=".7"/>
+        <rect x="340" y="60" width="55" height="20" rx="3" fill="#1e40af" opacity=".65"/>
+        <text x="367" y="74" font-size="9" fill="#fff" text-anchor="middle" font-family="Inter" font-weight="700">SPEED 30</text>
+        <!-- Worker at gate -->
+        <g transform="translate(420,95)">
+          <line x1="-6" y1="5" x2="-9" y2="22" stroke="#bbb" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6" y1="5" x2="9" y2="22" stroke="#bbb" stroke-width="2.5" stroke-linecap="round"/>
+          <rect x="-6" y="-6" width="12" height="15" rx="2" fill="#f97316" opacity=".8"/>
+          <circle cx="0" cy="-14" r="8" fill="#e0d5c8"/>
+          <ellipse cx="0" cy="-20" rx="10" ry="5" fill="#f59e0b"/>
+          <rect x="-11" y="-19" width="22" height="3.5" rx="1" fill="#d97706"/>
+        </g>
+      </svg>
+      <div class="cam-lbl"><span class="r">●</span> REC · CAM-12</div>
+    </div>
+  </div>
+
+  <!-- PPE Panel -->
+  <div class="card">
+    <div class="ch"><span>🦺 PPE Compliance Detection</span><span class="tag tag-b">AI Vision</span></div>
+    <div class="ppe" id="ppeG">
+      <div class="ppe-i" id="p1"><span class="ppe-ic">⛑️</span><span class="ppe-nm">Hard Hat</span><span class="ppe-st n">1 MISSING</span></div>
+      <div class="ppe-i" id="p2"><span class="ppe-ic">🦺</span><span class="ppe-nm">Hi-Vis Vest</span><span class="ppe-st n">1 MISSING</span></div>
+      <div class="ppe-i" id="p3"><span class="ppe-ic">🥽</span><span class="ppe-nm">Safety Goggles</span><span class="ppe-st y">ALL OK</span></div>
+      <div class="ppe-i" id="p4"><span class="ppe-ic">🧤</span><span class="ppe-nm">Work Gloves</span><span class="ppe-st y">ALL OK</span></div>
+      <div class="ppe-i" id="p5"><span class="ppe-ic">👢</span><span class="ppe-nm">Safety Boots</span><span class="ppe-st y">ALL OK</span></div>
+      <div class="ppe-i" id="p6"><span class="ppe-ic">🎧</span><span class="ppe-nm">Ear Protection</span><span class="ppe-st y">ALL OK</span></div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div style="grid-row:1/3;grid-column:3;display:flex;flex-direction:column;gap:10px">
+    <!-- Alerts -->
+    <div class="card" style="flex:0 0 auto;max-height:290px">
+      <div class="ch"><span>🔔 Real-Time Alerts</span><span class="tag tag-r">3 NEW</span></div>
+      <div style="padding:6px 0" id="af">
+        <div class="al cr" id="a1">
+          <span class="al-ic">🚨</span>
+          <div class="al-tx"><strong>PPE Violation — No Hard Hat</strong><span>Worker #2 near excavator EX-04. Immediate action required.</span></div>
+          <span class="al-tm">14:32:09</span>
+        </div>
+        <div class="al wr" id="a2" style="margin-top:6px">
+          <span class="al-ic">⚠️</span>
+          <div class="al-tx"><strong>PPE Violation — No Hi-Vis Vest</strong><span>Worker #3 at conveyor belt. Vest required before re-entry.</span></div>
+          <span class="al-tm">14:32:09</span>
+        </div>
+        <div class="al ok" id="a3" style="margin-top:6px">
+          <span class="al-ic">✅</span>
+          <div class="al-tx"><strong>Zone Compliance Summary</strong><span>Zone B-3: 3 workers, 2 violations. Compliance rate: 78%.</span></div>
+          <span class="al-tm">14:32:11</span>
+        </div>
+      </div>
+    </div>
+    <!-- JSON -->
+    <div class="card" style="flex:1;display:flex;flex-direction:column">
+      <div class="ch"><span>{ } Structured Output</span><span class="tag tag-b">Qwen3.7-Plus</span></div>
+      <div class="json" id="jOut"><span id="jC"></span><span class="cur" id="jCur"></span></div>
+    </div>
+    <!-- Stats + Report -->
+    <div class="card" style="flex:0 0 auto">
+      <div class="stats" id="sBar">
+        <div class="st" id="s1"><div class="st-n b">3</div><div class="st-l">Workers</div></div>
+        <div class="st" id="s2"><div class="st-n r">2</div><div class="st-l">Violations</div></div>
+        <div class="st" id="s3"><div class="st-n g">78%</div><div class="st-l">Compliance</div></div>
+        <div class="st" id="s4"><div class="st-n b">0.8s</div><div class="st-l">Latency</div></div>
+      </div>
+      <div class="rpt" id="rpt">
+        <div class="rpt-t">📋 AI Safety Report (Auto-Generated)</div>
+        <div class="rpt-l"><strong>Site:</strong> Pilbara West Pit · Zone B-3 · Shift 14:00–22:00</div>
+        <div class="rpt-l"><strong>Finding:</strong> <span class="rpt-hl">2 PPE violations</span> detected in crushing area</div>
+        <div class="rpt-l"><strong>Action:</strong> Supervisor notified. Workers require PPE before re-entry.</div>
+        <div class="rpt-l"><strong>Model:</strong> qwen3.7-plus · 0.8s inference · JSON structured output</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wm">MineGuard AI · Powered by Alibaba Cloud Model Studio · Qwen3.7-Plus</div>
+
+<script>
+// Clock
+setInterval(()=>{
+  const n=new Date(),t=n.toISOString().replace('T',' ').substr(0,19);
+  document.getElementById('clk').textContent=t+' AWST';
+  document.getElementById('ts1').textContent=t+'.'+String(n.getMilliseconds()).padStart(3,'0');
+},100);
+
+// Timeline (compressed for better recording)
+const T=[
+  [600,()=>{document.getElementById('scan').classList.add('on');document.getElementById('ring').classList.add('on');animRing()}],
+  [2800,()=>{el('d1').classList.add('on');el('p1').classList.add('on')}],
+  [3400,()=>{el('d2').classList.add('on');el('p2').classList.add('on');el('a1').classList.add('on')}],
+  [4000,()=>{el('d3').classList.add('on');el('p3').classList.add('on');el('a2').classList.add('on')}],
+  [4500,()=>{el('p4').classList.add('on')}],
+  [4800,()=>{el('p5').classList.add('on')}],
+  [5100,()=>{el('p6').classList.add('on')}],
+  [5500,()=>{el('a3').classList.add('on')}],
+  [6000,()=>{['s1','s2','s3','s4'].forEach((id,i)=>setTimeout(()=>el(id).classList.add('on'),i*180))}],
+  [6800,()=>typeJSON()],
+  [12500,()=>{el('rpt').classList.add('on')}],
+  [20000,()=>location.reload()],
+];
+T.forEach(([t,f])=>setTimeout(f,t));
+
+function el(id){return document.getElementById(id)}
+
+function animRing(){
+  const f=el('ringFill'),p=el('ringPct');let v=0;
+  const iv=setInterval(()=>{v+=3;if(v>100){clearInterval(iv);return}f.style.strokeDashoffset=220-(220*v/100);p.textContent=v+'%'},30);
+}
+
+const J=[
+  [0,'{\n'],[1,'"site"'],[0,': '],[2,'"Pilbara West Pit"'],[0,',\n'],
+  [1,'"camera"'],[0,': '],[2,'"CAM-07"'],[0,',\n'],
+  [1,'"timestamp"'],[0,': '],[2,'"2026-07-16T14:32:08Z"'],[0,',\n'],
+  [1,'"workers_detected"'],[0,': '],[3,'3'],[0,',\n'],
+  [1,'"violations"'],[0,': [\n'],
+  [0,'    {\n'],
+  [1,'"type"'],[0,': '],[2,'"ppe_violation"'],[0,',\n'],
+  [1,'"severity"'],[0,': '],[2,'"critical"'],[0,',\n'],
+  [1,'"worker_id"'],[0,': '],[2,'"W-002"'],[0,',\n'],
+  [1,'"description"'],[0,': '],[2,'"No hard hat detected near excavator"'],[0,',\n'],
+  [1,'"location"'],[0,': '],[2,'"Zone B-3, near EX-04"'],[0,',\n'],
+  [1,'"action"'],[0,': '],[2,'"Immediate PPE check required"'],[0,'\n'],
+  [0,'    },\n'],
+  [0,'    {\n'],
+  [1,'"type"'],[0,': '],[2,'"ppe_violation"'],[0,',\n'],
+  [1,'"severity"'],[0,': '],[2,'"warning"'],[0,',\n'],
+  [1,'"worker_id"'],[0,': '],[2,'"W-003"'],[0,',\n'],
+  [1,'"description"'],[0,': '],[2,'"No hi-vis vest at conveyor belt"'],[0,',\n'],
+  [1,'"action"'],[0,': '],[2,'"Issue vest before re-entry"'],[0,'\n'],
+  [0,'    }\n'],
+  [0,'  ],\n'],
+  [1,'"compliance_rate"'],[0,': '],[3,'0.78'],[0,',\n'],
+  [1,'"model"'],[0,': '],[2,'"qwen3.7-plus"'],[0,',\n'],
+  [1,'"inference_ms"'],[0,': '],[3,'820'],[0,'\n'],
+  [0,'}'],
+];
+const cls=['','jk','js','jn'];
+function typeJSON(){
+  const c=el('jC'),cur=el('jCur');let i=0;
+  (function nx(){
+    if(i>=J.length){cur.style.display='none';return}
+    const[tp,tx]=J[i];
+    const s=document.createElement('span');
+    if(tp)s.className=cls[tp];
+    s.textContent=tx;c.appendChild(s);i++;
+    setTimeout(nx,tx.includes('\n')?45:18);
+  })();
+}
+</script>
+</body>
+</html>
