@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-07-15
+> 最后更新：2026-07-17
 
 ## 目录
 
@@ -59,7 +59,7 @@
 | Qwen vs Hy3 / 混元竞争分析 | [Qwen3.7 vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) |
 | Qwen vs Doubao / 豆包竞争分析 | [Qwen3.7-Max vs Doubao-Seed-2.1 Pro](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
 | MiniMax / M3 / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
-| Kimi / 月之暗面 / Moonshot / K2.6 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
+| Kimi / 月之暗面 / Moonshot / K3 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
 | GLM / 智谱 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) |
 | 企业自建推理 / Higress / AI 网关 | [企业自建 AI 推理平台](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) ⭐ |
 | 数据出境 / 数据主权 / CN 版 | [MuleRun](alibaba-ai-hub/ai-application/mulerun.md#mulerun全球版与骡子快跑中国版的关系) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) |
@@ -177,8 +177,8 @@
 
 ### 月之暗面（Moonshot AI）
 
-- 公司分析: [月之暗面公司分析](knowledge/moonshot/general_intro.md) — 2023 成立、估值 >$200 亿、累计融资超 376 亿元、ARR >$2 亿
-- 模型系列: [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) — K2 / K2.5 / K2.6，**K2.6 Agent Swarm（300 子 Agent）、13 小时长周期编码**
+- 公司分析: [月之暗面公司分析](knowledge/moonshot/general_intro.md) — 2023 成立、估值 ~$315 亿（投前）、累计融资超 376 亿元、ARR >$3 亿
+- 模型系列: [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) — K2 / K2.5 / K2.6 / K3，**K3 2.8T / 1M 上下文，Terminal-Bench 非 OpenAI 模型第 1**
 
 ### 字节跳动
 
