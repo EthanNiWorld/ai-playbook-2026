@@ -175,7 +175,7 @@ python web.py   # → http://localhost:7860
 
 ## HTML 设计系统
 
-复用 `alibaba-ai-hub/maas/qwen3.7-max-salebook.html` 的视觉规范：
+复用 `alibaba-ai-hub/maas/sales-tools/qwen3.7-max-salebook.html` 的视觉规范：
 - 背景: `#0F1419`
 - 卡片: `#1A1F2E`，圆角 16px
 - 强调: 橙色渐变 `#FF6A00 → #EE0979`

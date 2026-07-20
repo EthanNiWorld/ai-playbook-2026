@@ -32,7 +32,7 @@ tools: Read, Grep, Glob, Write, SearchReplace, SearchCodebase, Bash, WebSearch, 
 > HTML 文件是已成型的销售物料/展示文档（如 salebook、case report），**无需提炼、无需按模板格式化、无需事实校验**。
 > 
 > 处理流程：
-> 1. **识别归属**：根据文件名和内容判断属于哪个厂商/品类（如 `qwen3.7-max-salebook.html` → `alibaba-ai-hub/maas/`）
+> 1. **识别归属**：根据文件名和内容判断属于哪个厂商/品类（如 `qwen3.7-max-salebook.html` → `alibaba-ai-hub/maas/sales-tools/`）
 > 2. **直接移动**：将 HTML 文件从 `inbox/` 移到对应的 `knowledge/{厂商}/{品类}/` 目录
 > 3. **更新 README 计数**（如 knowledge/ 下文件总数变化）
 > 4. **归档 inbox 源文件**（已移动，无需额外归档）

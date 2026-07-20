@@ -15,7 +15,7 @@
 
 | 模型 | 定位 | 上下文 | 特点 |
 |------|------|--------|------|
-| **Qwen3.7-Max** | 旗舰 Agent | **1M tokens** | AA Intelligence Index 56.6–57（国产 #1），35小时自主运行，0608 快照起支持视觉输入 |
+| **Qwen3.7-Max** | 旗舰 Agent | **1M tokens** | AA Intelligence Index 56.6–57（旧版口径，国产 #1；v4.1 口径 = 46），35小时自主运行，0608 快照起支持视觉输入 |
 | **Qwen3.7-Plus** | 多模态智能体 | **1M tokens** | 原生多模态（图/视频/屏幕）+ GUI/CLI Agent + 视觉编码，纯文本接近 Max |
 | **Qwen3.6-Flash** | 轻量快速 | 256K tokens | 速度快，成本低，系列内 Flash 仍延用 3.6 代号 |
 
@@ -38,7 +38,7 @@
 - **定位**："The Agent Frontier"，专为长时自主执行设计的旗舰 Agent 模型
 
 **关键基准**（vendor-published，vs Claude Opus 4.6）：
-Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verified 80.4 vs 80.8（平手）、HLE **41.4**（+1.4）、GPQA Diamond **92.4**（+1.1）、HMMT 2026 **97.1%**、IMOAnswerBench **90.0%**（+14.7）、Apex **44.5**（+10.0）
+Terminal-Bench 2.1 **74.5**（AA harness）/ 2.0 69.7（vendor）、SWE-Pro **60.6**（+3.3）、SWE-Verified 80.4 vs 80.8（平手）、HLE **41.4**（+1.4）、GPQA Diamond **92.4**（+1.1）、HMMT 2026 **97.1%**、IMOAnswerBench **90.0%**（+14.7）、Apex **44.5**（+10.0）
 
 **标志性事件**：35 小时自主编码运行（1,158 次工具调用），GPU 内核优化达 10× 加速比（vs Triton 参考）
 
@@ -128,8 +128,8 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 
 | 能力 | 说明 |
 |------|------|
-| **深度推理（Max）** | AA Intelligence Index 56.6–57（国产 #1），数学/科学推理全球领先 |
-| **Agentic Coding** | Terminal-Bench 2.0 69.7，SWE-Pro 60.6；35小时自主编码运行 |
+| **深度推理（Max）** | AA Intelligence Index 56.6–57（旧版口径，国产 #1；v4.1 = 46），数学/科学推理全球领先 |
+| **Agentic Coding** | Terminal-Bench 2.1 74.5（AA）/ 2.0 69.7（vendor），SWE-Pro 60.6；35小时自主编码运行 |
 | **超长上下文** | 1M tokens 上下文窗口，处理大型代码仓库和长文档 |
 | **多模态智能体** | Qwen3.7-Plus 支持图/视频/屏幕输入 + GUI/CLI Agent + 视觉编码；Qwen3.7-Max（0608 快照起）支持图/视频输入，但无 GUI Agent 专项 benchmark |
 | **数学能力** | HMMT 2026 97.1%、IMOAnswerBench 90.0%，竞赛数学断层领先 |
@@ -154,7 +154,7 @@ Terminal-Bench 2.0 **69.7**（+4.3）、SWE-Pro **60.6**（+3.3）、SWE-Verifie
 | 场景 | 推荐模型 | 说明 |
 |------|----------|------|
 | 长时间自主 Agent / 数学竞赛 / 科研推理 | **3.7-Max** | 35h 自主运行，HMMT 97.1%，全球领先 |
-| Agentic Coding（重度） | **3.7-Max** | Terminal-Bench 69.7 |
+| Agentic Coding（重度） | **3.7-Max** | Terminal-Bench 2.1 74.5 / 2.0 69.7 |
 | Agentic Coding（性价比）/ 长文档 / 多模态 / 生产环境 | **3.7-Plus** | GA 稳定，支持图像/视频/屏幕，1M 上下文，GUI/CLI Agent |
 | 高并发轻量调用 | **3.6-Flash** | 低延迟低成本 |
 | 私有化部署 | 3.6 开源版 | 支持本地部署 |
@@ -253,7 +253,7 @@ Max 生成速度约为 Plus 的 4.7 倍（MoE 架构 + 无视觉 encoder 开销�
 | GPT-5.5 | $5（≈¥36） | $30（≈¥216） | $0.50 | apidog.com (AA) |
 | Claude Opus 4.7 | $6.25（≈¥45） | $25（≈¥180） | $0.50 | apidog.com (AA) |
 
-> Qwen3.7-Max 单价高于 DeepSeek-V4-Pro（4×）和 GLM-5.1（2×），但 Agent 场景（Terminal-Bench 2.0 69.7 vs GLM-5.1 63.5）、1M 上下文（vs GLM-5.1 128K）、35h 长时执行是核心差异点。
+> Qwen3.7-Max 单价高于 DeepSeek-V4-Pro（4×）和 GLM-5.1（2×），但 Agent 场景（Terminal-Bench 2.1 74.5 vs GLM-5.1 58.7）、1M 上下文（vs GLM-5.1 128K）、35h 长时执行是核心差异点。
 
 ## 参考资料
 
@@ -278,6 +278,7 @@ Max 生成速度约为 Plus 的 4.7 倍（MoE 架构 + 无视觉 encoder 开销�
 | 日期 | 变更内容 |
 |------|----------|
 | 2026-07-10 | 校验修复：移除 Plus "8折至 2026-07-02" 过期到期日，改为"截止日期以百炼控制台为准" |
+| 2026-07-20 | 校验修复：TB 2.0 69.7 → 补记 TB 2.1 = 74.5（AA harness）统一口径；AA Index 补注 v4.1 = 46；竞品对比表 GLM-5.1 TB 同步更新为 58.7 |
 | 2026-07-20 | 合并：inbox Qwen3.8-Max 信息汇总 - 新增 Qwen3.8-Max-Preview 预览版子章节（2.4T MoE，2026-07-19 上线，承诺正式版开源）；SUMMARY 标注预览版上线；主推表保持 3.7 系列不变（预览版未 GA 不入主推表） |
 | 2026-06-14 | 同步 HTML 选型页变更：系列定位分工更新 Max 不再是纯文本旗舰（0608 快照起支持视觉）；Plus 竞争力要点补充视觉场景首选定位 |
 | 2026-06-12 | 合并：inbox 素材 — Qwen3.7-Max-2026-06-08 新增视觉能力（官方日志确认 + 视觉模型页面参数表）；修正多处"Max 仅文本"过时描述；新增快照版本演进记录；更新选型结论表（Max-0608 视觉可用但专项 benchmark 待验证）；JSON Mode 实测可用标注 |

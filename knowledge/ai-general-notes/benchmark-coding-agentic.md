@@ -1,6 +1,6 @@
 # AI Agent Benchmark 三维度评估框架
 
-> 最后更新: 2026-06-14
+> 最后更新: 2026-07-20
 > 领域: AI Engineering / AI Coding
 > 状态: Published
 
@@ -139,15 +139,15 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 |------|:---:|:---:|:---:|
 | Claude Opus 4.8 | **69.2%** | 74.6% | **83.4%** |
 | GPT-5.5 | 58.6% | **78.2%** | 78.7% |
-| Qwen3.7-Max | 60.6% | 69.7% [⚠️ v2.0] | — |
+| Qwen3.7-Max | 60.6% | 74.5%（AA harness） | — |
 | MiniMax M3 | 59.0% | 66.0% | [⚠️ 待补充] |
-| GLM-5.1 | 58.4% | 63.5% [⚠️ v2.0] | [⚠️ 待补充] |
+| GLM-5.1 | 58.4% | 58.7%（Claude Code harness） | [⚠️ 待补充] |
 | Gemini 3.5 Flash | 55.1% | 76.2% | 78.4% |
 | Gemini 3.1 Pro | 54.2% | 70.3% | 76.2% |
-| DeepSeek-V4-Pro | 52.1% | 59.1% [⚠️ v2.0] | [⚠️ 待补充] |
+| DeepSeek-V4-Pro | 52.1% | [⚠️ 待确认 v2.1] | [⚠️ 待补充] |
 | Qwen3.7-Plus | 57.6% | 47.0% [⚠️ AA TB-Hard] | 73.3% |
 
-> 注：Terminal-Bench 列默认为 v2.1；标注 [⚠️ v2.0] 的表示该模型仅有 v2.0 数据（v2.1 题目更难，两者不完全可比）；标注 [⚠️ AA TB-Hard] 的表示来自 Artificial Analysis 独立评测的 Terminal-Bench Hard 子集（统一 harness，与厂商自报分数不完全可比）。
+> 注：Terminal-Bench 列默认为 v2.1；标注“AA harness”表示来自 Artificial Analysis 统一 harness 评测；标注 [⚠️ AA TB-Hard] 的表示来自 AA 独立评测的 Terminal-Bench Hard 子集（统一 harness，与厂商自报分数不完全可比）。
 
 **学术推理力**：
 
@@ -239,7 +239,8 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
-| 2026-06-14 | 初始创建：SWE-bench 三代演进 + Terminal-Bench 2.1 + OSWorld-Verified 三层能力光谱；含用户口述 OSWorld-Verified 发布时间与 GUI 登录场景判断 [来源: 用户口述] |
+| 2026-07-20 | 校验修复：Qwen3.7-Max TB 69.7[v2.0] → 74.5（AA harness v2.1）；GLM-5.1 TB 63.5[v2.0] → 58.7（Claude Code harness v2.1）；DeepSeek-V4-Pro 移除 v2.0 数值待确认 v2.1 |
+| 2026-06-14 | 初始创建：SWE-bench 三代演进 + Terminal-Bench 2.1 + OSWorld-Verified 三层能力光谱；含用户口述 OSWorld-Verified 发布时间与 GUI 登录场景判断 [ 来源: 用户口述] |
 | 2026-06-14 | 新增 HLE：四层能力光谱完整化；补充 HLE 基本信息、各模型得分 |
 | 2026-06-14 | 架构重构：“四层光谱”→“双维度评估框架”（操作执行力 + 学术推理力），因 HLE 与前三层不在同一维度，正交而非递进 |
 | 2026-06-14 | 修正 HLE 定位：“深度推理力”→“学术推理力”，HLE 测博士级学科知识推理而非通用思考能力，不会 HLE ≠ 不会思考 |

@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-07-17
+> 最后更新：2026-07-20
 
 ## 目录
 
@@ -31,6 +31,8 @@
 | Fun-Music / 音乐生成 / AI 作曲 / 歌词生成歌曲 | [Fun-Music](alibaba-ai-hub/maas/fun-music.md) |
 | 百炼平台 / 多账号 / TPM 扩量 / 限流 | [百炼平台](alibaba-ai-hub/maas/overview.md) |
 | 百炼安全 / SOC 2 / CMaaS / 数据主权 / 隔离 | [百炼安全合规](alibaba-ai-hub/maas/model_studio_security-compliance_cn.md) |
+| 百炼权限 / RAM / 工作空间 / API Key 配置 | [百炼权限指南](alibaba-ai-hub/maas/model_studio_config/model-studio-workspace-permission-guide.md) |
+| Salebook / ROI 计算器 / 售前工具 | [sales-tools/](alibaba-ai-hub/maas/sales-tools/) |
 | Qoder / AI 编程 / IDE 插件 | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) |
 | Qoder 架构 / Harness 逆向 / 执行日志分析 | [Qoder IDE 架构逆向分析](alibaba-ai-hub/ai-coding/qoder_survey_20260622.md) |
 | QoderWork / 桌面助手 / 本地 Agent | [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) |
@@ -61,6 +63,7 @@
 | MiniMax / M3 / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
 | Kimi / 月之暗面 / Moonshot / K3 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
 | GLM / 智谱 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) |
+| 矿山安全 / AI 监控 / 矿山 Demo | [矿山安全 AI 监控 Demo](alibaba-ai-hub/ai-industry-solutions/mining-safety-ai-demo.html) |
 | 企业自建推理 / Higress / AI 网关 | [企业自建 AI 推理平台](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) ⭐ |
 | 数据出境 / 数据主权 / CN 版 | [MuleRun](alibaba-ai-hub/ai-application/mulerun.md#mulerun全球版与骡子快跑中国版的关系) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) |
 
@@ -94,7 +97,7 @@
 
 > 分组顺序：**云厂商**（阿里云 / Google）→ **海外模型厂商** → **中国模型厂商**。
 
-### 🟧 阿里云（核心阵地，27 篇深度文档）
+### 🟧 阿里云（核心阵地，30 篇深度文档）
 
 > **从底层算力到上层应用，覆盖 MaaS / AI Coding / AI App / AI Infra / 竞品对比全链路。**
 
@@ -109,6 +112,12 @@
 - [Fun-Music](alibaba-ai-hub/maas/fun-music.md) — AI 音乐生成，歌词到歌曲端到端，fun-music-v1 实测
 - [Qwen Demo](alibaba-ai-hub/maas/qwen-demo-20260420.md) · [Wan Demo](alibaba-ai-hub/maas/wan-demo-20260420.md) — 产品演示素材
 - [百炼 API 销售指南](alibaba-ai-hub/maas/ModelStudio-api-sales-guide-20260720.md) — 售前话术、模型选型、客户问答
+- [百炼权限配置指南](alibaba-ai-hub/maas/model_studio_config/model-studio-workspace-permission-guide.md) — RAM 子账号、工作空间、API Key 全流程截图
+- [Wan 费用估算](alibaba-ai-hub/maas/wan_PPL_estimation_20260629.md) — 万相 PPL 费用测算
+
+**售前工具（Sales Tools）**
+- [Qwen3.7-Max Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-max-salebook.html) · [Qwen3.7-Plus Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-plus-salesbook.html) · [三模型联合 Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-max-glm-kimi-salebook.html)
+- [DeepSeek-V4 TPM ROI 计算器](alibaba-ai-hub/maas/sales-tools/deepseek-v4-tpm-vs-modelstudio-roi.html) · [GLM-5.2 TPM ROI 计算器](alibaba-ai-hub/maas/sales-tools/glm5.2-tpm-vs-modelstudio-roi.html)
 
 **AI Coding**
 - [Qoder](alibaba-ai-hub/ai-coding/qoder.md) — 企业级 AI Coding IDE 插件
@@ -204,6 +213,7 @@
 - [短剧出海](alibaba-ai-hub/ai-industry-solutions/vertical-short-drama/overview.md) — Qwen3.7-Plus 原生 VL 视频理解 + 16 语言内容生成 + OpenSearch SEO，30 天 156 万条
 - [商业地产](alibaba-ai-hub/ai-industry-solutions/commercial-real-estate/overview.md) — AI 质检、合同审查、知识库、智能客服、Qoder 提效
 - [企业自建 AI 推理平台](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) ⭐ — Higress AI 网关 + 灵骏 GPU + 百炼 Fallback；含 AWS 迁移案例
+- [矿山安全 AI 监控 Demo](alibaba-ai-hub/ai-industry-solutions/mining-safety-ai-demo.html) — 矿山安全场景 HTML 动态 Demo（含 MP4 录屏）
 
 ---
 
