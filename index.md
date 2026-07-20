@@ -108,7 +108,7 @@
 - [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) — 图像生成
 - [Fun-Music](alibaba-ai-hub/maas/fun-music.md) — AI 音乐生成，歌词到歌曲端到端，fun-music-v1 实测
 - [Qwen Demo](alibaba-ai-hub/maas/qwen-demo-20260420.md) · [Wan Demo](alibaba-ai-hub/maas/wan-demo-20260420.md) — 产品演示素材
-- [百炼 API 销售指南](alibaba-ai-hub/maas/ModelStudio-api-sales-guide-20260629.md) — 售前话术、模型选型、客户问答
+- [百炼 API 销售指南](alibaba-ai-hub/maas/ModelStudio-api-sales-guide-20260720.md) — 售前话术、模型选型、客户问答
 
 **AI Coding**
 - [Qoder](alibaba-ai-hub/ai-coding/qoder.md) — 企业级 AI Coding IDE 插件
