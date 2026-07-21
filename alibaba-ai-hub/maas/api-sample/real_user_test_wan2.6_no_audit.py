@@ -6,7 +6,7 @@ import dashscope
 from dotenv import load_dotenv
 
 # 加载环境变量
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".env"))
 
 # 配置API URL（新加坡地域）
 dashscope.base_http_api_url = 'https://dashscope-intl.aliyuncs.com/api/v1'

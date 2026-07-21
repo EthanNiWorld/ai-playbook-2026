@@ -17,7 +17,7 @@ import time
 
 # 加载 .env 文件（.env 已被 .gitignore 忽略，密钥不会进 Git）
 # 采用直接覆盖策略，让 .env 的最新值生效（避免 shell 中旧值干扰）
-env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), ".env")
 if os.path.exists(env_path):
     with open(env_path) as f:
         for line in f:

@@ -4,7 +4,7 @@ import os
 import time
 
 # 手动加载 .env
-env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), ".env")
 with open(env_path) as f:
     for line in f:
         line = line.strip()

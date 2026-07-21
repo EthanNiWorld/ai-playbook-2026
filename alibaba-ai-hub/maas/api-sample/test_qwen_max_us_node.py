@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 # 加载项目根目录 .env
-load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".env"))
 
 client = OpenAI(
     api_key=os.getenv("DASHSCOPE_API_KEY_US"),
