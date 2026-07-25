@@ -1,25 +1,25 @@
 # 通义千问 (Qwen)
 
-> 最后更新: 2026-07-20
+> 最后更新: 2026-07-25
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 
 **定位**: 阿里云自研大语言模型系列，覆盖文本/代码/多模态，开源+商业双轨并行
-**当前主推**: Qwen3.7-Max（旗舰 Agent）/ Qwen3.7-Plus（多模态智能体）/ Qwen3.6-Flash（轻量快速）；预览版 Qwen3.8-Max-Preview 已上线（2.4T MoE，未 GA）
+**当前主推**: Qwen3.7-Max（旗舰 Agent）/ Qwen3.7-Plus（多模态智能体）/ Qwen3.7-Flash（轻量快速）；预览版 Qwen3.8-Max-Preview 已上线（2.4T MoE，未 GA）
 **适用**: 企业级AI应用开发、智能对话、代码生成、多模态理解、长时间自主 Agent
 **不适用**: 需要完全私有化且无网络的极端离线场景
 
 ## 当前主推模型
 
-> 数据来源：[百炼模型广场](https://help.aliyun.com/zh/model-studio/models)，2026-06-04 核实
+> 数据来源：[百炼模型广场](https://help.aliyun.com/zh/model-studio/models)，2026-07-25 核实
 
 | 模型 | 定位 | 上下文 | 特点 |
 |------|------|--------|------|
 | **Qwen3.7-Max** | 旗舰 Agent | **1M tokens** | AA Intelligence Index 56.6–57（旧版口径，国产 #1；v4.1 口径 = 46），35小时自主运行，0608 快照起支持视觉输入 |
 | **Qwen3.7-Plus** | 多模态智能体 | **1M tokens** | 原生多模态（图/视频/屏幕）+ GUI/CLI Agent + 视觉编码，纯文本接近 Max |
-| **Qwen3.6-Flash** | 轻量快速 | 256K tokens | 速度快，成本低，系列内 Flash 仍延用 3.6 代号 |
+| **Qwen3.7-Flash** | 轻量快速 | **1M tokens** | 速度快，成本低，适合 IPC/审校等在线成本敏感型场景及大批量打标 [来源: 用户口述] ⚠️ 待官方验证 |
 
-> 📌 **历史模型**：Qwen3.6-Plus、Qwen3.6-Max-Preview 仍可调用，但已分别被 Qwen3.7-Plus 和 Qwen3.7-Max 取代，不建议新项目选用。
+> 📌 **历史模型**：Qwen3.6-Plus、Qwen3.6-Max-Preview、Qwen3.6-Flash 仍可调用，但已分别被 Qwen3.7-Plus、Qwen3.7-Max、Qwen3.7-Flash 取代，不建议新项目选用。
 >
 > 📌 **预览版**：Qwen3.8-Max-Preview（2.4T MoE，2026-07-19 上线）已开放抢先体验，正式版承诺开放权重。详见下方 [Qwen3.8-Max-Preview](#qwen38-max-preview预览版) 章节。⚠️ 无公开 benchmark / 定价 / 参数细节，待正式版 GA 后迁移至主推表。
 
@@ -77,7 +77,7 @@ Terminal-Bench 2.1 **74.5**（AA harness）/ 2.0 69.7（vendor）、SWE-Pro **60
 **系列定位分工**：
 - **Qwen3.7-Max** = 推理 + Agent 旗舰（~~纯文本~~ → 0608 快照起支持视觉输入，但视觉专项 benchmark 尚待验证；1M 全段无阶梯）
 - **Qwen3.7-Plus** = 多模态智能体（视觉 + 语言 + GUI/CLI + 视觉编码，VLA 训练范式，视觉场景首选）
-- **Qwen3.6-Flash** = 低成本快速档（系列内未推 3.7-Flash，Flash 仍延用 3.6 代号）
+- **Qwen3.7-Flash** = 低成本快速档（IPC/审校等在线成本敏感型场景、大批量打标）[来源: 用户口述] ⚠️ 待官方验证
 
 **竞争力要点**：
 - vs Qwen3.6-Plus（上一代）：输出价从 ¥12 降至 ¥8（-33%），256K-1M 输出从 ¥48 降至 ¥24（-50%），能力升级同时降价
@@ -156,7 +156,8 @@ Terminal-Bench 2.1 **74.5**（AA harness）/ 2.0 69.7（vendor）、SWE-Pro **60
 | 长时间自主 Agent / 数学竞赛 / 科研推理 | **3.7-Max** | 35h 自主运行，HMMT 97.1%，全球领先 |
 | Agentic Coding（重度） | **3.7-Max** | Terminal-Bench 2.1 74.5 / 2.0 69.7 |
 | Agentic Coding（性价比）/ 长文档 / 多模态 / 生产环境 | **3.7-Plus** | GA 稳定，支持图像/视频/屏幕，1M 上下文，GUI/CLI Agent |
-| 高并发轻量调用 | **3.6-Flash** | 低延迟低成本 |
+| IPC / 审校 / 大批量打标等成本敏感场景 | **3.7-Flash** | 在线低延迟低成本 [来源: 用户口述] ⚠️ 待官方验证 |
+| 高并发轻量调用 | **3.7-Flash** | 低延迟低成本 |
 | 私有化部署 | 3.6 开源版 | 支持本地部署 |
 
 ### Plus vs Max 场景选型详解
@@ -239,7 +240,7 @@ Max 生成速度约为 Plus 的 4.7 倍（MoE 架构 + 无视觉 encoder 开销�
 | **Qwen3.7-Max** | ¥12 | ¥36 | ¥1.2 |
 | Qwen3.7-Max（5折） | ¥6 | ¥18 | ¥0.6 |
 | **Qwen3.7-Plus** | ¥2 | ¥8 | — |
-| **Qwen3.6-Flash** | [查看定价](https://help.aliyun.com/zh/model-studio/model-pricing) | — | — |
+| **Qwen3.7-Flash** | [查看定价](https://help.aliyun.com/zh/model-studio/model-pricing) | — | — |
 
 > Qwen3.7-Max 实际成本需关注输出冗长问题：评估中生成量是中位数的 4×，建议 prompt 中显式约束输出长度。
 
@@ -278,6 +279,7 @@ Max 生成速度约为 Plus 的 4.7 倍（MoE 架构 + 无视觉 encoder 开销�
 | 日期 | 变更内容 |
 |------|----------|
 | 2026-07-10 | 校验修复：移除 Plus "8折至 2026-07-02" 过期到期日，改为"截止日期以百炼控制台为准" |
+| 2026-07-25 | 合并：用户口述 — Qwen3.7-Flash 上线，取代 Qwen3.6-Flash；定位 IPC/审校等在线成本敏感型场景及大批量打标；主推表、系列定位、适用场景、定价表同步更新 |
 | 2026-07-20 | 校验修复：TB 2.0 69.7 → 补记 TB 2.1 = 74.5（AA harness）统一口径；AA Index 补注 v4.1 = 46；竞品对比表 GLM-5.1 TB 同步更新为 58.7 |
 | 2026-07-20 | 合并：inbox Qwen3.8-Max 信息汇总 - 新增 Qwen3.8-Max-Preview 预览版子章节（2.4T MoE，2026-07-19 上线，承诺正式版开源）；SUMMARY 标注预览版上线；主推表保持 3.7 系列不变（预览版未 GA 不入主推表） |
 | 2026-06-14 | 同步 HTML 选型页变更：系列定位分工更新 Max 不再是纯文本旗舰（0608 快照起支持视觉）；Plus 竞争力要点补充视觉场景首选定位 |
