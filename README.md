@@ -4,8 +4,8 @@
 
 <table align="center">
 <tr>
-<td align="center" width="25%"><br><h2>12</h2><b>覆盖厂商</b><br><sub>阿里 · Google · Anthropic · OpenAI…</sub><br><br></td>
-<td align="center" width="25%"><br><h2>74</h2><b>结构化文档</b><br><sub>深度分析 · 持续更新</sub><br><br></td>
+<td align="center" width="25%"><br><h2>13</h2><b>覆盖厂商</b><br><sub>阿里 · Google · Anthropic · OpenAI…</sub><br><br></td>
+<td align="center" width="25%"><br><h2>76</h2><b>结构化文档</b><br><sub>深度分析 · 持续更新</sub><br><br></td>
 <td align="center" width="25%"><br><h2>4</h2><b>知识维度</b><br><sub>通识 · 产品 · 对比 · 方案</sub><br><br></td>
 <td align="center" width="25%"><br><h2>☁️</h2><b>阿里云为核心</b><br><sub>MaaS · Coding · App · Infra</sub><br><br></td>
 </tr>
@@ -47,7 +47,7 @@
 **🏷️ 模型选型与定价**
 > 10+ 厂商模型能力 / 定价 / 定位
 
-[Qwen](alibaba-ai-hub/maas/qwen.md) · [Claude](knowledge/anthropic/claude-api.md) · [GPT-5](knowledge/openai/gpt-5-series.md) · [Gemini](knowledge/google/maas/gemini.md) · [Doubao](knowledge/bytedance/doubao-seed-2.1.md) · [GLM](knowledge/zhipu/glm-series.md) · [MiniMax](knowledge/minimax/minimax-series.md) · [DeepSeek](knowledge/deepseek/general_intro.md) · [Kimi](knowledge/moonshot/kimi-k-series.md) · [MAI](knowledge/microsoft/mai-models.md)
+[Qwen](alibaba-ai-hub/maas/qwen.md) · [Claude](knowledge/anthropic/claude-api.md) · [GPT-5](knowledge/openai/gpt-5-series.md) · [Gemini](knowledge/google/maas/gemini.md) · [Doubao](knowledge/bytedance/doubao-seed-2.1.md) · [GLM](knowledge/zhipu/glm-series.md) · [MiniMax](knowledge/minimax/minimax-series.md) · [DeepSeek](knowledge/deepseek/general_intro.md) · [Kimi](knowledge/moonshot/kimi-k-series.md) · [MAI](knowledge/microsoft/mai-models.md) · [StepFun](knowledge/stepfun/step-3-series.md)
 
 </td>
 <td width="50%" valign="top">
@@ -158,7 +158,7 @@ mindmap
         AI App: QoderWork / MuleRun / Claw / JVS Crew
         AI Infra: GPU选型
       Google
-        MaaS: Gemini 3.1 / 3.5 Flash
+        MaaS: Gemini 3.1 Pro / 3.6 Flash
         AI Platform: Vertex AI
       Anthropic
         MaaS: Opus 4.8 / Sonnet 4.6 / Haiku 4
@@ -181,6 +181,8 @@ mindmap
         Doubao-Seed-2.1 Pro / Turbo
       腾讯混元
         Hy3
+      阶跃星辰
+        Step 3.7 Flash / AI+终端
     线:竞品对比
       Qoder vs Trae
       Qwen vs Hy3
@@ -232,7 +234,7 @@ flowchart LR
 │   └── ai-industry-solutions/ ← 🟩 行业方案（企业AI平台 / 短剧出海 / IPC / 商业地产）
 ├── inbox/              ← 📥 原始素材暂存（处理后自动归档）
 ├── archive/            ← 🗄️ 已处理素材备份
-├── knowledge/          ← 🎯 结构化知识库（通识 + 他厂商，44 篇）
+├── knowledge/          ← 🎯 结构化知识库（通识 + 他厂商，46 篇）
 │   ├── ai-general-notes/   ← 🟦 AI 通识（14 篇：Agent / Harness / Prompt / 记忆 / ReAct / 增长飞轮 / Benchmark…）
 │   ├── google/             ← 🔵 Google（3 篇：MaaS / Platform）
 │   ├── anthropic/          ← 🔵 Anthropic（5 篇：MaaS / Coding / App）
@@ -243,6 +245,7 @@ flowchart LR
 │   ├── moonshot/           ← 🟣 月之暗面（2 篇：公司分析 / Kimi K系列）
 │   ├── bytedance/          ← 🟣 字节跳动（1 篇：Doubao-Seed-2.1）
 │   ├── zhipu/              ← 🟣 智谱 AI（2 篇：公司分析 / GLM系列）
+│   ├── stepfun/            ← 🟣 阶跃星辰（2 篇：公司分析 / Step 3系列）
 │   └── tencent/            ← 🟣 腾讯混元（1 篇：Hy3）
 ├── vibeCodingProject/  ← 🧪 实验代码（Demo 脚本、CHM 查看器）
 ├── index.md            ← 📋 全局索引导航

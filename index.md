@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-07-20
+> 最后更新：2026-07-27
 
 ## 目录
 
@@ -10,7 +10,7 @@
 - [点：单产品知识](#点单产品知识)
   - 云厂商：[阿里云](#阿里云) · [Google](#google)
   - 海外模型厂商：[Anthropic](#anthropic) · [OpenAI](#openai) · [Microsoft AI (MAI)](#microsoft-ai-mai)
-  - 中国模型厂商：[DeepSeek](#deepseek深度求索) · [MiniMax](#minimax) · [智谱 AI](#智谱-aizhipu) · [月之暗面](#月之暗面moonshot-ai) · [腾讯混元](#腾讯混元tencent-hunyuan)
+  - 中国模型厂商：[DeepSeek](#deepseek深度求索) · [MiniMax](#minimax) · [智谱 AI](#智谱-aizhipu) · [月之暗面](#月之暗面moonshot-ai) · [腾讯混元](#腾讯混元tencent-hunyuan) · [阶跃星辰](#阶跃星辰stepfun)
 - [线：对比分析（阿里云视角）](#线对比分析阿里云视角)
 - [体：行业解决方案](#体行业解决方案)
 - [模板参考](#模板参考)
@@ -58,6 +58,7 @@
 | MAI / 微软自研 / Copilot 模型 | [MAI 模型家族](knowledge/microsoft/mai-models.md) |
 | DeepSeek / R1 / V4 / 开源 | [DeepSeek](knowledge/deepseek/general_intro.md) ⭐ |
 | Hy3 / 腾讯混元 / Hunyuan | [Hy3](knowledge/tencent/hy3.md) |
+| StepFun / 阶跃星辰 / Step 3.7 Flash / AI+终端 | [StepFun](knowledge/stepfun/general_intro.md) · [Step 3 系列](knowledge/stepfun/step-3-series.md) |
 | Qwen vs Hy3 / 混元竞争分析 | [Qwen3.7 vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) |
 | Qwen vs Doubao / 豆包竞争分析 | [Qwen3.7-Max vs Doubao-Seed-2.1 Pro](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
 | MiniMax / M3 / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
@@ -143,7 +144,7 @@
 
 **MaaS**
 - [Gemini Enterprise Agent Platform](knowledge/google/maas/overview.md)
-- [Gemini](knowledge/google/maas/gemini.md) — 3.1 Pro（当前旗舰） / 3.5 Flash（Agent/Coding 性价比率先，**6/24 新增 Computer Use**，含 benchmark 对比）
+- [Gemini](knowledge/google/maas/gemini.md) — 3.1 Pro（Pro 线旗舰）/ **3.6 Flash（7/21 GA，新 workhorse：token 效率 -17% + 输出降价，OSWorld 83.0%）** / 3.5 Flash-Lite（350 tok/s）；3.5 Pro 跳票，Gemini 4 预训练已启动
 
 **AI Platform**
 - [Vertex AI → Agent Platform](knowledge/google/ai-platform/vertex-ai.md) — 训练/部署/Agent
@@ -196,6 +197,11 @@
 ### 腾讯混元（Tencent Hunyuan）
 
 - 模型: [Hy3](knowledge/tencent/hy3.md) — 295B MoE/21B 激活，OpenRouter 工具调用 #1，SWE-bench 74.4%，开源可自部署，价格碾压
+
+### 阶跃星辰（StepFun）
+
+- 公司分析: [StepFun 公司分析](knowledge/stepfun/general_intro.md) — 2026.01 B+轮超 50 亿人民币（印奇任董事长），"AI+终端"战略：手机装机 4200 万台 + 吉利 AgentOS 座舱，终端 Agent 大脑供应商定位
+- 模型系列: [Step 3 系列](knowledge/stepfun/step-3-series.md) — Step 3 / 3.5 Flash / **3.7 Flash（当前主推，198B MoE/11B 激活、256K、原生图像+视频、Advisor Mode 1/9 成本达 Opus 97% coding）**
 
 ---
 
