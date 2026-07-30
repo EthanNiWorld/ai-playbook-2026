@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-07-27
+> 最后更新：2026-07-30
 
 ## 目录
 
@@ -63,7 +63,10 @@
 | Qwen vs Doubao / 豆包竞争分析 | [Qwen3.7-Max vs Doubao-Seed-2.1 Pro](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
 | MiniMax / M3 / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
 | Kimi / 月之暗面 / Moonshot / K3 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
-| GLM / 智谱 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) |
+| GLM / 智谱 / GLM-5.2 / 1M 上下文 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) |
+| Seedance / 字节视频生成 / AI 短剧 / 火山方舟 | [Seedance 系列](knowledge/bytedance/seedance-series.md) |
+| GRPO / PPO / critic / RL 算法选型 / Agentic RL | [RL 算法选型](knowledge/ai-general-notes/rl-algorithm-selection-grpo-vs-ppo.md) |
+| 视频模型数据策略 / 不蒸馏 / 数据质量密度 | [视频模型数据策略](knowledge/ai-general-notes/video-model-data-strategy.md) |
 | 矿山安全 / AI 监控 / 矿山 Demo | [矿山安全 AI 监控 Demo](alibaba-ai-hub/ai-industry-solutions/mining-safety-ai-demo.html) |
 | 企业自建推理 / Higress / AI 网关 | [企业自建 AI 推理平台](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) ⭐ |
 | 数据出境 / 数据主权 / CN 版 | [MuleRun](alibaba-ai-hub/ai-application/mulerun.md#mulerun全球版与骡子快跑中国版的关系) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) |
@@ -88,6 +91,8 @@
 - [长程任务](knowledge/ai-general-notes/long-horizon-task.md) ⭐ — METR 任务完成时间线、阶梯型策略切换、GLM-5.1 8 小时级 / Fable 5 天级 / K2.6 13 小时
 - [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) — 三正交轴选型框架（时间尺度 × 模态融合 × 泛化广度）
 - [推测解码](knowledge/ai-general-notes/speculative-decoding.md) ⭐ — draft-and-verify 范式、DSpark/DFlash/Eagle3 方法对比、模型+系统联合优化趋势
+- [视频模型数据策略](knowledge/ai-general-notes/video-model-data-strategy.md) — 数据质量密度决定生成模型上限、不蒸馏的必然性、UNet→DiT scaling 切换（Seedance 2.0 样本）
+- [RL 算法选型：GRPO vs PPO](knowledge/ai-general-notes/rl-algorithm-selection-grpo-vs-ppo.md) — f(rollout 成本, 任务时程) 选型框架、长程 Agentic RL 重新拥抱 critic（GLM-5.2 样本）
 - [AI Agent 记忆系统](knowledge/ai-general-notes/agent-memory.md) ⭐ — ChatGPT Dreaming V3、人脑记忆工程同构、个性化护城河
 - [ReAct 范式](knowledge/ai-general-notes/Memory-ReAct.md) ⭐ — Reasoning and Acting 范式、Thought-Action-Observation 循环、Memory 是最后一公里
 - [AI 公司增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ — Killer App × 企业信任 × 消费制收入，Anthropic 17 个月 47 倍
@@ -183,7 +188,7 @@
 ### 智谱 AI（Zhipu）
 
 - 公司分析: [智谱 AI 公司分析](knowledge/zhipu/general_intro.md) — 2026.01 港股 IPO（02513.HK，全球大模型第一股）、GLM-5 编程开源 SOTA、MaaS ARR 17 亿元
-- 模型系列: [GLM 系列](knowledge/zhipu/glm-series.md) — GLM-4 / 4.5 / 4.6 / 5 / 5.1，**GLM-5.1 主推 8 小时级长程任务**
+- 模型系列: [GLM 系列](knowledge/zhipu/glm-series.md) — GLM-4 / 4.5 / 4.6 / 5 / 5.1 / 5.2，**GLM-5.2 主推 Solid 1M 上下文 + 长程任务开源 SOTA，AA 综合榜前三**
 
 ### 月之暗面（Moonshot AI）
 
@@ -193,6 +198,7 @@
 ### 字节跳动
 
 - 模型系列: [Doubao-Seed-2.1](knowledge/bytedance/doubao-seed-2.1.md) — Pro（旗舰）/ Turbo（轻量），Coding+Agent 时代生产级模型，GDPval 最高分
+- 视频生成: [Seedance 系列](knowledge/bytedance/seedance-series.md) — 2.5（旗舰，30s 直出 + 50 全模态参考）/ 2.0（原生 4K），全球市占率第二仅次 Veo
 
 ### 腾讯混元（Tencent Hunyuan）
 

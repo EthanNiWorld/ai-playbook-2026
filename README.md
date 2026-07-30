@@ -5,7 +5,7 @@
 <table align="center">
 <tr>
 <td align="center" width="25%"><br><h2>13</h2><b>覆盖厂商</b><br><sub>阿里 · Google · Anthropic · OpenAI…</sub><br><br></td>
-<td align="center" width="25%"><br><h2>76</h2><b>结构化文档</b><br><sub>深度分析 · 持续更新</sub><br><br></td>
+<td align="center" width="25%"><br><h2>79</h2><b>结构化文档</b><br><sub>深度分析 · 持续更新</sub><br><br></td>
 <td align="center" width="25%"><br><h2>4</h2><b>知识维度</b><br><sub>通识 · 产品 · 对比 · 方案</sub><br><br></td>
 <td align="center" width="25%"><br><h2>☁️</h2><b>阿里云为核心</b><br><sub>MaaS · Coding · App · Infra</sub><br><br></td>
 </tr>
@@ -73,7 +73,7 @@
 **📚 AI 通识**
 > Agent · Harness · Prompt · Benchmark
 
-[Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [ReAct](knowledge/ai-general-notes/Memory-ReAct.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [推测解码](knowledge/ai-general-notes/speculative-decoding.md) · [前沿模型](knowledge/ai-general-notes/frontier-model-positioning.md)
+[Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [ReAct](knowledge/ai-general-notes/Memory-ReAct.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [推测解码](knowledge/ai-general-notes/speculative-decoding.md) · [前沿模型](knowledge/ai-general-notes/frontier-model-positioning.md) · [RL 算法选型](knowledge/ai-general-notes/rl-algorithm-selection-grpo-vs-ppo.md) · [视频数据策略](knowledge/ai-general-notes/video-model-data-strategy.md)
 
 </td>
 </tr>
@@ -174,11 +174,12 @@ mindmap
       Microsoft AI
         MAI-Thinking-1 / MAI-Code-1-Flash
       智谱
-        GLM-5.1 旗舰 / GLM-5
+        GLM-5.2 旗舰 / GLM-5.1 / GLM-5
       月之暗面
         Kimi K2.6 / Agent Swarm
       字节跳动
         Doubao-Seed-2.1 Pro / Turbo
+        Seedance 2.5 / 2.0 视频生成
       腾讯混元
         Hy3
       阶跃星辰
@@ -234,8 +235,8 @@ flowchart LR
 │   └── ai-industry-solutions/ ← 🟩 行业方案（企业AI平台 / 短剧出海 / IPC / 商业地产）
 ├── inbox/              ← 📥 原始素材暂存（处理后自动归档）
 ├── archive/            ← 🗄️ 已处理素材备份
-├── knowledge/          ← 🎯 结构化知识库（通识 + 他厂商，46 篇）
-│   ├── ai-general-notes/   ← 🟦 AI 通识（14 篇：Agent / Harness / Prompt / 记忆 / ReAct / 增长飞轮 / Benchmark…）
+├── knowledge/          ← 🎯 结构化知识库（通识 + 他厂商，49 篇）
+│   ├── ai-general-notes/   ← 🟦 AI 通识（16 篇：Agent / Harness / Prompt / 记忆 / ReAct / 增长飞轮 / Benchmark / RL 算法选型…）
 │   ├── google/             ← 🔵 Google（3 篇：MaaS / Platform）
 │   ├── anthropic/          ← 🔵 Anthropic（5 篇：MaaS / Coding / App）
 │   ├── openai/             ← 🔵 OpenAI（3 篇：公司分析 / GPT-5系列 / Codex）
@@ -243,7 +244,7 @@ flowchart LR
 │   ├── deepseek/           ← 🟣 DeepSeek（3 篇：公司分析 / V系列 / R系列）
 │   ├── minimax/            ← 🟣 MiniMax（4 篇：公司分析 / 模型系列 / MSA论文 / Agent Team）
 │   ├── moonshot/           ← 🟣 月之暗面（2 篇：公司分析 / Kimi K系列）
-│   ├── bytedance/          ← 🟣 字节跳动（1 篇：Doubao-Seed-2.1）
+│   ├── bytedance/          ← 🟣 字节跳动（2 篇：Doubao-Seed-2.1 / Seedance 系列）
 │   ├── zhipu/              ← 🟣 智谱 AI（2 篇：公司分析 / GLM系列）
 │   ├── stepfun/            ← 🟣 阶跃星辰（2 篇：公司分析 / Step 3系列）
 │   └── tencent/            ← 🟣 腾讯混元（1 篇：Hy3）

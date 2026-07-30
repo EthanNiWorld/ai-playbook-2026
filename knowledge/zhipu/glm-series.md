@@ -1,23 +1,52 @@
 # 智谱 GLM 系列模型
 
-> 最后更新: 2026-06-15
+> 最后更新: 2026-07-30
 > 所属厂商: 智谱 AI（Zhipu AI）
 > 产品类别: MaaS
 > 状态: Published
 
 **定位**: 智谱自研 GLM 系列大模型，清华 KEG 实验室背景，强调中国本土化、合规部署与 ARC（Agent/Reasoning/Coding）能力体系
-**当前主推**: GLM-5.1（2026.04.07 正式发布，3.27 起面向 Coding Plan 用户开放）
-**适用**: 企业合规部署、政企客户、本地化推理、中文编程、长程任务（8 小时级自主执行）
+**当前主推**: GLM-5.2（2026.06 上线并开源，Solid 1M 上下文，专为长程任务而生）
+**适用**: 企业合规部署、政企客户、本地化推理、中文编程、长程任务、1M 项目级上下文
 **不适用**: 多模态场景（纯文本模型）、需要极致低价的开源场景（DeepSeek 更具价格优势）
 
 ## 当前主推模型
 
 | 模型 | 定位 | 上下文 | 特点 | 推出时间 |
 |------|------|--------|------|----------|
-| **GLM-5.1** | 最新旗舰 | 200K | 8 小时级长程任务，SWE-Bench Pro 58.4，MIT 开源，华为昇腾训练 | 2026.04.07 |
-| **GLM-5** | 前代旗舰 | 128K+ | SWE-bench Verified 开源 SOTA | 2026.02.11 |
+| 🚩 **GLM-5.2** | 最新旗舰 | 1M | Solid 1M 无损上下文，长程任务开源 SOTA，AA 综合榜 51 分前三，MIT 开源 | 2026.06 |
+| **GLM-5.1** | 上代旗舰 | 200K | 8 小时级长程任务，SWE-Bench Pro 58.4，MIT 开源，华为昇腾训练 | 2026.04.07 |
 
-> 历史版本（GLM-4 / GLM-4.5 / GLM-4.6 / GLM-4.7）详见下方各小节。
+> 📌 **历史模型**：GLM-5（2026.02.11，128K+，SWE-bench Verified 开源 SOTA）仍可调用，但已被 GLM-5.1/5.2 取代，不建议新项目选用；GLM-4 / GLM-4.5 / GLM-4.6 / GLM-4.7 详见下方各小节。
+
+### GLM-5.2
+
+- **模型**：glm-5.2
+- **公司**：智谱 AI
+- **时间**：2026 年 6 月（6.13 宣布全面开放，6.16 上线 OpenRouter）
+- **架构**：744B 总参数 MoE，256 experts，每 token 激活 8 个（有效计算约 40B），与 GLM-5/5.1 同架构
+- **许可证**：MIT（权重完全开放，可商用，HuggingFace: zai-org/GLM-5.2）
+- **上下文**：Solid 1M 无损上下文——官方强调非单纯扩窗，花数月扩展 1M Coding Agent 训练环境（大规模实现/自动化研究/性能优化），实测长上下文表现有时超过 Opus
+- **场景**：长程任务（Long Horizon Task）、项目级 Coding、大型重构工程、知识工作者长链路任务
+- **特点**：
+  1. **长程任务开源 SOTA**：FrontierSWE 仅低 Claude Opus 4.8 约 1%，超 GPT-5.5 和 Opus 4.7；官方 demo 单次长程任务处理 88 万+ tokens 交付多端应用
+  2. **Infra 协同设计**：IndexShare（每 4 层稀疏注意力复用同一 indexer，1M 下单 token FLOPs 降 2.9 倍）；MTP 层优化使投机解码接受长度最多提升 20%；Day 0 适配华为昇腾/平头哥/摩尔线程/寒武纪等国产算力平台
+  3. **effort level（思考档位）**：可在能力/速度/成本间平衡
+  4. **RL 训练路线切换**：长程 Agentic RL 阶段从 GRPO 切换回 critic-based PPO（自研 Slime 框架支撑），详见 [RL 算法选型](../ai-general-notes/rl-algorithm-selection-grpo-vs-ppo.md)
+- **官方承认短板**：SWE-Marathon（超长周期自主工程）低于 Opus 4.8 约 13%
+
+#### GLM-5.2 基准分数
+
+| 基准 | 表现 | 说明 |
+|------|------|------|
+| Artificial Analysis 综合榜 | 51 分 | 与 Anthropic、OpenAI 同列前三，开源 SOTA |
+| Code Arena（前端盲测） | 全球可用模型第一 | 百万用户参与盲测 |
+| FrontierSWE | 低 Opus 4.8 约 1% | 超 GPT-5.5 和 Opus 4.7，开源最高 |
+| SWE-Marathon | 低 Opus 4.8 约 13% | 官方承认待提升 |
+| Terminal-Bench 2.1 | 低 Opus 4.8 约 4% | 较 GLM-5.1 提升 17.5% |
+| MCP-Atlas（工具使用） | 低 Opus 4.8 约 0.8% | — |
+
+> 来源：[智谱官方博客](https://www.zhipuai.cn/zh/research/161)、[GLM-5.2 技术博客](https://z.ai/blog/glm-5.2)
 
 ### GLM-5.1
 
@@ -131,7 +160,7 @@
 | 限制项 | 具体值 | 说明 |
 |--------|--------|------|
 | 纯文本 | 不支持图像/视频/音频 | 多模态需使用 GLM-5V-Turbo / GLM-4.6V 等独立产品线 |
-| 上下文窗口 | 200K | 落后于 GPT-5.5 和 Qwen3.7-Max 的 1M |
+| 上下文窗口 | GLM-5.2 已达 1M | GLM-5.1 及之前为 200K；GLM-5.2 实现 Solid 1M 无损上下文 |
 | 绝对编程能力 | 落后 Claude Opus 4.8 约 10 个百分点 | SWE-Bench Pro 58.4 vs 69.2 |
 | 国际化 | 主要面向中国市场 | 海外生态和竞争力相对较弱 |
 | 性价比 | 非极致低价 | DeepSeek V4 价格更低（$0.27/$1.10），定位不同 |
@@ -144,9 +173,10 @@
 |------|----------|------|
 | 企业合规部署 | GLM-5.1 / GLM-5 | 本地化部署 + 华为昇腾适配，合规无忧 |
 | 政企客户 | GLM-5.1 / GLM-4 全系列 | 高合规要求行业首选 |
-| 长程编程任务 | GLM-5.1 | 8 小时级自主执行，从规划到交付 |
-| 中文编程 | GLM-5.1 / GLM-5 | SWE-bench 开源第一 |
-| 开源 + 商业可用 | GLM-5.1 | MIT 协议，可自部署 |
+| 长程编程任务 | GLM-5.2 | 长程任务开源 SOTA，单次任务 88 万+ tokens 交付 |
+| 项目级 1M 上下文 | GLM-5.2 | 完整工程放进同一条推理链路 |
+| 中文编程 | GLM-5.2 / GLM-5.1 | 主流编程基准开源 SOTA |
+| 开源 + 商业可用 | GLM-5.2 / GLM-5.1 | MIT 协议，可自部署 |
 | 中等推理任务 | GLM-4-Air / Flash | 性价比分层 |
 
 ### ❌ 不适用
@@ -156,7 +186,7 @@
 | 极致低价 | DeepSeek V4 价格更低（$0.27/$1.10 vs $0.98/$3.08） |
 | 多模态需求 | GLM-5.1 纯文本，需使用 GLM-5V-Turbo 等 |
 | 绝对最强编程 | Claude Opus 4.8 在 SWE-Bench Pro 上领先 10.8 个百分点 |
-| 1M 长上下文 | GPT-5.5 / Qwen3.7-Max 提供 1M 上下文窗口 |
+| 超长周期自主工程（SWE-Marathon 类） | GLM-5.2 低于 Claude Opus 4.8 约 13%（官方承认） |
 | 全球市场 | 国际化能力相对弱，海外生态不如 Claude/GPT |
 
 ## 关键技术论文
@@ -169,6 +199,10 @@
 
 - [智谱 AI 官网](https://www.zhipuai.cn)
 - [智谱 MaaS 平台](https://open.bigmodel.cn)
+- [智谱官方博客 - GLM-5.2 上线并开源](https://www.zhipuai.cn/zh/research/161)
+- [GLM-5.2 官方文档](https://docs.bigmodel.cn/cn/guide/models/text/glm-5.2)
+- [GLM-5.2 官方技术博客](https://z.ai/blog/glm-5.2)
+- [GLM-5.2 ModelScope 模型卡](https://modelscope.cn/models/ZhipuAI/GLM-5.2)
 - [GLM-5.1 官方文档](https://docs.bigmodel.cn/cn/guide/models/text/glm-5.1)
 - [智谱新品发布公告](https://docs.bigmodel.cn/cn/update/new-releases)
 - [GLM-5.1 GitHub](https://github.com/zai-org/GLM-5)
@@ -180,6 +214,7 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-07-30 | 合并：inbox 2026-07-30 素材 - 新增 GLM-5.2 小节（1M 上下文、基准分数、IndexShare/MTP、RL 路线切换），主推切换为 GLM-5.2，修正上下文限制与适用场景表述，交叉链接 rl-algorithm-selection-grpo-vs-ppo.md |
 | 2026-06-15 | GLM-5.1 长程任务特点补充技术原理摘要（Progressive Alignment + 阶梯型策略切换），新增智谱研究文档参考链接，交叉链接 [long-horizon-task.md](../ai-general-notes/long-horizon-task.md) |
 | 2026-06-03 | 全面更新 GLM-5.1：修正发布时间为 2026.04.07（正式公告）；补充架构参数（744B MoE, 256 experts）；新增全部基准分数（SWE-Bench Pro/Verified、Terminal-Bench 2.0、NL2Repo、Coding Score、AIME 2026）；新增中国站/国际站定价；新增与 Claude Opus 4.8 / GPT-5.5 / Qwen3.7-Max 对比表；补充华为昇腾训练、MIT 协议、纯文本限制等关键信息；更新适用/不适用场景 |
 | 2026-05-28 | 新建文档，首次提炼 GLM 系列模型系列信息 |
