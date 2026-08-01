@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-07-30
+> 最后更新：2026-08-01
 
 ## 目录
 
@@ -50,8 +50,9 @@
 | 长程任务 / Long Horizon / METR / 8 小时 / 策略切换 | [长程任务](knowledge/ai-general-notes/long-horizon-task.md) ⭐ |
 | 前沿模型路线 / 选型框架 / Fable 5 vs Qwen vs GPT | [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) |
 | 推测解码 / Speculative Decoding / DSpark / 推理加速 | [推测解码](knowledge/ai-general-notes/speculative-decoding.md) ⭐ |
+| 安全护栏 / 分类器拦截 / 降级兜底 / 护栏粒度 / CVP | [安全护栏粒度](knowledge/ai-general-notes/safety-guardrail-granularity.md) ⭐ |
 | MSA / 稀疏注意力 / MiniMax 架构 | [MSA 稀疏注意力](knowledge/minimax/msa-sparse-attention.md) |
-| Claude / Opus 4.8 / Sonnet / Haiku | [Claude API](knowledge/anthropic/claude-api.md) |
+| Claude / Opus 5 / Sonnet 5 / Fable 5 / Haiku | [Claude API](knowledge/anthropic/claude-api.md) |
 | Claude Code / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) |
 | Gemini / Google / Computer Use | [Gemini](knowledge/google/maas/gemini.md) |
 | GPT-5 / GPT-5.6 / ChatGPT / OpenAI / Codex | [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
@@ -96,6 +97,7 @@
 - [AI Agent 记忆系统](knowledge/ai-general-notes/agent-memory.md) ⭐ — ChatGPT Dreaming V3、人脑记忆工程同构、个性化护城河
 - [ReAct 范式](knowledge/ai-general-notes/Memory-ReAct.md) ⭐ — Reasoning and Acting 范式、Thought-Action-Observation 循环、Memory 是最后一公里
 - [AI 公司增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ — Killer App × 企业信任 × 消费制收入，Anthropic 17 个月 47 倍
+- [安全护栏粒度](knowledge/ai-general-notes/safety-guardrail-granularity.md) ⭐ — 从「按领域封禁」到「按危害环节封禁」；危险能力是通用智能的副产物，护栏强度应是实测危害能力的函数（Opus 5 / Sonnet 5 样本）
 
 ---
 
@@ -157,7 +159,7 @@
 ### Anthropic
 
 - 公司分析: [Anthropic 公司分析](knowledge/anthropic/general_intro.md) — PBC 治理、Scaling Laws 团队、Claude 家族、ARR $2B+（2026.04）
-- MaaS: [Claude API](knowledge/anthropic/claude-api.md) — Opus 4.8（SWE-Bench Pro 69.2%）/ Sonnet 4.6 / Haiku 4
+- MaaS: [Claude API](knowledge/anthropic/claude-api.md) — 🚩 Fable 5（最高能力档 $10/$50）/ **⭐ Opus 5（2026.07.24，coding·knowledge work SOTA，$5/$25 = Fable 5 半价、无数据留存）** / **Sonnet 5（2026.06.30，$2/$10 → 09-01 起 $3/$15）** / Haiku 4.5
 - AI Coding: [Claude Code](knowledge/anthropic/claude-code.md) — 终端 AI 编程
 - AI App: [Claude Cowork](knowledge/anthropic/claude-cowork.md) — 桌面通用知识工作 Agent · [Claude Managed Agents](knowledge/anthropic/claude-managed-agents.md)
 

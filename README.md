@@ -5,7 +5,7 @@
 <table align="center">
 <tr>
 <td align="center" width="25%"><br><h2>13</h2><b>覆盖厂商</b><br><sub>阿里 · Google · Anthropic · OpenAI…</sub><br><br></td>
-<td align="center" width="25%"><br><h2>79</h2><b>结构化文档</b><br><sub>深度分析 · 持续更新</sub><br><br></td>
+<td align="center" width="25%"><br><h2>80</h2><b>结构化文档</b><br><sub>深度分析 · 持续更新</sub><br><br></td>
 <td align="center" width="25%"><br><h2>4</h2><b>知识维度</b><br><sub>通识 · 产品 · 对比 · 方案</sub><br><br></td>
 <td align="center" width="25%"><br><h2>☁️</h2><b>阿里云为核心</b><br><sub>MaaS · Coding · App · Infra</sub><br><br></td>
 </tr>
@@ -73,7 +73,7 @@
 **📚 AI 通识**
 > Agent · Harness · Prompt · Benchmark
 
-[Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [ReAct](knowledge/ai-general-notes/Memory-ReAct.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [推测解码](knowledge/ai-general-notes/speculative-decoding.md) · [前沿模型](knowledge/ai-general-notes/frontier-model-positioning.md) · [RL 算法选型](knowledge/ai-general-notes/rl-algorithm-selection-grpo-vs-ppo.md) · [视频数据策略](knowledge/ai-general-notes/video-model-data-strategy.md)
+[Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [ReAct](knowledge/ai-general-notes/Memory-ReAct.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [推测解码](knowledge/ai-general-notes/speculative-decoding.md) · [安全护栏粒度](knowledge/ai-general-notes/safety-guardrail-granularity.md) · [前沿模型](knowledge/ai-general-notes/frontier-model-positioning.md) · [RL 算法选型](knowledge/ai-general-notes/rl-algorithm-selection-grpo-vs-ppo.md) · [视频数据策略](knowledge/ai-general-notes/video-model-data-strategy.md)
 
 </td>
 </tr>
@@ -83,7 +83,7 @@
 
 ## ⭐ 精华速览
 
-> 新读者从这 12 篇开始，10 分钟建立 AI 技术全景认知。
+> 新读者从这 19 篇开始，10 分钟建立 AI 技术全景认知。
 
 ### 🟧 阿里云产品实战
 
@@ -111,6 +111,7 @@
 | [ReAct 范式](knowledge/ai-general-notes/Memory-ReAct.md) | Reasoning and Acting 范式，LLM Agent 最小可行范式，Memory 是最后一公里 |
 | [AI 公司增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) | Killer App × 企业信任 × 消费制收入，Anthropic 17 个月 47 倍 |
 | [AI Agent Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) | 三维度评估框架：操作执行力（SWE-bench/TB/OSWorld）+ 学术推理力（HLE）+ 知识工作力（GDPval-AA） |
+| [安全护栏粒度](knowledge/ai-general-notes/safety-guardrail-granularity.md) | 从「按领域封禁」到「按危害环节封禁」；危险能力是通用智能的副产物，护栏粒度直接决定可服务市场大小 |
 
 ### 🔵 他厂精选
 
