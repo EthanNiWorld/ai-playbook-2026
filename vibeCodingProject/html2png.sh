@@ -74,6 +74,9 @@ with sync_playwright() as p:
         viewport={'width': $WIDTH, 'height': 1800},
         device_scale_factor=2
     )
+    # 屏蔽 Google Fonts 外部字体，避免网络不稳时 goto/screenshot 阻塞超时，回退系统字体
+    context.route(lambda url: "fonts.googleapis.com" in url or "fonts.gstatic.com" in url,
+                  lambda route: route.abort())
     page = context.new_page()
     page.goto('file://$INPUT_ABS')
     page.wait_for_load_state('networkidle')

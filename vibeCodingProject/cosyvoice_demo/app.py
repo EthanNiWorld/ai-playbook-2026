@@ -32,6 +32,8 @@ dashscope.base_http_api_url = f"https://{WORKSPACE_ID}.cn-beijing.maas.aliyuncs.
 
 BASE_URL = f"https://{WORKSPACE_ID}.cn-beijing.maas.aliyuncs.com/api/v1"
 TARGET_MODEL = "cosyvoice-v3.5-plus"
+QWEN_AUDIO_ASR_MODEL = "qwen-audio-3.0-asr-flash-filetrans"
+QWEN_AUDIO_ASR_FLASH_MODEL = "qwen-audio-3.0-asr-flash"
 HEADERS = {
     "Authorization": f"Bearer {dashscope.api_key}",
     "Content-Type": "application/json",
@@ -550,8 +552,12 @@ def delete_voice(voice_id):
         return f"❌ 错误: {e}"
 
 
-def asr_transcribe(audio_file, audio_url, model):
-    """ASR 语音识别：支持本地文件上传或 URL"""
+def asr_transcribe(audio_file, audio_url, model, use_standard_endpoint=False):
+    """ASR 语音识别：支持本地文件上传或 URL。
+
+    use_standard_endpoint=True 时临时切换到标准 DashScope 端点
+    （workspace 专属域名仅支持 TTS 类 API，不支持 qwen-audio 等通用模型）。
+    """
     from http import HTTPStatus
     from dashscope.audio.asr import Transcription
 
@@ -594,6 +600,11 @@ def asr_transcribe(audio_file, audio_url, model):
                 f.write(resp.content)
         except Exception:
             preview_path = None
+
+    # qwen-audio 等通用模型需走标准 DashScope 端点，调用期间临时切换
+    original_base_url = dashscope.base_http_api_url
+    if use_standard_endpoint:
+        dashscope.base_http_api_url = "https://dashscope.aliyuncs.com/api/v1"
 
     try:
         task_response = Transcription.async_call(
@@ -651,6 +662,106 @@ def asr_transcribe(audio_file, audio_url, model):
 
     except Exception as e:
         return "", f"❌ 错误: {e}", "", "", None
+    finally:
+        dashscope.base_http_api_url = original_base_url
+
+
+def qwen_audio_asr_transcribe(audio_file, audio_url):
+    """Qwen-Audio ASR：固定使用 qwen-audio-3.0-asr-flash-filetrans，走标准 DashScope 端点"""
+    return asr_transcribe(audio_file, audio_url, QWEN_AUDIO_ASR_MODEL, use_standard_endpoint=True)
+
+
+def qwen_audio_flash_asr_transcribe(audio_file, audio_url):
+    """Qwen-Audio-3.0-ASR-Flash：同步多模态 HTTP 接口（不支持 SDK），
+    走 workspace 专属域名 multimodal-generation/generation，音频支持 URL 或 Base64 Data URI。
+    """
+    file_url = ""
+    oss_url = ""
+
+    # 优先使用本地文件（上传 OSS 获取 URL，避免 Base64 超体积限制）
+    if audio_file is not None:
+        try:
+            oss_url = upload_to_oss(audio_file)
+            file_url = oss_url
+        except Exception as e:
+            return "", f"❌ 文件上传 OSS 失败: {e}", "", "", None
+
+    if audio_url and audio_url.strip():
+        url = audio_url.strip()
+        if not file_url:
+            file_url = url
+        if not oss_url:
+            oss_url = url
+
+    if not file_url:
+        return "", "❌ 请上传音频文件或提供音频 URL", "", "", None
+
+    # 音频预览：如果有本地文件用它，否则下载 URL 到临时文件
+    preview_path = audio_file
+    if not preview_path:
+        try:
+            resp = requests.get(file_url, timeout=30)
+            ext = ".mp3"
+            if ".wav" in file_url.lower():
+                ext = ".wav"
+            elif ".m4a" in file_url.lower():
+                ext = ".m4a"
+            preview_path = tempfile.mktemp(suffix=ext)
+            with open(preview_path, "wb") as f:
+                f.write(resp.content)
+        except Exception:
+            preview_path = None
+
+    # 根据文件扩展名推断音频格式
+    lower_url = file_url.split("?")[0].lower()
+    fmt = "mp3"
+    if lower_url.endswith(".wav"):
+        fmt = "wav"
+    elif lower_url.endswith(".m4a"):
+        fmt = "m4a"
+    elif lower_url.endswith(".opus"):
+        fmt = "opus"
+
+    try:
+        payload = {
+            "model": QWEN_AUDIO_ASR_FLASH_MODEL,
+            "input": {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "input_audio",
+                                "input_audio": {"data": file_url},
+                            }
+                        ],
+                    }
+                ]
+            },
+            "parameters": {
+                "format": fmt,
+                "sample_rate": "16000",
+            },
+        }
+        resp = requests.post(
+            f"{BASE_URL}/services/aigc/multimodal-generation/generation",
+            json=payload,
+            headers={**HEADERS, "X-DashScope-SSE": "disable"},
+            timeout=120,
+        )
+
+        if resp.status_code != 200:
+            return "", f"❌ API 错误 ({resp.status_code}): {resp.text[:500]}", "", "", None
+
+        data = resp.json()
+        raw_json = json.dumps(data, ensure_ascii=False, indent=2)
+        text = data.get("output", {}).get("text", "")
+        rid = data.get("request_id", "") or "未知"
+
+        return rid, text or "(未识别到文本)", raw_json, oss_url, preview_path
+
+    except Exception as e:
+        return "", f"❌ 错误: {e}", "", "", None
 
 
 # ============================================================
@@ -674,10 +785,10 @@ CSS = """
 }
 """
 
-with gr.Blocks(title="TTS (CosyVoice v3.5-plus) & ASR (fun-asr) Demo", css=CSS, theme=gr.themes.Soft()) as app:
+with gr.Blocks(title="TTS (CosyVoice v3.5-plus) & ASR (fun-asr / Qwen-Audio) Demo", css=CSS, theme=gr.themes.Soft()) as app:
     gr.Markdown(
         """
-        # 🎙️ TTS (CosyVoice v3.5-plus) & ASR (fun-asr) Demo
+        # 🎙️ TTS (CosyVoice v3.5-plus) & ASR (fun-asr / Qwen-Audio) Demo
         ### 声音复刻 · 声音设计 · 语音合成 · 语音识别
         """,
     )
@@ -962,6 +1073,172 @@ with gr.Blocks(title="TTS (CosyVoice v3.5-plus) & ASR (fun-asr) Demo", css=CSS, 
         asr_tab.select(
             fn=lambda: gr.update(choices=get_audio_url_choices()),
             outputs=[asr_audio_select],
+        )
+
+    # ===== Tab 6: Qwen-Audio ASR（后台模型 qwen-audio-3.0-asr-flash-filetrans）=====
+    with gr.Tab("🎙️ Qwen-Audio ASR") as qwen_asr_tab:
+        gr.Markdown(
+            f"""
+            **上传音频或输入音频 URL，识别为文字。后台模型：`{QWEN_AUDIO_ASR_MODEL}`**
+            支持格式：`WAV` / `MP3` / `M4A` 等，本地文件会自动上传到 `OSS`。
+            """
+        )
+        with gr.Row():
+            with gr.Column():
+                qwen_asr_model = gr.Dropdown(
+                    label="ASR 模型",
+                    choices=[QWEN_AUDIO_ASR_MODEL],
+                    value=QWEN_AUDIO_ASR_MODEL,
+                )
+                qwen_asr_file = gr.Audio(
+                    label="方式 1：上传音频文件 / 录音",
+                    type="filepath",
+                    sources=["upload", "microphone"],
+                )
+                qwen_asr_audio_select = gr.Dropdown(
+                    label="方式 2：选择 TTS 合成音频 或 手动输入 URL",
+                    choices=get_audio_url_choices(),
+                    value=None,
+                    interactive=True,
+                    allow_custom_value=True,
+                    info="可从已保存的 TTS 合成音频中选择，也可直接输入任意公网 URL",
+                )
+                qwen_asr_url = gr.Textbox(
+                    label="音频 URL",
+                    placeholder="选择后自动填充，或手动输入 https://...",
+                    elem_classes=["mono"],
+                )
+                qwen_asr_btn = gr.Button("🎙️ 开始识别", variant="primary")
+
+            with gr.Column():
+                qwen_asr_audio_preview = gr.Audio(
+                    label="音频预览",
+                    type="filepath",
+                )
+                qwen_asr_request_id = gr.Textbox(
+                    label="Request ID",
+                    interactive=False,
+                    elem_classes=["mono"],
+                )
+                qwen_asr_result = gr.Textbox(
+                    label="识别结果",
+                    lines=6,
+                    interactive=False,
+                )
+                with gr.Accordion("原始 JSON（调试用）", open=False):
+                    qwen_asr_raw_json = gr.Textbox(
+                        label="",
+                        lines=10,
+                        interactive=False,
+                        elem_classes=["mono"],
+                        show_label=False,
+                    )
+                qwen_asr_oss_url = gr.Textbox(
+                    label="OSS 地址",
+                    interactive=False,
+                    elem_classes=["mono"],
+                )
+
+        qwen_asr_btn.click(
+            qwen_audio_asr_transcribe,
+            inputs=[qwen_asr_file, qwen_asr_url],
+            outputs=[qwen_asr_request_id, qwen_asr_result, qwen_asr_raw_json, qwen_asr_oss_url, qwen_asr_audio_preview],
+        )
+
+        # 下拉选择后自动填充 URL 输入框
+        qwen_asr_audio_select.change(
+            fn=lambda x: x if x else "",
+            inputs=[qwen_asr_audio_select],
+            outputs=[qwen_asr_url],
+        )
+
+        # 切换到 Qwen-Audio ASR Tab 时刷新音频下拉列表
+        qwen_asr_tab.select(
+            fn=lambda: gr.update(choices=get_audio_url_choices()),
+            outputs=[qwen_asr_audio_select],
+        )
+
+    # ===== Tab 7: Qwen-Audio ASR Flash（后台模型 qwen-audio-3.0-asr-flash，同步多模态接口）=====
+    with gr.Tab("⚡ Qwen-Audio ASR Flash") as flash_asr_tab:
+        gr.Markdown(
+            f"""
+            **上传音频或输入音频 URL，识别为文字。后台模型：`{QWEN_AUDIO_ASR_FLASH_MODEL}`**
+            同步调用（非异步 filetrans），支持格式：`WAV` / `MP3` / `M4A` 等，本地文件会自动上传到 `OSS`。
+            """
+        )
+        with gr.Row():
+            with gr.Column():
+                flash_asr_model = gr.Dropdown(
+                    label="ASR 模型",
+                    choices=[QWEN_AUDIO_ASR_FLASH_MODEL],
+                    value=QWEN_AUDIO_ASR_FLASH_MODEL,
+                )
+                flash_asr_file = gr.Audio(
+                    label="方式 1：上传音频文件 / 录音",
+                    type="filepath",
+                    sources=["upload", "microphone"],
+                )
+                flash_asr_audio_select = gr.Dropdown(
+                    label="方式 2：选择 TTS 合成音频 或 手动输入 URL",
+                    choices=get_audio_url_choices(),
+                    value=None,
+                    interactive=True,
+                    allow_custom_value=True,
+                    info="可从已保存的 TTS 合成音频中选择，也可直接输入任意公网 URL",
+                )
+                flash_asr_url = gr.Textbox(
+                    label="音频 URL",
+                    placeholder="选择后自动填充，或手动输入 https://...",
+                    elem_classes=["mono"],
+                )
+                flash_asr_btn = gr.Button("⚡ 开始识别", variant="primary")
+
+            with gr.Column():
+                flash_asr_audio_preview = gr.Audio(
+                    label="音频预览",
+                    type="filepath",
+                )
+                flash_asr_request_id = gr.Textbox(
+                    label="Request ID",
+                    interactive=False,
+                    elem_classes=["mono"],
+                )
+                flash_asr_result = gr.Textbox(
+                    label="识别结果",
+                    lines=6,
+                    interactive=False,
+                )
+                with gr.Accordion("原始 JSON（调试用）", open=False):
+                    flash_asr_raw_json = gr.Textbox(
+                        label="",
+                        lines=10,
+                        interactive=False,
+                        elem_classes=["mono"],
+                        show_label=False,
+                    )
+                flash_asr_oss_url = gr.Textbox(
+                    label="OSS 地址",
+                    interactive=False,
+                    elem_classes=["mono"],
+                )
+
+        flash_asr_btn.click(
+            qwen_audio_flash_asr_transcribe,
+            inputs=[flash_asr_file, flash_asr_url],
+            outputs=[flash_asr_request_id, flash_asr_result, flash_asr_raw_json, flash_asr_oss_url, flash_asr_audio_preview],
+        )
+
+        # 下拉选择后自动填充 URL 输入框
+        flash_asr_audio_select.change(
+            fn=lambda x: x if x else "",
+            inputs=[flash_asr_audio_select],
+            outputs=[flash_asr_url],
+        )
+
+        # 切换到 Flash ASR Tab 时刷新音频下拉列表
+        flash_asr_tab.select(
+            fn=lambda: gr.update(choices=get_audio_url_choices()),
+            outputs=[flash_asr_audio_select],
         )
 
 
