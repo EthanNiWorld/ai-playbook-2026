@@ -1,6 +1,6 @@
 # AI Agent Benchmark 三维度评估框架
 
-> 最后更新: 2026-07-20
+> 最后更新: 2026-08-14
 > 领域: AI Engineering / AI Coding
 > 状态: Published
 
@@ -65,7 +65,7 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 - 核心人物：John Yang 等（SWE-bench 核心贡献者）
 - 定位：评估 AI Agent 在真实终端环境中的操作能力（系统管理、安全、ML 训练等）
 - 内置 canary GUID 检测数据泄漏
-- 当前版本 2.1（基于 2.0 Verified 改进），3.0 开发中
+- 当前版本 2.1（基于 2.0 Verified 改进）；3.0 已发布（官网标记 shipped，host 迁移至 frontierbench.ai），2.0/2.1 仍为 active [来源: tbench.ai，2026-08-14 核实]
 
 ### 3. OSWorld-Verified
 
@@ -239,6 +239,7 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-08-14 | 校验修复：Terminal-Bench 3 状态更新——“开发中”→ 已发布（官网 shipped，链接指向 frontierbench.ai）；TB 2.0/2.1 仍 active |
 | 2026-07-20 | 校验修复：Qwen3.7-Max TB 69.7[v2.0] → 74.5（AA harness v2.1）；GLM-5.1 TB 63.5[v2.0] → 58.7（Claude Code harness v2.1）；DeepSeek-V4-Pro 移除 v2.0 数值待确认 v2.1 |
 | 2026-06-14 | 初始创建：SWE-bench 三代演进 + Terminal-Bench 2.1 + OSWorld-Verified 三层能力光谱；含用户口述 OSWorld-Verified 发布时间与 GUI 登录场景判断 [ 来源: 用户口述] |
 | 2026-06-14 | 新增 HLE：四层能力光谱完整化；补充 HLE 基本信息、各模型得分 |

@@ -1,5 +1,27 @@
 # AI Knowledge Miner Changelog
 
+## 2026-08-14
+### 分类表补全
+- 新增「公司介绍」分类：knowledge/{厂商}/general_intro.md + _general_company_intro_template.md（此前 7 个厂商已有该文档但分类表无入口）
+- MaaS 模型知识路径按三类厂商区分：阿里云 alibaba-ai-hub/maas/、其他云厂商 knowledge/{厂商}/maas/、纯模型厂商直接根目录，消除「为纯模型厂商建 maas/ 子目录」的误导
+- 品类注释修正：原「云厂商品类含 ai-platform」过时，ai-platform 仅存在于其他云厂商（如 knowledge/google/），阿里云品类以 alibaba-ai-hub/ 实际目录为准
+
+### 快捷通道一致性
+- HTML/QA 快捷通道：移动目标路径表述统一（阿里云 → alibaba-ai-hub/{品类}/，其他厂商 → knowledge/{厂商}/）；收尾动作统一为「index.md 追加条目 + README 计数检查」；修正 QA 通道「移动后又归档」的矛盾表述
+- notes/ 注明当前不存在，用户首次要求处理笔记时再创建
+
+### 安全边界（新增）
+- 子代理不继承 .qoder/rules，显式约束：Bash 仅用于 date/mv，禁止删除命令（尤其 rm -rf）、禁止读取 .env 等含密钥文件、不在仓库根目录创建文件
+
+### 格式
+- Step 1 列表格式修复（首行丢失列表符）
+
+### 结构简化（消除重复，约减 40 行）
+- HTML/QA 两个快捷通道合并为一个（流程相同，适用对象与差异一句话说明）
+- 合并执行细则收敛到 Step 6.1 唯一权威位置（原 Step 2.3.d 与其逐字重复）
+- 事实性红线收敛：5a 表格、边界节改为引用 Step 4 权威表述；删除与 5a 重复的「用户口述标注」边界条目
+- Step 1.5（notes 提炼范围）并入 Step 1 的 notes 条目；语义搜索双示例压一；删除重复的「模板优化交流」提示
+
 ## 2026-06-14
 ### 归档策略补充：knowledge-verifier 校验报告同样归档
 - Step 6 归档策略明确：`inbox/` 下的所有文件处理完均移至 `archive/`，包括由 `knowledge-verifier` 生成并写入 `inbox/` 的校验报告（如 `knowledge-verification-YYYY-MM-DD.md`）

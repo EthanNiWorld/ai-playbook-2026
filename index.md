@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-08-04
+> 最后更新：2026-08-14
 
 ## 目录
 
@@ -236,6 +236,7 @@
 ## 模板参考
 
 - [AI 通用笔记模板](knowledge/ai-general-notes/_template.md)
+- [公司介绍模板](knowledge/_general_company_intro_template.md)
 - [MaaS 产品模板](knowledge/_maas_template.md)
 - [产品模板](knowledge/_product_template.md)
 - [对比分析模板](alibaba-ai-hub/competitive-analysis/_template.md)

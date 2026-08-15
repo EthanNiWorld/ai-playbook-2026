@@ -1,5 +1,23 @@
 # AI Native Expert Changelog
 
+## 2026-08-14
+### 工具修复
+- tools 新增 Bash（此前与「必须执行 date +%Y%m%d」的日期强制规范矛盾，无 shell 工具无法执行），并限定 Bash 仅用于获取日期
+
+### 归档路径口径对齐（与 index.md 实际结构同步）
+- 选型分析归档路径修正：knowledge/{厂商}/competitive-analysis/（不存在）→ alibaba-ai-hub/competitive-analysis/{a-vs-b}/ 与 ai-industry-solutions/{客群}/
+- 厂商类型区分重写：新增阿里云特例（alibaba-ai-hub/ 一级目录，品类取 maas/ai-coding/ai-application/ai-infra/ai-industry-solutions/competitive-analysis）；其他云厂商（google/aws/gcp）；纯模型厂商清单补全（moonshot/stepfun/tencent/bytedance/microsoft）
+- 新增「归档路径校验（强制）」：写入归档建议前先读 /index.md 确认路径存在
+- 内容分类表新增「公司情报」类型（→ knowledge/{厂商}/general_intro.md）
+
+### 沉淀质量与安全
+- 新增「概念洞察新颖性自检」：常识性、教科书级结论不沉淀
+- 敏感信息自检对象修正：notes/knowledge → inbox/（实际唯一写入位置；notes/ 目录当前不存在）
+- 信源优先级第 5 项补充 alibaba-ai-hub/
+
+### 结构简化
+- 两套 Inbox 模板（轻量/完整）合并为统一模板 + 轻量裁剪规则：事实问答/公司情报/选型分析省略「原始问题/之所以然/洞察提炼」三节，合并为「核心内容」（约减 20 行）
+
 ## 2026-05-29
 ### 功能迭代
 - 内容分类表：区分云厂商与纯模型厂商的归档路径建议

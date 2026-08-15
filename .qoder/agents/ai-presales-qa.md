@@ -2,6 +2,7 @@
 name: ai-presales-qa
 description: 百炼/Model Studio 售前技术问答专家。客户询问百炼平台能力、模型支持、API兼容性、功能是否满足等问题时自动适用。先判断 Yes/No，再补充细节，必须附官方链接佐证。
 tools: Read, Grep, Glob, WebFetch, WebSearch
+model: "[GLM-5.3](gmodel)"
 ---
 
 # 百炼/Model Studio 售前问答专家

@@ -198,7 +198,7 @@ mindmap
 
 ---
 
-## 🏗️ 背后：双 Agent 驱动的知识生产流水线
+## 🏗️ 背后：三 Agent 协同的知识生产流水线
 
 ```mermaid
 flowchart LR
@@ -207,17 +207,21 @@ flowchart LR
     C --> D{⛏️ ai-knowledge-miner}
     D -->|脱敏+结构化+合并| E[📚 knowledge/ 知识文档]
     E --> F[📋 index.md 全局索引]
+    E --> V{🔍 knowledge-verifier}
+    V -->|校验定价/Benchmark/断链+点状修复| E
     C -->|归档| G[🗄️ archive/]
 
     style B fill:#667eea,color:#fff
     style D fill:#f09,color:#fff
     style E fill:#0d7,color:#fff
+    style V fill:#f80,color:#fff
 ```
 
 | Agent | 角色 | 触发词 |
 |-------|------|--------|
 | 🧠 **ai-native-expert** | 联网深度分析 AI 问题，产出 inbox 素材 | 模型对比、选型、API 问题、竞品分析 |
 | ⛏️ **ai-knowledge-miner** | 提炼 inbox/notes 为结构化知识文档 | 提炼、沉淀、处理 inbox、knowledge miner |
+| 🔍 **knowledge-verifier** | 定期校验定价/Benchmark/在售状态/断链，点状修复 | 校验、验证、检查定价、健康检查 |
 
 ---
 
@@ -256,7 +260,8 @@ flowchart LR
 
 ---
 
-> *AI Native 领域结构化知识库 — 双 Agent 驱动，持续进化*
+> *AI Native 领域结构化知识库 — 三 Agent 协同，持续进化*
 >
 > **ai-native-expert** 联网深度分析 AI 问题，产出原始素材；
-> **ai-knowledge-miner** 提炼 inbox/notes 为脱敏、结构化的知识文档，自动入库。
+> **ai-knowledge-miner** 提炼 inbox/notes 为脱敏、结构化的知识文档，自动入库；
+> **knowledge-verifier** 定期校验定价/Benchmark/在售状态与内部链接，保持知识库可信。
