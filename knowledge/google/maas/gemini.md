@@ -1,26 +1,25 @@
 # Gemini
 
-> 最后更新: 2026-07-27
+> 最后更新: 2026-08-17
 > 所属厂商: GCP
 > 产品类别: MaaS
 
 **定位**: Google 自研多模态大模型系列，原生支持文本+图像+音频+视频多模态输入输出
 **适用**: 多模态理解与生成、企业知识管理、Agent 基础模型、代码生成、计算机操控
 **不适用**: 需要私有化部署的场景（Gemini 仅通过 API / GCP 平台提供）
-**当前主推**: Gemini 3.x 系列。Pro 线旗舰为 Gemini 3.1 Pro（2026.02.19，推理与知识密度最强）；Flash 线主力已迭代至 **Gemini 3.6 Flash（2026.07.21 GA，官方定位 "workhorse"：coding/知识工作/多模态全面提升 + 输出 token 减 17%，输出降价至 $7.50/M）**，同期发布 3.5 Flash-Lite（350 tok/s 高吞吐）与 3.5 Flash Cyber（安全专用，限定开放）。Gemini 3.5 Pro 多次跳票，仍在合作伙伴测试中；Gemini 4 预训练已启动
+**当前主推**: Gemini 3.x 系列。Pro 线旗舰为 Gemini 3.1 Pro（2026.02.19，推理与知识密度最强）；Flash 线主力已迭代至 **Gemini 3.7 Flash（2026.08.13 GA，官方定位 "most intelligent workhorse model yet for coding and agents"：距 3.6 Flash 仅三周，入门价 $0.75/$3.75（至 2026-12-31）+ DeepSWE 65.3%（+16.3）**，同期在售 3.5 Flash-Lite（350 tok/s 高吞吐）；3.6 Flash（2026.07.21）已被 3.7 Flash 取代。Gemini 3.5 Pro 多次跳票，仍在合作伙伴测试中；Gemini 4 预训练已启动
 
 ## 当前主推模型
 
 | 模型 | 定位 | 核心特点 | 推出/更新时间 |
 |------|------|------|------|
-| **Gemini 3.6 Flash** 🚩 | 主力（workhorse，Agent/企业知识工作） | coding/知识工作/多模态全面超越 3.5 Flash，输出 token 减 17%，Computer Use 内置 | 2026.07.21 |
+| **Gemini 3.7 Flash** 🚩 | 主力（workhorse，coding/agents） | 三周点更新：DeepSWE 65.3%（+16.3），入门价 $0.75/$3.75（至 2026-12-31，标准价 $1.50/$7.50），`thinking_level` 新 API | 2026.08.13 |
 | **Gemini 3.1 Pro** | 旗舰（推理/知识密度最强） | 当前 Pro 级旗舰，学术推理与密集长上下文仍领先 | 2026.02.19 |
 | **Gemini 3.5 Flash-Lite** | 轻量（最快最便宜） | 350 tok/s，$0.30/$2.50，多项 Agent/Coding 评测超 3 Flash，Computer Use 内置 | 2026.07.21 |
 | **Gemini Omni Flash** | 原生音视频多模态 | 端到端音频/视频原生理解，实时语音交互 | 2026.05.19 |
-| **Gemini 3.5 Flash** | 上代 Flash 主力 | I/O 2026 首发，已被 3.6 Flash 取代 | 2026.05.19 |
 
 > 📌 **专用模型**：Gemini 3.5 Flash Cyber（2026.07.21）——基于 3.5 Flash 微调的网络安全专用模型，搭配 CodeMender 代码安全 Agent，CyberGym 达前沿竞争力；因双用途风险**仅限政府与受信任伙伴**通过 CodeMender 限额试点获取，不公开售卖
-> 📌 **历史模型**：Gemini 3 Pro / 3.1 Flash / 3.5 Flash 仍可调用，但已分别被 3.1 Pro / 3.5 Flash-Lite / 3.6 Flash 取代，不建议新项目选用
+> 📌 **历史模型**：Gemini 3 Pro（→3.1 Pro）/ 3.1 Flash（→3.5 Flash-Lite）/ 3.5 Flash（→3.6 Flash）/ 3.6 Flash（→3.7 Flash，仅存活三周）仍可调用，但不建议新项目选用
 
 > ⚠️ Gemini 2.5 系列（Pro/Flash/Deep Think）为 2025 年中发布，**已非最新代**。2.5 Pro 更新至 2025.06.27，2.5 Flash 更新至 2025.09.26。详见 [Google DeepMind Model Cards](https://deepmind.google/models/model-cards/)
 
@@ -45,9 +44,49 @@
 | API 双轨 | `google.genai` + `vertexai` 两套 API | 开发者需根据场景选择，Google 已确认将长期共存 |
 | 中文能力 | 强但非母语级 | 中文场景优先考虑 Qwen / DeepSeek 作为补充 |
 
+## Gemini 3.7 Flash（2026-08-13 发布，当前 workhorse）
+
+> 来源：[Google Blog — Introducing Gemini 3.7 Flash](https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-3-7-flash/)、[DeepMind Model Card](https://deepmind.google/models/model-cards/gemini-3-7-flash/)；2026-08-17 合并入库
+
+**基本信息**：
+- Model ID：`gemini-3.7-flash`；官方定位 "most intelligent workhorse model yet for coding and agents"（中档主力，非旗舰）
+- 距 3.6 Flash（2026.07.21）仅三周发布；上下文维持 1M 未扩展，能力提升来自后训练（RL）而非模型扩大（素材分析）
+- 技术规格：1M tokens 上下文 / 最大输出 64K；输入文本+图像+音频+视频，输出文本；知识截止 2026 年
+
+**定价（含时效）** [来源: blog.google + Google AI Studio]：
+
+| 时段 | 输入 ($/M tokens) | 输出 ($/M tokens) | 有效期 |
+|------|-------------------|-------------------|--------|
+| 入门价 | $0.75 | $3.75 | 至 2026-12-31 |
+| 标准价 | $1.50 | $7.50 | 2027-01-01 起 |
+
+入门价 = 3.6 Flash 标准价的一半，同时性能更强。
+
+**Benchmark（vs 3.6 Flash）** [来源: blog.google 官方 + miraflow.ai 分析]：
+
+| 基准 | 测量维度 | 3.6 Flash | 3.7 Flash | 提升 |
+|------|---------|-----------|-----------|------|
+| DeepSWE v1.1 | 长程编码（抗污染） | 49.0% | **65.3%** | +16.3 |
+| FrontierCode 1.1 Main | 意图推断编码 | 34.4% | **43.6%** | +9.2 |
+| WebDev Arena Elo | 人类盲评 Web 开发 | 1538 | **1588** | +50 |
+| GDP.pdf | 复杂文档理解 | 22.0% | **34.0%** | +12.0 |
+| AutomationBench | 多步工作流自动化 | 17.0% | **30.4%** | +13.4 |
+
+**关键 API 变化** [来源: Google AI for Developers 文档]：
+1. **`thinking_level` 取代 `thinking_budget`**：三值枚举（low / medium / high）——low 延迟敏感（实时对话、事件响应）；medium 默认（复杂编码与 Agent 工作流）；high 极端困难任务（数学、复杂编码，延迟与 token 开销显著增加）
+2. **`temperature` / `top_p` / `top_k` 已废弃**
+3. **服务端 `previous_interaction_id`**：对话状态服务端保存，客户端仅发送新 turn，大幅降低多轮 Agent 会话的输入 token 开销
+4. **移除 prefilled assistant turns**
+
+**部署与生态**：已部署至 Gemini Spark（Google 个人 AI Agent，覆盖 160+ 国家）与 Antigravity（Agent-first 编码环境）
+
+> **Why 值得关注**：三周点更新 + 入门价减半 + 性能大幅提升 = 同价位性能翻倍；`thinking_level` 三值枚举是推理控制新范式——从"猜 token 预算"到"选任务难度"，与 DeepSeek / GLM 的 `reasoning_effort` 三级化同向（见 [推理深度控制](../../ai-general-notes/reasoning-effort.md)）
+
 ## Gemini 3.6 Flash / 3.5 Flash-Lite / 3.5 Flash Cyber（2026-07-21 发布）
 
 > 来源：[Google Blog — Introducing Gemini 3.6 Flash, 3.5 Flash-Lite, and 3.5 Flash Cyber](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-6-flash-3-5-flash-lite-3-5-flash-cyber/)，Gemini API changelog 确认 3.6 Flash / 3.5 Flash-Lite 当日 GA
+>
+> ⚠️ 2026-08-13 起 3.6 Flash 已被 3.7 Flash 取代（仅存活三周）；3.5 Flash-Lite / 3.5 Flash Cyber 仍为现役
 
 ### 3.6 Flash：新一代 workhorse，叙事从"快"转向"高效可靠的企业 Agent 主力"
 
@@ -94,12 +133,12 @@
 
 | 场景 | 推荐模型 | 说明 |
 |------|----------|------|
-| 多模态企业知识库 | 3.6 Flash / 3.1 Pro | 3.6 Flash 多模态文档解析/图表分析获 Hebbia/Harvey 背书；深度推理选 3.1 Pro |
-| Agent 规模化部署 | 3.6 Flash | workhorse 定位，token 效率减 17% + 输出降价，单任务成本最优 |
+| 多模态企业知识库 | 3.7 Flash / 3.1 Pro | 3.7 Flash 复杂文档理解 GDP.pdf 34.0%（+12.0）；深度推理选 3.1 Pro |
+| Agent 规模化部署 | 3.7 Flash | workhorse 定位，入门价 $0.75/$3.75（至 2026-12-31）+ AutomationBench 30.4%，单任务成本最优 |
 | 高吞吐批量/subagent 扩展 | 3.5 Flash-Lite | 350 tok/s，$0.30/$2.50，适合 agentic search/文档处理高并发 |
 | 复杂推理/学术难题 | 3.1 Pro | 对标 Claude Opus / GPT-5.x，HLE/ARC-AGI-2 仍领先 Flash 线 |
 | 实时音视频交互 | Omni Flash | 原生端到端音频/视频理解 |
-| 代码辅助 | 3.6 Flash | DeepSWE 49% vs 3.5 Flash 37%，更少非预期编辑 |
+| 代码辅助 | 3.7 Flash | DeepSWE 65.3% vs 3.6 Flash 49%，FrontierCode 43.6%（+9.2） |
 | Google Workspace AI | 3.1 Flash / 3.1 Pro | 内嵌于 Gmail/Docs/Sheets 的 AI 能力 |
 
 ## 平台交付方式
@@ -116,7 +155,7 @@ Gemini 通过 **Gemini Enterprise Agent Platform** 统一交付（见 [`vertex-a
 > **新产品/能力**：
 > - **Antigravity 2.0**：独立桌面 Agent 开发环境，支持并行子 Agent 执行、定时任务（后台自动化）、CLI + SDK，与 AI Studio / Android / Firebase 集成。Gemini CLI 用户可迁移至 Antigravity CLI。
 > - **Managed Agents**：单次 API 调用即可启动完整 Agent（推理 + 工具调用 + 代码执行），隔离 Linux 环境，跨调用持久化。
-> - **Gemini Spark**：基于 3.5 Flash 的个人 AI Agent，7×24 运行。
+> **Gemini Spark**：个人 AI Agent，7×24 运行；3.7 Flash 发布后已部署至 Spark（覆盖 160+ 国家）与 Antigravity。
 
 ### 真实落地案例
 
@@ -145,6 +184,9 @@ Gemini 通过 **Gemini Enterprise Agent Platform** 统一交付（见 [`vertex-a
 - [Google Blog - Gemini 3.5](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-5/)
 - [Google Blog — Introducing Gemini 3.6 Flash, 3.5 Flash-Lite, and 3.5 Flash Cyber](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-6-flash-3-5-flash-lite-3-5-flash-cyber/)（2026-07-21）
 - [Gemini API Release Notes](https://ai.google.dev/gemini-api/docs/changelog)（3.6 Flash / 3.5 Flash-Lite GA 确认）
+- [Google Blog — Introducing Gemini 3.7 Flash](https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-3-7-flash/)（2026-08-13）
+- [Gemini 3.7 Flash Model Card](https://deepmind.google/models/model-cards/gemini-3-7-flash/)
+- [miraflow.ai — Gemini 3.7 Flash benchmarks 分析](https://miraflow.ai/blog/gemini-3-7-flash-explained-coding-benchmarks-2026)
 - [Gemini 3.6 Flash Model Card](https://deepmind.google/models/model-cards/gemini-3-6-flash/)
 - [Reuters — Google updates lightweight Gemini models, but flagship still delayed](https://www.reuters.com/business/google-updates-lightweight-gemini-models-flagship-still-delayed-2026-07-21/)（3.5 Pro 跳票归因）
 - [Google Blog — Introducing computer use in Gemini 3.5 Flash](https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-computer-use-gemini-3-5-flash/)
@@ -155,6 +197,7 @@ Gemini 通过 **Gemini Enterprise Agent Platform** 统一交付（见 [`vertex-a
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-08-17 | 合并：inbox 四模型调研 - 新增 Gemini 3.7 Flash 章节（2026-08-13 发布，新 workhorse 🚩：入门价 $0.75/$3.75 至 2026-12-31 / DeepSWE 65.3% / thinking_level 三值枚举等 4 项 API 变化 / 部署 Gemini Spark+Antigravity）；主推表重排（3.7 Flash 顶替 3.6 Flash，3.6 Flash 仅存活三周移入历史标注）；适用场景与平台交付表同步 |
 | 2026-07-27 | 精简：3.5 Flash 深度分析章节（~80 行）压缩为"上代模型存档"小节，保留战略意义/关键参数/Computer Use 起源，删除过时 benchmark/定价详表；诚实弱点与平台交付口径同步 |
 | 2026-07-27 | 合并：2026-07-21 三模型发布官网调研 — 新增 Gemini 3.6 Flash（新 workhorse 🚩，$1.50/$7.50，token 效率 -17%）/ 3.5 Flash-Lite / 3.5 Flash Cyber 章节；主推表重排（3.5 Flash 降为上代）；3.5 Pro 跳票与 Gemini 4 预训练启动；适用场景表同步 |
 | 2026-06-29 | 合并：Gemini 3.5 Flash Computer Use 官网调研 — 新增 Computer Use 内置工具章节（2026.06.24 发布，跨平台支持，安全机制），核心能力表新增 Computer Use 行，当前主推描述更新 |

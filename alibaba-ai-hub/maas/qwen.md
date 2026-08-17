@@ -1,6 +1,6 @@
 # 通义千问 (Qwen)
 
-> 最后更新: 2026-08-14
+> 最后更新: 2026-08-17
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 
@@ -32,7 +32,7 @@
 - **定价**（新加坡节点 USD，2026-08-03 控制台截图核实）：输入 $2 / 输出 $6 / 输入（缓存命中）$0.25（per 1M tokens）[来源: 百炼控制台模型页截图]；中文定价页参考：新加坡 ¥14.988/¥44.965、北京/全球 ¥12/¥36，北京 Batch 半价 [来源: help.aliyun.com/zh/model-studio/model-pricing]
   - 缓存命中 $0.25，仅为 Qwen3.7-Max（$0.5）的一半；折扣率 12.5%（输入价占比）
 - **限流**：RPM 15,000 / TPM 2,000,000（200 万）[来源: 百炼控制台模型页截图]
-- **开源**：Qwen3.8 系列开源版 **qwen3.8-2.4t-a95b** 已于 2026-08-12 上线百炼国际站（2.4T 总参 / 激活 95B，1M 上下文；GPQA Diamond 92.6 / PaperBench 93.0 / OSWorld 86.1，CodeArena 全球 #4）[来源: help.aliyun.com 上新页，2026-08-14 核实]；qwen3.8-max 本体是否开放权重官方未明确
+- **开源**：Qwen3.8 系列开源版 **qwen3.8-2.4t-a95b** 已于 2026-08-12 上线百炼国际站（2.4T 总参 / 激活 95B，**原生 262K 上下文、可扩展约 1M**；GPQA Diamond 92.6 / PaperBench 93.0 / OSWorld 86.1，CodeArena 全球 #4）[来源: help.aliyun.com 上新页，2026-08-14 核实]；架构详见下方「Qwen3.8-2.4T-A95B 开源版」小节；qwen3.8-max 本体是否开放权重官方未明确
 - **场景**：代码工程（全栈开发、代码重构、漏洞批量修复）、专业办公（Office 工作流、文档免转换直读、数据分析）、复杂推理、长程 Agent、多语言创作
 - **特点**：Qwen 首款万亿级参数模型；官方自评"仅次于 Fable 5"（⚠️ 无第三方独立评测验证，Artificial Analysis / LMSYS Arena 尚未复测）
 
@@ -41,10 +41,52 @@
 - 知识截止日期、技术报告均未公开
 - 视频输入、GUI Agent 等视觉专项能力待实测
 
+**Benchmark（Qwen 官方博客，vs 同期旗舰）** [来源: qwen.ai/blog?id=qwen3.8，2026-08-17 合并]：
+
+| 基准 | Qwen3.8-Max | Opus 4.8 | Fable 5 | GPT 5.6 Sol (max) | Qwen3.7-Max |
+|------|------------|----------|---------|-------------------|-------------|
+| Terminal-Bench 2.1 | **86.6** | 84.6 | 84.6 | 88.8 | 74.5 |
+| PaperBench | **93.0** | 80.3 | — | 90.5 | — |
+| SWE-bench Pro | 67.7 | — | **80.0** | 64.6 | 60.6 |
+| DeepSWE 1.1 | 56.6 | — | **70.0** | 73.0 | 21.6 |
+| FrontierSWE | 73.5 | 70.0 | **88.8** | — | 40.7 |
+| GPQA Diamond | 92.6 | — | — | — | 92.4 |
+| CodeArena | 全球 #4 | — | — | — | — |
+
 **相对前代（Qwen3.7-Max）的差异化**：
 - 参数量首次突破万亿（2.4T）
 - 系列开源版已兑现：qwen3.8-2.4t-a95b（2026-08-12 上线；vs 3.7-Max 闭源 API only）
 - 定位从"长时自主 Agent + 数学竞赛推理"转向"代码工程 + 专业办公"，对应 Qoder + QoderWork 两条产品线的高 ARPU 场景
+
+### Qwen3.8-2.4T-A95B 开源版（2026-08-12 上线）
+
+- **模型**：Qwen3.8-2.4T-A95B（HuggingFace: Qwen/Qwen3.8-2.4T-A95B）
+- **定位**：Qwen3.8-Max 的开源权重版本，**Qwen 首款 Max 级开源模型**
+- **上线**：2026-08-12，百炼国际站 [来源: help.aliyun.com 上新页]
+- **许可证**：HuggingFace "other" 许可（非标准 Apache/MIT，商用前需确认）[来源: huggingface.co/Qwen/Qwen3.8-2.4T-A95B]
+- **架构细节** [来源: mindstudio.ai 技术解析 + NVIDIA NeMo 模型页]：
+  - 总参数 **2.4T**，激活参数 **95B** / token；92 层，hidden dim 8192
+  - MoE：**512 experts**，每 token 10 routed + 1 shared，expert intermediate dim 2048
+  - **混合注意力**（交替模式）：23 组 × (3× Gated DeltaNet + MoE → 1× Gated Attention + MoE)
+    - Gated DeltaNet 层：128 linear attention heads（values）+ 16 heads（Q/K），head dim 128
+    - Gated Attention 层：64 Q heads + 4 KV heads，head dim 256，RoPE dim 64
+  - MTP（multi-token prediction）多步训练，提升生成质量
+  - 上下文：**原生 262,144 tokens，可扩展至约 1,010,000 tokens**（1M 为 API 托管版默认配置，开源版需自行扩展）
+  - 权重格式：safetensors，213 个分片；兼容 vLLM / SGLang / TokenSpeed 自部署
+  - 特性参数：`reasoning_effort`（可调推理深度）、`preserve_thinking`（跨轮保留推理上下文）
+
+**开源版 vs API 托管版（Qwen3.8-Max）差异**：
+
+| 维度 | 开源版 (A95B) | API 版 (Max) |
+|------|--------------|-------------|
+| 上下文 | 原生 262K，可扩展 ~1M | 默认 1M |
+| 最大输出 | 未公开 | 128K |
+| 视觉输入 | ❌ 无 | ✅ 文本+图像 |
+| 非思考模式 | ✅ | ✅ |
+| 内置工具 | ❌ | ✅ |
+| 部署方式 | vLLM / SGLang 自部署 | 百炼 API |
+
+> **架构设计解读**（素材分析）：① Gated DeltaNet 线性注意力在长序列上 FLOPs 增长更慢，是 262K 原生上下文的效率基础；每隔 3 层插入一层标准注意力保留全局信息捕捉能力。② 512 experts 超高稀疏度——每 token 仅激活 11/512 ≈ 2.1% experts，2.4T 参数的推理成本接近 95B dense 模型；代价是全量权重须加载到 VRAM（213 个分片），自部署门槛极高。③ 首次 Max 级开源被视为生态策略转向：开源建壁垒，API 版以视觉/内置工具/1M 上下文作增值差异。
 
 ### Qwen3.7-Max（历史模型，已被 Qwen3.8-Max 取代）
 
@@ -232,7 +274,7 @@ Max 生成速度约为 Plus 的 4.7 倍（MoE 架构 + 无视觉 encoder 开销�
 | 模型 | 输入（¥/M tokens） | 输出（¥/M tokens） | 缓存 | 来源 |
 |------|-------------------|-------------------|------|------|
 | **Qwen3.7-Max**（新加坡） | $2.5（≈¥18） | $7.5（≈¥54） | $0.5 | alibabacloud.com |
-| DeepSeek-V4-Pro | ¥3 | ¥6 | ¥0.025 | api-docs.deepseek.com |
+| DeepSeek-V4-Pro（非峰） | $0.66（≈¥4.8） | $1.98（≈¥14.4） | $0.022 | api-docs.deepseek.com（2026-08-16 起峰谷定价：峰时×2，详见 [deepseek-v-series.md](../../../knowledge/deepseek/deepseek-v-series.md)） |
 | GLM-5.1（智谱） | ¥6（32K以内）/ ¥8 | ¥24 | ~¥3.4（$0.475） | open.bigmodel.cn |
 | GPT-5.5 | $5（≈¥36） | $30（≈¥216） | $0.50 | apidog.com (AA) |
 | Claude Opus 4.7 | $6.25（≈¥45） | $25（≈¥180） | $0.50 | apidog.com (AA) |
@@ -258,6 +300,7 @@ Max 生成速度约为 Plus 的 4.7 倍（MoE 架构 + 无视觉 encoder 开销�
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-08-17 | 合并：inbox 四模型调研 - 新增「Qwen3.8-2.4T-A95B 开源版」小节（92 层混合注意力架构 / 512 experts / 原生 262K 可扩展 ~1M / 许可证 "other" / vs API 版差异表）+ Qwen3.8-Max 官方 benchmark 五模型对比表；修正开源版上下文口径（1M → 原生 262K 可扩展，1M 为 API 版默认配置）；竞品定价表 DS-V4-Pro 行更新为 2026-08-16 峰谷定价 |
 | 2026-08-14 | 校验修复：开源状态解除待确认——Qwen3.8 系列开源版 qwen3.8-2.4t-a95b 2026-08-12 上线国际站（2.4T 总参/激活 95B，1M ctx，GPQA 92.6/PaperBench 93.0/OSWorld 86.1），max 本体开源仍未明确；qwen3.7-flash 国际站已上线（上新页 2026-07-21），USD 定价暂未公布；Changelog 折叠 6 条 |
 | 2026-08-03 | 清理 Qwen3.6-* 系列残留信息（历史模型标注、竞争力对比、限制表、私有化部署场景、参考链接），Changelog 历史记录保留 |
 | 2026-08-03 | 补录 qwen3.8-max 新加坡节点 USD 定价（控制台截图：输入 $2/输出 $6/缓存命中 $0.25，最大输出 128K，RPM 15000/TPM 200万）；定价表切换为 USD 主口径；修正 3.7-Max 缓存命中价："输入价 10%"（$0.25）→ 实际 $0.5（控制台核实，用户确认），3.8-Max 缓存价仅为 3.7-Max 一半 |
