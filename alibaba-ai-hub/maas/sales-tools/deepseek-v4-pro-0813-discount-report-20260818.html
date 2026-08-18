@@ -45,6 +45,7 @@
   .card .v { font-size: 30px; font-weight: 800; margin-top: 4px; color: var(--ds-blue); }
   .card .v small { font-size: 14px; font-weight: 600; color: var(--muted); }
   .card .d { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .save { display: inline-block; margin-left: 8px; padding: 3px 10px; border-radius: 8px; background: #FFE58F; border: 1px solid #FFD666; color: #874D00; font-size: 12.5px; font-weight: 700; vertical-align: 8px; white-space: nowrap; }
 
   section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 24px 28px; margin-bottom: 22px; }
   section h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; padding-left: 12px; border-left: 4px solid var(--ali-orange); }
@@ -101,32 +102,32 @@
 <div class="cards">
   <div class="card">
     <div class="k">夜间闲时 22:00–08:00 · 80% 命中</div>
-    <div class="v">9.1<small> 折</small></div>
+    <div class="v">9.1<small> 折</small><span class="save">百炼按 6.8 折比 DS 官网低 25.3%</span></div>
     <div class="d">DS ¥33.90 vs 百炼 ¥37.24 / 21M<br>百炼打 <b class="num">9.1 折</b>可打平 DS 官网价</div>
   </div>
   <div class="card">
     <div class="k">夜间闲时 22:00–08:00 · 85% 命中</div>
-    <div class="v">8.9<small> 折</small></div>
+    <div class="v">8.9<small> 折</small><span class="save">百炼按 6.8 折比 DS 官网低 23.3%</span></div>
     <div class="d">DS ¥29.55 vs 百炼 ¥33.35 / 21M<br>百炼打 <b class="num">8.9 折</b>可打平 DS 官网价</div>
   </div>
   <div class="card">
     <div class="k">夜间闲时 22:00–08:00 · 90% 命中</div>
-    <div class="v">8.5<small> 折</small></div>
+    <div class="v">8.5<small> 折</small><span class="save">百炼按 6.8 折比 DS 官网低 20.5%</span></div>
     <div class="d">DS ¥25.20 vs 百炼 ¥29.46 / 21M<br>百炼打 <b class="num">8.5 折</b>可打平 DS 官网价</div>
   </div>
   <div class="card">
     <div class="k">全天 24h 加权 · 80% 命中</div>
-    <div class="v">7.4<small> 折</small></div>
+    <div class="v">7.4<small> 折</small><span class="save">百炼按 6.8 折比 DS 官网低 8.4%</span></div>
     <div class="d">DS ¥43.79 vs 百炼 ¥58.96 / 21M<br>百炼打 <b class="num">7.4 折</b>可打平 DS 官网价</div>
   </div>
   <div class="card">
     <div class="k">全天 24h 加权 · 85% 命中</div>
-    <div class="v">7.2<small> 折</small></div>
+    <div class="v">7.2<small> 折</small><span class="save">百炼按 6.8 折比 DS 官网低 5.9%</span></div>
     <div class="d">DS ¥38.17 vs 百炼 ¥52.80 / 21M<br>百炼打 <b class="num">7.2 折</b>可打平 DS 官网价</div>
   </div>
   <div class="card">
     <div class="k">全天 24h 加权 · 90% 命中</div>
-    <div class="v">7.0<small> 折</small></div>
+    <div class="v">7.0<small> 折</small><span class="save">百炼按 6.8 折比 DS 官网低 2.6%</span></div>
     <div class="d">DS ¥32.55 vs 百炼 ¥46.64 / 21M<br>百炼打 <b class="num">7.0 折</b>可打平 DS 官网价</div>
   </div>
 </div>
@@ -303,18 +304,31 @@
   </div>
 </section>
 
-<!-- ===== 敏感性 ===== -->
+<!-- ===== 费用测算 ===== -->
 <section>
-  <h2>六、汇率敏感性</h2>
-  <div class="desc">控制台 USD 价（$0.636 等）对应百炼帮助文档人民币价（¥4.5 等）的隐含汇率为 <b>7.0755</b>。以 85% 命中档为例，若客户实际按文档人民币价 / 结汇汇率 7.08 计价，百炼侧更贵，DS 折扣进一步加深（更便宜、更远离 1:1）：</div>
+  <h2>六、费用测算：5000 万 TPM 跑满（百炼按 6.8 折 vs DS 官网）</h2>
+  <div class="desc">假设：吞吐 5000 万 TPM 跑满；夜间窗 22:00–08:00（10h）日量 = 5000 万 × 600 分钟 = <b>300 亿 tokens</b>；24h 跑满日量 = 5000 万 × 1440 分钟 = <b>720 亿 tokens</b>；20:1 输入输出比；百炼按闲时 / 全天加权列表价（USD×6.8）× <b>0.68</b> 计。</div>
+
+  <h3>6.1 · 夜间闲时 10h 跑满（300 亿 tokens/天）</h3>
   <table>
-    <thead><tr><th>百炼计价口径</th><th>夜间 · 85%</th><th>全天 · 85%</th></tr></thead>
+    <thead><tr><th>命中率</th><th>百炼按 6.8 折</th><th>DS 官网同量</th><th>百炼节省</th></tr></thead>
     <tbody>
-      <tr class="hl"><td><b>USD × 6.8</b>（本报告主口径）</td><td class="num"><b>8.9 折</b></td><td class="num"><b>7.2 折</b></td></tr>
-      <tr><td>帮助文档人民币原价（隐含 7.0755）</td><td class="num">8.5 折</td><td class="num">7.0 折</td></tr>
+      <tr><td><b>80%</b></td><td class="num">¥36,173 / 天</td><td class="num">¥48,429 / 天</td><td class="num pos">25.3%</td></tr>
+      <tr><td><b>85%</b></td><td class="num">¥32,394 / 天</td><td class="num">¥42,214 / 天</td><td class="num pos">23.3%</td></tr>
+      <tr><td><b>90%</b></td><td class="num">¥28,616 / 天</td><td class="num">¥36,000 / 天</td><td class="num pos">20.5%</td></tr>
     </tbody>
   </table>
-  <div class="formula">注：汇率越低（人民币越弱），百炼 USD 价折算后越便宜，DS 相对优势越小；反之若实际结汇汇率高于隐含汇率 7.0755，百炼实际成本将超过文档人民币原价，DS 折扣相对主口径进一步加深。命中率 0% 时两边未命中输入与输出单价基本一致，趋近 10 折（打平）。</div>
+
+  <h3>6.2 · 24h 跑满（720 亿 tokens/天）</h3>
+  <table>
+    <thead><tr><th>命中率</th><th>百炼按 6.8 折</th><th>DS 官网同量</th><th>百炼节省</th></tr></thead>
+    <tbody>
+      <tr><td><b>80%</b></td><td class="num">¥137,457 / 天</td><td class="num">¥150,129 / 天</td><td class="num pos">8.4%</td></tr>
+      <tr><td><b>85%</b></td><td class="num">¥123,099 / 天</td><td class="num">¥130,864 / 天</td><td class="num pos">5.9%</td></tr>
+      <tr><td><b>90%</b></td><td class="num">¥108,741 / 天</td><td class="num">¥111,600 / 天</td><td class="num pos">2.6%</td></tr>
+    </tbody>
+  </table>
+  <div class="formula">6.8 折下百炼在<b>夜间与全天场景均低于 DS 官网</b>：夜间省 20.5%–25.3%（月成本约 86–109 万元，85% 档约 97 万元），全天省 2.6%–8.4%（命中率越高优势越薄）。对照 Flash-0731 报告（7 折时全天仅持平或更贵）：Pro-0813 全天流量打平 DS 官网的临界折扣约 <b>7 折</b>（90% 命中档 7 折时仅贵 0.3%，近乎持平）。</div>
 </section>
 
 <!-- ===== 结论 ===== -->

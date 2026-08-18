@@ -102,17 +102,17 @@
 <div class="cards">
   <div class="card">
     <div class="k">夜间闲时 22:00–08:00 · 80% 命中</div>
-    <div class="v">8.7<small> 折</small><span class="save">百炼按 7 折比 DS 官网低 19.1%</span></div>
+    <div class="v">8.7<small> 折</small><span class="save">百炼按 6.8 折比 DS 官网低 21.4%</span></div>
     <div class="d">DS ¥35.10 vs 百炼 ¥40.56 / 91M<br>百炼打 <b class="num">8.7 折</b>可打平 DS 官网价</div>
   </div>
   <div class="card">
     <div class="k">夜间闲时 22:00–08:00 · 85% 命中</div>
-    <div class="v">8.2<small> 折</small><span class="save">百炼按 7 折比 DS 官网低 15.0%</span></div>
+    <div class="v">8.2<small> 折</small><span class="save">百炼按 6.8 折比 DS 官网低 17.4%</span></div>
     <div class="d">DS ¥28.58 vs 百炼 ¥34.71 / 91M<br>百炼打 <b class="num">8.2 折</b>可打平 DS 官网价</div>
   </div>
   <div class="card">
     <div class="k">夜间闲时 22:00–08:00 · 90% 命中</div>
-    <div class="v">7.6<small> 折</small><span class="save">百炼按 7 折比 DS 官网低 8.4%</span></div>
+    <div class="v">7.6<small> 折</small><span class="save">百炼按 6.8 折比 DS 官网低 11.0%</span></div>
     <div class="d">DS ¥22.05 vs 百炼 ¥28.87 / 91M<br>百炼打 <b class="num">7.6 折</b>可打平 DS 官网价</div>
   </div>
   <div class="card">
@@ -304,34 +304,31 @@
   </div>
 </section>
 
-<!-- ===== 敏感性 ===== -->
+<!-- ===== 费用测算 ===== -->
 <section>
-  <h2>六、敏感性分析</h2>
+  <h2>六、费用测算：1.5 亿 TPM 跑满（百炼按 6.8 折 vs DS 官网）</h2>
+  <div class="desc">假设：吞吐 1.5 亿 TPM 跑满；夜间窗 22:00–08:00（10h）日量 = 1.5 亿 × 600 分钟 = <b>900 亿 tokens</b>；24h 跑满日量 = 1.5 亿 × 1440 分钟 = <b>2160 亿 tokens</b>；90:1 输入输出比；百炼按闲时 / 全天加权列表价（USD×6.8）× <b>0.68</b> 计。</div>
 
-  <h3>6.1 · 计价口径敏感性（85% 命中）</h3>
-  <div class="desc">控制台 USD 价（$0.424 等）与帮助文档人民币原价（¥3 等）的隐含汇率为 <b>7.0755</b>。若客户实际按文档人民币原价计价，百炼侧更贵，DS 折扣进一步加深（更便宜、更远离 1:1）：</div>
+  <h3>6.1 · 夜间闲时 10h 跑满（900 亿 tokens/天）</h3>
   <table>
-    <thead><tr><th>百炼计价口径</th><th>夜间 · 85%</th><th>纯忙时 · 85%</th><th>全天 · 85%</th></tr></thead>
+    <thead><tr><th>命中率</th><th>百炼按 6.8 折</th><th>DS 官网同量</th><th>百炼节省</th></tr></thead>
     <tbody>
-      <tr class="hl"><td><b>控制台 USD × 6.8</b>（本报告主口径）</td><td class="num"><b>8.2 折</b></td><td class="num"><b>8.2 折</b></td><td class="num"><b>6.7 折</b></td></tr>
-      <tr><td>帮助文档人民币原价（隐含汇率 7.0755）</td><td class="num">7.9 折</td><td class="num">7.9 折</td><td class="num">6.4 折</td></tr>
+      <tr><td><b>80%</b></td><td class="num">¥27,274 / 天</td><td class="num">¥34,714 / 天</td><td class="num pos">21.4%</td></tr>
+      <tr><td><b>85%</b></td><td class="num">¥23,344 / 天</td><td class="num">¥28,261 / 天</td><td class="num pos">17.4%</td></tr>
+      <tr><td><b>90%</b></td><td class="num">¥19,413 / 天</td><td class="num">¥21,808 / 天</td><td class="num pos">11.0%</td></tr>
     </tbody>
   </table>
-  <div class="formula">汇率越低（人民币越弱），控制台 USD 价折算后越便宜，DS 相对优势越小；反之若实际结汇汇率高于隐含汇率 7.0755，百炼实际成本将超过文档人民币原价，DS 折扣相对主口径进一步加深。注意：0% 命中时若按文档人民币原价两边完全同价（10 折）；USD×6.8 口径下百炼反而便宜约 4%（见 6.2）。</div>
 
-  <h3>6.2 · 命中率敏感性（国际站 USD×6.8 · 夜间闲时口径）</h3>
+  <h3>6.2 · 24h 跑满（2160 亿 tokens/天）</h3>
   <table>
-    <thead><tr><th>缓存命中率</th><th>≈40%（平衡点）</th><th>85%（本报告）</th><th>90%</th></tr></thead>
+    <thead><tr><th>命中率</th><th>百炼按 6.8 折</th><th>DS 官网同量</th><th>成本差</th></tr></thead>
     <tbody>
-      <tr>
-        <td><b>DS 相当于百炼</b></td>
-        <td class="num">≈10 折（打平）</td>
-        <td class="num pos">8.2 折</td>
-        <td class="num pos">7.6 折</td>
-      </tr>
+      <tr><td><b>80%</b></td><td class="num">¥103,643 / 天</td><td class="num">¥107,614 / 天</td><td class="num pos">低 3.7%</td></tr>
+      <tr><td><b>85%</b></td><td class="num">¥88,706 / 天</td><td class="num">¥87,609 / 天</td><td class="num neg">贵 1.3%</td></tr>
+      <tr><td><b>90%</b></td><td class="num">¥73,770 / 天</td><td class="num">¥67,604 / 天</td><td class="num neg">贵 9.1%</td></tr>
     </tbody>
   </table>
-  <div class="formula">平衡点推导（夜间线性）：DS(h) = 139.5 − 130.5h，百炼(h) = 134.0688 − 116.892h，解得 <span class="mono">h* = 39.9%</span>。命中率低于 40% 时百炼反而更便宜（其未命中/输出单价低约 4%）；高于 40% 后 DS 优势随命中率单调扩大——<b>命中率是本模型选型的分水岭</b>。</div>
+  <div class="formula">6.8 折下百炼夜间省 <b>11.0%–21.4%</b>（月成本约 58–82 万元，85% 档约 70 万元）；24h 场景下因 7 小时"DS 半价 / 百炼全价"错位窗口，6.8 折仅 80% 命中档低 3.7%，85% / 90% 命中仍贵 1.3% / 9.1%——全天流量打平 DS 官网的临界折扣约 <b>6.8–7 折</b>，且命中率越高所需折扣越深。</div>
 </section>
 
 <!-- ===== 结论 ===== -->
