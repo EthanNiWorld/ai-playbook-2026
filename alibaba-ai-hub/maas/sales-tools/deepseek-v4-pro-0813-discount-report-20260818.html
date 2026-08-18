@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepSeek-V4-Pro-0813 · DS 官网 vs 阿里云百炼 折扣分析报告</title>
+<style>
+  :root {
+    --ali-orange: #FF6A00;
+    --ds-blue: #4D6BFE;
+    --ink: #1D2129;
+    --muted: #6B7280;
+    --line: #E5E7EB;
+    --bg: #F7F8FA;
+    --card: #FFFFFF;
+    --good: #16A34A;
+    --warn: #D97706;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--ink);
+    line-height: 1.7; padding: 32px 16px 64px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  code, .mono {
+    font-family: "SF Mono", ui-monospace, Menlo, Consolas, "Cascadia Code", monospace;
+    font-size: 0.92em; background: #F1F3F7; padding: 1px 6px; border-radius: 4px;
+  }
+  header.hero { background: linear-gradient(135deg, #1D2129 0%, #2E3A59 100%); color: #fff; border-radius: 16px; padding: 32px 36px; margin-bottom: 24px; }
+  header.hero h1 { font-size: 26px; font-weight: 700; letter-spacing: 0.5px; }
+  header.hero .sub { margin-top: 10px; font-size: 14px; color: rgba(255,255,255,0.78); }
+  header.hero .sub b { color: #FFB37E; font-weight: 600; }
+  .badge { display: inline-block; font-size: 12px; padding: 2px 10px; border-radius: 999px; margin-right: 8px; vertical-align: 2px; }
+  .badge.ds { background: rgba(77,107,254,0.25); color: #A9BCFF; border: 1px solid rgba(77,107,254,0.6); }
+  .badge.ali { background: rgba(255,106,0,0.18); color: #FFB37E; border: 1px solid rgba(255,106,0,0.55); }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+  @media (max-width: 900px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .card .k { font-size: 12.5px; color: var(--muted); }
+  .card .v { font-size: 30px; font-weight: 800; margin-top: 4px; color: var(--ds-blue); }
+  .card .v small { font-size: 14px; font-weight: 600; color: var(--muted); }
+  .card .d { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 24px 28px; margin-bottom: 22px; }
+  section h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; padding-left: 12px; border-left: 4px solid var(--ali-orange); }
+  section h3 { font-size: 15px; font-weight: 700; margin: 18px 0 8px; color: #374151; }
+  section .desc { font-size: 13.5px; color: var(--muted); margin-bottom: 14px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 10px 0 4px; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: right; white-space: nowrap; }
+  th { background: #F3F4F6; font-weight: 600; color: #374151; }
+  th:first-child, td:first-child { text-align: left; }
+  table.kv td { text-align: left; white-space: normal; }
+  tr.total td { background: #FFF7EF; font-weight: 700; }
+  tr.hl td { background: #F0F4FF; }
+  .pos { color: var(--good); font-weight: 700; }
+  .neg { color: var(--warn); font-weight: 700; }
+  .dim { color: var(--muted); }
+  .num { font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; }
+
+  /* 24h 时间轴 */
+  .tl { display: grid; grid-template-columns: 74px repeat(24, 1fr); gap: 2px; margin: 14px 0 4px; font-size: 11px; }
+  .tl .lab { display: flex; align-items: center; font-weight: 600; color: #374151; }
+  .cell { height: 26px; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; }
+  .cell.ds-peak { background: var(--ds-blue); }
+  .cell.ds-idle { background: #B9C7FD; color: #3B4C9B; }
+  .cell.ali-busy { background: var(--ali-orange); }
+  .cell.ali-idle { background: #FFCDA3; color: #8A4A12; }
+  .tl .hours { text-align: center; color: var(--muted); padding-top: 2px; }
+  .tl .hours.first { grid-column: 1; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+
+  .formula { background: #F8FAFF; border: 1px dashed #C7D2FE; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #374151; margin: 10px 0; }
+  .formula .mono { background: transparent; padding: 0; }
+
+  .concl li { margin: 8px 0 8px 20px; font-size: 14px; }
+  footer { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+  footer a { color: var(--ds-blue); text-decoration: none; }
+  footer a.ali { color: var(--ali-orange); }
+  .tag-date { float: right; font-size: 12px; color: var(--muted); font-weight: 400; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1><span class="badge ds">DeepSeek 官网</span> vs <span class="badge ali">阿里云百炼</span><br>DeepSeek-V4-Pro-0813 折扣分析报告</h1>
+  <div class="sub">
+    口径：<b>20:1 输入输出比</b> · 缓存命中率 <b>80% / 85% / 90%</b> · 百炼控制台 USD 定价 × <b>6.8</b> 汇率折算人民币 · 场景：<b>夜间闲时（22:00–08:00）</b>与<b>全天 24 小时（流量均匀加权）</b><br>
+    计量单位：每 21M tokens（输入 20M + 输出 1M）· 报告生成：2026-08-18
+  </div>
+</header>
+
+<!-- ===== 结论卡片 ===== -->
+<div class="cards">
+  <div class="card">
+    <div class="k">夜间闲时 22:00–08:00 · 80% 命中</div>
+    <div class="v">9.1<small> 折</small></div>
+    <div class="d">DS ¥33.90 vs 百炼 ¥37.24 / 21M<br>百炼打 <b class="num">9.1 折</b>可打平 DS 官网价</div>
+  </div>
+  <div class="card">
+    <div class="k">夜间闲时 22:00–08:00 · 85% 命中</div>
+    <div class="v">8.9<small> 折</small></div>
+    <div class="d">DS ¥29.55 vs 百炼 ¥33.35 / 21M<br>百炼打 <b class="num">8.9 折</b>可打平 DS 官网价</div>
+  </div>
+  <div class="card">
+    <div class="k">夜间闲时 22:00–08:00 · 90% 命中</div>
+    <div class="v">8.5<small> 折</small></div>
+    <div class="d">DS ¥25.20 vs 百炼 ¥29.46 / 21M<br>百炼打 <b class="num">8.5 折</b>可打平 DS 官网价</div>
+  </div>
+  <div class="card">
+    <div class="k">全天 24h 加权 · 80% 命中</div>
+    <div class="v">7.4<small> 折</small></div>
+    <div class="d">DS ¥43.79 vs 百炼 ¥58.96 / 21M<br>百炼打 <b class="num">7.4 折</b>可打平 DS 官网价</div>
+  </div>
+  <div class="card">
+    <div class="k">全天 24h 加权 · 85% 命中</div>
+    <div class="v">7.2<small> 折</small></div>
+    <div class="d">DS ¥38.17 vs 百炼 ¥52.80 / 21M<br>百炼打 <b class="num">7.2 折</b>可打平 DS 官网价</div>
+  </div>
+  <div class="card">
+    <div class="k">全天 24h 加权 · 90% 命中</div>
+    <div class="v">7.0<small> 折</small></div>
+    <div class="d">DS ¥32.55 vs 百炼 ¥46.64 / 21M<br>百炼打 <b class="num">7.0 折</b>可打平 DS 官网价</div>
+  </div>
+</div>
+
+<!-- ===== 价格基表 ===== -->
+<section>
+  <h2>一、价格基表 <span class="tag-date">信源核验于 2026-08-18</span></h2>
+  <div class="desc">DeepSeek 官网定价为人民币原价；百炼定价取自控制台模型详情页（用户提供截图，<code>deepseek-v4-pro-0813</code>，闲时 USD 价），忙时价按百炼规则 <b>忙时 = 闲时 × 2</b> 推导（与帮助文档 9/27/0.9 元 ↔ 4.5/13.5/0.45 元的 2 倍关系一致），并按 <b>1 USD = 6.8 CNY</b> 折算。</div>
+  <table>
+    <thead>
+      <tr>
+        <th>计费项（每百万 tokens）</th>
+        <th>DS 官网 · 忙时（高峰）</th>
+        <th>DS 官网 · 闲时（空闲）</th>
+        <th>百炼 · 忙时（USD→CNY）</th>
+        <th>百炼 · 闲时（USD→CNY）</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>输入 · 缓存未命中</td>
+        <td class="num">¥9.00</td>
+        <td class="num">¥4.50</td>
+        <td class="num">$1.272 → ¥8.6496</td>
+        <td class="num">$0.636 → ¥4.3248</td>
+      </tr>
+      <tr class="hl">
+        <td>输入 · 缓存命中</td>
+        <td class="num">¥0.30</td>
+        <td class="num">¥0.15</td>
+        <td class="num">$0.128 → ¥0.8704</td>
+        <td class="num">$0.064 → ¥0.4352</td>
+      </tr>
+      <tr>
+        <td>输出</td>
+        <td class="num">¥27.00</td>
+        <td class="num">¥13.50</td>
+        <td class="num">$3.816 → ¥25.9488</td>
+        <td class="num">$1.908 → ¥12.9744</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="formula">
+    结构性差异：两边<b>未命中输入价、输出价几乎一致</b>（百炼 USD×6.8 后约低 4%）；价差核心在<b>缓存命中价</b>——DS 命中价 = 未命中的 <b>1/30</b>（¥0.30 / ¥0.15），百炼命中价 = 输入价的 <b>1/10</b>（¥0.87 / ¥0.44）。命中率越高、输入比越大，DS 官网越便宜。
+  </div>
+</section>
+
+<!-- ===== 口径假设 ===== -->
+<section>
+  <h2>二、口径与假设</h2>
+  <table class="kv">
+    <tbody>
+      <tr><td style="width:220px">模型与版本</td><td><code>deepseek-v4-pro-0813</code>（DeepSeek-V4-Pro GA，2026-08-13 快照）</td></tr>
+      <tr><td>计量包</td><td>每 <b>21M tokens</b> = 输入 20M + 输出 1M（20:1）；90% 命中 → 命中 <b>18M</b> + 未命中 <b>2M</b>；85% 命中 → 命中 <b>17M</b> + 未命中 <b>3M</b>；80% 命中 → 命中 <b>16M</b> + 未命中 <b>4M</b></td></tr>
+      <tr><td>汇率</td><td>百炼控制台 USD 价 × <b>6.8</b> 折算人民币（用户指定口径）</td></tr>
+      <tr><td>DS 官网分时</td><td>高峰 = 北京时间 9:00–12:00、14:00–18:00（共 <b>7h</b>），其余空闲（<b>17h</b>）</td></tr>
+      <tr><td>百炼分时</td><td>闲时 = 东八区 22:00–次日 08:00（<b>10h</b>），其余忙时（<b>14h</b>）</td></tr>
+      <tr><td>全天场景</td><td>假设流量 24 小时均匀分布，按各计费时段<b>时间加权</b>平均</td></tr>
+      <tr><td>不含项</td><td>百炼限时优惠 / TPM 预留 / Batch 调用、DS 官网充值赠送等促销，均不计入</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===== 24h 时段对齐 ===== -->
+<section>
+  <h2>三、24 小时计费时段对齐（价差根源之一）</h2>
+  <div class="desc">DS 的高峰窗口只覆盖白天 7 小时，而百炼忙时长达 14 小时——<b>08–09、12–14、18–22 共 7 个小时里，DS 已按半价计费、百炼仍按全价计费</b>，这是全天场景 DS 优势显著放大的直接原因。</div>
+  <div class="tl">
+    <div class="lab"></div>
+    <div class="hours first" style="grid-column:auto">0</div><div class="hours">1</div><div class="hours">2</div><div class="hours">3</div><div class="hours">4</div><div class="hours">5</div><div class="hours">6</div><div class="hours">7</div><div class="hours">8</div><div class="hours">9</div><div class="hours">10</div><div class="hours">11</div><div class="hours">12</div><div class="hours">13</div><div class="hours">14</div><div class="hours">15</div><div class="hours">16</div><div class="hours">17</div><div class="hours">18</div><div class="hours">19</div><div class="hours">20</div><div class="hours">21</div><div class="hours">22</div><div class="hours">23</div>
+    <div class="lab">DS 官网</div>
+    <div class="cell ds-idle">闲</div><div class="cell ds-idle">闲</div><div class="cell ds-idle">闲</div><div class="cell ds-idle">闲</div><div class="cell ds-idle">闲</div><div class="cell ds-idle">闲</div><div class="cell ds-idle">闲</div><div class="cell ds-idle">闲</div><div class="cell ds-idle">闲</div><div class="cell ds-peak">峰</div><div class="cell ds-peak">峰</div><div class="cell ds-peak">峰</div><div class="cell ds-idle">闲</div><div class="cell ds-idle">闲</div><div class="cell ds-peak">峰</div><div class="cell ds-peak">峰</div><div class="cell ds-peak">峰</div><div class="cell ds-peak">峰</div><div class="cell ds-idle">闲</div><div class="cell ds-idle">闲</div><div class="cell ds-idle">闲</div><div class="cell ds-idle">闲</div><div class="cell ds-idle">闲</div><div class="cell ds-idle">闲</div>
+    <div class="lab">阿里云百炼</div>
+    <div class="cell ali-idle">闲</div><div class="cell ali-idle">闲</div><div class="cell ali-idle">闲</div><div class="cell ali-idle">闲</div><div class="cell ali-idle">闲</div><div class="cell ali-idle">闲</div><div class="cell ali-idle">闲</div><div class="cell ali-idle">闲</div><div class="cell ali-busy">忙</div><div class="cell ali-busy">忙</div><div class="cell ali-busy">忙</div><div class="cell ali-busy">忙</div><div class="cell ali-busy">忙</div><div class="cell ali-busy">忙</div><div class="cell ali-busy">忙</div><div class="cell ali-busy">忙</div><div class="cell ali-busy">忙</div><div class="cell ali-busy">忙</div><div class="cell ali-busy">忙</div><div class="cell ali-busy">忙</div><div class="cell ali-busy">忙</div><div class="cell ali-busy">忙</div><div class="cell ali-idle">闲</div><div class="cell ali-idle">闲</div>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--ds-blue)"></i>DS 高峰（全价）7h</span>
+    <span><i style="background:#B9C7FD"></i>DS 空闲（半价）17h</span>
+    <span><i style="background:var(--ali-orange)"></i>百炼忙时（全价）14h</span>
+    <span><i style="background:#FFCDA3"></i>百炼闲时（半价）10h</span>
+    <span style="color:var(--warn)">★ 双边错位窗口（DS 半价 / 百炼全价）：08–09、12–14、18–22，共 7h</span>
+  </div>
+</section>
+
+<!-- ===== 场景一：夜间 ===== -->
+<section>
+  <h2>四、场景一：夜间 22:00–08:00（全部闲时）</h2>
+  <div class="desc">该窗口两边均为半价时段（DS 空闲 ⊇ 百炼闲时），同比例降价，折扣为稳定值。单位：元 / 每 21M tokens。</div>
+
+  <h3>4.1 · 80% 命中率（命中 16M / 未命中 4M / 输出 1M）</h3>
+  <table>
+    <thead><tr><th>计费项</th><th>用量</th><th>DS 官网（空闲）</th><th>百炼（闲时 USD×6.8）</th></tr></thead>
+    <tbody>
+      <tr><td>输入 · 缓存命中</td><td class="num">16M</td><td class="num">¥0.15 → 2.400</td><td class="num">¥0.4352 → 6.9632</td></tr>
+      <tr><td>输入 · 未命中</td><td class="num">4M</td><td class="num">¥4.50 → 18.000</td><td class="num">¥4.3248 → 17.2992</td></tr>
+      <tr><td>输出</td><td class="num">1M</td><td class="num">¥13.50 → 13.500</td><td class="num">¥12.9744 → 12.9744</td></tr>
+      <tr class="total"><td>合计</td><td class="num">21M</td><td class="num">¥33.900</td><td class="num">¥37.2368</td></tr>
+      <tr class="hl"><td colspan="2"><b>DS 相当于百炼</b></td><td colspan="2"><b class="num pos">33.900 ÷ 37.2368 = 91.0% ≈ 9.1 折</b>（百炼贵 9.8%）</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.2 · 85% 命中率（命中 17M / 未命中 3M / 输出 1M）</h3>
+  <table>
+    <thead><tr><th>计费项</th><th>用量</th><th>DS 官网（空闲）</th><th>百炼（闲时 USD×6.8）</th></tr></thead>
+    <tbody>
+      <tr><td>输入 · 缓存命中</td><td class="num">17M</td><td class="num">¥0.15 → 2.550</td><td class="num">¥0.4352 → 7.3984</td></tr>
+      <tr><td>输入 · 未命中</td><td class="num">3M</td><td class="num">¥4.50 → 13.500</td><td class="num">¥4.3248 → 12.9744</td></tr>
+      <tr><td>输出</td><td class="num">1M</td><td class="num">¥13.50 → 13.500</td><td class="num">¥12.9744 → 12.9744</td></tr>
+      <tr class="total"><td>合计</td><td class="num">21M</td><td class="num">¥29.550</td><td class="num">¥33.3472</td></tr>
+      <tr class="hl"><td colspan="2"><b>DS 相当于百炼</b></td><td colspan="2"><b class="num pos">29.550 ÷ 33.3472 = 88.6% ≈ 8.9 折</b>（百炼贵 12.9%）</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.3 · 90% 命中率（命中 18M / 未命中 2M / 输出 1M）</h3>
+  <table>
+    <thead><tr><th>计费项</th><th>用量</th><th>DS 官网（空闲）</th><th>百炼（闲时 USD×6.8）</th></tr></thead>
+    <tbody>
+      <tr><td>输入 · 缓存命中</td><td class="num">18M</td><td class="num">¥0.15 → 2.700</td><td class="num">¥0.4352 → 7.8336</td></tr>
+      <tr><td>输入 · 未命中</td><td class="num">2M</td><td class="num">¥4.50 → 9.000</td><td class="num">¥4.3248 → 8.6496</td></tr>
+      <tr><td>输出</td><td class="num">1M</td><td class="num">¥13.50 → 13.500</td><td class="num">¥12.9744 → 12.9744</td></tr>
+      <tr class="total"><td>合计</td><td class="num">21M</td><td class="num">¥25.200</td><td class="num">¥29.4576</td></tr>
+      <tr class="hl"><td colspan="2"><b>DS 相当于百炼</b></td><td colspan="2"><b class="num pos">25.200 ÷ 29.4576 = 85.5% ≈ 8.5 折</b>（百炼贵 16.9%）</td></tr>
+    </tbody>
+  </table>
+  <div class="formula">夜间跑批将两边绝对成本同时砍半（如 90% 档忙时 50.4/58.9152 → 闲时 25.2/29.4576），<b>不改变相对折扣</b>；命中率下降会稀释 DS 优势（90% → 85% → 80%：8.5 折 → 8.9 折 → 9.1 折）。</div>
+</section>
+
+<!-- ===== 场景二：全天 ===== -->
+<section>
+  <h2>五、场景二：全天 24 小时（流量均匀，时间加权）</h2>
+  <div class="desc">按 24 小时各计费窗口时长加权。以 85% 命中档为例给出各窗口成本与加权过程，80% / 85% / 90% 三档结果统一汇总于 5.2。</div>
+
+  <h3>5.1 · 各时段每 21M tokens 成本（以 85% 命中档为例）</h3>
+  <table>
+    <thead>
+      <tr><th>时段</th><th>时长</th><th>DS 档位</th><th>百炼档位</th><th>DS · 85%命中</th><th>百炼 · 85%命中</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>22:00–08:00</td><td class="num">10h</td><td class="dim">空闲（半价）</td><td class="dim">闲时（半价）</td><td class="num">29.550</td><td class="num">33.3472</td></tr>
+      <tr><td>09:00–12:00、14:00–18:00</td><td class="num">7h</td><td class="dim">高峰（全价）</td><td class="dim">忙时（全价）</td><td class="num">59.100</td><td class="num">66.6944</td></tr>
+      <tr class="hl"><td>08–09、12–14、18–22（错位窗）</td><td class="num">7h</td><td class="dim">空闲（半价）</td><td class="dim" style="color:var(--warn)">忙时（全价）</td><td class="num">29.550</td><td class="num">66.6944</td></tr>
+    </tbody>
+  </table>
+  <div class="formula">
+    加权公式（85% 档）：<span class="mono">DS = (7h × 59.1 + 17h × 29.55) ÷ 24h = 916.05 ÷ 24 = ¥38.1688</span>；<span class="mono">百炼 = (14h × 66.6944 + 10h × 33.3472) ÷ 24h = 1267.1936 ÷ 24 = ¥52.7997</span>。80% / 90% 档同理，结果见 5.2。
+  </div>
+
+  <h3>5.2 · 全天加权结果</h3>
+  <table>
+    <thead><tr><th>命中率</th><th>DS 官网全天加权</th><th>百炼全天加权</th><th>DS 相当于百炼</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>80%</b></td>
+        <td class="num">¥43.7875 / 21M</td>
+        <td class="num">¥58.9583 / 21M</td>
+        <td class="num pos">74.3% ≈ <b>7.4 折</b></td>
+      </tr>
+      <tr>
+        <td><b>85%</b></td>
+        <td class="num">¥38.1688 / 21M</td>
+        <td class="num">¥52.7997 / 21M</td>
+        <td class="num pos">72.3% ≈ <b>7.2 折</b></td>
+      </tr>
+      <tr>
+        <td><b>90%</b></td>
+        <td class="num">¥32.5500 / 21M</td>
+        <td class="num">¥46.6412 / 21M</td>
+        <td class="num pos">69.8% ≈ <b>7.0 折</b></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="formula">
+    全天折扣（7.4 / 7.2 / 7.0 折）显著优于单时段口径（9.1 / 8.9 / 8.5 折）——差异几乎全部来自 7 小时的<b>错位窗口</b>：DS 已半价、百炼仍全价，该窗口内 DS 相当于百炼的 <b>4.4 折</b>（29.55 ÷ 66.6944 = 44.3%，以 85% 档计）。
+  </div>
+</section>
+
+<!-- ===== 敏感性 ===== -->
+<section>
+  <h2>六、汇率敏感性</h2>
+  <div class="desc">控制台 USD 价（$0.636 等）对应百炼帮助文档人民币价（¥4.5 等）的隐含汇率为 <b>7.0755</b>。以 85% 命中档为例，若客户实际按文档人民币价 / 结汇汇率 7.08 计价，百炼侧更贵，DS 折扣进一步加深（更便宜、更远离 1:1）：</div>
+  <table>
+    <thead><tr><th>百炼计价口径</th><th>夜间 · 85%</th><th>全天 · 85%</th></tr></thead>
+    <tbody>
+      <tr class="hl"><td><b>USD × 6.8</b>（本报告主口径）</td><td class="num"><b>8.9 折</b></td><td class="num"><b>7.2 折</b></td></tr>
+      <tr><td>帮助文档人民币原价（隐含 7.0755）</td><td class="num">8.5 折</td><td class="num">7.0 折</td></tr>
+    </tbody>
+  </table>
+  <div class="formula">注：汇率越低（人民币越弱），百炼 USD 价折算后越便宜，DS 相对优势越小；反之若实际结汇汇率高于隐含汇率 7.0755，百炼实际成本将超过文档人民币原价，DS 折扣相对主口径进一步加深。命中率 0% 时两边未命中输入与输出单价基本一致，趋近 10 折（打平）。</div>
+</section>
+
+<!-- ===== 结论 ===== -->
+<section>
+  <h2>七、结论</h2>
+  <ul class="concl">
+    <li><b>夜间闲时跑批（22:00–08:00）</b>：DS 官网相当于百炼 <b>8.5 折</b>（90% 命中）/ <b>8.9 折</b>（85% 命中）/ <b>9.1 折</b>（80% 命中）——两边同步半价，折扣稳定；命中率越高 DS 优势越大（百炼贵出 9.8%–16.9%）。</li>
+    <li><b>全天 24 小时运行</b>：因 7 小时"DS 半价 / 百炼全价"错位窗口，DS 优势放大至 <b>7.0 折</b>（90% 命中）/ <b>7.2 折</b>（85% 命中）/ <b>7.4 折</b>（80% 命中），百炼全天口径贵出 34.6%–43.3%。</li>
+    <li><b>价差根源</b>：① 命中价结构（DS = 未命中的 1/30，百炼 = 输入的 1/10）；② 分时窗口宽度（DS 半价 17h vs 百炼半价 10h）。命中率越高、输入比越大，DS 越占优。</li>
+    <li><b>百炼侧对策参考</b>：控制台限时优惠、TPM 预留（闲时档）、Batch 离线半价（注意 Batch 与缓存折扣互斥，90% 高命中下 Batch 反而更贵）可缩小差距；本报告未计入。</li>
+  </ul>
+</section>
+
+<footer>
+  信源与时效：① <a href="https://api-docs.deepseek.com/zh-cn/quick_start/pricing/">DeepSeek 官网 · 模型与价格</a>（高峰 9:00–12:00、14:00–18:00；命中价 = 未命中的 1/30）；
+  ② <a class="ali" href="https://help.aliyun.com/zh/model-studio/deepseek-v4-pro">阿里云百炼帮助文档 · deepseek-v4-pro 模型信息</a>（北京忙时 9/27/0.9 元、闲时 4.5/13.5/0.45 元，闲时 = 22:00–08:00）；
+  ③ 百炼控制台模型详情页截图（用户提供，USD 闲时价 $0.636 / $1.908 / $0.064，按 6.8 汇率折算）。价格核验日期 2026-08-18，如官方调价请以最新页面为准。
+</footer>
+
+</div>
+</body>
+</html>

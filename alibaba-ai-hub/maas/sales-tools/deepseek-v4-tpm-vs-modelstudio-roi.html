@@ -190,10 +190,12 @@
       <!-- B. model studio price -->
       <div class="card">
         <h2><span class="num">B</span>Model Studio 按量单价</h2>
-        <p class="desc">选择 DeepSeek-V4 型号自动填入按量付费单价（美元 / 每百万 tokens），也可手动调整。</p>
-        <div class="seg" id="modelSeg" style="margin-bottom:14px;">
-          <button type="button" data-model="flash">DeepSeek-V4-Flash</button>
-          <button type="button" data-model="pro" class="active">DeepSeek-V4-Pro</button>
+        <p class="desc">选择型号自动填入按量付费单价（美元 / 每百万 tokens），也可手动调整。0731 / 0813 新版本按量单价暂沿用旧版值，待官方定价发布后校准。</p>
+        <div class="seg" id="modelSeg" style="margin-bottom:14px;flex-wrap:wrap;">
+          <button type="button" data-model="flash">V4-Flash</button>
+          <button type="button" data-model="pro" class="active">V4-Pro</button>
+          <button type="button" data-model="flash0731">V4-Flash-0731</button>
+          <button type="button" data-model="pro0813">Pro-0813</button>
         </div>
         <div class="row3">
           <div class="field">
@@ -233,7 +235,7 @@
             <input class="ip" type="number" id="cacheMult" value="0.08" min="0" step="0.01">
           </div>
         </div>
-        <div class="hint" style="margin:-2px 0 10px;">缓存消耗倍率<b>随型号不同</b>（切换自动填入）：Flash 实测 <b>0.2</b>、Pro 实测 <b>0.08</b>（GLM 为 0.25）；「阶梯系数」= 公式结果<b>向上取整到 10 KTPM 整数倍</b>（ceil10）。已双向校验：Flash RPM500·输入60k·输出0.5k·命中85% → <b>输入 9610 / 输出 250</b>；Pro RPM5000·输入30k·输出0.5k·命中80% → <b>输入 39600 / 输出 2500</b>，均与控制台完全一致。</div>
+        <div class="hint" style="margin:-2px 0 10px;">缓存消耗倍率<b>随型号不同</b>（切换自动填入）：Flash 实测 <b>0.2</b>、Pro 实测 <b>0.08</b>（GLM 为 0.25；0731 / 0813 暂沿用系列倍率，待实测校准）；「阶梯系数」= 公式结果<b>向上取整到 10 KTPM 整数倍</b>（ceil10）。已双向校验：Flash RPM500·输入60k·输出0.5k·命中85% → <b>输入 9610 / 输出 250</b>；Pro RPM5000·输入30k·输出0.5k·命中80% → <b>输入 39600 / 输出 2500</b>，均与控制台完全一致。</div>
         <div class="row2">
           <div class="field">
             <label>预留输入 KTPM</label>
@@ -247,7 +249,11 @@
           </div>
         </div>
 
-        <div class="note blue">TPM 预留日价取自百炼控制台「创建 TPM 预留」实测（切换型号自动填入）：Flash 输入 <b>$1.39/10kTPM·天</b>、输出 <b>$0.277/1kTPM·天</b>；Pro 输入 <b>$16.63/10kTPM·天</b>、输出 <b>$3.327/1kTPM·天</b>。</div>
+        <div class="note blue">TPM 预留日价取自百炼控制台「创建 TPM 预留」实测（<b>阿里云国际站 · 北京节点 · USD</b>，切换型号自动填入）：Flash 输入 <b>$1.39/10kTPM·天</b>、输出 <b>$0.277/1kTPM·天</b>；Pro 输入 <b>$16.63/10kTPM·天</b>、输出 <b>$3.327/1kTPM·天</b>；V4-Flash-0731 输入 <b>$4.44/10kTPM·天</b>、输出 <b>$1.33/1kTPM·天</b>；Pro-0813 输入 <b>$13.31/10kTPM·天</b>、输出 <b>$3.99/1kTPM·天</b>。上表均为<b>忙时价</b>；闲时价 = 忙时价 × 0.5，可用下方档位切换查看。</div>
+        <div class="seg" id="tierSeg" style="margin:0 0 12px;">
+          <button type="button" data-tier="peak" class="active">忙时价</button>
+          <button type="button" data-tier="idle">闲时价（= 忙时 × 0.5）</button>
+        </div>
         <div class="field">
           <label>输入预留日价 <span class="u">$ / 容量块 · 天</span></label>
           <div class="pblk">
@@ -343,7 +349,7 @@
             <li><b>跑满</b>：预留容量在计费周期内 24h × 100% 利用，此时承载的 token 量即业务负载吞吐量。</li>
             <li><b>整体等效折扣（几折）</b> = <code>TPM成本 ÷ ModelStudio成本 × 10</code>。&lt;10 折即预留更省。</li>
             <li><b>分项折算</b>：TPM 等效输入单价 = 输入预留成本 ÷ 原始输入 tokens；÷ Model Studio 对应单价 ×10 得该项「几折」。</li>
-            <li><b>预留 KTPM 自动值（对齐控制台换算，Flash + Pro 双向实测精确吻合）</b>：输入 = <code>ceil10[(输入长度×输入容量系数×命中率×缓存消耗倍率 + 输入长度×输入容量系数×(1−命中率)) × RPM]</code>；输出 = <code>ceil10[输出长度×输出容量系数×RPM]</code>。ceil10 = 向上取整到 10 的整数倍（即控制台「阶梯系数」）。缓存消耗倍率随型号：Flash = 0.2、Pro = 0.08。</li>
+            <li><b>预留 KTPM 自动值（对齐控制台换算，Flash + Pro 双向实测精确吻合）</b>：输入 = <code>ceil10[(输入长度×输入容量系数×命中率×缓存消耗倍率 + 输入长度×输入容量系数×(1−命中率)) × RPM]</code>；输出 = <code>ceil10[输出长度×输出容量系数×RPM]</code>。ceil10 = 向上取整到 10 的整数倍（即控制台「阶梯系数」）。缓存消耗倍率随型号：Flash 系（含 0731）= 0.2、Pro 系（含 0813）= 0.08（新版本暂沿用系列实测值）。TPM 预留日价区分<b>忙时 / 闲时</b>两档，闲时 = 忙时 × 0.5（阿里云国际站 · 北京节点 · USD）。</li>
             <li><b>盈亏平衡利用率</b> = TPM成本 ÷ ModelStudio满载成本；低于该利用率时按量付费更划算。</li>
           </ul>
         </div>
@@ -374,8 +380,10 @@
   var $ = function(id){return document.getElementById(id);};
   var ids = ["rpm","lin","lout","hit","days","pin","pcache","pout","inCoef","outCoef","cacheMult","rin","rout","uin","uinBlk","uout","uoutBlk","disc","util"];
   var MODELS = {
-    flash: {pin:0.138, pcache:0.028, pout:0.275, uin:1.39, uout:0.277, cacheMult:0.2,  hint:"当前：DeepSeek-V4-Flash · 高效轻量化 MoE（总参 284B / 激活 13B），主打高并发、轻量化任务。TPM 预留：输入 $1.39/10kTPM·天，输出 $0.277/1kTPM·天；缓存消耗倍率 0.2。"},
-    pro:   {pin:1.65,  pcache:0.138, pout:3.301, uin:16.63, uout:3.327, cacheMult:0.08, hint:"当前：DeepSeek-V4-Pro · 旗舰级 MoE（总参 1.6T / 激活 49B），主打复杂推理、专业代码、长文本深度解析。TPM 预留：输入 $16.63/10kTPM·天，输出 $3.327/1kTPM·天；缓存消耗倍率 0.08。"}
+    flash:     {pin:0.138, pcache:0.028, pout:0.275, uin:1.39,  uout:0.277, cacheMult:0.2,  hint:"当前：DeepSeek-V4-Flash · 高效轻量化 MoE（总参 284B / 激活 13B），主打高并发、轻量化任务。TPM 预留忙时价：输入 $1.39/10kTPM·天，输出 $0.277/1kTPM·天（闲时 = 半价）；缓存消耗倍率 0.2。"},
+    pro:       {pin:1.65,  pcache:0.138, pout:3.301, uin:16.63, uout:3.327, cacheMult:0.08, hint:"当前：DeepSeek-V4-Pro · 旗舰级 MoE（总参 1.6T / 激活 49B），主打复杂推理、专业代码、长文本深度解析。TPM 预留忙时价：输入 $16.63/10kTPM·天，输出 $3.327/1kTPM·天（闲时 = 半价）；缓存消耗倍率 0.08。"},
+    flash0731: {pin:0.138, pcache:0.028, pout:0.275, uin:4.44,  uout:1.33,  cacheMult:0.2,  hint:"当前：DeepSeek-V4-Flash-0731 · 高并发轻量场景新版本快照。TPM 预留忙时价：输入 $4.44/10kTPM·天，输出 $1.33/1kTPM·天（闲时 = 半价：$2.22 / $0.665）；缓存消耗倍率沿用 0.2，待实测校准；按量单价暂沿用 V4-Flash 旧版值。"},
+    pro0813:   {pin:1.65,  pcache:0.138, pout:3.301, uin:13.31, uout:3.99,  cacheMult:0.08, hint:"当前：DeepSeek-Pro-0813 · 旗舰新版本快照。TPM 预留忙时价：输入 $13.31/10kTPM·天，输出 $3.99/1kTPM·天（闲时 = 半价：$6.655 / $1.995）；缓存消耗倍率沿用 0.08，待实测校准；按量单价暂沿用 V4-Pro 旧版值。"}
   };
 
   function num(id){var v=parseFloat($(id).value);return isNaN(v)?0:v;}
@@ -523,22 +531,42 @@
     $("rin").disabled=on; $("rout").disabled=on;
     calc();
   });
+  var curTier = "peak";
+  function applyModel(key){
+    var m = MODELS[key];
+    var k = curTier==="idle" ? 0.5 : 1;
+    $("pin").value = m.pin;
+    $("pcache").value = m.pcache;
+    $("pout").value = m.pout;
+    $("uin").value = m.uin*k;
+    $("uout").value = m.uout*k;
+    $("cacheMult").value = m.cacheMult;
+    $("modelHint").textContent = m.hint;
+  }
+  function activeModelKey(){
+    var b = document.querySelector("#modelSeg button.active");
+    return b ? b.getAttribute("data-model") : "pro";
+  }
   var segBtns = document.querySelectorAll("#modelSeg button");
   segBtns.forEach(function(btn){
     btn.addEventListener("click",function(){
       segBtns.forEach(function(b){ b.classList.remove("active"); });
       btn.classList.add("active");
-      var m = MODELS[btn.getAttribute("data-model")];
-      $("pin").value = m.pin;
-      $("pcache").value = m.pcache;
-      $("pout").value = m.pout;
-      $("uin").value = m.uin;
-      $("uout").value = m.uout;
-      $("cacheMult").value = m.cacheMult;
-      $("modelHint").textContent = m.hint;
+      applyModel(btn.getAttribute("data-model"));
       calc();
     });
   });
+  var tierBtns = document.querySelectorAll("#tierSeg button");
+  tierBtns.forEach(function(btn){
+    btn.addEventListener("click",function(){
+      tierBtns.forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      curTier = btn.getAttribute("data-tier");
+      applyModel(activeModelKey());
+      calc();
+    });
+  });
+  applyModel(activeModelKey());
   calc();
 })();
 </script>
