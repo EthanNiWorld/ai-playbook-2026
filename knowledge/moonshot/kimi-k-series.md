@@ -32,7 +32,7 @@
   - AttnRes：注意力跨层残差连接，训练效率 +25%，额外成本 <2%
   - 整体扩展效率 vs K2 提升约 2.5 倍
 - **上下文**：1M（1,048,576 tokens）
-- **多模态**：原生文本 + 图像 + 视频（视觉输入仅支持 base64 / `ms://` 文件 ID，不支持公网图片 URL）
+- **多模态**：原生文本 + 图像 + 视频；Moonshot 官方 API 视觉输入仅支持 base64 / `ms://` 文件 ID（不支持公网图片 URL）
 - **思考模式**：始终开启，`reasoning_effort` 当前仅 `max` 档；temperature=1.0 / top_p=0.95 固定
 - **输出**：max_completion_tokens 默认 131,072，最大 1,048,576
 - **量化**：MXFP4 权重 + MXFP8 激活（SFT 阶段起量化感知训练）
@@ -41,7 +41,7 @@
 - **API**：模型 ID `kimi-k3`；`https://api.moonshot.cn/v1`（国内）/ `https://api.moonshot.ai/v1`（国际）
 - **定价**：缓存命中 $0.30 / 输入 $3.00 / 输出 $15.00（每 M tokens）；Mooncake 分离式推理架构下编程任务缓存命中率 >90%
 - **限制**：始终思考无法关闭（轻量任务成本高）；联网搜索工具更新中，近期不建议生产使用
-- **百炼接入**：[⚠️ 待补充]
+- **百炼接入**：模型 ID `kimi/kimi-k3`（仅华北2/北京地域 Key）；MaaS 专属端点上为 `kimi-k3`（无前缀）。实测（2026-08-24，三个 MaaS 端点：北京 workspace×2 + 新加坡节点，结论一致）：图片输入 base64 与公网 URL 均可用；**视频输入不支持**（报 400 "Video inputs are not supported by this model"，字符串/嵌套格式/含 fps 均被拒），同端点 qwen3.8-max / qwen-vl-max 及 **kimi-k2.6 / kimi-k2.7-code 视频均正常** → 系百炼 kimi-k3 部署专属限制（非 kimi 系列整体问题），客户需 kimi + 视频理解时引导用 kimi-k2.6 / kimi-k2.7-code。测试脚本：`alibaba-ai-hub/maas/api-sample/test_kimi_k3_multimodal.py`
 
 ### Kimi K2.7-Code（2026 年 6 月，编码专精）
 
@@ -70,7 +70,8 @@
   - **主动 Agent（Proactive Agents）**：支持 24/7 持续运行的自主 Agent
   - **Claw Groups**（研究预览）：异构多 Agent + 人类协作的新架构
   - **Skills 系统**：将 PDF/幻灯片/文档转化为可复用技能
-- **百炼平台接入**：模型 ID `kimi/kimi-k2.6`，通过阿里云 DashScope API 调用
+- **百炼平台接入**：模型 ID `kimi/kimi-k2.6`（标准端点）/ `kimi-k2.6`（MaaS 专属端点），通过阿里云 DashScope API 调用
+- **百炼视频实测**（2026-08-24）：视频输入可用，嵌套格式 `{"video_url": {"url": ...}}`（含 fps 参数）与 qwen 风格字符串格式均通过；需 kimi + 视频理解时首选 k2.6（kimi-k3 视频不可用）
 - **缓存折扣**：命中缓存按输入价格的 16.9% 计费
 
 ### Kimi K2.5（2026 年 1 月）
@@ -217,7 +218,8 @@ Kimi K2 系列模型权重开源（block-fp8 格式），推荐推理引擎：
 ## Changelog
 
 | 日期 | 变更内容 |
-|------|----------|
+|------|---------|
+| 2026-08-24 | 实测补全：K3 百炼 MaaS 端点多模态实测（北京 workspace×2 + 新加坡节点三端点交叉验证）——k3 图片 base64/URL 均可用、视频不支持（400 报错）；同端点 kimi-k2.6 / kimi-k2.7-code 视频正常，确认系 k3 专属限制；补全 K3/K2.6 百炼接入信息；新增测试脚本 test_kimi_k3_multimodal.py |
 | 2026-07-17 | 合并：inbox K3 调研素材 — 新增 Kimi K3 章节（2.8T/1M/KDA/AttnRes），主推更新为 K3，新增 K3 Benchmark 表（AA 独立评测与官方口径分列），K2.6 定位调整为长程 Agent，K2.7-Code 调整为编码专精 |
 | 2026-06-29 | 修正：K2.7-Code 支持多模态视觉（图片+视频），明确仅支持思考模式（不支持关闭）；模型演进调整为时间倒序（K2.7-Code → K2.6 → K2.5 → K2）[来源: platform.kimi.com] |
 | 2026-06-22 | 合并：百炼上新架与外部报道 — 新增 Kimi K2.7-Code 编码旗舰（2026-06-12 发布，百炼 06-15 上架），含 Benchmark、架构、Highspeed 变体 |

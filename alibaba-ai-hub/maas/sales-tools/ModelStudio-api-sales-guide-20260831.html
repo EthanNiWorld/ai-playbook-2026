@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Studio API 销售快速指南 · 2026-08-31</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap');
+
+  :root {
+    --primary: #4f46e5;
+    --primary-light: #818cf8;
+    --primary-dark: #3730a3;
+    --accent: #06b6d4;
+    --success: #059669;
+    --warning: #d97706;
+    --surface: #ffffff;
+    --surface-alt: #f8fafc;
+    --text: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --border: #e2e8f0;
+    --radius: 16px;
+    --shadow-sm: 0 2px 8px rgba(79,70,229,0.06);
+    --shadow-md: 0 8px 30px rgba(79,70,229,0.10);
+    --shadow-lg: 0 20px 60px rgba(79,70,229,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(180deg, #e0e7ff 0%, #eef2ff 40%, #f8fafc 100%);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 920px;
+    margin: 0 auto;
+    background: var(--surface);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 20px 60px rgba(0,0,0,0.08);
+    border-radius: 0 0 24px 24px;
+    overflow: hidden;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #0f0a2e 0%, #1e1b4b 30%, #312e81 60%, #4338ca 100%);
+    color: #fff;
+    padding: 56px 56px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -20%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(129,140,248,0.25) 0%, transparent 60%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30%; left: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 60%);
+    border-radius: 50%;
+    animation: float 10s ease-in-out infinite reverse;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 24px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    margin-bottom: 20px;
+    color: rgba(255,255,255,0.9);
+    position: relative; z-index: 1;
+    animation: fadeInUp 0.6s ease-out;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: #34d399;
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1.3;
+    margin-bottom: 14px;
+    position: relative; z-index: 1;
+    letter-spacing: -0.5px;
+    animation: fadeInUp 0.6s ease-out 0.1s both;
+  }
+  .hero h1 .highlight {
+    background: linear-gradient(90deg, #c4b5fd, #67e8f9);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    font-size: 15px;
+    color: rgba(255,255,255,0.75);
+    max-width: 620px;
+    position: relative; z-index: 1;
+    line-height: 1.7;
+    font-weight: 300;
+    animation: fadeInUp 0.6s ease-out 0.2s both;
+  }
+
+  /* Content */
+  .content { padding: 48px 56px 56px; }
+
+  /* Section title */
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--primary);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::before {
+    content: '';
+    width: 20px; height: 2.5px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 2px;
+  }
+
+  /* Principle cards */
+  .principle-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .principle-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .principle-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .principle-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .principle-card:hover::before { opacity: 1; }
+  .principle-card .icon { font-size: 28px; margin-bottom: 10px; }
+  .principle-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .principle-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+  .principle-card h3 .en {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+  .principle-card p strong { color: var(--primary-dark); font-weight: 700; }
+  .adv-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  /* Model matrix — dark portfolio board */
+  .mx-board {
+    background:
+      radial-gradient(700px 260px at 15% 0%, rgba(37,99,235,.28), transparent 60%),
+      radial-gradient(700px 260px at 55% 10%, rgba(124,58,237,.22), transparent 60%),
+      radial-gradient(600px 260px at 90% 90%, rgba(249,115,22,.16), transparent 60%),
+      #060a1a;
+    border-radius: 20px;
+    padding: 26px 22px 20px;
+    margin-bottom: 48px;
+    box-shadow: var(--shadow-md);
+  }
+  .mx-cols { display: grid; grid-template-columns: 1.15fr 1.15fr 0.78fr; gap: 18px; align-items: stretch; }
+  .mx-panel {
+    border-radius: 14px;
+    padding: 16px 14px;
+    display: flex; flex-direction: column; gap: 14px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.10), 0 16px 44px rgba(0,0,0,.5);
+  }
+  .mx-p1 { background: linear-gradient(155deg, #0a1254 0%, #16308f 48%, #67c3f0 135%); }
+  .mx-p2 { background: linear-gradient(155deg, #250a55 0%, #46209b 52%, #7f8cf5 135%); }
+  .mx-p3 { background: linear-gradient(155deg, #2b0a52 0%, #63269b 55%, #f08a3c 140%); }
+  .mx-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .mx-group {
+    border: 1.5px dashed rgba(255,255,255,.42);
+    border-radius: 10px;
+    padding: 14px 10px 10px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .mx-names {
+    display: flex; flex-wrap: wrap; gap: 7px 16px;
+    justify-content: center; align-content: center;
+    flex: 1; padding: 2px 2px 4px;
+  }
+  .mx-names span { font-size: 12px; font-weight: 700; color: #eef2ff; letter-spacing: .2px; white-space: nowrap; }
+  .mx-names b { font-weight: 800; }
+  .mx-names em {
+    font-style: normal; font-size: 9.5px; font-weight: 700;
+    color: #67e8f9; background: rgba(103,232,249,.12);
+    border: 1px solid rgba(103,232,249,.45);
+    border-radius: 8px; padding: 0 6px; margin-left: 4px;
+    vertical-align: 1px; white-space: nowrap;
+  }
+  .mx-p1 .mx-names b { color: #4dd7f7; }
+  .mx-p2 .mx-names b { color: #b7a6fb; }
+  .mx-p3 .mx-names b { color: #f3b0e2; }
+  .mx-bar {
+    text-align: center; font-size: 12.5px; font-weight: 800; color: #fff;
+    padding: 9px 10px; border-radius: 8px;
+    border: 1.5px dashed rgba(255,255,255,.55);
+    letter-spacing: .3px;
+  }
+  .mx-p1 .mx-bar { background: linear-gradient(90deg, #3730a3, #22d3ee); }
+  .mx-p2 .mx-bar { background: linear-gradient(90deg, #5b21b6, #a5b4fc); }
+  .mx-p3 .mx-bar { background: linear-gradient(90deg, #6d28d9, #c084fc); }
+  .mx-vendors { display: flex; flex-direction: column; gap: 8px; flex: 1; padding: 2px 2px 4px; }
+  .mx-vendor {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px;
+    padding: 8px 12px; border-radius: 8px;
+    background: rgba(255,255,255,.10);
+    border: 1px dashed rgba(255,255,255,.25);
+  }
+  .mx-vendor .v {
+    font-size: 11px; font-weight: 800; color: #4dd7f7;
+    white-space: nowrap; flex-shrink: 0; letter-spacing: .5px;
+  }
+  .mx-vendor .n { font-size: 12px; font-weight: 700; color: #eef2ff; line-height: 1.8; }
+  .mx-vendor .n b { color: #4dd7f7; font-weight: 800; }
+  .mx-vendor .n em {
+    font-style: normal; font-size: 9.5px; font-weight: 700;
+    color: #fbbf24; background: rgba(251,191,36,.14);
+    border: 1px solid rgba(251,191,36,.45);
+    border-radius: 8px; padding: 0 6px; margin-left: 5px;
+    vertical-align: 1px; white-space: nowrap;
+  }
+  .mx-foot {
+    margin-top: 16px; font-size: 12px; color: rgba(226,232,240,.88); line-height: 1.9;
+    border: 1.5px dashed rgba(255,255,255,.25); border-radius: 10px; padding: 10px 14px;
+  }
+  .mx-foot code {
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18);
+    border-radius: 5px; padding: 0 6px; font-size: 11.5px;
+    font-family: 'Inter', monospace; color: #e0e7ff;
+  }
+
+  /* Notice */
+  .notice {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 1px solid #fde68a;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 48px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    box-shadow: 0 4px 16px rgba(217,119,6,0.08);
+  }
+  .notice-icon {
+    font-size: 18px; flex-shrink: 0;
+    width: 32px; height: 32px;
+    background: rgba(217,119,6,0.1);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .notice h3 { font-size: 14px; font-weight: 700; color: #92400e; margin-bottom: 4px; }
+  .notice p { font-size: 13px; color: #78350f; line-height: 1.7; }
+
+  /* Model table */
+  .model-section { margin-bottom: 48px; }
+  .model-subsection {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .model-subsection::before {
+    content: '';
+    width: 4px; height: 4px;
+    background: var(--primary);
+    border-radius: 50%;
+  }
+  .table-wrap {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    background: var(--surface-alt);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    color: var(--text-secondary);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #f5f3ff; }
+  .model-name { font-weight: 700; color: var(--text); }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    margin-left: 6px;
+  }
+  .badge-plus { background: #dbeafe; color: #1e40af; }
+  .badge-max { background: #ede9fe; color: #5b21b6; }
+  .badge-green { background: #d1fae5; color: #065f46; }
+  .badge-orange { background: #fed7aa; color: #9a3412; }
+
+  /* Selection formula */
+  .formula {
+    background: linear-gradient(135deg, var(--surface-alt), #eef2ff);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .formula h4 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+  .formula ul { list-style: none; padding: 0; }
+  .formula li {
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .formula li::before { content: "→"; color: var(--primary); font-weight: 700; }
+  .formula li strong { color: var(--primary-dark); }
+  .formula .hint {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* PTU section */
+  .ptu-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+  }
+  .ptu-card {
+    background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+    border: 1px solid #c7d2fe;
+    border-radius: var(--radius);
+    padding: 24px 16px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .ptu-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+  .ptu-card .emoji { font-size: 28px; margin-bottom: 8px; }
+  .ptu-card .label { font-size: 14px; font-weight: 700; color: var(--primary-dark); }
+  .ptu-card .desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
+
+  /* Scenario cards */
+  .scenario-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .scenario-card {
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .scenario-card:hover { transform: translateY(-4px); }
+  .scenario-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+  }
+  .scenario-card .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .scenario-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; position: relative; }
+  .scenario-card p { font-size: 12px; line-height: 1.7; opacity: 0.9; position: relative; }
+  .sc-wan { background: linear-gradient(135deg, #312e81, #6366f1); box-shadow: 0 8px 32px rgba(99,102,241,0.3); }
+  .sc-hh { background: linear-gradient(135deg, #0c6478, #06b6d4); box-shadow: 0 8px 32px rgba(6,182,212,0.3); }
+
+  /* CTA */
+  .cta {
+    text-align: center;
+    padding: 36px 24px;
+    background: linear-gradient(135deg, #f8fafc, #eef2ff, #f5f3ff);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+  .cta p { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+  .cta strong { color: var(--text); }
+  .cta .links {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .cta .links a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+  .cta .links a:hover { color: var(--primary-dark); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 24px 56px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--surface-alt);
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .adv-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 768px) {
+    .hero, .content { padding-left: 20px; padding-right: 20px; }
+    .hero h1 { font-size: 24px; }
+    .principle-grid, .ptu-grid, .adv-grid { grid-template-columns: 1fr; }
+    .mx-cols, .mx-row2 { grid-template-columns: 1fr; }
+    .scenario-grid { grid-template-columns: 1fr; }
+    table { font-size: 12px; }
+    thead th, tbody td { padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">📋 Model Studio · API 销售快速指南 · 2026-08-31</div>
+    <h1><span class="highlight">百炼 API</span> 产品线速览</h1>
+    <p class="hero-sub">阿里云一站式大模型服务平台，聚合自研 Qwen 与主流第三方模型，一套 API Key 统一调用；支持模型微调（fine-tuning）、评测（evaluation）、部署（deployment）、可观测监控（observability）、知识库（RAG）与 Agent 编排（agent building）。</p>
+  </div>
+
+  <div class="content">
+
+    <!-- 产品矩阵 -->
+    <div class="section-title">阿里百炼 MAAS 平台大模型产品矩阵 Model Portfolio</div>
+    <div class="mx-board">
+      <div class="mx-cols">
+        <!-- Agentic LLM -->
+        <div class="mx-panel mx-p1">
+          <div class="mx-group">
+            <div class="mx-names">
+              <span><b>Q</b>wen3.8-Max</span><span><b>Q</b>wen3.7-Plus</span><span><b>Q</b>wen3.8-Flash</span>
+            </div>
+            <div class="mx-bar">Qwen · 自研旗舰</div>
+          </div>
+          <div class="mx-group">
+            <div class="mx-names">
+              <span><b>Q</b>wen3.5-Omni-Plus-Realtime</span><span><b>Q</b>wen3.5-Omni-Flash-Realtime</span>
+            </div>
+            <div class="mx-bar">Qwen Omni · 多模态实时</div>
+          </div>
+          <div class="mx-group">
+            <div class="mx-vendors">
+              <div class="mx-vendor">
+                <span class="v">智谱</span>
+                <span class="n"><span><b>G</b>LM-5.3<em>coming soon</em></span> / <span><b>G</b>LM-5.2</span></span>
+              </div>
+              <div class="mx-vendor">
+                <span class="v">深度求索</span>
+                <span class="n"><span><b>D</b>eepSeek-V4-Flash-0731</span> / <span><b>D</b>eepSeek-V4-Pro-0813</span></span>
+              </div>
+              <div class="mx-vendor">
+                <span class="v">月之暗面</span>
+                <span class="n"><span><b>K</b>imi-K3</span></span>
+              </div>
+            </div>
+            <div class="mx-bar">第三方模型 · 百炼直调</div>
+          </div>
+        </div>
+        <!-- AIGC -->
+        <div class="mx-panel mx-p2">
+          <div class="mx-group">
+            <div class="mx-names">
+              <span><b>W</b>an3.0<em>30s</em></span><span><b>W</b>an2.7-T2V</span><span><b>W</b>an2.7-I2V</span><span><b>W</b>an2.7-R2V</span><span><b>W</b>an2.7-VideoEdit</span><span><b>H</b>appyHorse-1.1</span>
+            </div>
+            <div class="mx-bar">Video Generation</div>
+          </div>
+          <div class="mx-group">
+            <div class="mx-names">
+              <span><b>Q</b>wen-Image-3.0-Pro</span>
+            </div>
+            <div class="mx-bar">Image Generation</div>
+          </div>
+        </div>
+        <!-- 语音 -->
+        <div class="mx-panel mx-p3">
+          <div class="mx-group">
+            <div class="mx-names"><span><b>C</b>osyVoice-V3.5-Plus</span><span><b>Q</b>wen-Audio-3.0-TTS-Plus</span></div>
+            <div class="mx-bar">Text to Speech · TTS</div>
+          </div>
+          <div class="mx-group">
+            <div class="mx-names"><span><b>F</b>un-ASR</span><span><b>Q</b>wen-Audio-3.0-ASR-Flash</span></div>
+            <div class="mx-bar">Speech Recognition · ASR</div>
+          </div>
+        </div>
+      </div>
+      <div class="mx-foot">更多能力：<code>qwen3.7-text-embedding</code> 向量嵌入 · PTU 专属算力 · TPM 预留吞吐 —— 一套 API Key 调多家模型，OpenAI 兼容协议，迁移零成本。</div>
+    </div>
+
+    <!-- 百炼四大优势 -->
+    <div class="model-section">
+      <div class="section-title">百炼平台四大优势 Why Model Studio</div>
+      <div class="adv-grid" style="margin-bottom:12px;">
+        <div class="principle-card">
+          <div class="icon">🌐</div>
+          <h3>丰富的模型选择<span class="en">Rich Model Choices</span></h3>
+          <p>Qwen 全系旗舰 + GLM / DeepSeek / Kimi 第三方模型一套 Key 直调；LLM · 视觉 · 视频 · 语音 · Embedding 全产品线，覆盖不同<strong>价格、性能与能力</strong>需求。</p>
+        </div>
+        <div class="principle-card">
+          <div class="icon">🔌</div>
+          <h3>开放的生态<span class="en">Open Ecosystem</span></h3>
+          <p><strong>OpenAI / Anthropic 兼容协议</strong>，LangChain 等主流框架即插即用，迁移零成本；依托 Qwen 全球领先的开源生态与开发者社区。</p>
+        </div>
+        <div class="principle-card">
+          <div class="icon">🌍</div>
+          <h3>全球覆盖<span class="en">Global Coverage</span></h3>
+          <p><strong>北京 · 新加坡 · 美国（弗吉尼亚）· 欧洲（法兰克福）· 日本（东京）· 香港</strong>六大节点就近接入，低时延高可靠，跨境业务统一纳管。</p>
+        </div>
+        <div class="principle-card">
+          <div class="icon">🛡️</div>
+          <h3>全球合规<span class="en">Global Compliance</span></h3>
+          <p><strong>SOC 2 审计（无保留意见）</strong>· 满足 GDPR 等合规要求；欧盟 / 美国 / 日本<strong>数据驻留</strong>可选，数据不用于训练，AES-256 加密传输。</p>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);padding-left:4px;">全托管一站式平台 · 企业级 SLA 99.9% · 数据驻留满足 GDPR 等区域法规 —— 详见模型广场与合规文档中心。</div>
+    </div>
+
+    <!-- 大模型拓新策略 -->
+    <div class="model-section">
+      <div class="section-title">大模型拓新策略 Migration Strategy</div>
+      <div class="scenario-grid">
+        <div class="scenario-card" style="background:linear-gradient(135deg,#064e3b,#059669);box-shadow:0 8px 32px rgba(5,150,105,0.3);">
+          <div class="tag">策略一 · 平切</div>
+          <h4>同样模型，直接平切</h4>
+          <p>客户正在使用的模型（DeepSeek 官网 / 智谱开放平台 / 月之暗面开放平台等），百炼均有同款在售，可无损平切，一套 API Key 统一纳管。</p>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;font-size:12px;line-height:1.7;">
+            <div><strong>🎯 推理质量</strong> — 同款模型、同版本，推理能力一致</div>
+            <div><strong>💰 性价比</strong> — 缓存命中计费、国际站 USD 定价、TPM/PTU 预留更优惠</div>
+            <div><strong>🛡️ SLA</strong> — 阿里云企业级 SLA，PTU 专属算力保障吞吐稳定</div>
+            <div><strong>⚖️ 合规</strong> — 国内合规备案 + 数据安全，出海可用国际站节点</div>
+          </div>
+        </div>
+        <div class="scenario-card" style="background:linear-gradient(135deg,#431407,#ea580c);box-shadow:0 8px 32px rgba(234,88,12,0.3);">
+          <div class="tag">策略二 · 平替</div>
+          <h4>海外 SOTA → 国产旗舰，追求降本</h4>
+          <p>客户在用 Claude / OpenAI 等海外 SOTA，可用 <strong>Kimi-K3</strong>（编程）/ <strong>Qwen</strong> / <strong>GLM-5.3</strong>（coming soon）/ <strong>DeepSeek-V4</strong> 平替，同等任务大幅降本。</p>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;font-size:12px;line-height:1.7;">
+            <div><strong>💸 降本</strong> — 覆盖海外旗舰绝大多数主流场景，成本远低于按量付费</div>
+            <div><strong>⚡ 时延</strong> — 国内节点就近调用，网络时延显著低于海外 API</div>
+            <div><strong>🔐 合规</strong> — 数据不出境或出境合规方案可选，支付与网络无门槛</div>
+            <div><strong>🔁 演进</strong> — OpenAI 兼容协议，迁移零成本，后续可平滑升级</div>
+          </div>
+        </div>
+      </div>
+      <div class="formula">
+        <h4>拓新话术</h4>
+        <ul>
+          <li><strong>同模型平切</strong> — “模型一样、效果一样，价格更低、SLA 更有保障、合规更省心，为什么要分开维护？”</li>
+          <li><strong>海外 SOTA 平替</strong> — “Claude / OpenAI 能做的，Kimi-K3 / Qwen / GLM-5.3 / DeepSeek 也能做，目标是把成本降下来。”</li>
+        </ul>
+        <div class="hint">平切讲“零风险”，平替讲“降本增效”，双策略并进覆盖存量与增量客户。</div>
+      </div>
+    </div>
+
+    <!-- LLM 产品线 -->
+    <div class="model-section">
+      <div class="section-title">LLM 产品线推荐 LLM Product Line</div>
+
+      <div class="model-subsection">Qwen 系列（自研主力）</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>模型</th><th>适用场景</th><th>特点</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="model-name">Qwen3.8-Max</span><span class="badge badge-max">旗舰</span></td>
+              <td>代码工程 · 全栈开发<br>专业办公 · 复杂推理<br>长程 Agent · 图文理解</td>
+              <td>2.4T MoE 万亿参数 · 1M 上下文<br>文本+图像输入（VL，已实测）<br><span style="font-size:11px;color:var(--text-muted);">思考/非思考双模式 · 最大输出 128K · 官方自评仅次于 Fable 5 · 开源版本Qwen3.8-2.4T-A95B</span></td>
+            </tr>
+            <tr>
+              <td><span class="model-name">Qwen3.7-Plus</span><span class="badge badge-plus">性价比之王</span></td>
+              <td>对话、客服、实时交互<br>VL 视觉分析</td>
+              <td>多模态（图/视频/屏幕）<br>1M 上下文 · 响应快</td>
+            </tr>
+            <tr>
+              <td><span class="model-name">Qwen3.8-Flash</span><span class="badge badge-green">轻量极速</span></td>
+              <td>IPC / 审校 / 大批量打标<br>在线成本敏感型场景</td>
+              <td>1M 上下文 · 极致性价比<br>低延迟高并发</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="formula">
+        <h4>选型口诀</h4>
+        <ul>
+          <li>需要<strong>秒级响应</strong>（对话 / 客服 / VL 识别）→ <strong>Plus</strong></li>
+          <li>需要<strong>旗舰能力</strong>（重度代码 / 复杂推理 / 长程 Agent / 图文理解）→ <strong>Qwen3.8-Max</strong></li>
+          <li>需要<strong>极致性价比</strong>（IPC / 审校 / 大批量打标 / 高并发）→ <strong>Flash</strong></li>
+        </ul>
+        <div class="hint">90% 客户用 Plus 就够了，Qwen3.8-Max 是旗舰场景首选，Flash 是成本敏感场景的最优解</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:6px;padding-left:4px;">📌 <strong>Qwen3.8-Max 正式版已上线</strong>（2.4T MoE，Qwen 系列新旗舰）：支持文本+图像输入（VL，API 实测确认）、思考与非思考双模式；缓存命中价仅为输入价的 12.5%。</div>
+      </div>
+
+      <div class="model-subsection">第三方模型（百炼同样支持）</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>模型</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="model-name">GLM-5.2（智谱）· glm-5.3（coming soon）</td><td>百炼直接调用，无需对接智谱独立接口</td></tr>
+            <tr><td class="model-name">DeepSeek-V4</td><td>高性价比推理模型，百炼直接调用</td></tr>
+            <tr><td class="model-name">Kimi-K3（月之暗面）</td><td>代码生成模型，百炼直接调用</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:8px;padding-left:4px;">百炼统一入口 = 一套 API Key 调多家模型，OpenAI 兼容协议，迁移零成本。</div>
+    </div>
+
+    <!-- API 计费模式 -->
+    <div class="model-section">
+      <div class="section-title">LLM API 计费模式 Billing Modes</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;padding-left:4px;">三种方案在计费单位、容量保障强度、超额处理与接入改动上各有侧重，按业务诉求对号入座。</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>方案</th><th>计费单位</th><th>容量保障</th><th>适用场景</th><th>超额处理</th><th>代码改动</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="model-name">按量付费</span><span class="badge badge-green">默认</span></td>
+              <td>按 Token</td>
+              <td>无 · 共享公共池</td>
+              <td>流量波动大 / 短期验证</td>
+              <td>自动服务，受公共限流<br><span style="font-size:11px;color:var(--warning);">扩容需联系商务 T+1 申请</span></td>
+              <td>无需改动</td>
+            </tr>
+            <tr>
+              <td><span class="model-name">TPM 预留</span><span class="badge badge-orange">稳定</span></td>
+              <td>按 kTPM 预付费</td>
+              <td><strong style="color:var(--primary);">专属容量刚性兑付</strong></td>
+              <td>流量可预估<br>核心链路不接受限流</td>
+              <td>可选：自动溢出按量（默认）<br>或仅预留容量返回 429</td>
+              <td>替换 model 参数即可</td>
+            </tr>
+            <tr>
+              <td><span class="model-name">PTU · 模型部署</span><span class="badge badge-max">高性能</span></td>
+              <td>按 kTPM 预付费</td>
+              <td><strong style="color:var(--primary);">专属部署实例</strong></td>
+              <td>高吞吐 + 极致延迟</td>
+              <td>可选：自动溢出按量（默认）<br>或仅 PTU 容量返回 429</td>
+              <td>替换 model 参数即可</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="formula">
+        <h4>选型口诀</h4>
+        <ul>
+          <li><strong>流量波动 / 初期验证</strong> → <strong>按量付费</strong>（零门槛起步）</li>
+          <li><strong>流量可预估、不能限流</strong> → <strong>TPM 预留</strong>（容量刚性兑付）</li>
+          <li><strong>高吞吐 + 低延迟</strong> → <strong>PTU</strong>（专属部署实例）</li>
+        </ul>
+        <div class="hint">TPM 预留与 PTU 均按 kTPM 预付费、超额可自动溢出按量：前者保「稳定」，后者保「性能」。</div>
+      </div>
+
+      <div class="notice" style="background:linear-gradient(135deg,#fef3c7,#fffbeb);margin-bottom:16px;">
+        <div class="notice-icon">⚠️</div>
+        <div>
+          <h3>PTU / TPM 预留支持的模型</h3>
+          <p>支持千问3.8-Max、Qwen3.7-Plus、GLM-5.2、DeepSeek-V4 等核心模型（以控制台为准）。</p>
+        </div>
+      </div>
+
+      <div class="model-subsection" style="margin-top:16px;">PTU 核心优势</div>
+      <div class="ptu-grid">
+        <div class="ptu-card">
+          <div class="emoji">🚀</div>
+          <div class="label">高速</div>
+          <div class="desc">生成速度达标准 API 的 1.5~2 倍</div>
+        </div>
+        <div class="ptu-card">
+          <div class="emoji">🔒</div>
+          <div class="label">独占</div>
+          <div class="desc">专属资源，不受共享池波动</div>
+        </div>
+        <div class="ptu-card">
+          <div class="emoji">📈</div>
+          <div class="label">可预测</div>
+          <div class="desc">固定吞吐，SLA 承诺保障</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 视频生成 -->
+    <div class="model-section">
+      <div class="section-title">视频生成产品线 Video Generation</div>
+      <div class="scenario-card" style="background:linear-gradient(135deg,#1e1b4b,#7c3aed);box-shadow:0 8px 32px rgba(124,58,237,0.3);margin-bottom:16px;">
+        <div class="tag">🆕 新旗舰 · 主推</div>
+        <h4>Wan3.0</h4>
+        <p>30 秒长视频（2× 时长）· 文 / 图 / 音 / 视频 / 文档（PPT、PDF）多模态输入<br>支持 T2V / I2V / R2V / 视频编辑，全链路覆盖<br>API 定价 $0.05/秒起（国际站新加坡节点，折扣以官方定价页为准）</p>
+        <div style="margin-top:14px;">
+          <a href="https://weixin.qq.com/sph/ARBvEtYYzw" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(4px);color:#fff;text-decoration:none;font-size:12.5px;font-weight:700;padding:8px 18px;border-radius:20px;transition:background .2s;">
+            ▶ 观看官方演示视频
+          </a>
+          <span style="font-size:10.5px;color:rgba(255,255,255,.65);margin-left:10px;">微信内打开播放</span>
+        </div>
+      </div>
+      <div class="scenario-grid">
+        <div class="scenario-card sc-wan">
+          <div class="tag">需 LoRA 训练</div>
+          <h4>Wan2.7 系列</h4>
+          <p>需 LoRA 定制训练的场景：定制风格 / 定制主体 / 品牌一致性生成<br>支持 T2V / I2V / R2V / 视频编辑</p>
+        </div>
+        <div class="scenario-card sc-hh">
+          <div class="tag">电商首选</div>
+          <h4>HappyHorse 1.1</h4>
+          <p>电商广告、商品视频、多语言营销<br>7 语言口型同步 · 音视频联合生成<br>AA 盲测曾双冠（2026-04~06）</p>
+        </div>
+      </div>
+      <div class="formula">
+        <h4>选型口诀</h4>
+        <ul>
+          <li><strong>通用视频创作 / 长视频 / 文档转视频（PPT、PDF → 营销素材）</strong> → Wan3.0（主推）</li>
+          <li><strong>需 LoRA 定制训练（定制风格 / 主体 / 品牌一致性）</strong> → Wan2.7</li>
+          <li><strong>电商广告 / 商品视频 / 多语言批量</strong> → HappyHorse 1.1（效果更优）</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 推荐模型清单 -->
+    <div class="model-section">
+      <div class="section-title">推荐模型清单 Proposed Model List · 2026-08</div>
+      <div style="background:linear-gradient(135deg,#fef3c7,#fffbeb);border:1px solid #fde68a;border-radius:var(--radius);padding:20px 24px;margin-bottom:24px;">
+        <div style="font-size:13px;color:#92400e;font-weight:600;">⚠️ 以下为客户当前应选用的最新在售模型，<strong>新项目请优先选用</strong>，避免使用旧版本。</div>
+      </div>
+
+      <div class="model-subsection">Agentic LLM 模型</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>类别</th><th>模型</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-max">旗舰推理</span></td>
+              <td class="model-name">qwen3.8-max</td>
+              <td>2.4T MoE 万亿参数，支持文本+图像输入（已实测），代码工程+专业办公+长程 Agent</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-plus">推理</span></td>
+              <td class="model-name">qwen3.7-plus</td>
+              <td>性价比之王，适合对话、客服、VL视觉</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-green">轻量推理</span></td>
+              <td class="model-name">qwen3.8-flash</td>
+              <td>极致性价比，适合 IPC、审校、大批量打标</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-green">推理+编程</span></td>
+              <td class="model-name">deepseek-v4-pro-0813</td>
+              <td>高性价比推理模型</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-green">推理+编程</span></td>
+              <td class="model-name">deepseek-v4-flash-0731</td>
+              <td>高性价比轻量推理</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-green">推理+编程</span></td>
+              <td class="model-name">glm-5.2</td>
+              <td>智谱通用旗舰</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-green">推理+编程</span></td>
+              <td class="model-name">kimi-k3</td>
+              <td>月之暗面编程强项</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="model-subsection">视频生成</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>类别</th><th>模型</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="model-name">旗舰 · 长视频</td>
+              <td>wan3.0 · 30s 长视频 · 文/图/音/视频/文档多模态输入</td>
+            </tr>
+            <tr>
+              <td class="model-name">图生视频</td>
+              <td>wan2.7-i2v · happyhorse-1.1-i2v</td>
+            </tr>
+            <tr>
+              <td class="model-name">文生视频</td>
+              <td>wan2.7-t2v · happyhorse-1.1-t2v</td>
+            </tr>
+            <tr>
+              <td class="model-name">视频编辑</td>
+              <td>wan2.7-videoedit · happyhorse-1.0-video-edit</td>
+            </tr>
+            <tr>
+              <td class="model-name">参考生视频</td>
+              <td>wan2.7-r2v · happyhorse-1.1-r2v</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="model-subsection">图片生成</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>模型</th></tr></thead>
+          <tbody>
+            <tr><td class="model-name">qwen-image-3.0-pro</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="model-subsection">ASR & TTS（语音识别 & 合成）</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>模型</th><th>用途</th></tr></thead>
+          <tbody>
+            <tr><td class="model-name">cosyvoice-v3.5-plus</td><td>语音合成（TTS）</td></tr>
+            <tr><td class="model-name">fun-asr</td><td>语音识别（ASR）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="model-subsection">Embedding（向量嵌入）</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>模型</th></tr></thead>
+          <tbody>
+            <tr><td class="model-name">qwen3.7-text-embedding（推荐，2026-07-15 上线）· text-embedding-v4</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="font-size:12px;color:var(--text-muted);margin-top:12px;padding-left:4px;">⚠️ 以上为截至当前在售的最新推荐模型。重点推荐agentic LLM和AIGC模型。</div>
+    </div>
+
+    <!-- One More Thing -->
+    <div class="section-title">提示 One More Thing</div>
+    <div style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid #c7d2fe;border-radius:var(--radius);padding:28px 28px 24px;margin-bottom:48px;box-shadow:var(--shadow-sm);">
+      <div style="font-size:20px;font-weight:800;color:var(--primary-dark);margin-bottom:6px;">永远推荐当前最新版本模型</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Always recommend the latest model version</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--surface);border-radius:12px;border:1px solid var(--border);">
+          <span style="font-size:18px;flex-shrink:0;">①</span>
+          <div><strong style="color:var(--text);">能力更强</strong> — <span style="color:var(--text-secondary);font-size:13px;">新模型 benchmark 全面领先，客户体验立竿见影</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--surface);border-radius:12px;border:1px solid var(--border);">
+          <span style="font-size:18px;flex-shrink:0;">②</span>
+          <div><strong style="color:var(--text);">老模型不打折</strong> — <span style="color:var(--text-secondary);font-size:13px;">历史版本不降价，花同样的钱不如直接用新的</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--surface);border-radius:12px;border:1px solid var(--border);">
+          <span style="font-size:18px;flex-shrink:0;">③</span>
+          <div><strong style="color:var(--text);">老模型无法扩容</strong> — <span style="color:var(--text-secondary);font-size:13px;">资源优先保障新模型，老版本限流无扩容路径</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+      <p>如需更详细的技术选型或专属报价方案，请联系<strong>阿里云商务团队</strong>或<strong>AI架构师</strong></p>
+      <div class="links" style="margin-top:14px;">
+        <a href="https://bailian.console.alibabacloud.com" target="_blank">Model Studio 控制台</a> &middot;
+        <a href="https://www.alibabacloud.com/help/en/model-studio/models" target="_blank">模型广场</a> &middot;
+        <a href="https://www.alibabacloud.com/help/en/model-studio/model-pricing" target="_blank">API 定价</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    阿里云 Model Studio · API 销售快速指南 · 2026年8月
+  </div>
+
+</div>
+</body>
+</html>
