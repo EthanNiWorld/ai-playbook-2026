@@ -74,6 +74,13 @@
   - 上下文：**原生 262,144 tokens，可扩展至约 1,010,000 tokens**（1M 为 API 托管版默认配置，开源版需自行扩展）
   - 权重格式：safetensors，213 个分片；兼容 vLLM / SGLang / TokenSpeed 自部署
   - 特性参数：`reasoning_effort`（可调推理深度）、`preserve_thinking`（跨轮保留推理上下文）
+- **思考模式（百炼 API 实测，2026-08-27）**：百炼端点上 `enable_thinking` **仅接受 True**——传 False 时专属端点与公共端点均报错 `The value of the enable_thinking parameter is restricted to True.`；`/no_think` 提示词软开关亦无效 → **百炼托管的 qwen3.8-2.4t-a95b 实际按仅思考模式运行，无法关闭思考**（与官方"深度思考模型用法"文档的"混合思考模式"分类不符，以 API 实测为准；自部署 vLLM 版不受此限）。曲线方案：`thinking_budget` 有效，设极小值可将思考压至极短再输出回复（实测 budget=1 时思考仅 2 字符），实测脚本 `api-sample/test_qwen38_a95b_thinking_switch.py`
+- **思考长度控制：`thinking_budget` vs `reasoning_effort`（实测，2026-08-27，10 用例套件）**：两参数单独使用在 a95b 上均有效，定位不同——
+  - `thinking_budget`（int）：思考 Token **硬上限**，粒度精确（实测 budget=1→思考均值 3 字符，近似关闭；1024→均值 100 字符，较基线 -43%）；官方 API 参考明确适用于 Qwen3.8 系列，推荐首选
+  - `reasoning_effort`（string 档位）：推理**力度软引导**，低→中→高呈单调梯度（三轮实测：low 均值 106 / medium 134 / high 306 字符，基线 175；low 较基线 -40% 且方差极小）；注意官方 API 参考的 reasoning_effort 支持列表仅明文覆盖 qwen3.8-max/flash，未列开源版 a95b（实测有效但无官方背书）
+  - **两参数互斥（实测同样适用 a95b）**：同时设置报错 `'reasoning_effort' and 'thinking_budget' cannot be set simultaneously`；`reasoning_effort=none` 也被拒（报错同 enable_thinking=False，印证 none→enable_thinking=False 映射生效）
+  - **闭源版互转规则（官方文档，max/flash）**：reasoning_effort 未设时 budget 自动映射档位（0~4096→low，4097~16384→medium，16385~262144→xhigh），档位未设时自动映射 budget（low→4096，medium→16384，xhigh→262144）；均未设时默认 budget=131072 / effort=xhigh [来源: help.aliyun.com/zh/model-studio/qwen-api-via-dashscope]
+  - 完整实测数据与脚本：`api-sample/test_qwen38_a95b_thinking_switch.py` + `api-sample/test_qwen38_a95b_thinking_switch_results_20260827.md`
 
 **开源版 vs API 托管版（Qwen3.8-Max）差异**：
 
@@ -82,7 +89,7 @@
 | 上下文 | 原生 262K，可扩展 ~1M | 默认 1M |
 | 最大输出 | 未公开 | 128K |
 | 视觉输入 | ❌ 无 | ✅ 文本+图像 |
-| 非思考模式 | ✅ | ✅ |
+| 非思考模式 | ✅ 仅自部署可关；百炼端点强制思考（实测） | ✅ |
 | 内置工具 | ❌ | ✅ |
 | 部署方式 | vLLM / SGLang 自部署 | 百炼 API |
 
@@ -300,6 +307,7 @@ Max 生成速度约为 Plus 的 4.7 倍（MoE 架构 + 无视觉 encoder 开销�
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-08-27 | API 实测（10 用例套件）：百炼端点（专属+公共均验证）qwen3.8-2.4t-a95b 的 `enable_thinking` 仅接受 True（传 False 报 invalid_parameter_error），`/no_think` 软开关无效，实际按仅思考模式运行——修正差异表"非思考模式"开源版口径（自部署可关、百炼托管不可关）；实测 `thinking_budget`（budget=1 思考压至均值 3 字符）与 `reasoning_effort`（low/medium/high 梯度 106/134/306 字符）均有效；**新发现：两参数互斥规则同样适用 a95b**（同时设置报错），`effort=none` 被拒印证 none→enable_thinking=False 映射生效；补录闭源版互转映射规则（low↔4096/medium↔16384/xhigh↔262144，默认 131072/xhigh）；新增实测脚本 `api-sample/test_qwen38_a95b_thinking_switch.py` + 结果文件 `api-sample/test_qwen38_a95b_thinking_switch_results_20260827.md` |
 | 2026-08-17 | 合并：inbox 四模型调研 - 新增「Qwen3.8-2.4T-A95B 开源版」小节（92 层混合注意力架构 / 512 experts / 原生 262K 可扩展 ~1M / 许可证 "other" / vs API 版差异表）+ Qwen3.8-Max 官方 benchmark 五模型对比表；修正开源版上下文口径（1M → 原生 262K 可扩展，1M 为 API 版默认配置）；竞品定价表 DS-V4-Pro 行更新为 2026-08-16 峰谷定价 |
 | 2026-08-14 | 校验修复：开源状态解除待确认——Qwen3.8 系列开源版 qwen3.8-2.4t-a95b 2026-08-12 上线国际站（2.4T 总参/激活 95B，1M ctx，GPQA 92.6/PaperBench 93.0/OSWorld 86.1），max 本体开源仍未明确；qwen3.7-flash 国际站已上线（上新页 2026-07-21），USD 定价暂未公布；Changelog 折叠 6 条 |
 | 2026-08-03 | 清理 Qwen3.6-* 系列残留信息（历史模型标注、竞争力对比、限制表、私有化部署场景、参考链接），Changelog 历史记录保留 |
