@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-08-17
+> 最后更新：2026-09-02
 
 ## 目录
 
@@ -23,12 +23,12 @@
 
 | 我想找… | 文档 |
 |---------|------|
-| Qwen / 通义千问 / 3.7-Plus / 3.7-Max / 旗舰 | [Qwen](alibaba-ai-hub/maas/qwen.md) |
+| Qwen / 通义千问 / 3.8-Max / 3.8-Flash / 3.7-Plus / 旗舰 | [Qwen](alibaba-ai-hub/maas/qwen.md) |
 | 万相 / Wan / 视频生成 / 图生视频 | [万相](alibaba-ai-hub/maas/wan.md) |
 | CosyVoice / 语音合成 / TTS / 声音复刻 | [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) |
 | FunASR / 语音识别 / ASR / 说话人分离 | [FunASR](alibaba-ai-hub/maas/funasr.md) |
 | Qwen-Audio / Qwen-Audio-3.0-ASR / LLM 语音识别 / 即时热词 | [Qwen-Audio ASR](alibaba-ai-hub/maas/qwen-audio-asr.md) |
-| HappyHorse / 快乐小马 / 图像生成 | [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) |
+| HappyHorse / 快乐小马 / AI 视频生成 / 音视频联合生成 | [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) |
 | Fun-Music / 音乐生成 / AI 作曲 / 歌词生成歌曲 | [Fun-Music](alibaba-ai-hub/maas/fun-music.md) |
 | 百炼平台 / 多账号 / TPM 扩量 / 限流 | [百炼平台](alibaba-ai-hub/maas/overview.md) |
 | 百炼安全 / SOC 2 / CMaaS / 数据主权 / 隔离 | [百炼安全合规](alibaba-ai-hub/maas/model_studio_security-compliance_cn.md) |
@@ -63,12 +63,13 @@
 | StepFun / 阶跃星辰 / Step 3.7 Flash / AI+终端 | [StepFun](knowledge/stepfun/general_intro.md) · [Step 3 系列](knowledge/stepfun/step-3-series.md) |
 | Qwen vs Hy3 / 混元竞争分析 | [Qwen3.7 vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) |
 | Qwen vs Doubao / 豆包竞争分析 | [Qwen3.7-Max vs Doubao-Seed-2.1 Pro](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
-| MiniMax / M3 / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
+| MiniMax / M3 / M3 Pro / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
 | Kimi / 月之暗面 / Moonshot / K3 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
-| GLM / 智谱 / GLM-5.3 / GLM-5.2 / 1M 上下文 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) |
+| GLM / 智谱 / GLM-5.3 / GLM-5.3-Flash / GLM-5.2 / 1M 上下文 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) |
 | Seedance / 字节视频生成 / AI 短剧 / 火山方舟 | [Seedance 系列](knowledge/bytedance/seedance-series.md) |
 | GRPO / PPO / critic / RL 算法选型 / Agentic RL | [RL 算法选型](knowledge/ai-general-notes/rl-algorithm-selection-grpo-vs-ppo.md) |
 | 视频模型数据策略 / 不蒸馏 / 数据质量密度 | [视频模型数据策略](knowledge/ai-general-notes/video-model-data-strategy.md) |
+| API 定价 / 开源套利 / 架构降本 / Flash 低价可持续性 | [开源定价套利与架构降本](knowledge/ai-general-notes/open-weights-api-pricing-floor.md) |
 | 矿山安全 / AI 监控 / 矿山 Demo | [矿山安全 AI 监控 Demo](alibaba-ai-hub/ai-industry-solutions/mining-safety-ai-demo.html) |
 | 企业自建推理 / Higress / AI 网关 | [企业自建 AI 推理平台](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) ⭐ |
 | 数据出境 / 数据主权 / CN 版 | [MuleRun](alibaba-ai-hub/ai-application/mulerun.md#mulerun全球版与骡子快跑中国版的关系) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) |
@@ -99,6 +100,7 @@
 - [ReAct 范式](knowledge/ai-general-notes/Memory-ReAct.md) ⭐ — Reasoning and Acting 范式、Thought-Action-Observation 循环、Memory 是最后一公里
 - [AI 公司增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ — Killer App × 企业信任 × 消费制收入，Anthropic 17 个月 47 倍
 - [安全护栏粒度](knowledge/ai-general-notes/safety-guardrail-granularity.md) ⭐ — 从「按领域封禁」到「按危害环节封禁」；危险能力是通用智能的副产物，护栏强度应是实测危害能力的函数（Opus 5 / Sonnet 5 样本）
+- [开源定价套利与架构降本](knowledge/ai-general-notes/open-weights-api-pricing-floor.md) — 自部署套利约束定价上限、低价可持续性三判据、容量/计算解耦三维评价（Qwen3.8-Flash / GLM-5.3-Flash 样本）
 
 ---
 
@@ -113,21 +115,22 @@
 **MaaS（模型即服务）**
 - [百炼平台](alibaba-ai-hub/maas/overview.md) — UID 级限流、多账号扩 TPM（8.5× 实测）、deepseek-v4-flash 压测
 - [百炼安全合规](alibaba-ai-hub/maas/model_studio_security-compliance_cn.md) — 算力隔离、SOC 2、ISO 42001、CMaaS、Geo-fencing、SLA
-- [Qwen](alibaba-ai-hub/maas/qwen.md) — 3.8-Max（旗舰，2.4T MoE / 1M ctx / TB 2.1 86.6，开源版 qwen3.8-2.4t-a95b 原生 262K 可扩展 ~1M）/ 3.7-Plus（多模态智能体）/ 3.7-Flash（轻量）
+- [Qwen](alibaba-ai-hub/maas/qwen.md) — 3.8-Max（旗舰，2.4T MoE / 1M ctx / TB 2.1 86.6，开源版 qwen3.8-2.4t-a95b 原生 262K 可扩展 ~1M）/ 3.7-Plus（多模态智能体）/ 3.8-Flash（新架构轻量，2026-08-26：125B/6B 激活 + 51B N-gram Embedding，GDN+QSA 混合注意力，1M ctx，¥0.8/¥2.7，取代 3.7-Flash）
 - [万相](alibaba-ai-hub/maas/wan.md) — 视频生成旗舰、首尾帧控制
 - [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) — TTS 主推引擎，声音复刻+声音设计+指令控制，将替代 Qwen-TTS
 - [FunASR](alibaba-ai-hub/maas/funasr.md) — ASR 主推引擎，六大能力一站式语音识别，将替代 Qwen3-ASR
 - [Qwen-Audio ASR](alibaba-ai-hub/maas/qwen-audio-asr.md) — LLM-based ASR 系列，上下文理解+即时热词，含中英混说实测幻觉案例
-- [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) — 图像生成
+- [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) — AI 视频生成（音视频联合单次生成，淘天 ATH）
 - [Fun-Music](alibaba-ai-hub/maas/fun-music.md) — AI 音乐生成，歌词到歌曲端到端，fun-music-v1 实测
-- [Qwen Demo](alibaba-ai-hub/maas/qwen-demo-20260420.md) · [Wan Demo](alibaba-ai-hub/maas/wan-demo-20260420.md) — 产品演示素材
-- [百炼 API 销售指南](alibaba-ai-hub/maas/ModelStudio-api-sales-guide-20260720.md) — 售前话术、模型选型、客户问答
+- [百炼网络接入方案](alibaba-ai-hub/maas/maas-solution-and-api-sample/bailian-network-access-solutions.md) — 跨云/跨境调用百炼 API 的网络层选型（公网直连 / PrivateLink / GA 全球加速）
 - [百炼权限配置指南](alibaba-ai-hub/maas/model_studio_config/model-studio-workspace-permission-guide.md) — RAM 子账号、工作空间、API Key 全流程截图
-- [Wan 费用估算](alibaba-ai-hub/maas/wan_PPL_estimation_20260629.md) — 万相 PPL 费用测算
 
 **售前工具（Sales Tools）**
-- [Qwen3.7-Max Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-max-salebook.html) · [Qwen3.7-Plus Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-plus-salesbook.html) · [三模型联合 Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-max-glm-kimi-salebook.html)
+- [百炼 API 销售指南 0720 版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20260720.md)（MD/HTML） · [0831 新版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20260831.html)（HTML/PNG） — 售前话术、模型选型、客户问答
+- [阿里云 AI 解决方案专家提示词](alibaba-ai-hub/maas/sales-tools/ModelStudio-solution-expert-prompt-20260827.md) — 数字分身 System Prompt（模型矩阵/价格口径/ROI 测算信源）
+- [Qwen3.7-Max Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-max-salebook.html) · [Qwen3.7-Plus Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-plus-salesbook.html)（[e 版](alibaba-ai-hub/maas/sales-tools/qwen3.7-plus-salesbook-e.html)） · [三模型联合 Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-max-glm-kimi-salebook.html)
 - [DeepSeek-V4 TPM ROI 计算器](alibaba-ai-hub/maas/sales-tools/deepseek-v4-tpm-vs-modelstudio-roi.html) · [GLM-5.2 TPM ROI 计算器](alibaba-ai-hub/maas/sales-tools/glm5.2-tpm-vs-modelstudio-roi.html)
+- [DeepSeek-V4 Flash 折扣报告](alibaba-ai-hub/maas/sales-tools/deepseek-v4-flash-0731-discount-report-20260818.html) · [DeepSeek-V4 Pro 折扣报告](alibaba-ai-hub/maas/sales-tools/deepseek-v4-pro-0813-discount-report-20260818.html)（HTML/PNG，20260818）
 
 **AI Coding**
 - [Qoder](alibaba-ai-hub/ai-coding/qoder.md) — 企业级 AI Coding IDE 插件
@@ -181,18 +184,19 @@
 - 模型系列:
   - [V 系列](knowledge/deepseek/deepseek-v-series.md) — V1 / V2 / V3 / V3.2 / **V4（Pro GA 0813：TB 2.1 87.9 / 384K 输出 / 峰谷定价；Flash 0731 正式版）**
   - [R 系列](knowledge/deepseek/deepseek-r-series.md) — R1 / R1-0528 / R2
+- 知识地图: [DeepSeek AI 知识全景图](knowledge/deepseek/deepseek-ai-knowledge-map-JD-202606.html) — 202606 全景图（HTML）
 
 ### MiniMax
 
-- 公司分析: [MiniMax 公司分析](knowledge/minimax/general_intro.md) — 2026.01 港股 IPO（00100.HK）、海螺 AI / Talkie 全球化、M1/M2/M2.7 开源混合注意力，**M2.7 自我进化（模型自驱动训练）**
-- 模型系列: [M 系列](knowledge/minimax/minimax-series.md) — M1 / M2 / M2.7 / M3（**M3 已开源权重**，MSA 稀疏注意力、原生多模态）
+- 公司分析: [MiniMax 公司分析](knowledge/minimax/general_intro.md) — 2026.01 港股 IPO（00100.HK）、海螺 AI / Talkie 全球化、M1/M2/M2.7 开源混合注意力，**M2.7 自我进化（模型自驱动训练）**；2026 H1 营收 1.17 亿美元（+283.1%）、M3.1/M3 Pro/H3.1 接近完成（电话会口径）、H3 视频模型与 Music 3.0 开源
+- 模型系列: [M 系列](knowledge/minimax/minimax-series.md) — M1 / M2 / M2.7 / M3（**M3 已开源权重**，MSA 稀疏注意力、原生多模态），M3.1 / M3 Pro（~3T）在途 [⚠️ 待验证]
 - 技术论文: [MSA 稀疏注意力](knowledge/minimax/msa-sparse-attention.md) — 块级稀疏注意力架构（arXiv:2606.13392）、Kernel 设计、选择粒度 × 硬件对齐
 - Agent: [Agent Team](knowledge/minimax/agent-team.md) — Leader–Worker–Verifier 对抗制衡多 Agent 协作系统
 
 ### 智谱 AI（Zhipu）
 
 - 公司分析: [智谱 AI 公司分析](knowledge/zhipu/general_intro.md) — 2026.01 港股 IPO（02513.HK，全球大模型第一股）、GLM-5 编程开源 SOTA、MaaS ARR 17 亿元
-- 模型系列: [GLM 系列](knowledge/zhipu/glm-series.md) — GLM-4 / 4.5 / 4.6 / 5 / 5.1 / 5.2 / **5.3（8/14 发布，同基座后训练 Scaling，TB 3.0 28.3 开源第一，安全攻防涌现能力）**，GLM-5.2 Solid 1M 上下文 + 长程任务开源 SOTA
+- 模型系列: [GLM 系列](knowledge/zhipu/glm-series.md) — GLM-4 / 4.5 / 4.6 / 5 / 5.1 / 5.2 / **5.3（8/14 发布，同基座后训练 Scaling，TB 3.0 28.3 开源第一，安全攻防涌现能力）** / **5.3-Flash（8/26 发布并开源，系列首个原生多模态，320B-A18B，¥0.8/¥2.8，AA 57）**，GLM-5.2 Solid 1M 上下文 + 长程任务开源 SOTA
 
 ### 月之暗面（Moonshot AI）
 

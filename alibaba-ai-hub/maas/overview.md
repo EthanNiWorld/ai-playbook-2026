@@ -1,9 +1,9 @@
 # 百炼平台
 
-> 最后更新: 2026-07-08
+> 最后更新: 2026-09-02
 > 所属厂商: 阿里云
 > 产品类别: MaaS
-> 状态: Draft
+> 状态: Published
 
 <!-- SUMMARY_START -->
 **定位**: 阿里云模型服务平台，统一管理和调用大模型 API（Qwen / DeepSeek / Wan / 第三方模型）
@@ -167,10 +167,10 @@
 
 | 需求 | 推荐模型 | 地域 |
 |------|---------|------|
-| 中文推理 | qwen3.7-max / qwen3.7-plus | 任意 |
+| 中文推理 | qwen3.8-max / qwen3.7-plus | 任意 |
 | 思考推理 | deepseek-v4-flash / deepseek-v4-pro | 大陆 / 新加坡 / 美国 |
 | 中文生成 | qwen3.7-plus | 任意 |
-| 图像生成 | wan2.7 | 大陆 |
+| 图像生成 | qwen-image-3.0-pro（Qwen-Image 系列，图像线已自 Wan*-Image 移交） | [⚠️ 待补充] |
 
 ### 踩坑记录
 
@@ -203,3 +203,4 @@
 | 2026-05-22 | 合并：inbox 多账号扩 TPM 实践。新增地域与接入点表、限流机制（UID 级、RPM/TPM/RPS/TPS）、文档 vs 实测差异、多账号扩 TPM 方案（8.5× 实测验证）、选型建议、踩坑记录、与 Bedrock/Vertex AI 竞品快照。状态仍为 Draft（仅补充限流主题，其他产品能力待补） |
 | 2026-06-09 | 修正：选型建议模型名更新为当前主推（qwen3.7-max / qwen3.7-plus / qwen3.6-flash / wan2.7） |
 | 2026-07-08 | 选型建议表移除 qwen3.6-flash（已非主推），中文生成推荐更新为 qwen3.7-plus |
+| 2026-09-02 | 校验修复（knowledge-verifier 2026-09-02 报告）：选型建议表更新——中文推理主推切换 qwen3.7-max → qwen3.8-max；图像生成 wan2.7 → qwen-image-3.0-pro（Wan*-Image 图像线已移交 Qwen-Image）；状态 Draft → Published |

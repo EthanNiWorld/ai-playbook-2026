@@ -1,6 +1,6 @@
 # MiniMax M 系列模型
 
-> 最后更新: 2026-06-15
+> 最后更新: 2026-09-02
 > 所属厂商: MiniMax（稀宇科技）
 > 产品类别: MaaS
 > 状态: Published
@@ -18,6 +18,7 @@
 | **MiniMax-M2.7** | 次旗舰 | 100 万 tokens | 自我进化能力、Benchmark 追平 GPT-5.3-Codex，性价比极高 | 2026.03.18 |
 
 > 📌 **历史模型**：MiniMax-M2（2025.11，Agent/代码专项）和 MiniMax-M1（2025.08，开源标杆）仍可调用，但已被 M3/M2.7 取代，不建议新项目选用。
+> 📌 **路线图**：M3.1（定位"完整跑通整套基建"，重点优化稳定性、输出质量、推理效率与 Agent 泛化）、M3 Pro（参数量接近 3T，完成一轮重大架构升级，官方称 3T 档位推理速度与成本将有显著优势）均已接近完成（2026-08-26 中期业绩电话会 CEO 闫俊杰表态，媒体转述）[⚠️ 待验证]；未发布不列入主推表。同场确认视频线 H3.1 接近完成，详见 [公司分析](general_intro.md)
 
 ### MiniMax-M3
 
@@ -96,7 +97,7 @@
 |--------|--------|------|
 | 开源版本 | M1/M2/M3 已开源，M2.7 闭源 | M3 官方确认为开源权重模型 [来源: 用户口述] ⚠️ 待官方验证 |
 | 最大输出 | 16,384 tokens | 单次回复长度受限 |
-| 厂商背景 | MiniMax 非阿里云产品 | 需通过 MiniMax 开放平台调用，非百炼 |
+| 厂商背景 | MiniMax 非阿里云自研产品 | 主力模型经 MiniMax 开放平台调用（M2.5 已上架百炼北京节点，2026-09-02 核实；M3 等新模型仍走 MiniMax 平台） |
 
 ## 适用场景
 
@@ -122,12 +123,13 @@
 
 | 模型 | 输入 | 输出 | 上下文分档 |
 |------|------|------|------------|
-| **MiniMax-M3** | ¥4.2/M tokens | ¥16.8/M tokens | ≤512K [来源: finance.sina.com.cn] |
-| **MiniMax-M3** | ¥8.4/M tokens | ¥33.6/M tokens | 512K–1M [来源: finance.sina.com.cn] |
+| **MiniMax-M3** | ¥4.2/M tokens | ¥16.8/M tokens | ≤512K |
+| **MiniMax-M3** | ¥8.4/M tokens | ¥33.6/M tokens | 512K–1M |
 | **MiniMax-M2.7** | $1.00/M tokens | $5.00/M tokens | — |
 | Claude Opus 4.8 | $5.00/M tokens | $25.00/M tokens | — |
 | GPT-5.5 | $7.50/M tokens | $22.50/M tokens | — |
 
+> M3 按**单次请求的上下文长度**分档计价：请求上下文 ≤512K tokens 按低档价计，512K–1M 按高档价计（约 2 倍），并非两个价格并存。[来源: finance.sina.com.cn]
 > M3 有限时 7 天 5 折活动。支持 thinking / non-thinking 两种模式，共享定价。[来源: minimaxi.com/blog/minimax-m3]
 > M3（¥4.2）价格约为 Claude Opus 4.8（$5 ≈ ¥36）的 **约 1/8**，M2.7 时代相对 Opus 4.6 为 1/15。
 > M3 国际定价：MiniMax 官方平台 M3-Priority 永久5折价 $0.45/$1.80（≤512K），512K–1M 区间 $0.90/$3.60 [来源: api.minimax.chat]；OpenRouter 标准 M3 当前临时5折至 $0.30/$1.20（原价 $0.60/$2.40）[来源: openrouter.ai/minimax/minimax-m3，2026-06-14 核实]。
@@ -178,6 +180,8 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-09-02 | 校验修复（knowledge-verifier 2026-09-02 报告）：修正"非百炼"限制表述——M2.5 已上架百炼（北京节点）；H3 视频模型与 8 月动态已由同日合并写入 [公司分析](general_intro.md)，本文件不再重复 |
+| 2026-09-02 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20260902.md - 新增路线图标注（M3.1 / M3 Pro 接近完成，2026-08-26 电话会口径 ⚠️ 待验证，未发布不列入主推表） |
 | 2026-06-15 | M3 MSA 描述补充论文来源 arXiv:2606.13392，新增 [MSA 技术解读](msa-sparse-attention.md) 交叉链接 |
 | 2026-06-14 | 新增 M3 国际定价信息：M3-Priority 永久5折价 $0.45/$1.80（MiniMax 官方平台）、OpenRouter 标准 M3 临时5折 $0.30/$1.20 |
 | 2026-06-11 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20260611.md - M3 OpenRouter 排名 #3（2.89T/周，>999% 增长）、高调用量 5 大驱动因素、Token 消耗量驱动力洞察 |

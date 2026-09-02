@@ -1,6 +1,6 @@
 # Fun-Music（fun-music-v1）
 
-> 最后更新: 2026-07-30
+> 最后更新: 2026-09-02
 > 所属厂商: 阿里云（百炼平台）
 > 产品类别: MaaS
 > 状态: Published
@@ -58,7 +58,7 @@
 | 模型 | 输入价格 | 输出价格 | 缓存价格 | 备注 |
 |------|---------|---------|---------|------|
 | fun-music-v1 | 不计费 | $0.000275/秒 | N/A | 按输出音频秒数计费；国际站口径，部署于中国内地节点 |
-| fun-music-preview | 不计费 | $0.000695/秒 | N/A | 预览快照；北京节点免费额度 1,000 秒 |
+| fun-music-preview | 不计费 | $0.000695/秒 | N/A | 预览快照 |
 
 > 定价来源：[国际站官方定价页](https://www.alibabacloud.com/help/en/model-studio/model-pricing)，核实日期：2026-07-30
 
@@ -163,5 +163,6 @@ POST https://dashscope.aliyuncs.com/api/v1/services/audio/music/generation
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-09-02 | 校验修复（knowledge-verifier 2026-09-02 报告）：移除 fun-music-preview 免费额度 1,000 秒标注（定价页已无此额度） |
 | 2026-07-30 | 校验修复：填充定价（fun-music-v1 $0.000275/秒、preview $0.000695/秒，国际站口径）与上线时间（v1 2026-05-06、preview 2026-06-01），清除 4 处待补充 |
 | 2026-07-15 | 创建：基于用户实测（2 组 demo）+ 口述整理，按 `_maas_template.md` 结构化 |
