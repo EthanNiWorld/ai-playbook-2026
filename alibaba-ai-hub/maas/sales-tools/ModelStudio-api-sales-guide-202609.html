@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Model Studio API 销售快速指南 · 2026-09-02</title>
+<title>Model Studio API 销售快速指南 · 2026-09-07</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap');
 
@@ -516,7 +516,7 @@
 
   <!-- Hero -->
   <div class="hero">
-    <div class="hero-badge">📋 Model Studio · API 销售快速指南 · 2026-09-02</div>
+    <div class="hero-badge">📋 Model Studio · API 销售快速指南 · 2026-09-07</div>
     <h1><span class="highlight">百炼 API</span> 产品线速览</h1>
     <p class="hero-sub">阿里云一站式大模型服务平台，聚合自研 Qwen 与主流第三方模型，一套 API Key 统一调用；支持模型微调（fine-tuning）、评测（evaluation）、部署（deployment）、可观测监控（observability）、知识库（RAG）与 Agent 编排（agent building）。</p>
   </div>
@@ -586,7 +586,7 @@
           </div>
         </div>
       </div>
-      <div class="mx-foot">更多能力：<code>qwen3.7-text-embedding</code> 向量嵌入 · PTU 专属算力 · TPM 预留吞吐 —— 一套 API Key 调多家模型，OpenAI 兼容协议，迁移零成本。</div>
+      <div class="mx-foot">更多能力：<code>qwen3.7-text-embedding</code> 向量嵌入 · <code>qwen3.7-text-rerank</code> 重排序 · PTU 专属算力 · TPM 预留吞吐 —— 一套 API Key 调多家模型，OpenAI 兼容协议，迁移零成本。</div>
     </div>
 
     <!-- 百炼四大优势 -->
@@ -919,12 +919,15 @@
         </table>
       </div>
 
-      <div class="model-subsection">Embedding（向量嵌入）</div>
+      <div class="model-subsection">Embedding & Rerank（向量嵌入 & 重排序）</div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>模型</th></tr></thead>
+          <thead><tr><th>模型</th><th>用途</th></tr></thead>
           <tbody>
-            <tr><td class="model-name">qwen3.7-text-embedding（推荐，2026-07-15 上线）· text-embedding-v4</td></tr>
+            <tr><td class="model-name">qwen3.7-text-embedding<span class="badge badge-green">推荐</span></td><td>文本 → 语义向量：语义搜索 / RAG 的召回底座，性能最强（最高 2560 维，2026-07-15 上线）</td></tr>
+            <tr><td class="model-name">qwen3.7-text-embedding-flash</td><td>标准版轻量替身，成本仅 1/4：大规模建库、高频实时向量化首选</td></tr>
+            <tr><td class="model-name">qwen3.7-text-rerank</td><td>精排：按相关性对召回候选重排序，与 Embedding 组成 RAG 两阶段检索，精度再提升</td></tr>
+            <tr><td class="model-name">text-embedding-v4<span style="font-size:11px;color:var(--text-muted);">（上代）</span></td><td>上代向量模型，新项目请优先选用 qwen3.7 系列</td></tr>
           </tbody>
         </table>
       </div>

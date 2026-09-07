@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-09-02
+> 最后更新：2026-09-07
 
 ## 目录
 
@@ -24,6 +24,7 @@
 | 我想找… | 文档 |
 |---------|------|
 | Qwen / 通义千问 / 3.8-Max / 3.8-Flash / 3.7-Plus / 旗舰 | [Qwen](alibaba-ai-hub/maas/qwen.md) |
+| Qwen Embedding / Rerank / 向量化 / 重排序 / RAG 检索 / 精排 | [Qwen 向量与重排序](alibaba-ai-hub/maas/qwen-embedding-rerank.md) |
 | 万相 / Wan / 视频生成 / 图生视频 | [万相](alibaba-ai-hub/maas/wan.md) |
 | CosyVoice / 语音合成 / TTS / 声音复刻 | [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) |
 | FunASR / 语音识别 / ASR / 说话人分离 | [FunASR](alibaba-ai-hub/maas/funasr.md) |
@@ -116,6 +117,7 @@
 - [百炼平台](alibaba-ai-hub/maas/overview.md) — UID 级限流、多账号扩 TPM（8.5× 实测）、deepseek-v4-flash 压测
 - [百炼安全合规](alibaba-ai-hub/maas/model_studio_security-compliance_cn.md) — 算力隔离、SOC 2、ISO 42001、CMaaS、Geo-fencing、SLA
 - [Qwen](alibaba-ai-hub/maas/qwen.md) — 3.8-Max（旗舰，2.4T MoE / 1M ctx / TB 2.1 86.6，开源版 qwen3.8-2.4t-a95b 原生 262K 可扩展 ~1M）/ 3.7-Plus（多模态智能体）/ 3.8-Flash（新架构轻量，2026-08-26：125B/6B 激活 + 51B N-gram Embedding，GDN+QSA 混合注意力，1M ctx，¥0.8/¥2.7，取代 3.7-Flash）
+- [Qwen 向量与重排序](alibaba-ai-hub/maas/qwen-embedding-rerank.md) — qwen3.7-text-embedding（向量旗舰，256~2560 维）/ flash（1/4 价轻量）/ text-rerank（500 条候选精排），RAG 两阶段检索，含北京/新加坡定价与限流
 - [万相](alibaba-ai-hub/maas/wan.md) — 视频生成旗舰、首尾帧控制
 - [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) — TTS 主推引擎，声音复刻+声音设计+指令控制，将替代 Qwen-TTS
 - [FunASR](alibaba-ai-hub/maas/funasr.md) — ASR 主推引擎，六大能力一站式语音识别，将替代 Qwen3-ASR

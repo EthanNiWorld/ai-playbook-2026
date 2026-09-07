@@ -32,7 +32,8 @@
   - AttnRes：注意力跨层残差连接，训练效率 +25%，额外成本 <2%
   - 整体扩展效率 vs K2 提升约 2.5 倍
 - **上下文**：1M（1,048,576 tokens）
-- **多模态**：原生文本 + 图像 + 视频；Moonshot 官方 API 视觉输入仅支持 base64 / `ms://` 文件 ID（不支持公网图片 URL）
+- **多模态**：Moonshot 官方托管 API 支持 文本 + 图像 + 视频（视频经 files API 上传，`video_url` + `ms://<file-id>`，官方 Quickstart 有完整示例）；**开源权重（HF checkpoint）官方口径 Modality 仅 Text + Image，不支持视频输入**（GitHub README Model Summary 表格明示；vLLM day-0 多模态预处理亦为 image-only；2026-09-07 代码级验证：HF 仓库 `kimi_k3_processor.py` 仅识别 `image_url`/`image`，非 image 类型直接 raise ValueError，`media_utils.py` 的 `MediaInput=ImageInput` 无视频解码依赖，`encoding_k3.py` 无 video 逻辑）。官方 API 视觉输入仅支持 base64 / `ms://` 文件 ID（不支持公网图片 URL）
+- **开源权重视频"残留痕迹"**：`preprocessor_config.json` 保留完整视频参数（`sample_fps=8.0`、`in_patch_limit_video`、`temporal_merge_kernel_size`、`timestamp_mode`，对应内部 `MoonViTMediaProcessorConfig` 完整版）但开源代码不读取；`config.json` vision tower 预留 4 帧时序位置编码（`init_pos_emb_time=4`、`merge_type=sd2_tpool` 时序池化、pos_embed 借鉴 InternVideo）——架构留了口子但官方 processor 未提供视频路径
 - **思考模式**：始终开启，`reasoning_effort` 当前仅 `max` 档；temperature=1.0 / top_p=0.95 固定
 - **输出**：max_completion_tokens 默认 131,072，最大 1,048,576
 - **量化**：MXFP4 权重 + MXFP8 激活（SFT 阶段起量化感知训练）
@@ -154,7 +155,7 @@
 | 超长上下文 | K3 支持 1M tokens（1,048,576）；K2.x 为 256K |
 | 长周期编码 | 13 小时连续编码，1,000+ 工具调用，跨语言（Rust/Go/Zig/Python） |
 | Agent Swarm | 300 子 Agent 并发协作，4,000 协调步骤 |
-| 原生多模态 | 文本 + 图像 + 视频理解（MoonViT） |
+| 原生多模态 | 文本 + 图像 + 视频理解（MoonViT）；⚠️ K3 开源权重官方口径仅 Text + Image，视频输入仅官方托管 API 可用 |
 | 思考模式 | K2.6 可开关（enable_thinking）；**K2.7-Code 仅支持思考模式**（不支持关闭，temperature 固定 1.0） |
 | Tool Calling | 原生工具调用，支持 MCP 协议 |
 | 编码驱动设计 | 从提示生成完整前端 + 全栈应用 |
@@ -219,6 +220,7 @@ Kimi K2 系列模型权重开源（block-fp8 格式），推荐推理引擎：
 
 | 日期 | 变更内容 |
 |------|---------|
+| 2026-09-07 | 调研补充：区分 K3 官方托管 API 与开源权重的模态边界——开源权重（HF checkpoint）官方口径 Modality 仅 Text + Image、不支持视频输入（GitHub README Model Summary 表格 + vLLM day-0 "multimodal preprocessing (image-only)" + HF 仓库 py 源码级验证三重佐证），视频输入仅官方 API 可用（files API 上传 + `video_url` `ms://` 示例）；preprocessor_config.json 残留视频参数（sample_fps=8.0 等）+ vision tower 预留 4 帧时序 pos emb（init_pos_emb_time=4/sd2_tpool）确认架构留有视频口子但 processor 未开放；与百炼实测 k3 视频 400 结论一致 |
 | 2026-09-01 | 路径修复：`api-sample` 目录已重命名为 `maas-solution-and-api-sample`，更新实测脚本引用路径 |
 | 2026-08-24 | 实测补全：K3 百炼 MaaS 端点多模态实测（北京 workspace×2 + 新加坡节点三端点交叉验证）——k3 图片 base64/URL 均可用、视频不支持（400 报错）；同端点 kimi-k2.6 / kimi-k2.7-code 视频正常，确认系 k3 专属限制；补全 K3/K2.6 百炼接入信息；新增测试脚本 test_kimi_k3_multimodal.py |
 | 2026-07-17 | 合并：inbox K3 调研素材 — 新增 Kimi K3 章节（2.8T/1M/KDA/AttnRes），主推更新为 K3，新增 K3 Benchmark 表（AA 独立评测与官方口径分列），K2.6 定位调整为长程 Agent，K2.7-Code 调整为编码专精 |
