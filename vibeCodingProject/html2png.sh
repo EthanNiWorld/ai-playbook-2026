@@ -96,16 +96,20 @@ with sync_playwright() as p:
     page.wait_for_timeout(300)
 
     total_h = page.evaluate("document.documentElement.scrollHeight")
+    view_h = page.evaluate("window.innerHeight")
+    max_scroll = max(0, total_h - view_h)
     seg = 1200
     n = (total_h + seg - 1) // seg
     parts = []
     for i in range(n):
         y = i * seg
         h = min(seg, total_h - y)
-        page.evaluate(f"window.scrollTo(0, {y})")
+        # 滚动位置受 max_scroll 钳制；clip 为视口坐标，需补偿滚动差值，
+        # 否则末段（y > max_scroll）会重复截取中段、丢失页尾（CTA/页脚）
+        sy = min(y, max_scroll)
+        page.evaluate(f"window.scrollTo(0, {sy})")
         page.wait_for_timeout(150)  # 等待栅格化
-        # clip 为视口坐标系：滚动后目标段位于视口顶部
-        buf = page.screenshot(clip={'x': 0, 'y': 0, 'width': $WIDTH, 'height': h})
+        buf = page.screenshot(clip={'x': 0, 'y': y - sy, 'width': $WIDTH, 'height': h})
         parts.append(Image.open(io.BytesIO(buf)))
     browser.close()
 
