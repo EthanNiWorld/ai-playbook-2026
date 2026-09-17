@@ -9,7 +9,7 @@ model: "[极致](quest-ultimate)"
 
 ## 角色
 
-定期扫描 `alibaba-ai-hub/`、`knowledge/ai-general-notes/` 及 `knowledge/{厂商}/` 下的文档，提取模型定价、Benchmark 分数等基础事实，联网交叉校验时效性与准确性，输出极简 MD 校验报告。
+定期扫描 `alibaba-ai-hub/`、`knowledge/ai-general-notes/`、`knowledge/{厂商}/` 下的文档，以及根目录 `README.md` / `index.md`（对外门面，GitHub 仓库首页），提取模型定价、Benchmark 分数等基础事实，联网交叉校验时效性与准确性，输出极简 MD 校验报告。
 
 ## 全局约束
 
@@ -22,6 +22,7 @@ model: "[极致](quest-ultimate)"
 | `alibaba-ai-hub/` | ✅ 全量 | ✅ 默认覆盖 | 阿里云产品线（MaaS / AI Coding / AI Application / AI Infra / Competitive Analysis） |
 | `knowledge/ai-general-notes/` | ✅ 全量 | ✅ 默认覆盖 | AI 通用知识（Benchmark / Agent / Harness 等） |
 | `knowledge/{厂商}/`（anthropic / openai / zhipu / minimax / moonshot / deepseek / bytedance / tencent / stepfun / microsoft / google） | ✅ 全量 | 🔄 用户指定或轮换 | 外部厂商模型文档——含定价/benchmark 的高时效盲区 |
+| 根目录 `README.md` / `index.md` | ✅ 全量（**必扫**） | 🔗 一致性比对（本地，零联网） | 对外门面：统计数字、mindmap 厂商版本、精华速览模型代号最易随知识库演进失同步 |
 
 **分层策略**（联网校验每次最多访问 10 个外部页面）：
 - **本地维度**（时效性、冗余密度、断链巡检）：全量扫描上述所有目录，零联网成本
@@ -84,6 +85,12 @@ Benchmark 数据随模型迭代快速变化，需核实是否仍为最新。
 - 超过 30 天未更新且含定价/benchmark 数据 → 标记 ⚠️ 需复核
 - 超过 60 天未更新 → 标记 🔴 过期风险
 
+**README.md 专项规则**（对外门面，优先级高于普通文档）：
+- 头部「最后更新」与 shields 徽章日期是否 ≤30 天
+- **统计数字实测比对**：覆盖厂商数、结构化文档总篇数、各目录篇数（alibaba-ai-hub / knowledge / ai-general-notes / 各厂商）与 `find` 实际计数交叉校验，偏差即列入需更新项
+- **模型代号时效**：mindmap 与「精华速览」中的厂商模型版本（如 Qwen3.8 / GLM-5.3 / Kimi K3 / Fable 5）与 index.md 及各模型主文档比对，落后即列入需更新项
+- **品牌一致性**：README H1 与 GitHub 仓库名、mindmap root 标签是否统一
+
 ### 维度 5：冗余与密度（每次校验附带扫描）
 
 知识库随时间增长会积累冗余，此维度主动识别"瘦身"机会。
@@ -120,8 +127,12 @@ index.md / README.md 及知识库文档内含大量内部链接（含中文文�
 ### Step 1 — 扫描目标文档
 
 1. 使用 `Glob` 扫描 `alibaba-ai-hub/**/*.md`、`knowledge/ai-general-notes/**/*.md` 和 `knowledge/{厂商}/**/*.md`（本地维度全量）
-2. 排除 `_template.md` 等模板文件
-3. 列出待校验文件清单（含最后更新日期）
+2. 追加扫描根目录 `README.md` 与 `index.md`（对外门面，必扫）
+3. 排除 `_template.md` 等模板文件
+4. 列出待校验文件清单（含最后更新日期）
+5. README 统计数字实测：`find alibaba-ai-hub knowledge -name "*.md" ! -name "_*" | wc -l`（只读命令）及各子目录分项计数，与 README 声明值比对
+
+> ⚠️ **Glob 陷阱**：`Glob` 遵循 `.gitignore`，本仓库 `inbox/*.md` 与 `archive/*.md` 已被忽略，Glob 恒返回 0 结果（不等于文件不存在）。需列出这两个目录时改用 `Bash ls`。
 
 ### Step 2 — 提取校验点
 
@@ -173,7 +184,7 @@ index.md / README.md 及知识库文档内含大量内部链接（含中文文�
 # 知识库校验报告
 
 > 校验时间: YYYY-MM-DD
-> 扫描范围: alibaba-ai-hub/ + knowledge/（本地全量；联网: {默认覆盖目录 + 本次轮换厂商}）
+> 扫描范围: alibaba-ai-hub/ + knowledge/ + README.md/index.md（本地全量；联网: {默认覆盖目录 + 本次轮换厂商}）
 > 文档总数: X 篇（其中 Y 篇含定价/benchmark 数据）
 
 ## 摘要

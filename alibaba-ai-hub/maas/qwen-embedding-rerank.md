@@ -1,6 +1,6 @@
 # Qwen 向量与重排序（Embedding & Rerank）
 
-> 最后更新: 2026-09-07
+> 最后更新: 2026-09-17
 > 所属厂商: 阿里云（通义实验室）
 > 产品类别: MaaS
 > 状态: Published
@@ -17,8 +17,8 @@
 | 模型 | 角色 | 上下文 | 特点 | 推出时间 |
 |------|------|--------|------|----------|
 | qwen3.7-text-embedding | 向量旗舰 | 128K | 性能最强，维度最高 2560，支持稠密+稀疏混合检索 | [⚠️ 待补充] |
-| qwen3.7-text-embedding-flash | 向量轻量 | 128K | 价格为标准版 1/4，201 语种 + 128K 上下文全保留 | [⚠️ 待补充] |
-| qwen3.7-text-rerank | 检索精排 | 32K | 单次最多 500 条候选精排，websearch 较上代 +35% | [⚠️ 待补充] |
+| qwen3.7-text-embedding-flash | 向量轻量 | 128K | 价格为标准版 1/4，201 语种 + 128K 上下文全保留 | 2026-09-01 |
+| qwen3.7-text-rerank | 检索精排 | 32K | 单次最多 500 条候选精排，websearch 较上代 +35% | 2026-09-01 |
 
 ### qwen3.7-text-embedding（旗舰向量模型）
 - 模型：qwen3.7-text-embedding
@@ -33,7 +33,7 @@
 ### qwen3.7-text-embedding-flash（轻量向量模型）
 - 模型：qwen3.7-text-embedding-flash
 - 公司：阿里云（通义实验室）
-- 时间：[⚠️ 待补充]
+- 时间：2026-09-01（百炼上新）[来源: help.aliyun.com 上新页，2026-09-17 核实]
 - 尺寸：未公开
 - 上下文：131,072 tokens（128K）
 - 场景：大规模语料向量化、在线实时向量化、预算敏感的多语言场景
@@ -43,7 +43,7 @@
 ### qwen3.7-text-rerank（重排序模型）
 - 模型：qwen3.7-text-rerank
 - 公司：阿里云（通义实验室）
-- 时间：[⚠️ 待补充]
+- 时间：2026-09-01（百炼上新）[来源: help.aliyun.com 上新页，2026-09-17 核实]
 - 尺寸：未公开
 - 上下文：32,768 tokens（32K），单条文档最大 30,000 tokens
 - 场景：RAG 二阶段精排、搜索结果重排序、Agentic Memory 检索精排
@@ -86,6 +86,8 @@
 
 > 定价来源：https://help.aliyun.com/zh/model-studio/qwen3-7-text-embedding 、https://help.aliyun.com/zh/model-studio/qwen3-7-text-embedding-flash 、https://help.aliyun.com/zh/model-studio/qwen3-7-text-rerank ，核实日期：2026-09-07（不含限时优惠，以百炼控制台为准）
 
+> ⚠️ 国际站（USD）定价页未收录 qwen3.7-text-* 全系（2026-09-17 核实，仅列 text-embedding-v4/v3、qwen3-rerank 等旧代）——新加坡节点 USD 定价未上架，上表"新加坡"列为中国站模型信息页的 ¥ 口径参考。
+
 ## 适用场景
 
 ### ✅ 适用
@@ -110,4 +112,4 @@
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
-| 2026-09-07 | 创建：从 inbox 条目提炼 qwen3.7 三模型（embedding/embedding-flash/text-rerank）能力、定价、限流与适用场景，数据经百炼官方文档核实 |
+| 2026-09-17 | 校验修复（knowledge-verification-2026-09-17）：embedding-flash 与 text-rerank 上线时间回填 2026-09-01（百炼上新页）；新增"国际站 USD 定价页未收录 qwen3.7-text-* 全系"显式标注；旗舰 embedding 上线时间仍待补充 |

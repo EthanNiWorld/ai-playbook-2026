@@ -1,6 +1,6 @@
 # Qoder
 
-> 最后更新: 2026-07-09
+> 最后更新: 2026-09-17
 > 所属厂商: Alibaba (Alibaba Cloud)
 > 产品类别: AI Coding
 > 状态: Published
@@ -35,7 +35,7 @@
 | Qoder IDE | 原生 AI IDE 开发环境 |
 | JetBrains 插件 | 适配 IntelliJ IDEA 等 JetBrains 全系 IDE |
 | Qoder CLI | 终端原生工作形态 |
-| QoderWork | 桌面 Agent、本地智能助手 |
+| QoderWork | 桌面 Agent、本地智能助手 ⚠️ **已下架**（2026-09 `[来源: 用户口述]`，待官方验证；由千问办公 QwenWork 承接，详见 [qoder-work.md](../ai-application/qoder-work.md)） |
 | QoderWake | 后台智能任务执行 |
 | Cloud Agents | 云端自主智能体 |
 | Qoder Mobile | 移动端 AI 编程 |
@@ -187,6 +187,7 @@ Qoder 采用 Credit 计量制而非纯席位订阅，背后逻辑：
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-09-17 | 增量：用户口述 - QoderWork（桌面 Agent）标注已下架，待官方验证 |
 | 2026-04-20 | 初始创建（Draft） |
 | 2026-05-26 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20260526.md - 完善产品定位、4大核心模式、计费模式、安全合规、竞品对照 |
 | 2026-06-08 | 增量：用户口述 - 新增 Qoder CLI 技术栈演进（Go → TypeScript，7人30天）及切换原因分析 |

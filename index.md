@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-09-07
+> 最后更新：2026-09-17
 
 ## 目录
 
@@ -37,7 +37,8 @@
 | Salebook / ROI 计算器 / 售前工具 | [sales-tools/](alibaba-ai-hub/maas/sales-tools/) |
 | Qoder / AI 编程 / IDE 插件 | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) |
 | Qoder 架构 / Harness 逆向 / 执行日志分析 | [Qoder IDE 架构逆向分析](alibaba-ai-hub/ai-coding/qoder_survey_20260622.md) |
-| QoderWork / 桌面助手 / 本地 Agent | [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) |
+| QwenWork / 千问办公 / Agent 办公平台 | [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) |
+| QoderWork / 桌面助手 / 本地 Agent（已下架，由 QwenWork 承接） | [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) |
 | 万镜一刻 / WonderClip / AI视频创作 / 短剧 | [万镜一刻](alibaba-ai-hub/ai-application/wonderclip万镜一刻.md) |
 | MuleRun / 骡子快跑 / 云端 Agent / vs QoderWork | [MuleRun](alibaba-ai-hub/ai-application/mulerun.md) |
 | GPU 选型 / A100 / H100 / H20 | [GPU 选型决策树](alibaba-ai-hub/ai-infra/gpu-product-line.md) ⭐ |
@@ -128,7 +129,7 @@
 - [百炼权限配置指南](alibaba-ai-hub/maas/model_studio_config/model-studio-workspace-permission-guide.md) — RAM 子账号、工作空间、API Key 全流程截图
 
 **售前工具（Sales Tools）**
-- [百炼 API 销售指南 0720 版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20260720.md)（MD/HTML） · [0831 新版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20260831.html)（HTML/PNG） — 售前话术、模型选型、客户问答
+- [百炼 API 销售指南 0720 版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20260720.md)（MD/HTML） · [0930 新版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20260930.html)（HTML + 0831 PNG） — 售前话术、模型选型、客户问答
 - [阿里云 AI 解决方案专家提示词](alibaba-ai-hub/maas/sales-tools/ModelStudio-solution-expert-prompt-20260827.md) — 数字分身 System Prompt（模型矩阵/价格口径/ROI 测算信源）
 - [Qwen3.7-Max Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-max-salebook.html) · [Qwen3.7-Plus Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-plus-salesbook.html)（[e 版](alibaba-ai-hub/maas/sales-tools/qwen3.7-plus-salesbook-e.html)） · [三模型联合 Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-max-glm-kimi-salebook.html)
 - [DeepSeek-V4 TPM ROI 计算器](alibaba-ai-hub/maas/sales-tools/deepseek-v4-tpm-vs-modelstudio-roi.html) · [GLM-5.2 TPM ROI 计算器](alibaba-ai-hub/maas/sales-tools/glm5.2-tpm-vs-modelstudio-roi.html)
@@ -141,7 +142,8 @@
 
 **AI App**
 - [万镜一刻](alibaba-ai-hub/ai-application/wonderclip万镜一刻.md) — 全链路AI视频创作平台，短漫剧+营销，HappyHorse+Wan，$18–$12,000/月
-- [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) — 桌面 Agent、本地
+- [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) — 千问办公，一站式 Agent 办公平台（整合 QoderWork / 悟空 / MuleRun）
+- [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) — 桌面 Agent、本地（已下架，由 QwenWork 承接）
 - [MuleRun](alibaba-ai-hub/ai-application/mulerun.md) — 云端 Agent、Always-On
 - [龙虾家族](alibaba-ai-hub/ai-application/claw-family.md)
 - [JVS Crew](alibaba-ai-hub/ai-application/jvs-crew.md)
@@ -184,7 +186,7 @@
 
 - 公司分析: [DeepSeek 公司分析](knowledge/deepseek/general_intro.md) ⭐ — MLA+MoE 架构创新、R1 纯 RL 推理、V4 开源 SOTA、557 万美元训练成本、"DeepSeek 时刻"、**Harness 团队组建（2026-05，对标 Claude Code）**
 - 模型系列:
-  - [V 系列](knowledge/deepseek/deepseek-v-series.md) — V1 / V2 / V3 / V3.2 / **V4（Pro GA 0813：TB 2.1 87.9 / 384K 输出 / 峰谷定价；Flash 0731 正式版）**
+  - [V 系列](knowledge/deepseek/deepseek-v-series.md) — V1 / V2 / V3 / V3.2 / **V4.1 Flash（0910：552B CED 非对称架构、原生视觉、官方声明全面超越 V4 Pro、闲时输出 ¥4/M）** / V4（Pro GA 0813：TB 2.1 87.9 / 384K 输出 / 峰谷定价；Flash 0731 已下线）
   - [R 系列](knowledge/deepseek/deepseek-r-series.md) — R1 / R1-0528 / R2
 - 知识地图: [DeepSeek AI 知识全景图](knowledge/deepseek/deepseek-ai-knowledge-map-JD-202606.html) — 202606 全景图（HTML）
 

@@ -1,6 +1,6 @@
 # MAI 模型家族
 
-> 最后更新: 2026-06-07
+> 最后更新: 2026-09-17
 > 所属厂商: Microsoft AI (MAI)
 > 产品类别: AI 模型（推理 / 编码 / 图像 / 语音 / 转录）
 > 状态: Published
@@ -14,17 +14,15 @@
 **常搭配**: GitHub Copilot、VS Code、Microsoft Foundry、Azure
 <!-- SUMMARY_END -->
 
-> ⚠️ 素材截止：2026-06-07。模型版本/定价/可用性等可能已有更新，使用前请验证。
-
 ## 当前主推模型
 
 | 模型 | 定位 | 激活参数 / 总参数 | 上下文 | 核心特点 | 推出时间 |
 |------|------|-------------------|--------|----------|----------|
 | 🚩 MAI-Thinking-1 | 推理旗舰 | 35B / ~1T（Sparse MoE） | 256K | AIME 2026 94.5%、SWE-Bench Pro 与 Opus 4.6 持平 | 2026-06-02 |
-| MAI-Code-1-Flash | 高效编码 | 5B / 137B（MoE） | [⚠️ 待补充] | Token 消耗减少 60%、已集成 GitHub Copilot/VS Code | 2026-06-02 |
-| MAI-Image-2.5 (+Flash) | 图像生成/编辑 | [⚠️ 待补充] | — | Arena 评分超 Nano Banana Pro | 2026-06-02 |
-| MAI Transcribe-1.5 | 转录 SOTA | [⚠️ 待补充] | — | 43 语言、5 倍速度、领域术语支持 | 2026-06-02 |
-| MAI-Voice-2 (+Flash) | 语音合成 | [⚠️ 待补充] | — | 15 语言、小样本声音适配 | 2026-06-02 |
+| MAI-Code-1-Flash | 高效编码 | 5B / 137B（MoE） | 256K（ℹ️ 第三方转述官方模型卡） | Token 消耗减少 60%、已集成 GitHub Copilot/VS Code | 2026-06-02 |
+| MAI-Image-2.5 (+Flash) | 图像生成/编辑 | 未公开 | — | Arena 评分超 Nano Banana Pro | 2026-06-02 |
+| MAI Transcribe-1.5 | 转录 SOTA | 未公开 | — | 43 语言、5 倍速度、领域术语支持 | 2026-06-02 |
+| MAI-Voice-2 (+Flash) | 语音合成 | 未公开 | — | 15 语言、小样本声音适配 | 2026-06-02 |
 
 ### MAI-Thinking-1
 - 模型：MAI-Thinking-1
@@ -50,7 +48,7 @@
 - 时间：2026 年 6 月（Build 2026 发布）
 - 架构：Mixture of Experts（MoE）
 - 尺寸：5B 激活参数 / 137B 总参数
-- 上下文：[⚠️ 待补充]
+- 上下文：256K tokens（ℹ️ 第三方转述官方模型卡：decodethefuture.org / implicator.ai 一致引述 256,000；官方模型卡 PDF 直读失败未取得一手确认）
 - 场景：轻量级编码辅助、代码补全、Agentic coding
 - 特点：
   - 推理高效，对标 Haiku 级别但更便宜
@@ -64,28 +62,28 @@
 - 模型：MAI-Image-2.5 / MAI-Image-2.5-Flash
 - 公司：Microsoft AI
 - 时间：2026 年 6 月
-- 尺寸：[⚠️ 待补充]
+- 尺寸：未公开
 - 场景：文生图、图像编辑
 - 特点：Arena 评分超过 Nano Banana Pro；Flash 变体为超高效版本
-- 可用性：[⚠️ 待补充]
+- 可用性：Microsoft Foundry + OpenRouter / Fireworks / Baseten 第三方分发 [来源: microsoft.ai 官方博客，2026-06-02]
 
 ### MAI Transcribe-1.5
 - 模型：MAI Transcribe-1.5
 - 公司：Microsoft AI
 - 时间：2026 年 6 月
-- 尺寸：[⚠️ 待补充]
+- 尺寸：未公开
 - 场景：语音转文本、多语言转录
 - 特点：SOTA 精度、5 倍速度（vs 竞品）、43 语言、领域特定术语支持
-- 可用性：[⚠️ 待补充]
+- 可用性：Microsoft Foundry + OpenRouter / Fireworks / Baseten 第三方分发 [来源: microsoft.ai 官方博客，2026-06-02]
 
 ### MAI-Voice-2 (+ Flash)
 - 模型：MAI-Voice-2 / MAI-Voice-2-Flash
 - 公司：Microsoft AI
 - 时间：2026 年 6 月（Flash 变体 coming soon）
-- 尺寸：[⚠️ 待补充]
+- 尺寸：未公开
 - 场景：语音合成、多语言 TTS
 - 特点：15 语言、小样本声音适配、内置滥用防护；Flash 变体为低成本超高效版本
-- 可用性：[⚠️ 待补充]
+- 可用性：Microsoft Foundry + OpenRouter / Fireworks / Baseten 第三方分发 [来源: microsoft.ai 官方博客，2026-06-02]
 
 ## 核心能力与限制
 
@@ -109,7 +107,7 @@
 |--------|--------|------|
 | 私有预览 | MAI-Thinking-1 仅 Microsoft Foundry 私有预览 | 公开预览时间待定 |
 | 编码模型可用范围 | MAI-Code-1-Flash 目前仅限 GitHub Copilot + VS Code | 滚动上线中 |
-| 多模态模型详情 | Image-2.5 / Voice-2 / Transcribe-1.5 参数/定价未公开 | [⚠️ 待补充] |
+| 多模态模型详情 | Image-2.5 / Voice-2 / Transcribe-1.5 参数/定价未公开 | 可用性已确认：Foundry + OpenRouter/Fireworks/Baseten 第三方分发（2026-09-17 复核官方博客）；参数与定价官方仍未披露 |
 | 训练数据性质 | 虽强调"商业许可"，实际含 Common Crawl 和公开网络爬取 | 见"常见误解" |
 
 ## 适用场景
@@ -171,11 +169,11 @@
 
 | 维度 | MAI-Thinking-1 | Claude Opus 4.6 | GPT 5.4 |
 |------|----------------|-----------------|---------|
-| 架构 | Sparse MoE 35B 激活 / ~1T 总参 | [⚠️ 待补充] | [⚠️ 待补充] |
+| 架构 | Sparse MoE 35B 激活 / ~1T 总参 | 未公开 | 未公开 |
 | AIME 2026 | 94.5% | — | — |
 | SWE-Bench Pro | 与 Opus 4.6 持平 | 持平 | — |
 | 盲测 vs Sonnet 4.6 | 偏好优于 | — | — |
-| 上下文 | 256K | [⚠️ 待补充] | [⚠️ 待补充] |
+| 上下文 | 256K | 1M（2026-03-14 起标准价 GA）[来源: anthropic.com/news/claude-opus-4-6] | 256K–1M [来源: 库内 gpt-5-series.md] |
 | 可用性 | Foundry 私有预览 | 已公开 | 已公开 |
 
 | 维度 | MAI-Code-1-Flash | Claude Haiku 4 |
@@ -197,4 +195,4 @@
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
-| 2026-06-07 | 创建：基于 Build 2026 公告及 Simon Willison 报道，新建 MAI 模型家族文档（7 款模型全景 + benchmark + 战略分析） |
+| 2026-09-17 | 合并：knowledge-verification-2026-09-17 报告 — 14 项待补充系统补研：Code-1-Flash 上下文回填 256K（ℹ️ 第三方转述官方模型卡）；Image-2.5/Transcribe-1.5/Voice-2 尺寸确认为官方未公开、可用性回填（Foundry + OpenRouter/Fireworks/Baseten 第三方分发，官方博客 2026-06-02）；竞品对照表 Opus 4.6 上下文 1M（2026-03-14 GA 标准价）/ GPT 5.4 256K-1M 回填、两者架构标未公开；解除僵尸文档标注 |
