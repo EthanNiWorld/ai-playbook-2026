@@ -129,7 +129,7 @@
 - [百炼权限配置指南](alibaba-ai-hub/maas/model_studio_config/model-studio-workspace-permission-guide.md) — RAM 子账号、工作空间、API Key 全流程截图
 
 **售前工具（Sales Tools）**
-- [百炼 API 销售指南 0720 版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20260720.md)（MD/HTML） · [0930 新版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20260930.html)（HTML + 0831 PNG） — 售前话术、模型选型、客户问答
+- [百炼 API 销售指南 0720 版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20260720.md)（MD/HTML） · [1130 新版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20261130.html)（HTML/PNG） — 售前话术、模型选型、客户问答
 - [阿里云 AI 解决方案专家提示词](alibaba-ai-hub/maas/sales-tools/ModelStudio-solution-expert-prompt-20260827.md) — 数字分身 System Prompt（模型矩阵/价格口径/ROI 测算信源）
 - [Qwen3.7-Max Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-max-salebook.html) · [Qwen3.7-Plus Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-plus-salesbook.html)（[e 版](alibaba-ai-hub/maas/sales-tools/qwen3.7-plus-salesbook-e.html)） · [三模型联合 Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-max-glm-kimi-salebook.html)
 - [DeepSeek-V4 TPM ROI 计算器](alibaba-ai-hub/maas/sales-tools/deepseek-v4-tpm-vs-modelstudio-roi.html) · [GLM-5.2 TPM ROI 计算器](alibaba-ai-hub/maas/sales-tools/glm5.2-tpm-vs-modelstudio-roi.html)
