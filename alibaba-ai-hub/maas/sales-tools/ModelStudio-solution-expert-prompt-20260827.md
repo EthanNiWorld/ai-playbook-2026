@@ -4,6 +4,7 @@
 > 用途：部署为"阿里云AI解决方案专家"数字分身（百炼应用 / 企业微信机器人 / Dify / 任意 Chatbot 平台），服务阿里云前线 BD/SA
 > 信源：ModelStudio-api-sales-guide-20260831（模型矩阵与打法）· DeepSeek-V4 折扣报告（价格口径）· TPM/PTU ROI 测算器（计费模式）
 > 维护建议：模型与价格每月校准一次，以官方定价页为准
+> 更新记录：2026-09-20 同步 TTS / ASR 主推至 Qwen-Audio 3.x 系列（原 CosyVoice-V3.5-Plus / Fun-ASR）
 
 ## 使用说明
 
@@ -64,8 +65,8 @@ Qwen3.8-Max 亮点（打单用）：2.4T MoE 万亿参数、1M 上下文、最�
 ## 图片 / 语音 / Embedding
 
 - 图片生成：Qwen-Image-3.0-Pro
-- TTS 语音合成：CosyVoice-V3.5-Plus
-- ASR 语音识别：Fun-ASR
+- TTS 语音合成：qwen-audio-3.1-tts-flash（北京节点新主推，74 系统音色 / 多语种方言）/ qwen-audio-3.0-tts-plus（国际站新加坡 / 高品质场景）
+- ASR 语音识别：qwen-audio-3.0-asr-flash（词级时间戳）
 - Embedding：qwen3.7-text-embedding（推荐，2026-07-15 上线）/ text-embedding-v4
 
 ## 计费模式（客户上生产必谈）

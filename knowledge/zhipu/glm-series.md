@@ -1,6 +1,6 @@
 # 智谱 GLM 系列模型
 
-> 最后更新: 2026-09-02
+> 最后更新: 2026-09-24
 > 所属厂商: 智谱 AI（Zhipu AI）
 > 产品类别: MaaS
 > 状态: Published
@@ -28,9 +28,11 @@
 - **架构**：总参数 ~743B MoE，与 GLM-5.2 共享同一基座（GLM-5/5.1/5.2/5.3 四代同基座）
 - **上下文**：1M tokens，最大输出 128K
 - **思考模式**：始终启用思考（不支持禁用），支持 low / high / max 三级
+- **工具调用（tool_choice）实测**：指定函数的嵌套格式 `{"type":"function","function":{"name":...}}` 与 `"auto"` / `"required"` / `"none"` 字符串在百炼国际站均正常（2026-09-24 实测，新加坡 workspace + 美西 dashscope-us 双端点，强制指定 get_weather 时模型正确发起调用）；平铺格式 `{"type":"function","name":...}` 报 400 `Expected field function in tool_choice`。对比：同端点 qwen3.8-max 在思考模式下不支持 tool_choice 为 required/对象，glm-5.3 无此限制。测试脚本：[test_glm53_tool_choice.py](../../alibaba-ai-hub/maas/maas-solution-and-api-sample/test_glm53_tool_choice.py)
 - **可用性**：API 已于 2026-08-19 上线（百炼国际站定价与 GLM-5.2 持平：$1.400/$4.400，2026-09-02 核实）；Coding Plan 已全量上线 GLM-5.3
 - **开源**：已于 2026-08-28 开放权重（发布两周后兑现承诺），解除待验证
 - **核心理念**："基座模型没变，但通过极致的后训练 Scaling 大大提高了模型的智能上界" [来源: docs.bigmodel.cn]
+- **生产推理栈**：SGLang 基座自研引擎 + EPD 分离 + DeepEP（EP 通信）+ [Mooncake Transfer](../ai-general-notes/inference-serving-stack/Mooncake.md)（KV cache 跨节点传输）+ 10 万张国产芯片。2026-09 智谱 RSI 长文披露工程细节：DeepEP v2.1 的 intranode_dispatch/intranode_combine 两处 C++ 调用未显式释放 GIL，阻塞同进程内 Mooncake Transfer 的 Python 线程，KV Transfer 与后续计算的 overlap 被压缩；释放 GIL 后 Prefill+KV Transfer 吞吐大幅提升（10 万卡集群端到端 3 倍优化的一部分）。SGLang 基座与 EPD 分离的官方口径详见 GLM-5.3-Flash 小节 [来源: InfoQ 2026-09-18 智谱 RSI 长文]
 
 #### GLM-5.3 基准分数（vs GLM-5.2）
 
@@ -298,6 +300,8 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-09-24 | 新增：GLM-5.3 tool_choice 兼容性实测（百炼国际站新加坡 workspace + 美西 dashscope-us 双端点）——嵌套对象/字符串格式均正常且模型正确发起调用，平铺格式报 400；附带发现同端点 qwen3.8-max 思考模式不支持 tool_choice 对象/required，glm-5.3 无此限制 |
+| 2026-09-20 | 合并：inbox 2026-09-20 素材 - GLM-5.3 小节新增生产推理栈（SGLang 基座 + EPD 分离 + DeepEP + Mooncake Transfer + 10 万张国产芯片，源自智谱 RSI 长文），交叉链接 inference-serving-stack/Mooncake.md |
 | 2026-09-02 | 校验修复（knowledge-verifier 2026-09-02 报告）：解除 GLM-5.3 待验证——API 已于 08-19 上线（定价与 5.2 持平）、权重已于 08-28 开源；补 GLM-5.2 百炼国际站定价 $1.400/$4.400（新加坡）；主推表 / 头部 / 能力表 / 场景表同步 |
 | 2026-09-02 | GLM-5.3-Flash 小节新增"原生多模态"定义澄清（单模型多模态输入/预训练即多模态/视觉内生 Agent 循环；输出仅文本）与"非 5.3/5.2 同基座轻量版"说明（全新架构 320B-A18B，官方对标 GLM-4.5 量级） |
 | 2026-09-02 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20260902.md - 新增 GLM-5.3-Flash 小节（2026-08-26 发布并开源：320B-A18B、系列首个原生多模态、稀疏+线性混合注意力、AA 57、¥0.8/¥2.8、MIT、10 万张国产芯片、Ox-Alpha 盲测营销）；主推表加入 Flash 行；头部"不适用"与核心限制/场景表按模型区分修正；交叉链接 [开源权重下的 API 定价下限](../ai-general-notes/open-weights-api-pricing-floor.md) |

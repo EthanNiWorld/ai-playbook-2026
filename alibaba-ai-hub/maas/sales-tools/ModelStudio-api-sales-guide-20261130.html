@@ -537,9 +537,9 @@
           </div>
           <div class="mx-group">
             <div class="mx-names">
-              <span><b>Q</b>wen3.5-Omni-Plus-Realtime</span><span><b>Q</b>wen3.5-Omni-Flash-Realtime</span>
+              <span><b>Q</b>wen3.5-Omni-Plus-Realtime</span><span><b>Q</b>wen3.8-Omni-Flash<em>offline</em></span>
             </div>
-            <div class="mx-bar">Qwen Omni · 多模态实时</div>
+            <div class="mx-bar">Qwen Omni · 实时/离线</div>
           </div>
           <div class="mx-group">
             <div class="mx-vendors">
@@ -577,11 +577,11 @@
         <!-- 语音 -->
         <div class="mx-panel mx-p3">
           <div class="mx-group">
-            <div class="mx-names"><span><b>C</b>osyVoice-V3.5-Plus</span><span><b>Q</b>wen-Audio-3.0-TTS-Plus</span></div>
+            <div class="mx-names"><span><b>Q</b>wen-Audio-3.1-TTS-Flash<em>主推 · 北京</em></span><span><b>Q</b>wen-Audio-3.0-TTS-Plus</span></div>
             <div class="mx-bar">Text to Speech · TTS</div>
           </div>
           <div class="mx-group">
-            <div class="mx-names"><span><b>F</b>un-ASR</span><span><b>Q</b>wen-Audio-3.0-ASR-Flash</span></div>
+            <div class="mx-names"><span><b>Q</b>wen-Audio-3.0-ASR-Flash<em>主推</em></span></div>
             <div class="mx-bar">Speech Recognition · ASR</div>
           </div>
         </div>
@@ -672,7 +672,7 @@
             </tr>
             <tr>
               <td><span class="model-name">Qwen3.8-27B</span><span class="badge badge-plus">开源版本</span></td>
-              <td>对话、客服、实时交互<br>VL 视觉分析 · GUI/CLI Agent<br>私有化部署 / 数据合规</td>
+              <td>开源私有化 / 稳定版本镜像<br>对话、客服、实时交互<br>VL 视觉分析 · GUI/CLI Agent</td>
               <td>27B Dense 原生多模态（图/视频）<br>262K 原生上下文（可扩展 1M）<br><span style="font-size:11px;color:var(--text-muted);">开源权重 + 百炼 API 双形态 · GUI Agent 官方 OSWorld-Verified 84.3（超 Opus 4.6 Max）· 新加坡 $0.5/$3</span></td>
             </tr>
             <tr>
@@ -687,12 +687,10 @@
       <div class="formula">
         <h4>选型口诀</h4>
         <ul>
-          <li>需要<strong>秒级响应</strong>（对话 / 客服 / VL 识别 / GUI Agent）→ <strong>Qwen3.8-27B（开源）</strong></li>
-          <li>需要<strong>旗舰能力</strong>（重度代码 / 复杂推理 / 长程 Agent / 图文理解）→ <strong>Qwen3.8-Max</strong></li>
-          <li>需要<strong>极致性价比</strong>（IPC / 审校 / 大批量打标 / 高并发）→ <strong>Qwen3.8-Flash</strong></li>
+          <li><strong>90% 客户</strong>用 <strong>Qwen3.8-Flash</strong> 就够了 — 成本敏感场景的最优解（IPC / 审校 / 大批量打标 / 高并发）</li>
+          <li>需要<strong>旗舰能力</strong>（重度代码 / 复杂推理 / 长程 Agent / 图文理解）→ <strong>Qwen3.8-Max</strong>，旗舰场景首选</li>
+          <li>要求<strong>开源与稳定版本镜像</strong>（私有化部署 / 数据合规 / 版本可控）→ <strong>Qwen3.8-27B</strong>，兼顾秒级响应对话 / 客服 / GUI Agent</li>
         </ul>
-        <div class="hint">90% 客户用 Qwen3.8-27B 就够了（开源可私有化），Qwen3.8-Max 是旗舰场景首选，Qwen3.8-Flash 是成本敏感场景的最优解</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:6px;padding-left:4px;">📌 <strong>Qwen3.8-Flash 上线</strong>（2026-08-26，取代 Qwen3.7-Flash）：Next 新架构首发（Qwen4 雏形），SWE-bench Pro 62.5 领先同档；OpenAI + Anthropic 双协议兼容。&nbsp;📌 <strong>Qwen3.8-Max 缓存命中 $0.25</strong>（仅输入价 12.5%，为上代旗舰一半），长上下文多轮场景成本再降。</div>
       </div>
 
       <div class="model-subsection">第三方模型（百炼同样支持）</div>
@@ -762,24 +760,6 @@
         </div>
       </div>
 
-      <div class="model-subsection" style="margin-top:16px;">PTU 核心优势</div>
-      <div class="ptu-grid">
-        <div class="ptu-card">
-          <div class="emoji">🚀</div>
-          <div class="label">高速</div>
-          <div class="desc">生成速度达标准 API 的 1.5~2 倍</div>
-        </div>
-        <div class="ptu-card">
-          <div class="emoji">🔒</div>
-          <div class="label">独占</div>
-          <div class="desc">专属资源，不受共享池波动</div>
-        </div>
-        <div class="ptu-card">
-          <div class="emoji">📈</div>
-          <div class="label">可预测</div>
-          <div class="desc">固定吞吐，SLA 承诺保障</div>
-        </div>
-      </div>
     </div>
 
     <!-- 视频生成 -->
@@ -907,8 +887,9 @@
         <table>
           <thead><tr><th>模型</th><th>用途</th></tr></thead>
           <tbody>
-            <tr><td class="model-name">cosyvoice-v3.5-plus</td><td>语音合成（TTS）</td></tr>
-            <tr><td class="model-name">fun-asr</td><td>语音识别（ASR）</td></tr>
+            <tr><td class="model-name">qwen-audio-3.1-tts-flash</td><td>语音合成（TTS）· 北京节点新主推 · 74 系统音色（含多语种 / 方言），2026-09-18 上线</td></tr>
+            <tr><td class="model-name">qwen-audio-3.0-tts-plus</td><td>语音合成（TTS）· 国际站（新加坡）/ 高品质场景 · 指令控制 / 声音复刻</td></tr>
+            <tr><td class="model-name">qwen-audio-3.0-asr-flash</td><td>语音识别（ASR）· 词级时间戳</td></tr>
           </tbody>
         </table>
       </div>
@@ -941,11 +922,7 @@
         </div>
         <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--surface);border-radius:12px;border:1px solid var(--border);">
           <span style="font-size:18px;flex-shrink:0;">②</span>
-          <div><strong style="color:var(--text);">老模型不打折</strong> — <span style="color:var(--text-secondary);font-size:13px;">历史版本不降价，花同样的钱不如直接用新的</span></div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--surface);border-radius:12px;border:1px solid var(--border);">
-          <span style="font-size:18px;flex-shrink:0;">③</span>
-          <div><strong style="color:var(--text);">老模型无法扩容</strong> — <span style="color:var(--text-secondary);font-size:13px;">资源优先保障新模型，老版本限流无扩容路径</span></div>
+          <div><strong style="color:var(--text);">老模型不打折且 TPM/RPM 无法扩容</strong> — <span style="color:var(--text-secondary);font-size:13px;">历史版本不降价、也无扩容路径，花同样的钱不如直接用新模型</span></div>
         </div>
       </div>
     </div>

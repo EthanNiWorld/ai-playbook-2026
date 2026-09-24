@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-09-17
+> 最后更新：2026-09-20
 
 ## 目录
 
@@ -26,7 +26,7 @@
 | Qwen / 通义千问 / 3.8-Max / 3.8-Flash / 3.7-Plus / 旗舰 | [Qwen](alibaba-ai-hub/maas/qwen.md) |
 | Qwen Embedding / Rerank / 向量化 / 重排序 / RAG 检索 / 精排 | [Qwen 向量与重排序](alibaba-ai-hub/maas/qwen-embedding-rerank.md) |
 | 万相 / Wan / 视频生成 / 图生视频 | [万相](alibaba-ai-hub/maas/wan.md) |
-| CosyVoice / 语音合成 / TTS / 声音复刻 | [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) |
+| Qwen-Audio-TTS / 语音合成 / TTS / 声音复刻 | [Qwen-Audio TTS](alibaba-ai-hub/maas/qwen-audio-tts.md) · [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md)（前主推） |
 | FunASR / 语音识别 / ASR / 说话人分离 | [FunASR](alibaba-ai-hub/maas/funasr.md) |
 | Qwen-Audio / Qwen-Audio-3.0-ASR / LLM 语音识别 / 即时热词 | [Qwen-Audio ASR](alibaba-ai-hub/maas/qwen-audio-asr.md) |
 | HappyHorse / 快乐小马 / AI 视频生成 / 音视频联合生成 | [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) |
@@ -53,6 +53,7 @@
 | 长程任务 / Long Horizon / METR / 8 小时 / 策略切换 | [长程任务](knowledge/ai-general-notes/long-horizon-task.md) ⭐ |
 | 前沿模型路线 / 选型框架 / Fable 5 vs Qwen vs GPT | [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) |
 | 推测解码 / Speculative Decoding / DSpark / 推理加速 | [推测解码](knowledge/ai-general-notes/speculative-decoding.md) ⭐ |
+| vLLM / SGLang / 推理引擎 / PagedAttention / RadixAttention / PD 分离 / EPD 分离 / Mooncake / KV Cache 传输 | [vLLM](knowledge/ai-general-notes/inference-serving-stack/vllm.md) · [SGLang](knowledge/ai-general-notes/inference-serving-stack/sglang.md) · [Mooncake](knowledge/ai-general-notes/inference-serving-stack/Mooncake.md) · [EPD 分离](knowledge/ai-general-notes/inference-serving-stack/epd-disaggregation.md) |
 | 安全护栏 / 分类器拦截 / 降级兜底 / 护栏粒度 / CVP | [安全护栏粒度](knowledge/ai-general-notes/safety-guardrail-granularity.md) ⭐ |
 | MSA / 稀疏注意力 / MiniMax 架构 | [MSA 稀疏注意力](knowledge/minimax/msa-sparse-attention.md) |
 | Claude / Opus 5 / Sonnet 5 / Fable 5 / Haiku | [Claude API](knowledge/anthropic/claude-api.md) |
@@ -110,7 +111,7 @@
 
 > 分组顺序：**云厂商**（阿里云 / Google）→ **海外模型厂商** → **中国模型厂商**。
 
-### 🟧 阿里云（核心阵地，30 篇深度文档）
+### 🟧 阿里云（核心阵地，31 篇深度文档）
 
 > **从底层算力到上层应用，覆盖 MaaS / AI Coding / AI App / AI Infra / 竞品对比全链路。**
 
@@ -120,8 +121,9 @@
 - [Qwen](alibaba-ai-hub/maas/qwen.md) — 3.8-Max（旗舰，2.4T MoE / 1M ctx / TB 2.1 86.6，开源版 qwen3.8-2.4t-a95b 原生 262K 可扩展 ~1M）/ 3.7-Plus（多模态智能体）/ 3.8-Flash（新架构轻量，2026-08-26：125B/6B 激活 + 51B N-gram Embedding，GDN+QSA 混合注意力，1M ctx，¥0.8/¥2.7，取代 3.7-Flash）
 - [Qwen 向量与重排序](alibaba-ai-hub/maas/qwen-embedding-rerank.md) — qwen3.7-text-embedding（向量旗舰，256~2560 维）/ flash（1/4 价轻量）/ text-rerank（500 条候选精排），RAG 两阶段检索，含北京/新加坡定价与限流
 - [万相](alibaba-ai-hub/maas/wan.md) — 视频生成旗舰、首尾帧控制
-- [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) — TTS 主推引擎，声音复刻+声音设计+指令控制，将替代 Qwen-TTS
-- [FunASR](alibaba-ai-hub/maas/funasr.md) — ASR 主推引擎，六大能力一站式语音识别，将替代 Qwen3-ASR
+- [Qwen-Audio TTS](alibaba-ai-hub/maas/qwen-audio-tts.md) — TTS 售前主推：北京 qwen-audio-3.1-tts-flash（74 系统音色含多语种方言）/ 国际站 qwen-audio-3.0-tts-plus，声音复刻 / 设计 / 指令控制
+- [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) — TTS 产品线（2026-09-18 起售前主推移交 Qwen-Audio-TTS 3.x：北京 3.1-flash / 国际 3.0-plus），声音复刻+声音设计+指令控制，仍在售
+- [FunASR](alibaba-ai-hub/maas/funasr.md) — ASR 产品线（2026-09-18 起售前主推移交 qwen-audio-3.0-asr-flash），六大能力一站式语音识别，仍在售
 - [Qwen-Audio ASR](alibaba-ai-hub/maas/qwen-audio-asr.md) — LLM-based ASR 系列，上下文理解+即时热词，含中英混说实测幻觉案例
 - [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) — AI 视频生成（音视频联合单次生成，淘天 ATH）
 - [Fun-Music](alibaba-ai-hub/maas/fun-music.md) — AI 音乐生成，歌词到歌曲端到端，fun-music-v1 实测

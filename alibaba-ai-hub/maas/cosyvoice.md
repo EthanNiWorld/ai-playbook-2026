@@ -1,12 +1,12 @@
 # CosyVoice
 
-> 最后更新: 2026-07-03
+> 最后更新: 2026-09-20
 > 所属厂商: Alibaba (Alibaba Cloud)
 > 产品类别: AI 语音合成（TTS）
 > 状态: Published
 
 <!-- SUMMARY_START -->
-**定位**: 百炼平台主推的多语言大语音生成模型，具备声音复刻、声音设计、指令控制三大高级能力，将替代 Qwen-TTS
+**定位**: 百炼平台多语言大语音生成模型（2026-09-18 起售前 TTS 主推移交 Qwen-Audio-TTS 3.x 系列），具备声音复刻、声音设计、指令控制三大高级能力
 **适用**: 智能客服、语音助手、有声阅读、品牌专属音色、虚拟主播、情感化内容制作
 **不适用**: 仅需基础 TTS 且预算极低的场景（可用 Qwen-TTS 旧版过渡）
 **竞品**: OpenAI gpt-4o-tts、Google Chirp 3、ElevenLabs Multilingual v3
@@ -17,7 +17,7 @@
 
 ### 一句话定位
 
-阿里 FunAudioLLM 团队研发的多语言大语音生成模型，百炼平台当前**主推的 TTS 引擎**，官方已标注 Qwen-TTS 为"旧版"。
+阿里 FunAudioLLM 团队研发的多语言大语音生成模型。2026-07 起作为百炼售前主推 TTS 引擎（官方在同期将 Qwen-TTS 标注为"旧版"）；2026-09-18 起售前 TTS 主推移交 Qwen-Audio-TTS 3.x 系列（北京 3.1-flash / 国际站 3.0-plus），CosyVoice 系列仍在百炼在售。
 
 ### 底层原理（通俗版）
 
@@ -29,14 +29,14 @@ CosyVoice 基于 LLM 的流式语音合成架构（CosyVoice 2），支持双向
 
 | 模型 ID | API 接入 | 声音复刻 | 声音设计 | 指令控制 | 状态 |
 |---------|----------|----------|----------|----------|------|
-| **cosyvoice-v3.5-plus** | WebSocket + HTTP | ✅ | ✅ | ✅ | 🚩 当前旗舰 |
-| **cosyvoice-v3.5-flash** | WebSocket + HTTP | ✅ | ✅ | ✅ | 🚩 轻量旗舰 |
+| **cosyvoice-v3.5-plus** | WebSocket + HTTP | ✅ | ✅ | ✅ | 系列旗舰 |
+| **cosyvoice-v3.5-flash** | WebSocket + HTTP | ✅ | ✅ | ✅ | 轻量旗舰 |
 | cosyvoice-v3-plus | WebSocket + HTTP | ✅ | ✅ | ❌ | 在售 |
 | cosyvoice-v3-flash | WebSocket + HTTP | ✅ | ✅ | ✅ | 在售 |
 | cosyvoice-v2 | WebSocket + HTTP | ✅ | ❌ | ❌ | 在售 |
 | cosyvoice-v1 | WebSocket | ✅ | ❌ | ❌ | 在售 |
 
-> **Qwen-TTS 系列**仍可在百炼调用，但文档已标注为"旧版，按 Token 计费"，官方推荐迁移到 CosyVoice。
+> **Qwen-TTS 系列**仍可在百炼调用，但文档已标注为"旧版，按 Token 计费"；当前官方推荐迁移到 Qwen-Audio-TTS 3.x 系列。
 
 ### 核心限制
 
@@ -58,12 +58,12 @@ CosyVoice 基于 LLM 的流式语音合成架构（CosyVoice 2），支持双向
 
 ## 定价
 
-| 模型 | 服务区域 | 单价 | 免费额度 |
-|------|----------|------|----------|
-| cosyvoice-v3-plus | 国际（新加坡） | $0.26/万字符 | 1 万字符 |
-| cosyvoice-v3-flash | 国际（新加坡） | $0.13/万字符 | 100 万 Token |
-| cosyvoice-v3.5-plus | 国内（华北2-北京） | $0.22/万字符 | 无 |
-| cosyvoice-v3.5-flash | 国内（华北2-北京） | $0.116/万字符 | 无 |
+| 模型 | 服务区域 | 单价 |
+|------|----------|------|
+| cosyvoice-v3-plus | 国际（新加坡） | $0.26/万字符 |
+| cosyvoice-v3-flash | 国际（新加坡） | $0.13/万字符 |
+| cosyvoice-v3.5-plus | 国内（华北2-北京） | $0.22/万字符 |
+| cosyvoice-v3.5-flash | 国内（华北2-北京） | $0.116/万字符 |
 
 ## 适用边界分析
 
@@ -121,5 +121,7 @@ CosyVoice 基于 LLM 的流式语音合成架构（CosyVoice 2），支持双向
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-09-20 | 主推口径更新：2026-09-18 起售前 TTS 主推移交 Qwen-Audio-TTS 3.x 系列（北京 3.1-flash / 国际站 3.0-plus）；本篇保留为 CosyVoice 产品参考文档 |
+| 2026-09-20 | 移除定价表「免费额度」列（用户规范：材料不再考虑免费额度） |
 | 2026-07-04 | 竞品对照表新增 MiniMax speech-2.8-hd |
 | 2026-07-03 | 初始创建：基于 inbox/ai-knowledge-by-qoder-ai-native-agent-20260703.md 提炼 |

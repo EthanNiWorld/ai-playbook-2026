@@ -1,6 +1,6 @@
 # Qwen 向量与重排序（Embedding & Rerank）
 
-> 最后更新: 2026-09-17
+> 最后更新: 2026-09-20
 > 所属厂商: 阿里云（通义实验室）
 > 产品类别: MaaS
 > 状态: Published
@@ -80,8 +80,8 @@
 
 | 模型 | 输入价格（北京） | 输入价格（新加坡） | 输出价格 | Batch（北京） | 备注 |
 |------|---------|---------|---------|---------|------|
-| qwen3.7-text-embedding | 0.5 元/百万 tokens | 0.525 元/百万 tokens | — | 0.25 元/百万 | 100 万 tokens 免费额度（开通/发布/申请通过起 90 天，以较晚者为准） |
-| qwen3.7-text-embedding-flash | 0.125 元/百万 tokens | 未上架 | — | 0.063 元/百万 | 同上免费额度政策 |
+| qwen3.7-text-embedding | 0.5 元/百万 tokens | 0.525 元/百万 tokens | — | 0.25 元/百万 | — |
+| qwen3.7-text-embedding-flash | 0.125 元/百万 tokens | 未上架 | — | 0.063 元/百万 | — |
 | qwen3.7-text-rerank | 0.5 元/百万 tokens | 官方页未列 | — | 不支持 | 限流 RPM 3000 / TPM 900 万（北京） |
 
 > 定价来源：https://help.aliyun.com/zh/model-studio/qwen3-7-text-embedding 、https://help.aliyun.com/zh/model-studio/qwen3-7-text-embedding-flash 、https://help.aliyun.com/zh/model-studio/qwen3-7-text-rerank ，核实日期：2026-09-07（不含限时优惠，以百炼控制台为准）
@@ -112,4 +112,5 @@
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-09-20 | 移除定价表备注列「免费额度」信息（用户规范：材料不再考虑免费额度） |
 | 2026-09-17 | 校验修复（knowledge-verification-2026-09-17）：embedding-flash 与 text-rerank 上线时间回填 2026-09-01（百炼上新页）；新增"国际站 USD 定价页未收录 qwen3.7-text-* 全系"显式标注；旗舰 embedding 上线时间仍待补充 |
