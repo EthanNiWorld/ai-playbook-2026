@@ -37,11 +37,6 @@
   给客户的一句话答复：你贴的请求体格式正确、实测能通；报错说明实际请求里
   tool_choice 丢了 function 字段，打印一下真实请求体，把拍平/丢字段的那层
   代码修正为标准嵌套格式即可。
-
-  附带提醒（模型迁移时注意）：同端点 qwen3.8-max 在思考模式下不支持
-  tool_choice 为 required 或对象（报 "The tool_choice parameter does not
-  support being set to required or object in thinking mode"），glm-5.3
-  无此限制；若客户后续要在两模型间迁移代码，此为行为差异点（详见主脚本 C7）。
 """
 from openai import OpenAI
 import os
