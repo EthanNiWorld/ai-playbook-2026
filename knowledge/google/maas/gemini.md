@@ -1,24 +1,25 @@
 # Gemini
 
-> 最后更新: 2026-08-17
+> 最后更新: 2026-10-09
 > 所属厂商: GCP
 > 产品类别: MaaS
 
 **定位**: Google 自研多模态大模型系列，原生支持文本+图像+音频+视频多模态输入输出
 **适用**: 多模态理解与生成、企业知识管理、Agent 基础模型、代码生成、计算机操控
 **不适用**: 需要私有化部署的场景（Gemini 仅通过 API / GCP 平台提供）
-**当前主推**: Gemini 3.x 系列。Pro 线旗舰为 Gemini 3.1 Pro（2026.02.19，推理与知识密度最强）；Flash 线主力已迭代至 **Gemini 3.7 Flash（2026.08.13 GA，官方定位 "most intelligent workhorse model yet for coding and agents"：距 3.6 Flash 仅三周，入门价 $0.75/$3.75（至 2026-12-31）+ DeepSWE 65.3%（+16.3）**，同期在售 3.5 Flash-Lite（350 tok/s 高吞吐）；3.6 Flash（2026.07.21）已被 3.7 Flash 取代。Gemini 3.5 Pro 多次跳票，仍在合作伙伴测试中；Gemini 4 预训练已启动
+**当前主推**: **Gemini 4 Argon（2026.09.30，Gemini 4 世代首发旗舰，🌟 输出上限 1M tokens 行业首个——但首发仅 Fairwind Program 受限访问，后续 paid API 无时间表，售前不可承诺获取）**；公开可得旗舰仍为 Gemini 3.1 Pro（2026.02.19，推理与知识密度最强）；Flash 线已迭代至 **Gemini 3.8 Flash / 3.8 Flash Cyber**（[⚠️ 详情待补充]），3.5 Flash-Lite（350 tok/s 高吞吐）在售；3.6 Flash（2026.07.21）已被 3.7 Flash 取代。**Gemini 3.5 Pro 官方确认搁置（2026.09.24）**，重心转 Flash 线 + Gemini 4
 
 ## 当前主推模型
 
 | 模型 | 定位 | 核心特点 | 推出/更新时间 |
 |------|------|------|------|
-| **Gemini 3.7 Flash** 🚩 | 主力（workhorse，coding/agents） | 三周点更新：DeepSWE 65.3%（+16.3），入门价 $0.75/$3.75（至 2026-12-31，标准价 $1.50/$7.50），`thinking_level` 新 API | 2026.08.13 |
-| **Gemini 3.1 Pro** | 旗舰（推理/知识密度最强） | 当前 Pro 级旗舰，学术推理与密集长上下文仍领先 | 2026.02.19 |
+| **Gemini 4 Argon** 🚩 | 新世代旗舰（**受限访问**） | 🌟 输出上限 1M tokens（行业首个）；DeepSWE 77.9% SOTA、AA 幻觉率 15% 最低；仅 Fairwind Program；标准价 $4/$20（入门 $2/$10 为 50% 限时促销） | 2026.09.30 |
+| **Gemini 3.7 Flash** | 主力（workhorse，coding/agents） | 三周点更新：DeepSWE 65.3%（+16.3），入门价 $0.75/$3.75（至 2026-12-31，标准价 $1.50/$7.50），`thinking_level` 新 API | 2026.08.13 |
+| **Gemini 3.1 Pro** | 公开可得旗舰（推理/知识密度最强） | 当前 Pro 级旗舰，学术推理与密集长上下文仍领先 | 2026.02.19 |
 | **Gemini 3.5 Flash-Lite** | 轻量（最快最便宜） | 350 tok/s，$0.30/$2.50，多项 Agent/Coding 评测超 3 Flash，Computer Use 内置 | 2026.07.21 |
 | **Gemini Omni Flash** | 原生音视频多模态 | 端到端音频/视频原生理解，实时语音交互 | 2026.05.19 |
 
-> 📌 **专用模型**：Gemini 3.5 Flash Cyber（2026.07.21）——基于 3.5 Flash 微调的网络安全专用模型，搭配 CodeMender 代码安全 Agent，CyberGym 达前沿竞争力；因双用途风险**仅限政府与受信任伙伴**通过 CodeMender 限额试点获取，不公开售卖
+> 📌 **专用模型**：Gemini 3.5 Flash Cyber（2026.07.21）与 **Gemini 3.8 Flash Cyber**（[⚠️ 详情待补充]）——基于 Flash 线微调的网络安全专用模型，搭配 CodeMender 代码安全 Agent，CyberGym 达前沿竞争力；因双用途风险**仅限政府与受信任伙伴**限额试点获取，不公开售卖
 > 📌 **历史模型**：Gemini 3 Pro（→3.1 Pro）/ 3.1 Flash（→3.5 Flash-Lite）/ 3.5 Flash（→3.6 Flash）/ 3.6 Flash（→3.7 Flash，仅存活三周）仍可调用，但不建议新项目选用
 
 > ⚠️ Gemini 2.5 系列（Pro/Flash/Deep Think）为 2025 年中发布，**已非最新代**。2.5 Pro 更新至 2025.06.27，2.5 Flash 更新至 2025.09.26。详见 [Google DeepMind Model Cards](https://deepmind.google/models/model-cards/)
@@ -43,6 +44,37 @@
 | 部署方式 | 仅 API / GCP 平台 | 不支持私有化下载部署 |
 | API 双轨 | `google.genai` + `vertexai` 两套 API | 开发者需根据场景选择，Google 已确认将长期共存 |
 | 中文能力 | 强但非母语级 | 中文场景优先考虑 Qwen / DeepSeek 作为补充 |
+
+## Gemini 4 Argon（2026-09-30，Gemini 4 世代首发旗舰）🌟
+
+> 来源：[Google 官方博客](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/)（2026-09-30，Kavukcuoglu 署名）、[felloai 汇总](https://felloai.com/gemini-4-argon/)（AA/Vals/LMArena 第三方数据、Fairwind 细节、Bloomberg 内部质疑报道）；2026-10-09 合并入库
+
+**基本信息**：
+- 2026-09-30 发布，**Gemini 4 世代首个模型**、Google 自 Gemini 3.1 Pro（2026-02）以来首个旗舰（7 个月旗舰空窗；3.5 Pro 确认搁置）
+- **"Argon"（氩）为首个代号式命名的 Gemini**，类比 OpenAI Astra/Sol/Luna 的天体命名；官方称 Argon 为 "early post-training output"
+- 发布者 Koray Kavukcuoglu（SVP Google DeepMind & Chief AI Architect，已从 OpenAI 移职）
+- 定位 "our next era of frontier intelligence"：real-world software engineering、enterprise knowledge work（法律/金融）、cybersecurity defense、creative writing；"built to sustain deep reasoning across complex, long-horizon workflows"
+- 规格：**输出上限 1M tokens**（上代 64K，行业最高）；上下文 1M（Artificial Analysis 口径；**Google 未发 model card，官方 API model ID 与知识截止未公布**）；文本+图像输入（AA 列表另含 video/speech 输入）
+
+**访问受限（Fairwind Program）**：首发仅 Fairwind Program（650+ 合作伙伴：政府/国家 cyber 机构、医疗·电信·能源·金融关键基础设施运营商、核心技术平台、防御性 benchmark 学术实验室；需钓鱼抗性 MFA、禁转售）；Fairwind 伙伴与 Google 内部团队获**无 cyber 护栏版** + CodeMender 集成；后续 paid API + Google AI Ultra 订阅者（无时间表）；参与美国政府自愿 pre-release 审查——**售前不可承诺获取**。
+
+**定价**：入门价 **$2 输入 / $10 输出 / cached $0.10（=95% off）——50% 限时促销，促销期未公布**；标准价 **$4/$20（与 Opus 5.5 同价）**。生产预算必须按标准价测算。
+
+**技术亮点与独创性**：
+1. 🌟 **首创｜1M token 单响应输出上限**（行业首个；此前行业最高 128K——Claude/GPT 系，Gemini 3.x 为 64K）+ 配套 **Long Decode Continuation** API（超长输出暂停/续传，防请求超时）——此前无同类：输出上限从未被作为主打规格突破。专为"单次轨迹完成长程任务"设计：全库代码迁移、超长法律文书、数小时连续推理
+2. 📋 **跟进对齐｜无护栏版 + 可信防御者受限访问（Fairwind）**：Anthropic Project Glasswing（Mythos 5）与 OpenAI Daybreak（Astra）先行——三大前沿厂商 2026 年内全部采用"最强 cyber 能力 → 受限分阶段发布"同构模式
+3. ⚙️ **工程优化**：DeepSWE v1.1 **77.9% SOTA**（Opus 5.5 74.2 / Astra 74.1 / GPT-6 Sol max 68.8 / Gemini 3.7 Flash 65.3）；Vals Index 68.9% #1/41；AA 幻觉率 **15%（AA 实测领先模型最低**：Astra 51%、GPT-6.1 Sol 54%）——代价是事实题答对率 -13pp（更多拒答）；LMArena Text Arena #1（1525 分，coding/hard prompts/指令跟随/创意写作分类均第一）
+4. 🔬 **独特路线**：CoT + 行为实时监控用于失配缓解（监控发现刻意不回流训练，防模型"学会规避监控"），公开呼吁全行业保持推理透明——与 Astra"书面推理更难监控"的困境形成 alignment 监控的两条路线对照
+
+**能力领先项**：Harvey Legal Agent **19.6% vs Opus 5.5 3.8% / Astra 5.4%**（法律工作 ~5× 领先，最大单项差距）；Vals Finance Agent v2 65.4%；AutomationBench 51.3% #1（Opus 5.5 42.5、Astra 41.4）；GraphWalks 84.2%（长上下文）；LVBench 91.7%（长视频）；Gray Swan IPI 提示注入攻击成功率 **0.7%**（Opus 5.5 1.0%、Astra 8.5%）；CWE-bench v1 68% 并列第一；IOI 编程奥赛 100%（与 Astra 并列）。
+
+**增量解锁**：①1M 输出 → 全库级迁移/超长文书"一口气"完成（Google 内部实证：Fuchsia Zircon 内核 800K+ 行 C/C++→Rust、libgav1 32K 行 SIMD 重写后 2.7× 提速、数据中心内存优化释放 300 TiB（预计 500 TiB–1 PiB）、量子算法超已发表 baseline 40%）②最低幻觉率 → 高可信知识工作（法律/金融）③防御性 cyber 生产工具（Wiz Scan for Good 实战发现全球医院医疗软件严重漏洞——前代前沿模型均未发现）。
+
+**⚠️ 落后项（Bloomberg 报道内部质疑部分印证）**：Terminal-Bench 4.0 57.4% vs Opus 5.5 **66.4%**；FrontierSWE v2 55.0% vs Astra **65.5%**；Code Arena: WebDev 仅 #8（前端弱）；AA Intelligence Index 53 = Astra = Fable 5.1，低于 Opus 5.5 58 / Sonnet 5.5 56。
+
+**AA 成本实测**：入门价 $1.99/task（Astra $3.26 的 60%、Opus 5.5 $5.98）；标准价 $3.98/task；**62K output tokens/task（Astra 27K）——低价靠单价而非省 token**，入门价下仍为 GPT-6.1 Sol 的 2.7×/task。
+
+**成本归因**：定价策略降本（限时促销）为主——AA 明确"低价来自 token 单价而非用量"（输出 token 用量为 Astra 的 2.3×），架构内禀降本无公开证据（无技术报告）。促销动机判断：在 Opus 5.5（同标准价）发布 8 天后入场，用半价期拉高第三方"成本效率"口径（AA $1.99/task、LMArena "most cost efficient model" 均依赖促销价）抢占首发心智。Google 自有 TPU 推理栈是长期单位成本优势（知识库已有结论），但本次发布无相关披露。
 
 ## Gemini 3.7 Flash（2026-08-13 发布，当前 workhorse）
 
@@ -177,7 +209,7 @@ Gemini 通过 **Gemini Enterprise Agent Platform** 统一交付（见 [`vertex-a
 | 128k 密集上下文回忆 | MRCR v2 · 128k 输 3.1 Pro 7.6 分，"塞满 128k 全部精准回忆"场景慎用 |
 | 学术推理 | Humanity's Last Exam 输 4.2 分、ARC-AGI-2 输 5.0 分，极难学术问题选 3.1 Pro 或等待 3.5 Pro |
 
-> 📌 **Gemini 3.5 Pro 预期（更新 2026-07-27）**：原预计 2026.06 发布，**已多次跳票**。官方 7/21 口径："正在与合作伙伴测试，准备好后尽快广泛提供"。Reuters 报道延迟原因是未达内部目标（尤其 coding）。同时官方确认 **Gemini 4 预训练已启动**（"最雄心勃勃的一次 pre-training run"）。售前沟通中不应承诺 3.5 Pro 时间表。
+> 📌 **Gemini 3.5 Pro 确认搁置（更新 2026-10-09）**：原预计 2026.06 发布，多次跳票后，Kavukcuoglu 于 2026-09-24 公开确认 "took a little bit of a step back"——重心转向 Flash 线与 Gemini 4；**Gemini 4 Argon 已于 09-30 发布（见上文专章）**。售前沟通中不应承诺 3.5 Pro。另：Flash 线已迭代至 **3.8 Flash / 3.8 Flash Cyber**（[⚠️ 详情待补充]）。
 
 ## 参考资料
 
@@ -197,6 +229,7 @@ Gemini 通过 **Gemini Enterprise Agent Platform** 统一交付（见 [`vertex-a
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-10-09 | 合并四模型调研素材：**新增 Gemini 4 Argon 专章**（09-30 发布，🌟 1M 输出上限行业首个 + Long Decode Continuation、Fairwind 受限访问、DeepSWE 77.9% SOTA、AA 幻觉率 15% 最低、领先/落后项与成本归因全量）；主推表加 Argon（受限标注）并调整 3.1 Pro 为"公开可得旗舰"；**补记 3.8 Flash / 3.8 Flash Cyber 已存在**（[⚠️ 详情待补充]）；3.5 Pro 从"跳票预期"改为"官方确认搁置（09-24）"；头部当前主推重写 |
 | 2026-08-17 | 合并：inbox 四模型调研 - 新增 Gemini 3.7 Flash 章节（2026-08-13 发布，新 workhorse 🚩：入门价 $0.75/$3.75 至 2026-12-31 / DeepSWE 65.3% / thinking_level 三值枚举等 4 项 API 变化 / 部署 Gemini Spark+Antigravity）；主推表重排（3.7 Flash 顶替 3.6 Flash，3.6 Flash 仅存活三周移入历史标注）；适用场景与平台交付表同步 |
 | 2026-07-27 | 精简：3.5 Flash 深度分析章节（~80 行）压缩为"上代模型存档"小节，保留战略意义/关键参数/Computer Use 起源，删除过时 benchmark/定价详表；诚实弱点与平台交付口径同步 |
 | 2026-07-27 | 合并：2026-07-21 三模型发布官网调研 — 新增 Gemini 3.6 Flash（新 workhorse 🚩，$1.50/$7.50，token 效率 -17%）/ 3.5 Flash-Lite / 3.5 Flash Cyber 章节；主推表重排（3.5 Flash 降为上代）；3.5 Pro 跳票与 Gemini 4 预训练启动；适用场景表同步 |

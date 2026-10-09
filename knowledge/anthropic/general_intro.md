@@ -45,7 +45,8 @@ Anthropic 是一家总部位于美国加州旧金山的人工智能公司，由�
 ## 五、关键产品矩阵
 
 ### 1. Claude 系列大模型
-- **Claude Opus 4.8**（2026.05.28）：最新旗舰，SWE-Bench Pro 69.2%、诚实度4×提升、effort控制、动态工作流。
+- **Claude 5.5 家族**（2026.09-10，当前世代）：Opus 5.5（09-22，$4/$20）/ Sonnet 5.5（09-28）/ Haiku 5.5（10-07，Claude 系首个分层定价）；Fable 线已迭代至 5.1。详见 [Claude API](claude-api.md)。
+- **Claude Opus 4.8**（2026.05.28）：4.x 代旗舰，SWE-Bench Pro 69.2%、诚实度4×提升、effort控制、动态工作流。
 - **Claude Opus 4.7**（2026.04）：前旗舰，集成 Project Glasswing 安全防护框架。
 - **Claude Sonnet 4.6**（2026.03）：均衡旗舰，200K 上下文，编程/推理均衡。
 - **Claude Haiku 4**（2026.04）：轻量极速，200K 上下文，编程能力显著提升。

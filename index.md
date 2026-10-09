@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-09-20
+> 最后更新：2026-10-09
 
 ## 目录
 
@@ -31,6 +31,7 @@
 | Qwen-Audio / Qwen-Audio-3.0-ASR / LLM 语音识别 / 即时热词 | [Qwen-Audio ASR](alibaba-ai-hub/maas/qwen-audio-asr.md) |
 | HappyHorse / 快乐小马 / AI 视频生成 / 音视频联合生成 | [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) |
 | Fun-Music / 音乐生成 / AI 作曲 / 歌词生成歌曲 | [Fun-Music](alibaba-ai-hub/maas/fun-music.md) |
+| 决策模型 / decision-model / System One / 工单分流 / 内容审核判断 | [百炼决策模型](alibaba-ai-hub/maas/decision-model.md) |
 | 百炼平台 / 多账号 / TPM 扩量 / 限流 | [百炼平台](alibaba-ai-hub/maas/overview.md) |
 | 百炼安全 / SOC 2 / CMaaS / 数据主权 / 隔离 | [百炼安全合规](alibaba-ai-hub/maas/model_studio_security-compliance_cn.md) |
 | 百炼权限 / RAM / 工作空间 / API Key 配置 | [百炼权限指南](alibaba-ai-hub/maas/model_studio_config/model-studio-workspace-permission-guide.md) |
@@ -45,7 +46,7 @@
 | 灵骏 / 智算集群 / EFLOPS | 待补充 |
 | Agent 定义 / Harness / 治理层 | [Agent](knowledge/ai-general-notes/agent-def.md) ⭐ · [Harness](knowledge/ai-general-notes/harness.md) ⭐ |
 | ReAct / 推理+行动 / Thought-Action-Observation | [ReAct 范式](knowledge/ai-general-notes/Memory-ReAct.md) ⭐ |
-| Agent 框架 / LangChain / LangGraph / Deep Agents | [Agent 框架](knowledge/ai-general-notes/agent-frameworks.md) |
+| Agent 框架 / LangChain / LangGraph / Deep Agents / LlamaIndex / AutoGen / CrewAI / 框架选型 | [Agent 框架](knowledge/ai-general-notes/agent-frameworks.md) · [主流 Agent 框架调研](alibaba-ai-hub/AIAgentFrameworks/agent-frameworks-overview.md) |
 | AI 记忆 / Memory / Dreaming | [AI Agent 记忆](knowledge/ai-general-notes/agent-memory.md) ⭐ |
 | AI 公司增长 / ARR / 飞轮 | [AI 增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ |
 | Prompt 工程 / 防幻觉 | [Prompt Engineering](knowledge/ai-general-notes/prompt-engineering.md) ⭐ |
@@ -54,21 +55,23 @@
 | 前沿模型路线 / 选型框架 / Fable 5 vs Qwen vs GPT | [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) |
 | 推测解码 / Speculative Decoding / DSpark / 推理加速 | [推测解码](knowledge/ai-general-notes/speculative-decoding.md) ⭐ |
 | vLLM / SGLang / 推理引擎 / PagedAttention / RadixAttention / PD 分离 / EPD 分离 / Mooncake / KV Cache 传输 | [vLLM](knowledge/ai-general-notes/inference-serving-stack/vllm.md) · [SGLang](knowledge/ai-general-notes/inference-serving-stack/sglang.md) · [Mooncake](knowledge/ai-general-notes/inference-serving-stack/Mooncake.md) · [EPD 分离](knowledge/ai-general-notes/inference-serving-stack/epd-disaggregation.md) |
+| 存储超级周期 / HBM / 内存涨价 / 上下文经济学 / KV cache 显存需求 / 三星利润超英伟达 | [AI 存储超级周期](knowledge/ai-general-notes/ai-memory-supercycle.md) |
 | 安全护栏 / 分类器拦截 / 降级兜底 / 护栏粒度 / CVP | [安全护栏粒度](knowledge/ai-general-notes/safety-guardrail-granularity.md) ⭐ |
 | MSA / 稀疏注意力 / MiniMax 架构 | [MSA 稀疏注意力](knowledge/minimax/msa-sparse-attention.md) |
-| Claude / Opus 5 / Sonnet 5 / Fable 5 / Haiku | [Claude API](knowledge/anthropic/claude-api.md) |
+| Claude / Opus 5.5 / Sonnet 5.5 / Haiku 5.5 / Fable 5.1 / 分层定价 | [Claude API](knowledge/anthropic/claude-api.md) |
 | Claude Code / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) |
-| Gemini / Google / Computer Use | [Gemini](knowledge/google/maas/gemini.md) |
-| GPT-5 / GPT-5.6 / ChatGPT / OpenAI / Codex | [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
+| Gemini / Gemini 4 Argon / 1M 输出上限 / Google / Computer Use | [Gemini](knowledge/google/maas/gemini.md) |
+| GPT-6 / Astra / Sol / Luna / GPT-5 / ChatGPT / OpenAI / Codex | [GPT-6 系列](knowledge/openai/gpt-6-series.md) · [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
 | MAI / 微软自研 / Copilot 模型 | [MAI 模型家族](knowledge/microsoft/mai-models.md) |
 | DeepSeek / R1 / V4 / 开源 | [DeepSeek](knowledge/deepseek/general_intro.md) ⭐ |
 | Hy3 / 腾讯混元 / Hunyuan | [Hy3](knowledge/tencent/hy3.md) |
 | StepFun / 阶跃星辰 / Step 3.7 Flash / AI+终端 | [StepFun](knowledge/stepfun/general_intro.md) · [Step 3 系列](knowledge/stepfun/step-3-series.md) |
 | Qwen vs Hy3 / 混元竞争分析 | [Qwen3.7 vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) |
 | Qwen vs Doubao / 豆包竞争分析 | [Qwen3.7-Max vs Doubao-Seed-2.1 Pro](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
+| Haiku 5.5 vs GPT-6 Luna / 小模型档 / Flash 档竞争 / 分段定价 / 前沿模型横向对比 | [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) |
 | MiniMax / M3 / M3 Pro / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
 | Kimi / 月之暗面 / Moonshot / K3 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
-| GLM / 智谱 / GLM-5.3 / GLM-5.3-Flash / GLM-5.2 / 1M 上下文 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) |
+| GLM / 智谱 / GLM-5.3 / GLM-5.3-Flash / FlashX / GLM-5.2 / 1M 上下文 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) |
 | Seedance / 字节视频生成 / AI 短剧 / 火山方舟 | [Seedance 系列](knowledge/bytedance/seedance-series.md) |
 | GRPO / PPO / critic / RL 算法选型 / Agentic RL | [RL 算法选型](knowledge/ai-general-notes/rl-algorithm-selection-grpo-vs-ppo.md) |
 | 视频模型数据策略 / 不蒸馏 / 数据质量密度 | [视频模型数据策略](knowledge/ai-general-notes/video-model-data-strategy.md) |
@@ -104,6 +107,7 @@
 - [AI 公司增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ — Killer App × 企业信任 × 消费制收入，Anthropic 17 个月 47 倍
 - [安全护栏粒度](knowledge/ai-general-notes/safety-guardrail-granularity.md) ⭐ — 从「按领域封禁」到「按危害环节封禁」；危险能力是通用智能的副产物，护栏强度应是实测危害能力的函数（Opus 5 / Sonnet 5 样本）
 - [开源定价套利与架构降本](knowledge/ai-general-notes/open-weights-api-pricing-floor.md) — 自部署套利约束定价上限、低价可持续性三判据、容量/计算解耦三维评价（Qwen3.8-Flash / GLM-5.3-Flash 样本）
+- [AI 存储超级周期](knowledge/ai-general-notes/ai-memory-supercycle.md) — HBM 产能虹吸机制、KV-cache 需求归因、上下文扩容受益链（算力拿基数/存储拿增速/压缩拿毛利/缓存层拿锁定）
 
 ---
 
@@ -111,7 +115,7 @@
 
 > 分组顺序：**云厂商**（阿里云 / Google）→ **海外模型厂商** → **中国模型厂商**。
 
-### 🟧 阿里云（核心阵地，31 篇深度文档）
+### 🟧 阿里云（核心阵地，32 篇深度文档）
 
 > **从底层算力到上层应用，覆盖 MaaS / AI Coding / AI App / AI Infra / 竞品对比全链路。**
 
@@ -127,13 +131,13 @@
 - [Qwen-Audio ASR](alibaba-ai-hub/maas/qwen-audio-asr.md) — LLM-based ASR 系列，上下文理解+即时热词，含中英混说实测幻觉案例
 - [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) — AI 视频生成（音视频联合单次生成，淘天 ATH）
 - [Fun-Music](alibaba-ai-hub/maas/fun-music.md) — AI 音乐生成，歌词到歌曲端到端，fun-music-v1 实测
+- [百炼决策模型](alibaba-ai-hub/maas/decision-model.md) — decision-model-preview（09-24，System One 协议结构化决策：choice/noul/score 一次前向并行，P50 51ms，限时免费；含端点约束与三坑实测）
 - [百炼网络接入方案](alibaba-ai-hub/maas/maas-solution-and-api-sample/bailian-network-access-solutions.md) — 跨云/跨境调用百炼 API 的网络层选型（公网直连 / PrivateLink / GA 全球加速）
 - [百炼权限配置指南](alibaba-ai-hub/maas/model_studio_config/model-studio-workspace-permission-guide.md) — RAM 子账号、工作空间、API Key 全流程截图
 
 **售前工具（Sales Tools）**
 - [百炼 API 销售指南 0720 版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20260720.md)（MD/HTML） · [1130 新版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20261130.html)（HTML/PNG） — 售前话术、模型选型、客户问答
 - [阿里云 AI 解决方案专家提示词](alibaba-ai-hub/maas/sales-tools/ModelStudio-solution-expert-prompt-20260827.md) — 数字分身 System Prompt（模型矩阵/价格口径/ROI 测算信源）
-- [Qwen3.7-Max Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-max-salebook.html) · [Qwen3.7-Plus Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-plus-salesbook.html)（[e 版](alibaba-ai-hub/maas/sales-tools/qwen3.7-plus-salesbook-e.html)） · [三模型联合 Salebook](alibaba-ai-hub/maas/sales-tools/qwen3.7-max-glm-kimi-salebook.html)
 - [DeepSeek-V4 TPM ROI 计算器](alibaba-ai-hub/maas/sales-tools/deepseek-v4-tpm-vs-modelstudio-roi.html) · [GLM-5.2 TPM ROI 计算器](alibaba-ai-hub/maas/sales-tools/glm5.2-tpm-vs-modelstudio-roi.html)
 - [DeepSeek-V4 Flash 折扣报告](alibaba-ai-hub/maas/sales-tools/deepseek-v4-flash-0731-discount-report-20260818.html) · [DeepSeek-V4 Pro 折扣报告](alibaba-ai-hub/maas/sales-tools/deepseek-v4-pro-0813-discount-report-20260818.html)（HTML/PNG，20260818）
 
@@ -153,16 +157,20 @@
 **AI Infra（GPU 算力）**
 - [GPU 产品线选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) ⭐ — A100/H100/H20 选型决策树
 
+**Agent 框架（AIAgentFrameworks）**
+- [主流 Agent 框架调研](alibaba-ai-hub/AIAgentFrameworks/agent-frameworks-overview.md) — LangChain / LangGraph / LlamaIndex / AutoGen / CrewAI 五大框架的设计理念、创始团队、发布时间、五抽象对比与选型速查（AutoGen→AG2→Microsoft Agent Framework 演进链）
+
 **竞品对比（阿里云视角）**
 - [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) — 企业级 vs 个人开发者定位差异
 - [Qwen3.7 vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) — 1M上下文+深度编码+多模态 vs 性价比+开源部署
 - [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先 + 1M 上下文优势
+- [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) — 前沿小模型档竞争 + 2026-09/10 前沿模型横向对比 + Qwen Flash 档启示
 
 ### Google
 
 **MaaS**
 - [Gemini Enterprise Agent Platform](knowledge/google/maas/overview.md)
-- [Gemini](knowledge/google/maas/gemini.md) — 3.1 Pro（Pro 线旗舰）/ **3.7 Flash（8/13 GA，新 workhorse：入门价 $0.75/$3.75 至 2026 年底，DeepSWE 65.3%，thinking_level 新 API）** / 3.5 Flash-Lite（350 tok/s）；3.5 Pro 跳票，Gemini 4 预训练已启动
+- [Gemini](knowledge/google/maas/gemini.md) — **4 Argon（9/30，Gemini 4 世代首发旗舰：🌟 输出上限 1M tokens 行业首个、DeepSWE 77.9% SOTA、AA 幻觉率 15% 最低，Fairwind 受限访问）** / 3.1 Pro（公开可得旗舰）/ **3.7 Flash（8/13 GA workhorse：入门价 $0.75/$3.75 至 2026 年底）** / 3.5 Flash-Lite；3.5 Pro 确认拥置，Flash 线已至 3.8
 
 **AI Platform**
 - [Vertex AI → Agent Platform](knowledge/google/ai-platform/vertex-ai.md) — 训练/部署/Agent
@@ -170,14 +178,14 @@
 ### Anthropic
 
 - 公司分析: [Anthropic 公司分析](knowledge/anthropic/general_intro.md) — PBC 治理、Scaling Laws 团队、Claude 家族、ARR $2B+（2026.04）
-- MaaS: [Claude API](knowledge/anthropic/claude-api.md) — 🚩 Fable 5（最高能力档 $10/$50）/ **⭐ Opus 5（2026.07.24，coding·knowledge work SOTA，$5/$25 = Fable 5 半价、无数据留存）** / **Sonnet 5（2026.06.30，$2/$10 → 09-01 起 $3/$15）** / Haiku 4.5
+- MaaS: [Claude API](knowledge/anthropic/claude-api.md) — 🚩 Fable 5.1（最高能力档 $10/$50）/ **⭐ Opus 5.5（2026.09.22，$4/$20，TB 4.0 66.4%、AA 独立榜第一）** / **Sonnet 5.5（2026.09.28，$2/$10 + cache 读减半）** / **Haiku 5.5（2026.10.07，1M ctx，Claude 系首个分层定价 $0.10/$0.50）**
 - AI Coding: [Claude Code](knowledge/anthropic/claude-code.md) — 终端 AI 编程
 - AI App: [Claude Cowork](knowledge/anthropic/claude-cowork.md) — 桌面通用知识工作 Agent · [Claude Managed Agents](knowledge/anthropic/claude-managed-agents.md)
 
 ### OpenAI
 
-- 公司分析: [OpenAI 公司分析](knowledge/openai/general_intro.md) — GPT-5 系列、ChatGPT、Native Computer Use
-- 模型系列: [GPT-5 系列](knowledge/openai/gpt-5-series.md) — GPT-5 / 5.2 / 5.3 / 5.4 / 5.5 / **5.6（Sol/Terra/Luna，有限预览）**
+- 公司分析: [OpenAI 公司分析](knowledge/openai/general_intro.md) — GPT-6 系列、ChatGPT、Native Computer Use
+- 模型系列: [GPT-6 系列](knowledge/openai/gpt-6-series.md) — 🚩 **Astra（旗舰，🌟 前代模型监督训练 + 首个 Critical 级 cyber + Daybreak 门控，$10/$50）** / **Sol（workhorse，$2/$10 永久价，缓存×effort 解耦）** / **Luna（轻量，272K 分段 $0.10/$0.50）** / 6.1 Sol 点更新；[GPT-5 系列](knowledge/openai/gpt-5-series.md) — 历史世代（5.5 GA / 5.6 Sol·Terra·Luna 已被 GPT-6 取代）
 - AI Coding: [Codex](knowledge/openai/codex.md) — 多形态 AI 编程 Agent 平台（CLI/IDE/Web/桌面），多 Agent 编排
 
 ### Microsoft AI (MAI)
@@ -202,7 +210,7 @@
 ### 智谱 AI（Zhipu）
 
 - 公司分析: [智谱 AI 公司分析](knowledge/zhipu/general_intro.md) — 2026.01 港股 IPO（02513.HK，全球大模型第一股）、GLM-5 编程开源 SOTA、MaaS ARR 17 亿元
-- 模型系列: [GLM 系列](knowledge/zhipu/glm-series.md) — GLM-4 / 4.5 / 4.6 / 5 / 5.1 / 5.2 / **5.3（8/14 发布，同基座后训练 Scaling，TB 3.0 28.3 开源第一，安全攻防涌现能力）** / **5.3-Flash（8/26 发布并开源，系列首个原生多模态，320B-A18B，¥0.8/¥2.8，AA 57）**，GLM-5.2 Solid 1M 上下文 + 长程任务开源 SOTA
+- 模型系列: [GLM 系列](knowledge/zhipu/glm-series.md) — GLM-4 / 4.5 / 4.6 / 5 / 5.1 / 5.2 / **5.3（8/14 发布，同基座后训练 Scaling，TB 3.0 28.3 开源第一，安全攻防涌现能力）** / **5.3-Flash（8/26 发布并开源，系列首个原生多模态，320B-A18B，¥0.8/¥2.8，AA 57）+ FlashX 高速服务档（9/18，同模型扩容集群 200 t/s，¥2/¥7）**，GLM-5.2 Solid 1M 上下文 + 长程任务开源 SOTA
 
 ### 月之暗面（Moonshot AI）
 
@@ -230,6 +238,7 @@
 - [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) ⭐ — 企业级 vs 个人开发者定位差异
 - [Qwen3.7 vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) — 1M上下文+深度编码+多模态 vs 性价比+开源部署，SA 打法建议
 - [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先（TB 2.1 +3.5, SWE-Pro +3.1）+ 1M 上下文 vs Agent 规划更强，SA 打法建议
+- [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) — 2026-09/10 前沿模型横向对比 + 小型档竞争（≤100K 同价更聪明 vs >100K Luna 无对手）+ Qwen Flash 档五点启示
 
 ---
 

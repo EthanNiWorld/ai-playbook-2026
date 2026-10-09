@@ -211,7 +211,7 @@
     margin-bottom: 48px;
     box-shadow: var(--shadow-md);
   }
-  .mx-cols { display: grid; grid-template-columns: 1.15fr 1.15fr 0.78fr; gap: 18px; align-items: stretch; }
+  .mx-cols { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(0,1.05fr) minmax(0,.95fr); gap: 18px; align-items: stretch; }
   .mx-panel {
     border-radius: 14px;
     padding: 16px 14px;
@@ -233,7 +233,7 @@
     justify-content: center; align-content: center;
     flex: 1; padding: 2px 2px 4px;
   }
-  .mx-names span { font-size: 12px; font-weight: 700; color: #eef2ff; letter-spacing: .2px; white-space: nowrap; }
+  .mx-names span { font-size: 12px; font-weight: 700; color: #eef2ff; letter-spacing: .2px; white-space: normal; text-align: center; line-height: 1.6; }
   .mx-names b { font-weight: 800; }
   .mx-names em {
     font-style: normal; font-size: 9.5px; font-weight: 700;
@@ -537,7 +537,7 @@
           </div>
           <div class="mx-group">
             <div class="mx-names">
-              <span><b>Q</b>wen3.5-Omni-Plus-Realtime</span><span><b>Q</b>wen3.8-Omni-Flash<em>offline</em></span>
+              <span><b>Q</b>wen3.8-Omni-Flash-Realtime<em>主推 · 实时</em></span><span><b>Q</b>wen3.8-Omni-Flash<em>offline</em></span>
             </div>
             <div class="mx-bar">Qwen Omni · 实时/离线</div>
           </div>
@@ -611,7 +611,7 @@
         <div class="principle-card">
           <div class="icon">🛡️</div>
           <h3>全球合规<span class="en">Global Compliance</span></h3>
-          <p><strong>SOC 2 审计（无保留意见）</strong>· 满足 GDPR 等合规要求；欧盟 / 美国 / 日本<strong>数据驻留</strong>可选，数据不用于训练，AES-256 加密传输。</p>
+          <p><strong>SOC 2 审计（无保留意见）</strong>· 满足 GDPR 等合规要求；欧盟 / 美国 / 日本<strong>数据驻留</strong>可选，数据不用于训练，AES-256 加密传输；支持 <strong>ZDR（零数据保留）</strong>。</p>
         </div>
       </div>
       <div style="font-size:12px;color:var(--text-muted);padding-left:4px;">全托管一站式平台 · 企业级 SLA 99.9% · 数据驻留满足 GDPR 等区域法规 —— 详见模型广场与合规文档中心。</div>

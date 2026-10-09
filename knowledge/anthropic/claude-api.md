@@ -1,29 +1,52 @@
 # Anthropic Claude 模型
 
-> 最后更新: 2026-08-01
+> 最后更新: 2026-10-09
 > 所属厂商: Anthropic
 > 产品类别: MaaS
 > 状态: Published
 
 > **定位**: Anthropic 旗舰模型系列，强调 Constitutional AI 安全对齐、长文本理解与高精度推理
-**最高能力档**: Claude Fable 5（2026.06.09，Mythos-class，**1M 上下文**，$10/$50）——官方口径 highest-capability tier
-**主力推荐**: Claude Opus 5（2026.07.24，coding / knowledge work SOTA，**1M 上下文**，$5/$25 = Fable 5 半价、与 Opus 4.8 同价）
-**前旗舰**: Claude Opus 4.8（2026.05.28）
-**适用**: 高精度推理、复杂长文本分析、代码生成、企业级 Agent、合规要求高场景
-**不适用**: 预算敏感场景、超高并发低成本推理、渗透测试 / exploit 生成 / 二进制漏洞扫描类请求
+**最高能力档**: Claude Fable 5.1（Fable 线小版本更新，$10/$50 同价；AA 指数 65.7、HLE 65.0%——2026-09 AA v4.1.1 口径）
+**主力推荐**: Claude Opus 5.5（2026.09.22，$4/$20，比 Opus 5 降 20%；TB 4.0 66.4%、AA 指数 58 为当前独立榜第一）
+**均衡档**: Claude Sonnet 5.5（2026.09.28，$2/$10，cache 读减半）
+**轻量档**: Claude Haiku 5.5（2026.10.07，1M 上下文，Claude 系首个按上下文长度分层定价 $0.10/$0.50）
+**适用**: 高精度推理、复杂长文本分析、代码生成、企业级 Agent、合规要求高场景、高并发轻量任务（Haiku 5.5）
+**不适用**: 渗透测试 / exploit 生成 / 二进制漏洞扫描类请求；>100K 长上下文高并发任务（Haiku 5.5 长段溢价 5×，建议对比 GPT-6 Luna）
 
 ## 当前主推模型
 
 | 模型 | 定位 | 上下文 | 特点 | 推出时间 |
 |------|------|--------|------|----------|
-| **Claude Fable 5** 🚩 | **最高能力档** | **1M** | SWE-Bench Pro 80.3%，Stripe 50M行Ruby迁移1天完成；敏感查询自动降级，**强制 30 天数据留存、不可用于 ZDR** | 2026.06.09 |
-| **Claude Opus 5** ⭐ | **主力推荐**（Fable 5 半价） | **1M** | coding/knowledge work SOTA，最对齐模型；护栏拦截频率仅 Fable 5 的 ~15%；**无数据留存要求** | 2026.07.24 |
-| **Claude Sonnet 5** | 均衡档（Sonnet 线当前主推） | **1M** | 最 agentic 的 Sonnet，性能接近 Opus 4.8 但价格更低；全计划可用、Free/Pro 默认模型 | 2026.06.30 |
-| **Claude Haiku 4.5** | 轻量极速 | 200K | 极速响应，最具性价比；64K 最大输出 | [⚠️ 待确认]（官方全 ID `claude-haiku-4-5-20251001`） |
+| **Claude Fable 5.1** 🚩 | **最高能力档**（Fable 线小版本更新） | [⚠️ 待补充] | $10/$50 同价；AA 指数 65.7 / HLE 65.0%（Vellum/AA 榜单口径） | [⚠️ 待补充] |
+| **Claude Opus 5.5** ⭐ | **主力推荐**（新旗舰） | [⚠️ 待补充] | $4/$20（比 Opus 5 -20%）；TB 4.0 66.4%、AA 指数 58（独立榜第一）；与 Gemini 4 Argon 标准价同价 | 2026.09.22 |
+| **Claude Sonnet 5.5** | 均衡档（Sonnet 线当前主推） | [⚠️ 待补充] | $2/$10（低于 Sonnet 5 标准价 $3/$15）；cache 读减半（agentic -20%）；TB 4.0 70.6%、AA 指数 56 | 2026.09.28 |
+| **Claude Haiku 5.5** | 轻量/高并发（Haiku 线当前主推） | **1M** | 首个按上下文长度分层定价：$0.10/$0.50（≤100K）；128K 输出；effort 五档；computer use / browser use beta | 2026.10.07 |
 
 > 📌 **限制访问模型**：**Claude Mythos 5**（2026.06.09）与 Fable 5 同底座、同定价、同 API 行为，仅去除网络安全限制，**仅通过 Project Glasswing** 向美国政府网络防御者与关键基础设施提供商开放；非参与组织请用 Fable 5。详见下文专章。
 
-> 📌 **历史模型**（仍可调用，不建议新项目选用）：**Opus 4.8**（2026.05.28）/ **Opus 4.7**（2026.04.16）/ **Opus 4.6** / **Sonnet 4.6** —— Opus 线已由 Opus 5 取代，Sonnet 线已由 Sonnet 5 取代。**Opus 4.1 已废弃，2026-08-05 退役**，官方指定迁移目标为 `claude-opus-5`。
+> 📌 **历史模型**（仍可调用，不建议新项目选用）：**Opus 5**（2026.07.24，已被 Opus 5.5 取代）/ **Sonnet 5**（2026.06.30，已被 Sonnet 5.5 取代）/ **Fable 5**（2026.06.09，Fable 线已迭代至 5.1）/ **Haiku 4.5**（已被 Haiku 5.5 取代）/ **Opus 4.8**（2026.05.28）/ **Opus 4.7**（2026.04.16）/ **Opus 4.6** / **Sonnet 4.6**。**Opus 4.1 已废弃，2026-08-05 退役**。
+
+### Claude Opus 5.5 与 Claude 5.5 家族刷新（2026.09-10）
+
+> 来源：[Opus 5.5 官方公告](https://www.anthropic.com/claude-opus-5-5)（2026-09-22）、[Sonnet 5.5 官方公告](https://www.anthropic.com/claude-sonnet-5-5)（2026-09-28）；2026-10-09 合并入库
+
+**家族代际**：Claude 5（Fable 5 / Opus 5 / Sonnet 5，2026.06-07）→ **Claude 5.5（2026.09-10，全系降价）**：Opus 5.5（09-22）→ Sonnet 5.5（09-28）→ Haiku 5.5（10-07，见下文专章）。Opus 5.5 与 OpenAI GPT-6 Sol/Luna（09-22）同日贴身发布，Opus 5.5 抢先约 90 分钟上线。
+
+**Claude Opus 5.5**（2026-09-22）：
+- 定价 **$4/$20**（比 Opus 5 的 $5/$25 降 20%；与 Gemini 4 Argon 标准价同价）
+- 关键评测（第三方/竞对发布会口径）：Terminal-Bench 4.0 **66.4%**（领先 Gemini 4 Argon 57.4%）、DeepSWE v1.1 74.2%、AutomationBench 42.5%、Harvey Legal Agent 3.8%、Gray Swan IPI 攻击成功率 1.0%；AA Intelligence Index **58，当前独立榜第一**（Sonnet 5.5 56 次之）；AA 实测 $5.98/task、max effort 平均 $23.21/task（GPT-6.1 Sol 对比口径）
+- 其余规格（上下文窗口、最大输出等）：[⚠️ 待补充——素材未提供]
+
+**Claude Sonnet 5.5**（2026-09-28）：
+- 定价 **$2/$10**（低于 Sonnet 5 标准价 $3/$15）；**cache 读减半（$0.20→$0.10），agentic 任务成本 -20%**
+- Terminal-Bench 4.0 **70.6%**（领先 Haiku 5.5 的 39.2%——复杂 agentic coding 仍是 Sonnet/Opus 首选）；GDPval-AA v2.1 1840；AA 指数 56
+- 其余规格：[⚠️ 待补充——素材未提供]
+
+**家族级成本攻势**（同期）：Max/Team 订阅月度 API credits——Max 5x $100 / Max 20x $200 / Team 至 $500（不滚存），等于订阅费全额返还 API 额度（来源：Simon Willison 实测）。
+
+**Fable 线补录**：**Claude Fable 5.1**——Fable 线小版本更新，$10/$50 同价；AA 指数 65.7、HLE 65.0%（2026-09 AA v4.1.1 口径，Astra 发布时领先 Astra 61.2 / Opus 5 63.1 / Fable 5 62.1；⚠️ 2026-10 最新口径下 Fable 5.1 为 53，AA 指数随新模型发布重新校准，跨时间引用需注明口径）。发布时间 [⚠️ 待补充]。
+
+---
 
 ### Claude Opus 5
 
@@ -295,6 +318,62 @@ Sonnet 5 使用**更新的 tokenizer**（同 Opus 4.7 引入的变更思路）�
 - **特点**：编程/推理能力均衡；支持 adaptive thinking（推荐）
 - **已修订分数**：HLE 34.6%（无工具）/ 46.8%（带工具）；OSWorld-Verified 78.5%
 
+### Claude Haiku 5.5
+
+> 来源：[Anthropic 官方公告](https://www.anthropic.com/claude-haiku-5-5)（2026-10-07）、[Haiku 5.5 System Card](https://www.anthropic.com/document/claude-haiku-5-5-system-card)、[Claude Platform 模型总览](https://platform.claude.com/docs/en/models/overview)、[Simon Willison 独立评测](https://simonwillison.net/2026/Oct/7/claude-haiku-5-5/)；2026-10-09 合并入库
+
+- **模型 ID**：`claude-haiku-5-5`
+- **公司**：Anthropic
+- **时间**：2026 年 10 月 7 日（Claude 5.5 家族最后成员；Opus 5.5 09-22、Sonnet 5.5 09-28）
+- **上下文**：**1M tokens**（Haiku 4.5 为 200K，5×），最大输出 **128K tokens**（上代 64K）
+- **知识截止**：2026-06（System Card）；输入：文本 + 图像
+- **定位**：官方 tagline "Our fastest, cheapest, and most capable small model yet"——高并发成本敏感任务（摘要/压缩/数据库查询/分类）、Opus/Sonnet 5.5 的编码 subagent、速度敏感场景（实时客服、browser use / computer use，Python/TS SDK 同日新增两能力 beta）
+- **推理**：Adaptive thinking 强制开启（**不可禁用推理**）；**首个支持可调 effort 的 Haiku**（low/medium/high/xhigh/max，默认 medium）；Batch 半价
+
+#### 定价（按 prompt 长度分层，Claude 系首个）
+
+| 项（$/1M tokens） | ≤100K tokens | >100K tokens | Haiku 4.5 对照 |
+|---|---|---|---|
+| 输入 | $0.10 | $0.50 | $1.00 |
+| 输出 | $0.50 | $2.50 | $5.00 |
+| Cache 读 | $0.01 | $0.05 | $0.10 |
+| Cache 写 | $0.125 | $0.625 | $1.25 |
+
+官方口径：≤100K 档比 Haiku 4.5 便宜 90%、>100K 便宜 50%、平均 ~75%（Haiku 4.5 的 90% 请求 ≤100K）。
+
+#### 技术亮点与独创性
+
+1. 🔧 **组合创新｜按上下文长度分层计价**：此前 Claude 4.6 以来所有模型全窗口单一费率，Haiku 5.5 首个引入分段（竞对 GPT-6 Luna 已先 2 周引入 272K 分段，Anthropic 将其做为主打定价架构）。本质：让价格贴成本曲线（长 prompt 的 KV cache/注意力服务成本更高），并在 ≤100K 段与 GPT-6 Luna 精确同价对位
+2. 📋 **跟进对齐｜effort 五档下放 Haiku 线**：Opus/Sonnet、GPT-6 Sol（六档含 none）、Gemini thinking_level 均已先行；"不可禁用推理"意味着连小模型也默认是 reasoning model（行业新共识）
+3. ⚙️ **工程优化**：1M 上下文 + 128K 输出下放小模型档；⚠️ **新 tokenizer 同任务 token 量 ~1.25×**（Simon Willison 实测，官方脚注承认）——标价降 90% 中含 ~25% 隐性回补，售前测算必须按"每任务实付"而非单价
+
+#### 能力增强（vs Haiku 4.5 / GPT-6 Luna，官方表）
+
+| 基准 | Haiku 5.5 | Haiku 4.5 | GPT-6 Luna |
+|---|---|---|---|
+| GDPval-AA v2.1 | **1620** | 735 | 1437 |
+| AA-Briefcase v1.1 | **1578** | 614 | 1336 |
+| HLE（no tools） | **45.9%** | 10.2% | — |
+| HLE（with tools） | **57.4%** | 18.7% | — |
+| OSWorld 2.1 offline | **72.4%** | 15.7% | 48.9% |
+| Terminal-Bench 4.0 | **39.2%** | 0.0% | 16.4% |
+| FrontierCode 1.1 Main | **46.4%** | — | 42.4% |
+| Chartography | **46.4%** | 6.4% | 29.1% |
+
+> 注：vs GPT-6 Luna 的分数为 Anthropic 官方口径，引用需注明。
+
+- **存量变强**：摘要/分类/抽取质量达上代中档水平——HubSpot CRM 套件历史最高分 92.8%；AlphaSense 生产负载 8M calls/周，质量 0.84 vs 0.76
+- **增量解锁**：①computer use / browser use 高并发 subagent（OSWorld 72.4% + 全家族最快速度，Asana 延迟 -30%、Box 延迟减半）②100K 内大文档压缩/摘要（1M 窗口 + $0.10 输入）③编码 sidekick（Cognition Devin Fusion 以其为 sidekick 保持 FrontierCode 66.2）
+- **官方明确边界**：Sonnet/Opus 5.5 仍是复杂 agentic coding 首选（TB 4.0：Sonnet 5.5 70.6% vs Haiku 39.2%），Haiku 只做"窄范围、此前成本 prohibitive 的任务"
+- **安全**：对齐评测大幅优于 Haiku 4.5；cyber 护栏比 Haiku 4.5 严、比其他新模型略松，允许的防御性 cyber 任务范围比 Sonnet 5.5 更宽，仍阻断渗透测试
+
+#### 成本归因
+
+- **定价策略降本为主**：无任何架构/技术报告公开（无 MoE/稀疏注意力披露）。90% 降幅主要来自：①分层定价贴成本曲线 ②tokenizer 换代（同任务 token +~25% 部分抵消降幅）③对位 GPT-6 Luna（09-22 先发 $0.10/$0.50）的防御性卡位——保住 Claude 生态高并发负载（Claude Code subagent、MCP 调用）不被路由到 OpenAI
+- 架构内禀降本：无公开证据，官方仅称"性能与效率改进"——两种可能并存，官方未公开机制
+
+---
+
 ### Claude Haiku 4.5
 
 - **模型**：`claude-haiku-4-5`（官方全 ID `claude-haiku-4-5-20251001`）
@@ -321,7 +400,7 @@ Sonnet 5 使用**更新的 tokenizer**（同 Opus 4.7 引入的变更思路）�
 
 | 限制项 | 具体值 | 说明 |
 |--------|--------|------|
-| 价格 | 较高 | Fable 5 $10/$50；Opus 5 / Opus 4.8 $5/$25（Fast mode 翻倍）；Sonnet 5 $2/$10→$3/$15；详见下方定价表 |
+| 价格 | 分档 | Fable 5.1 $10/$50；Opus 5.5 $4/$20；Sonnet 5.5 $2/$10；Haiku 5.5 $0.10/$0.50（≤100K，>100K 段 $0.50/$2.50）；详见下方定价表 |
 | 网络安全护栏 | 分类器拦截 | 渗透测试 / exploit 生成 / 二进制漏洞扫描被阻断；需降低护栏需申请 CVP |
 | Fable 5 数据留存 | 强制 30 天 | 不可用于 ZDR；Opus 5 / Opus 4.x 无此限制 |
 | Sonnet 5 tokenizer | token 量 ×1.0–1.35 | 同输入映射为更多 token，测算成本不可只看单价 |
@@ -334,13 +413,14 @@ Sonnet 5 使用**更新的 tokenizer**（同 Opus 4.7 引入的变更思路）�
 
 | 场景 | 推荐模型 | 说明 |
 |------|----------|------|
-| 日常主力 / 性价比最优 | **Opus 5** | coding·knowledge work SOTA，Fable 5 半价、无数据留存要求 |
-| 极限难度任务 | Fable 5 | 官方最高能力档；CursorBench 峰值仍领先 Opus 5（差距 <0.5%） |
-| 大规模 Agent / 成本敏感 | **Sonnet 5** | 最 agentic 的 Sonnet，medium effort 成本效率最优，高 effort 可追平 Opus 4.8 |
-| 极速响应 | Haiku 4.5 | 最快、最具成本效益 |
-| 科学研究（通用可得） | **Opus 5** | 护栏与 Opus 4.8 同级，有机化学 +10.2pp / 蛋白 +7.7pp vs Opus 4.8 |
-| 需降低护栏的网络安全工作 | Opus 4.8（官方建议）/ CVP 版 Opus 5 | Sonnet 5 cyber 能力显著偏弱，不适用 |
-| 企业级合规（不接受数据留存） | Opus 5 / Sonnet 5 | Fable 5 强制 30 天留存且不可用于 ZDR |
+| 日常主力 / 性价比最优 | **Opus 5.5** | $4/$20 新旗舰，TB 4.0 66.4%、AA 指数 58 独立榜第一 |
+| 极限难度任务 | Fable 5.1 | 最高能力档 $10/$50，AA 指数 65.7（09 口径） |
+| 大规模 Agent / 成本敏感 | **Sonnet 5.5** | $2/$10，cache 读减半（agentic -20%），TB 4.0 70.6% |
+| 高并发摘要/压缩/subagent | **Haiku 5.5** | $0.10/$0.50（≤100K），同价档智力领先 GPT-6 Luna（详见[竞品对比](../../alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md)） |
+| 长上下文高并发（>100K） | Haiku 5.5（>100K 段）或 GPT-6 Luna | Haiku >100K 涨 5×，性价比对比见竞品分析 |
+| 科学研究（通用可得） | **Opus 5**（基于 5 代信息） | 护栏与 Opus 4.8 同级，有机化学 +10.2pp / 蛋白 +7.7pp vs Opus 4.8 |
+| 需降低护栏的网络安全工作 | Opus 4.8（官方建议）/ CVP 版 Opus 5（基于 5 代信息） | Sonnet 5 cyber 能力显著偏弱，不适用 |
+| 企业级合规（不接受数据留存） | Opus 5 / Sonnet 5（基于 5 代信息） | Fable 5 强制 30 天留存且不可用于 ZDR |
 
 ### ❌ 不适用
 
@@ -354,15 +434,20 @@ Sonnet 5 使用**更新的 tokenizer**（同 Opus 4.7 引入的变更思路）�
 
 | 模型 | 输入 ($/1M tokens) | 输出 ($/1M tokens) | Prompt Cache Write | Prompt Cache Read |
 |------|---------------------|---------------------|-------------------|-------------------|
+| **Claude Fable 5.1** | $10.00 | $50.00 | [⚠️ 待补充] | [⚠️ 待补充] |
 | **Claude Fable 5** | $10.00 | $50.00 | $12.50 | $1.00 |
 | **Claude Mythos 5** | $10.00 | $50.00 | — | — |
+| **Claude Opus 5.5** | **$4.00** | **$20.00** | [⚠️ 待补充] | [⚠️ 待补充] |
 | **Claude Opus 5** | $5.00 | $25.00 | [⚠️ 待核实] | [⚠️ 待核实] |
 | **Claude Opus 5 Fast** | $10.00 | $50.00 | — | — |
 | **Claude Opus 4.8** | $5.00 | $25.00 | $6.25 | $0.50 |
 | **Claude Opus 4.8 Fast** | $10.00 | $50.00 | — | — |
+| **Claude Sonnet 5.5** | **$2.00** | **$10.00** | [⚠️ 待补充] | **$0.10**（官方口径较 $0.20 减半） |
 | **Claude Sonnet 5**（introductory，至 2026-08-31） | **$2.00** | **$10.00** | [⚠️ 待补充] | [⚠️ 待补充] |
 | **Claude Sonnet 5**（标准价，2026-09-01 起） | **$3.00** | **$15.00** | [⚠️ 待补充] | [⚠️ 待补充] |
 | **Claude Sonnet 4.6** | $3.00 | $15.00 | $3.75 | $0.30 |
+| **Claude Haiku 5.5**（prompt ≤100K tokens） | **$0.10** | **$0.50** | $0.125 | $0.01 |
+| **Claude Haiku 5.5**（prompt >100K tokens） | **$0.50** | **$2.50** | $0.625 | $0.05 |
 | **Claude Haiku 4.5** | $1.00 | $5.00 | $1.25 | $0.10 |
 
 > 来源：[Opus 5 官方公告](https://www.anthropic.com/news/claude-opus-5)（2026.07.24）、[Sonnet 5 官方公告](https://www.anthropic.com/news/claude-sonnet-5)（2026.06.30）、[Anthropic 官方定价页](https://www.anthropic.com/pricing)（2026.06.14 核实 Fable 5 / Opus 4.8 / Sonnet 4.6 / Haiku 4.5）
@@ -376,6 +461,8 @@ Sonnet 5 使用**更新的 tokenizer**（同 Opus 4.7 引入的变更思路）�
 ## 竞品对比
 
 > ⚠️ **时效提醒**：下方两节对比定格于 2026.06（Fable 5 / Opus 4.8 时期）。**Opus 5（2026.07.24）发布后，coding 与 knowledge work 评测的 SOTA 已换为 Opus 5**，但官方未公布其绝对分数，因此无法将 Opus 5 列入下表。引用下表时需说明“这是 Opus 4.8 / Fable 5 口径”。
+
+> 📌 **2026-10 更新**：Claude 5.5 家族（Opus 5.5 09-22 / Sonnet 5.5 09-28 / Haiku 5.5 10-07）与 GPT-6、Gemini 4 Argon 的最新横向对比（含 AA 独立指数座次：Opus 5.5 58 第一）见 [Haiku 5.5 vs GPT-6 Luna 小型档竞争分析](../../alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md)。
 
 ### Fable 5 vs 全家桶（2026.06.09）
 
@@ -405,6 +492,13 @@ Opus 4.8 发布后，Anthropic 与 Google 在 AI Coding 核心基准上的差距
 
 ## 参考资料
 
+- [Anthropic 官方博客 — Introducing Claude Haiku 5.5](https://www.anthropic.com/claude-haiku-5-5)（2026.10.07）
+- [Claude Haiku 5.5 System Card](https://www.anthropic.com/document/claude-haiku-5-5-system-card)
+- [Claude Platform 模型总览](https://platform.claude.com/docs/en/models/overview)
+- [Anthropic 官方博客 — Introducing Claude Opus 5.5](https://www.anthropic.com/claude-opus-5-5)（2026.09.22）
+- [Anthropic 官方博客 — Introducing Claude Sonnet 5.5](https://www.anthropic.com/claude-sonnet-5-5)（2026.09.28）
+- [AWS what's-new — Claude Haiku 5.5](https://aws.amazon.com/about-aws/whats-new/2026/10/claude-haiku-5-5-aws/)
+- [Simon Willison — Claude Haiku 5.5 实测](https://simonwillison.net/2026/Oct/7/claude-haiku-5-5/)（tokenizer ~1.25×、订阅 credits 细节）
 - [Anthropic 官方博客 — Introducing Claude Opus 5](https://www.anthropic.com/news/claude-opus-5)（2026.07.24）
 - [Anthropic 官方博客 — Introducing Claude Sonnet 5](https://www.anthropic.com/news/claude-sonnet-5)（2026.06.30）
 - [anthropics/skills 官方模型目录](https://github.com/anthropics/skills/blob/main/skills/claude-api/shared/models.md) — 模型 ID / 上下文与输出上限 / API 破坏性变更 / 废弃时间表的权威清单
@@ -427,6 +521,7 @@ Opus 4.8 发布后，Anthropic 与 Google 在 AI Coding 核心基准上的差距
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-10-09 | 合并 ai-native-expert 四模型调研素材：**新增 Claude 5.5 家族刷新章节**（Opus 5.5 09-22 $4/$20 / Sonnet 5.5 09-28 $2/$10 + cache 读减半 / 家族级 Max/Team API credits）与 **Haiku 5.5 专章**（1M/128K、首个按上下文长度分层定价 $0.10/$0.50、effort 五档、tokenizer ~1.25× 隐性回补、能力/安全/成本归因全量）；**补录 Fable 5.1**（$10/$50 同价，AA 65.7）；主推表刷新为 5.5 家族（Fable 5 / Opus 5 / Sonnet 5 / Haiku 4.5 移入历史标注）；定价表新增 6 行；适用场景与核心限制表同步；竞品对比新增 2026-10 更新指引 |
 | 2026-08-01 | 合并 ai-native-expert 素材：**新增 Claude Opus 5（2026.07.24）**完整章节（$5/$25 同价 Opus 4.8 / Fable 5 半价、1M、无数据留存、512 cache 最小块、独立限流池、thinking disabled 仅 effort≤high、护栏从领域级下沉到任务阶段级 + OSS-Fuzz 双轴依据、CVP、两项 beta）；**新增 Claude Sonnet 5（2026.06.30）**完整章节（$2/$10 introductory→$3/$15、tokenizer ×1.0–1.35、Free/Pro 默认模型、Firefox 147 exploit 评测 0.0%、护栏同 Opus 4.7/4.8）；**版本代际校正**：“当前最强=Fable 5”改为“Fable 5 为最高能力档、Opus 5 为 coding/knowledge work SOTA”，主推表重构为 4 款并将 Opus 4.8/4.7/4.6/Sonnet 4.6 移入历史模型；**修正 Sonnet 4.6 上下文 200K→1M**、模型 ID 纠错、Haiku 4→Haiku 4.5；补记 Opus 4.1 于 2026-08-05 退役；修复核心能力表格式错误；记录定价信源踩坑（搜索摘要不可采信） |
 | 2026-06-15 | 合并 ai-native-expert 素材：Fable 5 新增「days-long 自主执行」和「主动自验证（Proactive Self-Verification）」详细行为描述（来自官方 Prompting Guide）；补充并行子 Agent 委托能力 |
 | 2026-06-14 | 新增 Claude Fable 5（2026.06.09）与 Claude Mythos 5 完整信息：定价 $10/$50、Mythos-class 架构、自动降级机制、SWE-Bench Pro 80.3%、关键 benchmarks；更新 Haiku 为 4.5；定价表补全 Prompt Caching；更新竞品对比 |

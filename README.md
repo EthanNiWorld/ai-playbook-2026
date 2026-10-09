@@ -2,14 +2,14 @@
 
 > **AI 解决方案售前知识库** — 模型选型 · 竞品对比 · 行业方案 · 技术通识，一站式参考
 >
-> 最后更新：2026-09-20
+> 最后更新：2026-10-09
 
 <p align="center">
   <img src="https://img.shields.io/badge/覆盖厂商-12-blue?style=for-the-badge" alt="覆盖厂商 12 家：阿里云 + 11 家外部厂商">
-  <img src="https://img.shields.io/badge/结构化文档-86-orange?style=for-the-badge" alt="结构化文档 86 篇">
+  <img src="https://img.shields.io/badge/结构化文档-90-orange?style=for-the-badge" alt="结构化文档 90 篇">
   <img src="https://img.shields.io/badge/知识维度-4-green?style=for-the-badge" alt="知识维度 4 类：通识 · 产品 · 对比 · 方案">
   <img src="https://img.shields.io/badge/核心阵地-阿里云-purple?style=for-the-badge" alt="核心阵地：阿里云 MaaS · Coding · App · Infra">
-  <img src="https://img.shields.io/badge/最后更新-2026--09--20-lightgrey?style=for-the-badge" alt="最后更新 2026-09-20">
+  <img src="https://img.shields.io/badge/最后更新-2026--10--09-lightgrey?style=for-the-badge" alt="最后更新 2026-10-09">
 </p>
 
 <p align="center">
@@ -28,9 +28,9 @@
 <td width="50%" valign="top">
 
 **☁️ 阿里云 AI 全栈**
-> 36 篇 · MaaS / Coding / App / Infra / 行业方案 全链路
+> 38 篇 · MaaS / Coding / App / Infra / 行业方案 全链路
 
-[百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun.md) · [GPU](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [全部 36 篇 → index.md](index.md)
+[百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [决策模型](alibaba-ai-hub/maas/decision-model.md) · [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun.md) · [GPU](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [全部 38 篇 → index.md](index.md)
 
 </td>
 <td width="50%" valign="top">
@@ -38,7 +38,7 @@
 **🔀 竞品对比**
 > SA 打法建议 + 差异化分析
 
-[Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md)
+[Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) · [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md)
 
 </td>
 </tr>
@@ -48,7 +48,7 @@
 **🏷️ 模型选型与定价**
 > 12 家厂商模型能力 / 定价 / 定位
 
-[Qwen](alibaba-ai-hub/maas/qwen.md) · [Claude](knowledge/anthropic/claude-api.md) · [GPT-5](knowledge/openai/gpt-5-series.md) · [Gemini](knowledge/google/maas/gemini.md) · [DeepSeek](knowledge/deepseek/deepseek-v-series.md) · [GLM](knowledge/zhipu/glm-series.md) · [Kimi](knowledge/moonshot/kimi-k-series.md) · [全部厂商 → index.md](index.md)
+[Qwen](alibaba-ai-hub/maas/qwen.md) · [Claude](knowledge/anthropic/claude-api.md) · [GPT-6](knowledge/openai/gpt-6-series.md) · [Gemini](knowledge/google/maas/gemini.md) · [DeepSeek](knowledge/deepseek/deepseek-v-series.md) · [GLM](knowledge/zhipu/glm-series.md) · [Kimi](knowledge/moonshot/kimi-k-series.md) · [全部厂商 → index.md](index.md)
 
 </td>
 <td width="50%" valign="top">
@@ -74,7 +74,7 @@
 **📚 AI 通识**
 > Agent · Harness · Prompt · Benchmark
 
-[Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [记忆系统](knowledge/ai-general-notes/agent-memory.md) · [ReAct](knowledge/ai-general-notes/Memory-ReAct.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [推理服务栈](knowledge/ai-general-notes/inference-serving-stack/Mooncake.md) · [全部 22 篇 → index.md](index.md)
+[Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [记忆系统](knowledge/ai-general-notes/agent-memory.md) · [ReAct](knowledge/ai-general-notes/Memory-ReAct.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [推理服务栈](knowledge/ai-general-notes/inference-serving-stack/Mooncake.md) · [存储超级周期](knowledge/ai-general-notes/ai-memory-supercycle.md) · [全部 23 篇 → index.md](index.md)
 
 </td>
 </tr>
@@ -84,7 +84,7 @@
 
 ## ⭐ 精华速览
 
-> 新读者从这 24 篇开始，10 分钟建立 AI 技术全景认知。
+> 新读者从这 25 篇开始，10 分钟建立 AI 技术全景认知。
 
 ### 🟧 阿里云产品实战
 
@@ -113,6 +113,7 @@
 | [AI 公司增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) | Killer App × 企业信任 × 消费制收入，Anthropic 17 个月 47 倍 |
 | [AI Agent Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) | 三维度评估框架：操作执行力（SWE-bench/TB/OSWorld）+ 学术推理力（HLE）+ 知识工作力（GDPval-AA） |
 | [安全护栏粒度](knowledge/ai-general-notes/safety-guardrail-granularity.md) | 从「按领域封禁」到「按危害环节封禁」；危险能力是通用智能的副产物，护栏粒度直接决定可服务市场大小 |
+| [AI 存储超级周期](knowledge/ai-general-notes/ai-memory-supercycle.md) | HBM 产能虹吸机制、KV-cache 需求归因、上下文扩容受益链（算力拿基数/存储拿增速/压缩拿毛利/缓存层拿锁定） |
 
 ### 🔵 他厂精选
 
@@ -122,14 +123,14 @@
 | [DeepSeek V 系列](knowledge/deepseek/deepseek-v-series.md) | V4.1 Flash CED 非对称架构（输入 8B / 输出 16B 激活）、原生视觉、峰谷分时定价 |
 | [GLM 系列](knowledge/zhipu/glm-series.md) | GLM-5.3 / 5.3-Flash 开源 SOTA，Terminal-Bench 3.0 28.3 开源第一，1M 上下文 |
 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) | K3 2.8T / 1M 上下文，Terminal-Bench 非 OpenAI 模型第一，已开源 |
-| [Claude API](knowledge/anthropic/claude-api.md) | Fable 5（最高能力档）/ Opus 5（coding SOTA，$5/$25）/ Sonnet 5，护栏从领域级下沉到任务阶段级 |
-| [GPT-5 系列](knowledge/openai/gpt-5-series.md) | GPT-5.5 GA / 5.6 Sol·Terra·Luna 有限预览，Native Computer Use，256K–1M 上下文 |
+| [Claude API](knowledge/anthropic/claude-api.md) | Claude 5.5 家族（Opus 5.5 $4/$20 / Sonnet 5.5 / Haiku 5.5 分层定价 $0.10/$0.50），护栏从领域级下沉到任务阶段级 |
+| [GPT-6 系列](knowledge/openai/gpt-6-series.md) | Astra（🌟 前代模型监督训练 + 首个 Critical 级 cyber）/ Sol / Luna（272K 分段 $0.10/$0.50），1.05M 上下文 |
 
 ---
 
 ## ☁️ 阿里云 AI 全栈速览
 
-> **36 篇深度文档，覆盖从底层算力到上层应用的完整 AI 产品矩阵（含行业方案）。**
+> **38 篇深度文档，覆盖从底层算力到上层应用的完整 AI 产品矩阵（含行业方案）。**
 
 | 层级 | 核心产品 | 快速入口 |
 |------|---------|---------|
@@ -137,7 +138,7 @@
 | ⌨️ **AI Coding** | Qoder（企业级 AI Coding） | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [Qoder 架构分析](alibaba-ai-hub/ai-coding/qoder_survey_20260622.md) · [vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) |
 | 🤖 **AI 应用平台** | QoderWork · MuleRun · Claw · JVS Crew | [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun.md) · [Claw](alibaba-ai-hub/ai-application/claw-family.md) · [JVS Crew](alibaba-ai-hub/ai-application/jvs-crew.md) |
 | ⚡ **AI Infra（GPU 算力）** | GPU 选型 | [GPU 选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) |
-| 🥊 **竞品对比** | vs Trae · vs Hy3 · vs Doubao | [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
+| 🥊 **竞品对比** | vs Trae · vs Hy3 · vs Doubao · Haiku vs Luna | [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) · [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) |
 
 > 💡 **重点推荐**：[企业自建 AI 平台方案](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) — Higress AI 网关 + 灵骏 GPU + 百炼 Fallback 全栈方案
 
@@ -148,13 +149,13 @@
 ```mermaid
 mindmap
   root((AI Playbook 2026))
-    道:AI 通识 22 篇
+    道:AI 通识 23 篇
       Agent 定义与框架
       Harness 治理层
       Prompt Engineering
       Benchmark 三维度
       记忆系统 / ReAct
-      安全护栏 / 长程任务
+      安全护栏 / 长程任务 / 存储超级周期
     点:厂商与产品
       阿里云 ☁️ 36 篇
         MaaS: Qwen3.8 / Wan3.0 / HappyHorse
@@ -162,11 +163,11 @@ mindmap
         AI App: QoderWork / MuleRun / Claw
         AI Infra: GPU 选型
       Anthropic
-        Fable 5 / Opus 5 / Sonnet 5 · Claude Code
+        Opus 5.5 / Sonnet 5.5 / Haiku 5.5 · Claude Code
       OpenAI
-        GPT-5.6 Sol·Terra·Luna / 5.5 · Codex
+        GPT-6 Astra·Sol·Luna · Codex
       Google
-        Gemini 3.7 Flash / 3.5 Flash-Lite · Vertex AI
+        Gemini 4 Argon / 3.7 Flash · Vertex AI
       Microsoft AI
         MAI-Thinking-1 / MAI-Code-1-Flash
       DeepSeek
@@ -186,6 +187,7 @@ mindmap
     线:竞品对比
       Qoder vs Trae
       Qwen vs Hy3 / Doubao
+      Haiku 5.5 vs GPT-6 Luna
     体:行业方案
       企业自建 AI 平台
       短剧出海 / IPC / 商业地产
@@ -226,20 +228,20 @@ flowchart LR
 
 ```
 .
-├── alibaba-ai-hub/     ← 🟧 阿里云 AI 全栈（核心阵地·主推，36 篇）
+├── alibaba-ai-hub/     ← 🟧 阿里云 AI 全栈（核心阵地·主推，38 篇）
 │   ├── maas/                  ← MaaS 模型服务（百炼 / Qwen / Qwen Embedding & Rerank / Wan / CosyVoice / FunASR / Qwen-Audio TTS / Qwen-Audio ASR / HappyHorse / Fun-Music / sales-tools）
 │   ├── ai-coding/             ← Qoder（企业级 AI Coding IDE）
 │   ├── ai-application/        ← QoderWork / MuleRun / Claw / JVS Crew / 万镜一刻
 │   ├── ai-infra/              ← GPU 选型
-│   ├── competitive-analysis/  ← 竞品对比（vs Trae / vs Hy3 / vs Doubao）
+│   ├── competitive-analysis/  ← 竞品对比（vs Trae / vs Hy3 / vs Doubao / Haiku 5.5 vs GPT-6 Luna）
 │   └── ai-industry-solutions/ ← 🟩 行业方案（企业AI平台 / 短剧出海 / IPC / 商业地产）
 ├── inbox/              ← 📥 原始素材暂存（处理后自动归档）
 ├── archive/            ← 🗄️ 已处理素材备份
-├── knowledge/          ← 🎯 结构化知识库（通识 + 他厂商，50 篇）
-│   ├── ai-general-notes/   ← 🟦 AI 通识（22 篇：Agent / Harness / Prompt / 记忆 / ReAct / 增长飞轮 / Benchmark / RL 算法选型 / 开源定价套利 / 推理服务栈（vLLM/SGLang/Mooncake/EPD）…）
+├── knowledge/          ← 🎯 结构化知识库（通识 + 他厂商，52 篇）
+│   ├── ai-general-notes/   ← 🟦 AI 通识（23 篇：Agent / Harness / Prompt / 记忆 / ReAct / 增长飞轮 / Benchmark / RL 算法选型 / 开源定价套利 / 推理服务栈（vLLM/SGLang/Mooncake/EPD）/ 存储超级周期…）
 │   ├── google/             ← 🔵 Google（3 篇：MaaS / Platform）
 │   ├── anthropic/          ← 🔵 Anthropic（5 篇：MaaS / Coding / App）
-│   ├── openai/             ← 🔵 OpenAI（3 篇：公司分析 / GPT-5系列 / Codex）
+│   ├── openai/             ← 🔵 OpenAI（4 篇：公司分析 / GPT-6系列 / GPT-5系列 / Codex）
 │   ├── microsoft/          ← 🔵 Microsoft AI（1 篇：MAI 模型家族）
 │   ├── deepseek/           ← 🟣 DeepSeek（4 篇：公司分析 / V系列 / R系列 / 知识地图）
 │   ├── minimax/            ← 🟣 MiniMax（4 篇：公司分析 / 模型系列 / MSA论文 / Agent Team）

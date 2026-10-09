@@ -89,7 +89,42 @@
 - [阿里云百炼安全白皮书](https://developer.aliyun.com/ebook/8490)
 - [合规资质与隐私说明](https://help.aliyun.com/zh/model-studio/privacy-notice)
 
-#### 4.3 模型接入管控
+#### 4.3 ZDR（零数据保留）
+
+✅ 支持（国际站企业客户可选，2026-10-09 核实）。官方数据留存政策两层结构：
+
+**默认留存政策**：模型推理服务的用户数据（prompt/response）默认保留**不超过 30 天**（法律要求或为保护服务安全所必要时可能延长）；状态性功能（对话存储、文件）保留至客户删除。
+
+**ZDR 承诺**：开启 ZDR 的业务空间内、调用 ZDR 覆盖模型时——**prompt 与 response 不写入持久化存储，推理处理完成后即删除**；仅在完成推理所必需的加密缓存窗口内短暂存在（默认最长 24 小时，到期自动删除；缓存期间不用于模型训练、人工审阅或任何其他目的）。
+
+**适用范围**：
+- **网站**：仅限通过阿里云国际站（alibabacloud.com）购买模型推理 API 服务的企业客户
+- **地域**：非中国内地区域——法兰克福、日本、中国香港、美东、新加坡（以控制台实际透出为准）
+- **粒度**：以业务空间（Workspace）为单位开启/关闭，默认业务空间同样支持；开启后该空间所有 API Key 的覆盖范围调用均执行 ZDR
+- **形态**：按量付费调用 + DTU/PTU 专属部署形态
+- **开通**：由阿里云客户经理对接，接受需求评估后申请
+
+**覆盖模型清单**（各系列含所列版本及后续新版本）：
+
+| 能力类型 | 支持 ZDR 的模型系列 |
+|---|---|
+| 文本生成 | qwen-max（qwen3.8-max 起）/ qwen-plus（qwen3.7-plus 起）/ qwen-flash（qwen3.8-flash 起）/ deepseek-pro（deepseek-v4-pro-0813 起）/ deepseek-flash（deepseek-v4-flash-0731 起）/ glm（glm-5.2 起） |
+| 图像生成 | qwen-image-pro（qwen-image-3.0-pro 起）/ qwen-image（qwen-image-3.0 起） |
+| 语音合成 | qwen-audio-3.1-tts-*（flash、plus） |
+| 语音识别 | qwen-audio-3.1-asr-*（flash、flash-streaming、flash-filetrans、flash-messages） |
+| 向量与重排序 | text-embedding-v4 及后续新版本 |
+
+**重要边界（售前必读）**：
+- 三方直供模型不覆盖（政策以三方服务条款为准，需与三方确认）
+- ZDR 空间调用不覆盖模型时**不会阻断**，回落默认留存政策——调用前应校验模型清单
+- 状态性功能不支持 ZDR：应用调用（Agent/Workflow 编排链路）、RAG/知识库（含模型调用 proxy 模式）、Batch 推理与异步任务、模型体验中心、OpenAI-compatible Responses API（持久化会话历史）
+- 元数据与运行日志（计量计费、网络与安全审计日志、Trace ID、Token 用量等）不在 ZDR 承诺范围
+- **内容安全审核独立于 ZDR**：开启 ZDR 不会关闭内容安全审核（不提供完全关闭护栏的开关）；违规拦截内容按法规留存最长 2 年（不视为突破 ZDR）；合理认为必要时可在书面通知后暂停特定模型/账号的 ZDR 资格
+- 问题排查：ZDR 请求阿里云不留存用户数据，相关问题需客户结合自身日志排查——建议开启前自建日志管道
+
+📎 参考：[Model Studio 数据留存政策（含 ZDR 选项与模型清单）](https://docs.modelstudio.console.alibabacloud.com/zh/model-studio/data-retention-policy)
+
+#### 4.4 模型接入管控
 
 ✅ 支持，百炼有模型白名单机制。
 
@@ -162,6 +197,7 @@
 
 
 ## 数据源
+- [Model Studio 数据留存政策（含 ZDR 选项与模型清单，2026-10-09 核实）](https://docs.modelstudio.console.alibabacloud.com/zh/model-studio/data-retention-policy)
 - [阿里云百炼安全白皮书（2025云栖大会发布，59页7章）](https://developer.aliyun.com/ebook/8490)
 - https://help.aliyun.com/zh/model-studio/
 - https://www.alibabacloud.com/help/zh/model-studio/
