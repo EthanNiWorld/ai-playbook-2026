@@ -2,14 +2,14 @@
 
 > **AI 解决方案售前知识库** — 模型选型 · 竞品对比 · 行业方案 · 技术通识，一站式参考
 >
-> 最后更新：2026-10-09
+> 最后更新：2026-10-19
 
 <p align="center">
-  <img src="https://img.shields.io/badge/覆盖厂商-12-blue?style=for-the-badge" alt="覆盖厂商 12 家：阿里云 + 11 家外部厂商">
-  <img src="https://img.shields.io/badge/结构化文档-90-orange?style=for-the-badge" alt="结构化文档 90 篇">
+  <img src="https://img.shields.io/badge/覆盖厂商-13-blue?style=for-the-badge" alt="覆盖厂商 13 家：阿里云 + 12 家外部厂商">
+  <img src="https://img.shields.io/badge/结构化文档-94-orange?style=for-the-badge" alt="结构化文档 94 篇">
   <img src="https://img.shields.io/badge/知识维度-4-green?style=for-the-badge" alt="知识维度 4 类：通识 · 产品 · 对比 · 方案">
   <img src="https://img.shields.io/badge/核心阵地-阿里云-purple?style=for-the-badge" alt="核心阵地：阿里云 MaaS · Coding · App · Infra">
-  <img src="https://img.shields.io/badge/最后更新-2026--10--09-lightgrey?style=for-the-badge" alt="最后更新 2026-10-09">
+  <img src="https://img.shields.io/badge/最后更新-2026--10--19-lightgrey?style=for-the-badge" alt="最后更新 2026-10-19">
 </p>
 
 <p align="center">
@@ -28,9 +28,9 @@
 <td width="50%" valign="top">
 
 **☁️ 阿里云 AI 全栈**
-> 38 篇 · MaaS / Coding / App / Infra / 行业方案 全链路
+> 39 篇 · MaaS / Coding / App / Infra / 行业方案 全链路
 
-[百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [决策模型](alibaba-ai-hub/maas/decision-model.md) · [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun.md) · [GPU](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [全部 38 篇 → index.md](index.md)
+[百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [决策模型](alibaba-ai-hub/maas/decision-model.md) · [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work-retired-product.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun-retired-product.md) · [GPU](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [全部 39 篇 → index.md](index.md)
 
 </td>
 <td width="50%" valign="top">
@@ -46,7 +46,7 @@
 <td width="50%" valign="top">
 
 **🏷️ 模型选型与定价**
-> 12 家厂商模型能力 / 定价 / 定位
+> 13 家厂商模型能力 / 定价 / 定位
 
 [Qwen](alibaba-ai-hub/maas/qwen.md) · [Claude](knowledge/anthropic/claude-api.md) · [GPT-6](knowledge/openai/gpt-6-series.md) · [Gemini](knowledge/google/maas/gemini.md) · [DeepSeek](knowledge/deepseek/deepseek-v-series.md) · [GLM](knowledge/zhipu/glm-series.md) · [Kimi](knowledge/moonshot/kimi-k-series.md) · [全部厂商 → index.md](index.md)
 
@@ -66,7 +66,7 @@
 **⌨️ AI Coding & App**
 > IDE 插件 · 桌面 Agent · 云端编排
 
-[Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [Claude Code](knowledge/anthropic/claude-code.md) · [Codex](knowledge/openai/codex.md) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun.md) · [Claude Cowork](knowledge/anthropic/claude-cowork.md)
+[Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [Claude Code](knowledge/anthropic/claude-code.md) · [Codex](knowledge/openai/codex.md) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work-retired-product.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun-retired-product.md) · [Claude Cowork](knowledge/anthropic/claude-cowork.md)
 
 </td>
 <td width="50%" valign="top">
@@ -74,7 +74,7 @@
 **📚 AI 通识**
 > Agent · Harness · Prompt · Benchmark
 
-[Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [记忆系统](knowledge/ai-general-notes/agent-memory.md) · [ReAct](knowledge/ai-general-notes/Memory-ReAct.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [推理服务栈](knowledge/ai-general-notes/inference-serving-stack/Mooncake.md) · [存储超级周期](knowledge/ai-general-notes/ai-memory-supercycle.md) · [全部 23 篇 → index.md](index.md)
+[Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [记忆系统](knowledge/ai-general-notes/agent-memory.md) · [ReAct](knowledge/ai-general-notes/Memory-ReAct.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [推理服务栈](knowledge/ai-general-notes/inference-serving-stack/Mooncake.md) · [存储超级周期](knowledge/ai-general-notes/ai-memory-supercycle.md) · [算子经济学](knowledge/ai-general-notes/operator-kernel-economics.md) · [全部 25 篇 → index.md](index.md)
 
 </td>
 </tr>
@@ -84,7 +84,7 @@
 
 ## ⭐ 精华速览
 
-> 新读者从这 25 篇开始，10 分钟建立 AI 技术全景认知。
+> 新读者从这 27 篇开始，10 分钟建立 AI 技术全景认知。
 
 ### 🟧 阿里云产品实战
 
@@ -114,6 +114,8 @@
 | [AI Agent Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) | 三维度评估框架：操作执行力（SWE-bench/TB/OSWorld）+ 学术推理力（HLE）+ 知识工作力（GDPval-AA） |
 | [安全护栏粒度](knowledge/ai-general-notes/safety-guardrail-granularity.md) | 从「按领域封禁」到「按危害环节封禁」；危险能力是通用智能的副产物，护栏粒度直接决定可服务市场大小 |
 | [AI 存储超级周期](knowledge/ai-general-notes/ai-memory-supercycle.md) | HBM 产能虹吸机制、KV-cache 需求归因、上下文扩容受益链（算力拿基数/存储拿增速/压缩拿毛利/缓存层拿锁定） |
+| [算子与算子优化经济学](knowledge/ai-general-notes/operator-kernel-economics.md) | 「算法决定上限 × 算子决定兑换率」；开源与否是利润池位置的函数，算子是快速折旧资产 |
+| [Agent Native 存储](knowledge/ai-general-notes/agent-native-storage.md) | 用户形态从「人」变「百万级 Agent」打破四个假设；隔离单元从 bucket→目录→独立 inode 空间下沉 |
 
 ### 🔵 他厂精选
 
@@ -130,14 +132,14 @@
 
 ## ☁️ 阿里云 AI 全栈速览
 
-> **38 篇深度文档，覆盖从底层算力到上层应用的完整 AI 产品矩阵（含行业方案）。**
+> **39 篇深度文档，覆盖从底层算力到上层应用的完整 AI 产品矩阵（含行业方案）。**
 
 | 层级 | 核心产品 | 快速入口 |
 |------|---------|---------|
 | 🧠 **MaaS 模型即服务** | 百炼 · Qwen3.8 · 向量与重排序 · Wan3.0 · HappyHorse · Fun-Music | [百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [向量与重排序](alibaba-ai-hub/maas/qwen-embedding-rerank.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) · [Fun-Music](alibaba-ai-hub/maas/fun-music.md) · [售前工具](alibaba-ai-hub/maas/sales-tools/) |
 | ⌨️ **AI Coding** | Qoder（企业级 AI Coding） | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [Qoder 架构分析](alibaba-ai-hub/ai-coding/qoder_survey_20260622.md) · [vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) |
-| 🤖 **AI 应用平台** | QoderWork · MuleRun · Claw · JVS Crew | [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun.md) · [Claw](alibaba-ai-hub/ai-application/claw-family.md) · [JVS Crew](alibaba-ai-hub/ai-application/jvs-crew.md) |
-| ⚡ **AI Infra（GPU 算力）** | GPU 选型 | [GPU 选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) |
+| 🤖 **AI 应用平台** | QoderWork · MuleRun · Claw · JVS Crew | [QoderWork](alibaba-ai-hub/ai-application/qoder-work-retired-product.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun-retired-product.md) · [Claw](alibaba-ai-hub/ai-application/claw-family.md) · [JVS Crew](alibaba-ai-hub/ai-application/jvs-crew.md) |
+| ⚡ **AI Infra（存储 / 算力）** | GPU 选型 · AgenticFS | [GPU 选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [AgenticFS](alibaba-ai-hub/ai-infra/agenticfs.md) |
 | 🥊 **竞品对比** | vs Trae · vs Hy3 · vs Doubao · Haiku vs Luna | [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) · [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) |
 
 > 💡 **重点推荐**：[企业自建 AI 平台方案](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) — Higress AI 网关 + 灵骏 GPU + 百炼 Fallback 全栈方案
@@ -149,25 +151,26 @@
 ```mermaid
 mindmap
   root((AI Playbook 2026))
-    道:AI 通识 23 篇
+    道:AI 通识 25 篇
       Agent 定义与框架
       Harness 治理层
       Prompt Engineering
       Benchmark 三维度
       记忆系统 / ReAct
       安全护栏 / 长程任务 / 存储超级周期
+      算子经济学 / Agent Native 存储
     点:厂商与产品
-      阿里云 ☁️ 36 篇
+      阿里云 ☁️ 39 篇
         MaaS: Qwen3.8 / Wan3.0 / HappyHorse
         AI Coding: Qoder
         AI App: QoderWork / MuleRun / Claw
-        AI Infra: GPU 选型
+        AI Infra: GPU 选型 / AgenticFS
       Anthropic
         Opus 5.5 / Sonnet 5.5 / Haiku 5.5 · Claude Code
       OpenAI
         GPT-6 Astra·Sol·Luna · Codex
       Google
-        Gemini 4 Argon / 3.7 Flash · Vertex AI
+        Gemini 4 Argon / 3.8 Flash · Vertex AI
       Microsoft AI
         MAI-Thinking-1 / MAI-Code-1-Flash
       DeepSeek
@@ -181,7 +184,9 @@ mindmap
       字节跳动
         Doubao-Seed-2.1 Pro 0915 · Seedance 2.5
       腾讯混元
-        Hy3
+        Hy4 preview / Hy3
+      小米 MiMo
+        V2.6 Flash / Pro
       阶跃星辰
         Step 3.7 Flash / AI+终端
     线:竞品对比
@@ -228,28 +233,29 @@ flowchart LR
 
 ```
 .
-├── alibaba-ai-hub/     ← 🟧 阿里云 AI 全栈（核心阵地·主推，38 篇）
+├── alibaba-ai-hub/     ← 🟧 阿里云 AI 全栈（核心阵地·主推，39 篇）
 │   ├── maas/                  ← MaaS 模型服务（百炼 / Qwen / Qwen Embedding & Rerank / Wan / CosyVoice / FunASR / Qwen-Audio TTS / Qwen-Audio ASR / HappyHorse / Fun-Music / sales-tools）
 │   ├── ai-coding/             ← Qoder（企业级 AI Coding IDE）
 │   ├── ai-application/        ← QoderWork / MuleRun / Claw / JVS Crew / 万镜一刻
-│   ├── ai-infra/              ← GPU 选型
+│   ├── ai-infra/              ← GPU 选型 / AgenticFS（Agent 原生文件存储）
 │   ├── competitive-analysis/  ← 竞品对比（vs Trae / vs Hy3 / vs Doubao / Haiku 5.5 vs GPT-6 Luna）
 │   └── ai-industry-solutions/ ← 🟩 行业方案（企业AI平台 / 短剧出海 / IPC / 商业地产）
 ├── inbox/              ← 📥 原始素材暂存（处理后自动归档）
 ├── archive/            ← 🗄️ 已处理素材备份
-├── knowledge/          ← 🎯 结构化知识库（通识 + 他厂商，52 篇）
-│   ├── ai-general-notes/   ← 🟦 AI 通识（23 篇：Agent / Harness / Prompt / 记忆 / ReAct / 增长飞轮 / Benchmark / RL 算法选型 / 开源定价套利 / 推理服务栈（vLLM/SGLang/Mooncake/EPD）/ 存储超级周期…）
+├── knowledge/          ← 🎯 结构化知识库（通识 + 他厂商，55 篇）
+│   ├── ai-general-notes/   ← 🟦 AI 通识（25 篇：Agent / Harness / Prompt / 记忆 / ReAct / 增长飞轮 / Benchmark / RL 算法选型 / 开源定价套利 / 算子经济学 / Agent Native 存储 / 推理服务栈（vLLM/SGLang/Mooncake/EPD）/ 存储超级周期…）
 │   ├── google/             ← 🔵 Google（3 篇：MaaS / Platform）
 │   ├── anthropic/          ← 🔵 Anthropic（5 篇：MaaS / Coding / App）
 │   ├── openai/             ← 🔵 OpenAI（4 篇：公司分析 / GPT-6系列 / GPT-5系列 / Codex）
 │   ├── microsoft/          ← 🔵 Microsoft AI（1 篇：MAI 模型家族）
-│   ├── deepseek/           ← 🟣 DeepSeek（4 篇：公司分析 / V系列 / R系列 / 知识地图）
+│   ├── deepseek/           ← 🟣 DeepSeek（4 篇：公司分析 / V系列 / R系列 3 篇 md + 知识地图 HTML）
 │   ├── minimax/            ← 🟣 MiniMax（4 篇：公司分析 / 模型系列 / MSA论文 / Agent Team）
 │   ├── moonshot/           ← 🟣 月之暗面（2 篇：公司分析 / Kimi K系列）
 │   ├── bytedance/          ← 🟣 字节跳动（2 篇：Doubao-Seed-2.1 / Seedance 系列）
 │   ├── zhipu/              ← 🟣 智谱 AI（2 篇：公司分析 / GLM系列）
 │   ├── stepfun/            ← 🟣 阶跃星辰（2 篇：公司分析 / Step 3系列）
-│   └── tencent/            ← 🟣 腾讯混元（1 篇：Hy3）
+│   ├── tencent/            ← 🟣 腾讯混元（1 篇：混元系列 Hy3/Hy4）
+│   └── xiaomi/             ← 🟣 小米 MiMo（1 篇：MiMo-V2.6 系列）
 ├── vibeCodingProject/  ← 🧪 实验代码（Demo 脚本、CHM 查看器）
 ├── index.md            ← 📋 全局索引导航
 └── README.md

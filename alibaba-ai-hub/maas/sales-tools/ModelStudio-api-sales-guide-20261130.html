@@ -696,11 +696,23 @@
       <div class="model-subsection">第三方模型（百炼同样支持）</div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>模型</th><th>说明</th></tr></thead>
+          <thead><tr><th>模型</th><th>模型定位</th><th>说明</th></tr></thead>
           <tbody>
-            <tr><td class="model-name">GLM-5.3（智谱旗舰）</td><td>百炼直接调用，无需对接智谱独立接口；新加坡 $1.40/$4.40（1M 上下文 / 128K 输出）</td></tr>
-            <tr><td class="model-name">DeepSeek-V4.1-Flash / DeepSeek-V4-Pro</td><td>高性价比推理模型（V4.1-Flash 原生多模态视觉，官方声明全面超越 V4-Pro；取代 0731 版），百炼直接调用</td></tr>
-            <tr><td class="model-name">Kimi-K3（月之暗面）</td><td>代码生成模型，百炼直接调用</td></tr>
+            <tr>
+              <td class="model-name">GLM-5.3（智谱旗舰）</td>
+              <td>把 Agent 放进生产环境跑命令、查漏洞<br><span style="font-size:11px;color:var(--text-muted);">典型场景：安全审计 · Shell 执行 · 仓库级长程任务</span></td>
+              <td>百炼直接调用，无需对接智谱独立接口；新加坡 $1.40/$4.40（1M 上下文 / 128K 输出）</td>
+            </tr>
+            <tr>
+              <td class="model-name">DeepSeek-V4.1-Flash / DeepSeek-V4-Pro</td>
+              <td>主打极致性价比<br><span style="font-size:11px;color:var(--text-muted);">典型场景：办公 Agent · 大批量推理</span></td>
+              <td>高性价比推理模型（V4.1-Flash 原生多模态视觉，官方声明全面超越 V4-Pro；当前版本 2026-10-17 的 1017 快照，取代 0731 版），百炼直接调用</td>
+            </tr>
+            <tr>
+              <td class="model-name">Kimi-K3（月之暗面）</td>
+              <td>一次就要想明白的难问题<br><span style="font-size:11px;color:var(--text-muted);">典型场景：数学 · 问答 · 调试 · 检索</span></td>
+              <td>旗舰通用模型（2.8T MoE / 1M 上下文 / 始终思考），百炼直接调用</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -822,22 +834,22 @@
             <tr>
               <td><span class="badge badge-green">推理+编程</span></td>
               <td class="model-name">deepseek-v4-pro-0813</td>
-              <td>高性价比推理模型</td>
+              <td>极致性价比：办公 Agent / 大批量推理首选</td>
             </tr>
             <tr>
               <td><span class="badge badge-green">推理+编程</span></td>
               <td class="model-name">deepseek-v4.1-flash</td>
-              <td>高性价比推理模型（552B CED 非对称架构、原生多模态视觉；2026-09-10 发布，取代 0731 版）</td>
+              <td>极致性价比：办公 Agent / 大批量推理首选（552B CED 非对称架构、原生多模态视觉；当前版本为 <b>2026-10-17</b> 的 V4.1-Flash-1017 快照——架构不变、后训练重做，TB 4.0 42.3 / DeepSWE 77.0；取代 0731 版）</td>
             </tr>
             <tr>
               <td><span class="badge badge-max">旗舰</span></td>
               <td class="model-name">glm-5.3</td>
-              <td>智谱最新旗舰（2026-08-14 发布，开源 SOTA：Terminal-Bench 3.0 28.3 开源第一、CyberGym 84.5%），1M 上下文 / 128K 输出，新加坡 $1.40/$4.40</td>
+              <td>把 Agent 放进生产环境跑命令、查漏洞（安全审计 / Shell 执行）；智谱最新旗舰（2026-08-14 发布，开源 SOTA：Terminal-Bench 3.0 28.3 开源第一、CyberGym 84.5%），1M 上下文 / 128K 输出，新加坡 $1.40/$4.40</td>
             </tr>
             <tr>
               <td><span class="badge badge-green">推理+编程</span></td>
               <td class="model-name">kimi-k3</td>
-              <td>月之暗面编程强项</td>
+              <td>一次就要想明白的难问题（数学 / 问答 / 调试 / 检索）；月之暗面 2.8T MoE 旗舰，1M 上下文、始终思考</td>
             </tr>
           </tbody>
         </table>

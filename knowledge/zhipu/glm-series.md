@@ -1,13 +1,13 @@
 # 智谱 GLM 系列模型
 
-> 最后更新: 2026-10-09
+> 最后更新: 2026-10-19
 > 所属厂商: 智谱 AI（Zhipu AI）
 > 产品类别: MaaS
 > 状态: Published
 
 **定位**: 智谱自研 GLM 系列大模型，清华 KEG 实验室背景，强调中国本土化、合规部署与 ARC（Agent/Reasoning/Coding）能力体系
-**当前主推**: GLM-5.3（2026.08.14 发布，同基座后训练 Scaling，API 已上线 / 权重已开源）+ GLM-5.3-Flash（2026.08.26 发布并开源，系列首个原生多模态，¥0.8/¥2.8；2026.09.18 推出同模型高速服务档 FlashX，最高 200 t/s，¥2/¥7）+ GLM-5.2（2026.06 上线并开源，Solid 1M 上下文，专为长程任务而生）
-**适用**: 企业合规部署、政企客户、本地化推理、中文编程、长程任务、1M 项目级上下文
+**当前主推**: GLM-5.3（2026.08.14 发布，同基座后训练 Scaling，API 已上线 / 权重已开源）+ GLM-5.3-Flash（2026.08.26 发布并开源，系列首个原生多模态，¥0.8/¥2.8；2026.09.18 推出同模型高速服务档 FlashX，最高 200 t/s，¥2/¥7）+ GLM-5.2（2026.06 上线并开源，Solid 1M 上下文，专为长程任务而生）；垂类衍生 GLM-Legal（2026.10.12，基于 GLM-5.3-Flash 的法律 Agent 模型，Beta 申请制）
+**适用**: 企业合规部署、政企客户、本地化推理、中文编程、长程任务、1M 项目级上下文、法律专业工作流（合同审查/证据分析/跨境合规）
 **不适用**: 多模态场景需按模型区分（GLM-5.3/5.2/5.1 纯文本，需走 GLM-5V 等独立产品线；GLM-5.3-Flash 已原生多模态但输出仅文本）；GLM-5.3-Flash（¥0.8/¥2.8）已补齐极致低价位，其余型号价格仍高于 DeepSeek
 
 ## 当前主推模型
@@ -21,6 +21,8 @@
 > 📌 **历史模型**：GLM-5.1（2026.04.07，200K，8 小时级长程任务，SWE-Bench Pro 58.4，MIT 开源，华为昇腾训练）、GLM-5（2026.02.11，128K+，SWE-bench Verified 开源 SOTA）仍可调用，但已被 GLM-5.2/5.3 取代，不建议新项目选用；GLM-4 / GLM-4.5 / GLM-4.6 / GLM-4.7 详见下方各小节。
 
 > 📌 **服务档**：GLM-5.3-FlashX（2026.09.18）为同一 GLM-5.3-Flash 模型的高速服务档（扩容推理集群 + 调优推理栈，最高 200 t/s，¥2/¥7），非新模型，详见下方小节。
+
+> 📌 **垂类衍生**：GLM-Legal（2026.10.12）为基于 GLM-5.3-Flash 的法律垂类 Agent 模型（领域中期训练 + 数万法律任务环境 RL），Beta 申请制，不是通用主推模型，详见下方小节。
 
 ### GLM-5.3
 
@@ -98,7 +100,7 @@
 
 - **模型**：GLM-5.3-FlashX（官方模型代码 `glm-5.3-flashx`，与 `glm-5.3-flash` 同页共存）
 - **公司**：智谱 AI
-- **时间**：2026 年 9 月 18 日发布，API 同步全面开放 [来源: docs.bigmodel.cn/cn/guide/models/vlm/glm-5.3-flash + stcn.com/article/detail/4190668.html]
+- **时间**：2026 年 9 月 18 日发布，API 同步全面开放 [来源: docs.bigmodel.cn/cn/guide/models/vlm/glm-5.3-flash + stcn.com/article/detail/4190668.html]；**2026-09-21 上架百炼**（国际/全球节点）[来源: 百炼上新页]
 - **定位**：**不是新模型**，而是同一 GLM-5.3-Flash（320B-A18B、45 层、稀疏+线性混合注意力、1M 上下文、原生多模态全部不变）跑在**扩容后推理集群 + 进一步调优的推理栈**上的高速服务档；第三方复核（MyClaw）称其为 "speed-oriented twin... not a separate flagship"。官方原话："为满足快速增长的需求，我们持续加大 Infra 投入与推理优化。现推出 GLM-5.3-FlashX，推理速度达 200 tokens/s"；证券时报（引官方）：10 万张国产芯片推理集群"上线即被用户用满"，此次"再次扩大算力规模"
 - **速度口径**：官方最高 200 tokens/s、较 Flash 提升 5 倍；独立锚点为 AA 实测 Flash 输出 41.7 t/s（200/41.7≈4.8，与官方口径自洽）。注意 200 为"最高可达"峰值 vs AA 均值口径，第三方用户实测 Flash 速度散布 40~100 t/s，真实体感提升更可能 2~4 倍
 - **为什么能快（机制）**：①Flash 架构本身"为快而生"（18B 激活、45 层、混合注意力，单 token 计算量在对比基线中最低），AA 仅 41.7 t/s 的瓶颈在服务端不在模型端——官方自认国产芯片"主要瓶颈在于内存容量与带宽"，"Flash"指低成本而非快；②decode 是 memory-bandwidth-bound 负载，集群扩容使单卡 batch 可下调、每请求分到更多带宽份额，是"买速度"最直接的物理路径；③推理栈底座已含 SGLang 基座自研引擎 + 生产级 EPD 分离（Encode/Prefill/Decode 三池独立扩缩容，扩容可精准砸在 decode 池）+ 混合量化 + ReplaySSM + Layer Split。**反推**：定价 2.5 倍 < 速度 5 倍——若纯靠砍 batch 换速度，单 token 成本会同比例上升、5 倍速度需约 5 倍硬件才打平；售价仅涨 2.5 倍仍维持盈利叙事，说明叠加了真实服务端效率优化（官方未披露明细，属合理推断）
@@ -107,6 +109,24 @@
 - **为什么分档而不直接提速 Flash（Why）**：低价档（¥0.8/¥2.8）的经济学依赖超大 batch 摊薄带宽成本，统一提速即毁掉 Flash 成本结构；用户支付意愿分层（Agent 交互对延迟极敏感 vs 批处理只看单价），分档让需求各自出清；供给紧张（10 万卡上线即被用满）下 FlashX 本质是"多付 2.5 倍买 5 倍速度"的用户自选择排序
 - **行业信号（证券时报定性，第三方视角）**：标志国产大模型竞争逻辑从"拼模型能力上限"切换到"同等智能水平下拼推理效率与用户体验"——8/26 Flash 做的是"单位智能价格"，9/18 FlashX 做的是"单位智能×时间价格"，速度从配置参数变成商品 SKU。前提条件：模型架构留有巨大速度余量 + EPD 分离式 serving 让"加卡换速度"可精细化操作
 - **不确定性**：AA 尚未收录 FlashX 独立实测（发布仅 3 天时）；serving 栈具体改动（batch 策略/投机解码/量化档位）官方未披露；芯片供应商（华为/海光/摩尔线程）仍无官方确认，媒体"华为算力协同"说属推测
+
+### GLM-Legal
+
+- **模型**：GLM-Legal
+- **公司**：智谱 AI
+- **时间**：2026 年 10 月 12 日官方博客发布，10-13 国内媒体跟进，10-17 Vals AI 放榜后集中曝光 [来源: z.ai/blog/glm-legal（JS 渲染，WebFetch 未获正文，细节经量子位一手实测评述与 OSCHINA 转述交叉验证）]
+- **定位**：智谱首个**自有品牌、Agent 形态**的法律垂类模型，基于 GLM-5.3-Flash 做领域中期训练 + 数万法律任务环境 RL，不是从头训练的旗舰
+- **历史沿革**：不是智谱首次涉足法律——2023 年已与幂律智能基于 ChatGLM-130B 联合研发千亿参数法律垂类模型 PowerLawGLM，且为幂律智能老股东（参与其近 8000 万元 Pre-B 轮）。准确表述是「首个自有品牌法律垂类模型」，而非「首款法律模型」
+- **底座**：GLM-5.3-Flash（320B-A18B、45 层、稀疏+线性混合注意力、1M 上下文、原生多模态、MIT）；GLM-Legal 自身参数量官方未单独公布，按中期训练定义与底座一致
+- **训练路径**：①法律语料领域中期训练（注入法律概念、法条、分析方法）→ ②数万法律任务环境 RL（练「读材料→做分析→推进任务→交付成果」）→ ③**模型与 Agent Harness 协同迭代**（改进材料组织、工具连接、反馈流程）
+- **基准**（Vals AI 口径，2026-10-17）：Harvey LAB 全通过率 **19.2%**（较自家基座 GLM-5.3-Flash 高 12.5 个百分点；开放权重第一、总榜第六，约 $0.15/任务）；LegalBench 准确率 **86.23%**（开放权重第一）
+- **⚠️ 口径不可比**：Artificial Analysis 的 Harvey LAB-AA v1.1（120 私有任务 + 幻觉门控 + Stirrup harness）榜首仅 13.1%，与 Vals 的 19.2% 因数据集版本、harness、评分机制不同而不可直接比较
+- **成本/时间**：成绩相近下比 Gemini 4 Argon 慢近 30 分钟，但对方每项测试成本约为其 70 倍（评测账单口径，混合 token 单价与任务效率，不可解读为单价差）
+- **能力增量（此前做不到）**：①端到端交付物——给需求 + 客户材料直接产出可审阅的审查意见/修改方案，并与合同现有条款逐条对应（对比演示：终止通知 60→30 天、90 天过渡支持、成果交回范围）；②证据串联——从散落报告/文档/聊天记录中发现「对外 60% vs 内部 41%」的矛盾并回溯更早的风险警告；③跨境合规行动清单——新马印尼上线的隐私合规拆成可执行步骤
+- **形态**：Beta 申请制（律所/法律科技公司/企业法务/独立执业），**无公开 API 价格表**；计划接入 AutoClaw（智谱 2026-03 上线的通用 AI Agent，本地版 OpenClaw 客户端，别名「澳龙」）。注：AutoClaw 博客 2026-10-02 已发 GLM-Legal 实测文，早于官宣，说明先灰度接触后正式发布
+- **独创性**：🔧 组合创新——垂类中期训练 + 任务环境 RL 路线已被 Harvey Tenet（2026-08，Kimi K3 底座）验证；智谱差异在「底座选小而强（320B 而非 743B 旗舰）」+「模型与 harness 联合迭代」。未发现 🌟 首创级技术点
+- **短板**：19.2% 全通过率意味着约 80% 任务未全部达标（定位「实习律师」而非合伙人）；比 Gemini 慢近 30 分钟，并购交割/庭审准备等时间敏感场景是硬伤；Beta 期无公开定价、无 SLA、无规模并发验证；多法域跨境责任边界未定义
+- **Why 用轻量底座做垂类**：法律任务的价值在「交付物是否可用」而非通用知识广度；320B-A18B 的单 token 成本结构使每任务约 $0.15 成为可能，垂类后训练又把专业任务通过率拉到超过自家 743B 通用旗舰——这是「成本结构 × 后训练杠杆」的组合，而非单纯堆规模
 
 ### GLM-5.2
 
@@ -171,42 +191,7 @@
 
 > 来源：[智谱官方文档](https://docs.bigmodel.cn/cn/guide/models/text/glm-5.1)、[智谱研究文档](https://www.zhipuai.cn/zh/research/157)、[WaveSpeed AI 对比](https://wavespeed.ai/blog/posts/glm-5-1-vs-claude-gpt-gemini-deepseek-llm-comparison/)、[Lushbinary](https://lushbinary.com/blog/glm-5-1-benchmarks-breakdown-swe-bench-pro-nl2repo-cybergym/)
 
-#### GLM-5.1 定价
-
-**中国站（智谱开放平台，元/百万 tokens）**：
-
-| 分段 | 输入 | 输出 | 缓存命中 |
-|------|------|------|----------|
-| 0-32K | 6 元 | 24 元 | 0.6 元 |
-| 32K+ | 8 元 | 28 元 | 0.6 元 |
-
-**国际站（美元/百万 tokens）**：
-
-| 渠道 | 输入 | 输出 |
-|------|------|------|
-| Z.AI 官方 / OpenRouter | $0.98 | $3.08 |
-| FriendliAI / Requesty | $1.40 | $4.40 |
-
-> 来源：[智谱定价页](https://bigmodel.cn/pricing)、[OpenRouter](https://openrouter.ai/z-ai/glm-5.1)、[PricePerToken](https://pricepertoken.com/pricing-page/model/z-ai-glm-5.1)
-
-#### GLM-5.1 vs 同期旗舰对比（2026 年 6 月）
-
-| 维度 | GLM-5.1 | Claude Opus 4.8 | GPT-5.5 | Qwen3.7-Max |
-|------|---------|-----------------|---------|-------------|
-| 发布时间 | 2026.04.07 | 2026.05.28 | 2026.05 | 2026.05.20 |
-| SWE-Bench Pro | 58.4 | **69.2** | 58.6 | N/A |
-| SWE-Bench Verified | 77.8 | **88.6** | 82.6 | N/A |
-| Terminal-Bench | 63.5 (v2.0) | 74.6 (v2.1) | **78.2** (v2.1) | 69.7 (v2.0) |
-| HLE | N/A | **57.9** | 52.2 | 41.4 |
-| 上下文 | 200K | 200K | **1M** | **1M** |
-| 多模态 | ❌ | ✅ | ✅ | ❌ (Max版) |
-| 开源 | ✅ MIT | ❌ | ❌ | ❌ |
-| 输入价格 $/M | $0.98 | $5.00 | $5.00 | $2.50 |
-| 输出价格 $/M | $3.08 | $25.00 | $30.00 | $7.50 |
-
-> GLM-5.1 的核心优势不在绝对分数而在**性价比 + 开源 + 长程任务 + 华为昇腾合规**的组合。
-
-> 来源：[Vellum AI - Claude Opus 4.8 Benchmarks](https://www.vellum.ai/blog/claude-opus-4-8-benchmarks-explained)（引用 Anthropic System Card 8.1.A）、[AI Tools Recap - Qwen3.7-Max](https://aitoolsrecap.com/Blog/qwen-3-7-max-review-benchmarks-2026)
+> 📌 **定价与对比**：GLM-5.1 已非主推，其分段定价（中国站 0-32K / 32K+、国际站渠道差）与 2026-06 同期旗舰对比（Opus 4.8 / GPT-5.5 / Qwen3.7-Max）已随各模型迭代而过时，不再维护；存量核算请查 [智谱定价页](https://bigmodel.cn/pricing)。
 
 ### GLM-5
 
@@ -245,6 +230,7 @@
 | **安全攻防（GLM-5.3 涌现）** | CyberGym 84.5% 超越 Mythos 5 / GPT-5.6，发现 2,436 个真实漏洞（含 45 年潜伏 DNS 漏洞） |
 | **开源 MIT 协议** | GLM-5.2 / GLM-5.1 / GLM-5.3（08-28 已开放）权重完全开放，支持商业部署 |
 | **中文优化** | 清华大学 KEG 实验室背景，中文理解能力强 |
+| **法律垂类（GLM-Legal）** | Harvey LAB 全通过率 19.2%（Vals AI 口径，开放权重第一）、LegalBench 86.23%；输出端到端交付物而非法条问答 |
 
 ### 核心限制
 
@@ -271,6 +257,7 @@
 | 开源 + 商业可用 | GLM-5.2 / GLM-5.1 / GLM-5.3 | MIT 协议，可自部署（GLM-5.3 已于 08-28 开放） |
 | 原生多模态输入 + 极致性价比 | GLM-5.3-Flash | 系列首个原生多模态（输出仅文本），¥0.8/¥2.8，AA 57 |
 | 延迟敏感场景（Coding Agent / 交互产品） | GLM-5.3-FlashX | 同模型高速服务档：耗时 ÷5、token 花费 ×2.5，等待时间即人力成本，总拥有成本可能反降；批处理继续用 Flash |
+| 法律专业工作流（合同审查/证据分析/跨境合规） | GLM-Legal（Beta 申请制） | 领域中期训练 + 数万法律任务环境 RL；输出可审阅交付物，非通用模型替代品 |
 | 中等推理任务 | GLM-4-Air / Flash | 性价比分层 |
 
 ### ❌ 不适用
@@ -315,11 +302,18 @@
 - [证券时报 - GLM-5.3-FlashX 扩算力提速度报道](https://www.stcn.com/article/detail/4190668.html)
 - [智谱 API 定价页（FlashX ¥2/¥7/¥0.57）](https://docs.bigmodel.cn/cn/guide/start/pricing)
 - [MyClaw - GLM-5.3-FlashX 复核（同模型高速档）](https://myclaw.ai/blog/glm-5-3-flashx)
+- [智谱官方博客 - GLM-Legal](https://z.ai/blog/glm-legal)（JS 渲染，需浏览器访问）
+- [量子位 - 智谱新模型，懂法方面全球第一了](https://www.qbitai.com/2026/10/503965.html)（2026-10-17，GLM-Legal 一手实测与 PowerLawGLM 沿革）
+- [OSCHINA - 智谱发布 GLM-Legal](https://www.oschina.net/news/502993)（2026-10-13）
+- [Artificial Analysis - Harvey LAB-AA v1.1 榜单](https://artificialanalysis.ai/evaluations/harvey-lab-aa)（幻觉门控口径，与 Vals 不可比）
 
 ## Changelog
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-10-19 | 校验修复（knowledge-verification-2026-10-19）：FlashX 小节补记 2026-09-21 上架百炼（国际/全球节点）；Changelog 主表折叠最早 4 条至 <details>（保留近 10 条） |
+| 2026-10-19 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20261019.md - 新增 GLM-Legal 小节（2026-10-12 发布：首个自有品牌法律 Agent 模型，GLM-5.3-Flash 底座 + 领域中期训练 + 数万任务环境 RL + harness 协同；Harvey LAB 19.2% / LegalBench 86.23%，开放权重第一；Beta 申请制、计划接入 AutoClaw；并修正「首款法律模型」为「首个自有品牌」——2023 年已有 PowerLawGLM 合作）；头部主推/适用、主推表垂类标注、核心能力表、适用场景表、参考资料同步 |
+| 2026-10-19 | 历史模型瘦身：GLM-5.1 保留能力定义（八小时级长程任务原理、基准表），删除分段定价表与 2026-06 同期旗舰对比表（对比对象 Opus 4.8 / GPT-5.5 / Qwen3.7-Max 均已迭代 1-2 代），改为一句指引 + 智谱定价页链接 |
 | 2026-10-09 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20260921.md - 新增 GLM-5.3-FlashX 小节（2026-09-18 发布：同一 Flash 模型的高速服务档而非新模型，扩容推理集群 + EPD 分离精准扩 decode 池，官方最高 200 t/s（峰值口径，体感 2~4 倍），¥2/¥7/¥0.57 = Flash 2.5 倍，"速度从配置参数变成商品 SKU"分档逻辑与行业信号）；主推表新增服务档标注；适用场景表新增延迟敏感行；头部当前主推同步 |
 | 2026-09-24 | 新增：GLM-5.3 tool_choice 兼容性实测（百炼国际站三链路）——嵌套/字符串格式均被接受，平铺格式报 400（客户侧发送链路拍平所致，逐字节重放原始 JSON 三端点均 200）；深挖发现部署层缺陷：对象形式强制指定语义未生效且 finish_reason 错误返回 stop（auto/required 正常，跨 glm-5.3/5.2/qwen3.8-max 一致）；另确认 qwen3.8-max 思考模式不支持 tool_choice 对象/required，glm-5.3 无此限制 |
 | 2026-09-20 | 合并：inbox 2026-09-20 素材 - GLM-5.3 小节新增生产推理栈（SGLang 基座 + EPD 分离 + DeepEP + Mooncake Transfer + 10 万张国产芯片，源自智谱 RSI 长文），交叉链接 inference-serving-stack/Mooncake.md |
@@ -328,7 +322,15 @@
 | 2026-09-02 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20260902.md - 新增 GLM-5.3-Flash 小节（2026-08-26 发布并开源：320B-A18B、系列首个原生多模态、稀疏+线性混合注意力、AA 57、¥0.8/¥2.8、MIT、10 万张国产芯片、Ox-Alpha 盲测营销）；主推表加入 Flash 行；头部"不适用"与核心限制/场景表按模型区分修正；交叉链接 [开源权重下的 API 定价下限](../ai-general-notes/open-weights-api-pricing-floor.md) |
 | 2026-08-17 | 合并：inbox 四模型调研 - 新增 GLM-5.3 小节（2026-08-14 发布：同基座后训练 Scaling、TB 3.0 28.3 开源第一、DeepSWE 66.9、网络安全涌现能力 2,436 漏洞、后训练技术路线）；主推切换 GLM-5.3 🚩（API 即将上线 / Coding Plan 已全量 / 两周后开放权重待验证），GLM-5.1 移入历史标注；核心能力表新增安全攻防行；适用场景表同步 |
 | 2026-07-30 | 合并：inbox 2026-07-30 素材 - 新增 GLM-5.2 小节（1M 上下文、基准分数、IndexShare/MTP、RL 路线切换），主推切换为 GLM-5.2，修正上下文限制与适用场景表述，交叉链接 rl-algorithm-selection-grpo-vs-ppo.md |
+
+<details>
+<summary>历史早期记录（2026-05 ~ 2026-06）</summary>
+
+| 日期 | 变更内容 |
+|------|----------|
 | 2026-06-15 | GLM-5.1 长程任务特点补充技术原理摘要（Progressive Alignment + 阶梯型策略切换），新增智谱研究文档参考链接，交叉链接 [long-horizon-task.md](../ai-general-notes/long-horizon-task.md) |
 | 2026-06-03 | 全面更新 GLM-5.1：修正发布时间为 2026.04.07（正式公告）；补充架构参数（744B MoE, 256 experts）；新增全部基准分数（SWE-Bench Pro/Verified、Terminal-Bench 2.0、NL2Repo、Coding Score、AIME 2026）；新增中国站/国际站定价；新增与 Claude Opus 4.8 / GPT-5.5 / Qwen3.7-Max 对比表；补充华为昇腾训练、MIT 协议、纯文本限制等关键信息；更新适用/不适用场景 |
 | 2026-05-28 | 新建文档，首次提炼 GLM 系列模型系列信息 |
 | 2026-05-28 | 更新主推模型为 GLM-5.1（2026.03.27），新增 GLM-5.1 详情节（8 小时级长程任务、SWE-Bench Pro 全球第一） |
+
+</details>

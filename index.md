@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-10-09
+> 最后更新：2026-10-19
 
 ## 目录
 
@@ -10,7 +10,7 @@
 - [点：单产品知识](#点单产品知识)
   - 云厂商：[阿里云](#阿里云) · [Google](#google)
   - 海外模型厂商：[Anthropic](#anthropic) · [OpenAI](#openai) · [Microsoft AI (MAI)](#microsoft-ai-mai)
-  - 中国模型厂商：[DeepSeek](#deepseek深度求索) · [MiniMax](#minimax) · [智谱 AI](#智谱-aizhipu) · [月之暗面](#月之暗面moonshot-ai) · [腾讯混元](#腾讯混元tencent-hunyuan) · [阶跃星辰](#阶跃星辰stepfun)
+  - 中国模型厂商：[DeepSeek](#deepseek深度求索) · [MiniMax](#minimax) · [智谱 AI](#智谱-aizhipu) · [月之暗面](#月之暗面moonshot-ai) · [腾讯混元](#腾讯混元tencent-hunyuan) · [小米 MiMo](#小米-mimo-xiaomi-mimo) · [阶跃星辰](#阶跃星辰stepfun)
 - [线：对比分析（阿里云视角）](#线对比分析阿里云视角)
 - [体：行业解决方案](#体行业解决方案)
 - [模板参考](#模板参考)
@@ -39,9 +39,9 @@
 | Qoder / AI 编程 / IDE 插件 | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) |
 | Qoder 架构 / Harness 逆向 / 执行日志分析 | [Qoder IDE 架构逆向分析](alibaba-ai-hub/ai-coding/qoder_survey_20260622.md) |
 | QwenWork / 千问办公 / Agent 办公平台 | [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) |
-| QoderWork / 桌面助手 / 本地 Agent（已下架，由 QwenWork 承接） | [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) |
+| QoderWork / 桌面助手 / 本地 Agent（已下架，由 QwenWork 承接） | [QoderWork](alibaba-ai-hub/ai-application/qoder-work-retired-product.md) |
 | 万镜一刻 / WonderClip / AI视频创作 / 短剧 | [万镜一刻](alibaba-ai-hub/ai-application/wonderclip万镜一刻.md) |
-| MuleRun / 骡子快跑 / 云端 Agent / vs QoderWork | [MuleRun](alibaba-ai-hub/ai-application/mulerun.md) |
+| MuleRun / 骡子快跑 / 云端 Agent / vs QoderWork | [MuleRun](alibaba-ai-hub/ai-application/mulerun-retired-product.md) |
 | GPU 选型 / A100 / H100 / H20 | [GPU 选型决策树](alibaba-ai-hub/ai-infra/gpu-product-line.md) ⭐ |
 | 灵骏 / 智算集群 / EFLOPS | 待补充 |
 | Agent 定义 / Harness / 治理层 | [Agent](knowledge/ai-general-notes/agent-def.md) ⭐ · [Harness](knowledge/ai-general-notes/harness.md) ⭐ |
@@ -64,7 +64,8 @@
 | GPT-6 / Astra / Sol / Luna / GPT-5 / ChatGPT / OpenAI / Codex | [GPT-6 系列](knowledge/openai/gpt-6-series.md) · [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
 | MAI / 微软自研 / Copilot 模型 | [MAI 模型家族](knowledge/microsoft/mai-models.md) |
 | DeepSeek / R1 / V4 / 开源 | [DeepSeek](knowledge/deepseek/general_intro.md) ⭐ |
-| Hy3 / 腾讯混元 / Hunyuan | [Hy3](knowledge/tencent/hy3.md) |
+| Hy3 / Hy4 / 腾讯混元 / Hunyuan | [混元系列](knowledge/tencent/hunyuan.md) |
+| MiMo / 小米 / V2.6 / 全模态 | [MiMo-V2.6 系列](knowledge/xiaomi/mimo-v2.6-series.md) |
 | StepFun / 阶跃星辰 / Step 3.7 Flash / AI+终端 | [StepFun](knowledge/stepfun/general_intro.md) · [Step 3 系列](knowledge/stepfun/step-3-series.md) |
 | Qwen vs Hy3 / 混元竞争分析 | [Qwen3.7 vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) |
 | Qwen vs Doubao / 豆包竞争分析 | [Qwen3.7-Max vs Doubao-Seed-2.1 Pro](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
@@ -78,7 +79,9 @@
 | API 定价 / 开源套利 / 架构降本 / Flash 低价可持续性 | [开源定价套利与架构降本](knowledge/ai-general-notes/open-weights-api-pricing-floor.md) |
 | 矿山安全 / AI 监控 / 矿山 Demo | [矿山安全 AI 监控 Demo](alibaba-ai-hub/ai-industry-solutions/mining-safety-ai-demo.html) |
 | 企业自建推理 / Higress / AI 网关 | [企业自建 AI 推理平台](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) ⭐ |
-| 数据出境 / 数据主权 / CN 版 | [MuleRun](alibaba-ai-hub/ai-application/mulerun.md#mulerun全球版与骡子快跑中国版的关系) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) |
+| 数据出境 / 数据主权 / CN 版 | [MuleRun](alibaba-ai-hub/ai-application/mulerun-retired-product.md#mulerun全球版与骡子快跑中国版的关系) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work-retired-product.md) |
+| 算子 / Kernel / 算子优化 / 兑换率 / 算法 vs 算子 / 开源利润池 | [算子经济学](knowledge/ai-general-notes/operator-kernel-economics.md) ⭐ |
+| Agent 存储 / AgenticFS / AgenticSpace / Agent 工作区 / 多租户隔离 / OSS vs NAS | [Agent Native 存储](knowledge/ai-general-notes/agent-native-storage.md) ⭐ · [AgenticFS](alibaba-ai-hub/ai-infra/agenticfs.md) |
 
 ---
 
@@ -96,7 +99,7 @@
 ### 概念洞察类（关键认知框架）
 
 - [AI 能力边界与迭代部署](knowledge/ai-general-notes/ai-capability-and-deployment.md) ⭐ — 锯齿状能力边界、迭代部署哲学、Personal AGI 终局
-- [模型自我进化](knowledge/ai-general-notes/agent-self-evolution.md) ⭐ — 模型自驱动训练、打破人工瓶颈、100+ 轮自主迭代带来 30% 效果提升
+- [模型自我进化](knowledge/ai-general-notes/agent-self-evolution.md) ⭐ — 模型自驱动训练、打破人工瓶颈、100+ 轮自主迭代带来 30% 效果提升；两条工程路径（Hy4 流程内嵌 vs MiMo RL 闭环）与真伪判断标尺
 - [长程任务](knowledge/ai-general-notes/long-horizon-task.md) ⭐ — METR 任务完成时间线、阶梯型策略切换、GLM-5.1 8 小时级 / Fable 5 天级 / K2.6 13 小时
 - [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) — 三正交轴选型框架（时间尺度 × 模态融合 × 泛化广度）
 - [推测解码](knowledge/ai-general-notes/speculative-decoding.md) ⭐ — draft-and-verify 范式、DSpark/DFlash/Eagle3 方法对比、模型+系统联合优化趋势
@@ -108,6 +111,8 @@
 - [安全护栏粒度](knowledge/ai-general-notes/safety-guardrail-granularity.md) ⭐ — 从「按领域封禁」到「按危害环节封禁」；危险能力是通用智能的副产物，护栏强度应是实测危害能力的函数（Opus 5 / Sonnet 5 样本）
 - [开源定价套利与架构降本](knowledge/ai-general-notes/open-weights-api-pricing-floor.md) — 自部署套利约束定价上限、低价可持续性三判据、容量/计算解耦三维评价（Qwen3.8-Flash / GLM-5.3-Flash 样本）
 - [AI 存储超级周期](knowledge/ai-general-notes/ai-memory-supercycle.md) — HBM 产能虹吸机制、KV-cache 需求归因、上下文扩容受益链（算力拿基数/存储拿增速/压缩拿毛利/缓存层拿锁定）
+- [算子与算子优化经济学](knowledge/ai-general-notes/operator-kernel-economics.md) — 「算法决定上限 × 算子决定兑换率」框架；开源与否是利润池位置的函数（serving margin 守密 / adopt、芯片开源）；算子是快速折旧资产
+- [Agent Native 存储](knowledge/ai-general-notes/agent-native-storage.md) — 用户形态从「人」变「百万级 Agent」打破四个假设；隔离单元从 bucket→目录→独立 inode 空间逐级下沉
 
 ---
 
@@ -136,7 +141,7 @@
 - [百炼权限配置指南](alibaba-ai-hub/maas/model_studio_config/model-studio-workspace-permission-guide.md) — RAM 子账号、工作空间、API Key 全流程截图
 
 **售前工具（Sales Tools）**
-- [百炼 API 销售指南 0720 版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20260720.md)（MD/HTML） · [1130 新版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20261130.html)（HTML/PNG） — 售前话术、模型选型、客户问答
+- [百炼 API 销售指南 1130 版](alibaba-ai-hub/maas/sales-tools/ModelStudio-api-sales-guide-20261130.html)（HTML/PNG） — 售前话术、模型选型、客户问答
 - [阿里云 AI 解决方案专家提示词](alibaba-ai-hub/maas/sales-tools/ModelStudio-solution-expert-prompt-20260827.md) — 数字分身 System Prompt（模型矩阵/价格口径/ROI 测算信源）
 - [DeepSeek-V4 TPM ROI 计算器](alibaba-ai-hub/maas/sales-tools/deepseek-v4-tpm-vs-modelstudio-roi.html) · [GLM-5.2 TPM ROI 计算器](alibaba-ai-hub/maas/sales-tools/glm5.2-tpm-vs-modelstudio-roi.html)
 - [DeepSeek-V4 Flash 折扣报告](alibaba-ai-hub/maas/sales-tools/deepseek-v4-flash-0731-discount-report-20260818.html) · [DeepSeek-V4 Pro 折扣报告](alibaba-ai-hub/maas/sales-tools/deepseek-v4-pro-0813-discount-report-20260818.html)（HTML/PNG，20260818）
@@ -149,13 +154,14 @@
 **AI App**
 - [万镜一刻](alibaba-ai-hub/ai-application/wonderclip万镜一刻.md) — 全链路AI视频创作平台，短漫剧+营销，HappyHorse+Wan，$18–$12,000/月
 - [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) — 千问办公，一站式 Agent 办公平台（整合 QoderWork / 悟空 / MuleRun）
-- [QoderWork](alibaba-ai-hub/ai-application/qoder-work.md) — 桌面 Agent、本地（已下架，由 QwenWork 承接）
-- [MuleRun](alibaba-ai-hub/ai-application/mulerun.md) — 云端 Agent、Always-On
+- [QoderWork](alibaba-ai-hub/ai-application/qoder-work-retired-product.md) — 桌面 Agent、本地（已下架，由 QwenWork 承接）
+- [MuleRun](alibaba-ai-hub/ai-application/mulerun-retired-product.md) — 云端 Agent、Always-On
 - [龙虾家族](alibaba-ai-hub/ai-application/claw-family.md)
 - [JVS Crew](alibaba-ai-hub/ai-application/jvs-crew.md)
 
 **AI Infra（GPU 算力）**
 - [GPU 产品线选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) ⭐ — A100/H100/H20 选型决策树
+- [AgenticFS](alibaba-ai-hub/ai-infra/agenticfs.md) — Agent 原生 Serverless 文件存储：per-AgenticSpace 独立 inode + QoS + 配额，单系统 50 万 Space，当前邀测
 
 **Agent 框架（AIAgentFrameworks）**
 - [主流 Agent 框架调研](alibaba-ai-hub/AIAgentFrameworks/agent-frameworks-overview.md) — LangChain / LangGraph / LlamaIndex / AutoGen / CrewAI 五大框架的设计理念、创始团队、发布时间、五抽象对比与选型速查（AutoGen→AG2→Microsoft Agent Framework 演进链）
@@ -170,7 +176,7 @@
 
 **MaaS**
 - [Gemini Enterprise Agent Platform](knowledge/google/maas/overview.md)
-- [Gemini](knowledge/google/maas/gemini.md) — **4 Argon（9/30，Gemini 4 世代首发旗舰：🌟 输出上限 1M tokens 行业首个、DeepSWE 77.9% SOTA、AA 幻觉率 15% 最低，Fairwind 受限访问）** / 3.1 Pro（公开可得旗舰）/ **3.7 Flash（8/13 GA workhorse：入门价 $0.75/$3.75 至 2026 年底）** / 3.5 Flash-Lite；3.5 Pro 确认拥置，Flash 线已至 3.8
+- [Gemini](knowledge/google/maas/gemini.md) — **4 Argon（9/30，Gemini 4 世代首发旗舰：🌟 输出上限 1M tokens 行业首个、DeepSWE 77.9% SOTA、AA 幻觉率 15% 最低，Fairwind 受限访问）** / 3.1 Pro（公开可得旗舰）/ **3.8 Flash（workhorse：入门价 $0.75/$3.75 至 2026 年底）** / 3.5 Flash-Lite；3.5 Pro 确认搁置
 
 **AI Platform**
 - [Vertex AI → Agent Platform](knowledge/google/ai-platform/vertex-ai.md) — 训练/部署/Agent
@@ -196,7 +202,7 @@
 
 - 公司分析: [DeepSeek 公司分析](knowledge/deepseek/general_intro.md) ⭐ — MLA+MoE 架构创新、R1 纯 RL 推理、V4 开源 SOTA、557 万美元训练成本、"DeepSeek 时刻"、**Harness 团队组建（2026-05，对标 Claude Code）**
 - 模型系列:
-  - [V 系列](knowledge/deepseek/deepseek-v-series.md) — V1 / V2 / V3 / V3.2 / **V4.1 Flash（0910：552B CED 非对称架构、原生视觉、官方声明全面超越 V4 Pro、闲时输出 ¥4/M）** / V4（Pro GA 0813：TB 2.1 87.9 / 384K 输出 / 峰谷定价；Flash 0731 已下线）
+  - [V 系列](knowledge/deepseek/deepseek-v-series.md) — V1 / V2 / V3 / V3.2 / **V4.1 Flash（0910：552B CED 非对称架构、原生视觉、官方声明全面超越 V4 Pro、闲时输出 ¥4/M）→ V4.1-Flash-1017（10/17：架构完全继承仅后训练重做，TB 4.0 31.2→42.3、DeepSWE 74.2→77.0，reasoning_effort 连续 1~100）** / V4（Pro GA 0813：TB 2.1 87.9 / 384K 输出 / 峰谷定价；Flash 0731 已下线）
   - [R 系列](knowledge/deepseek/deepseek-r-series.md) — R1 / R1-0528 / R2
 - 知识地图: [DeepSeek AI 知识全景图](knowledge/deepseek/deepseek-ai-knowledge-map-JD-202606.html) — 202606 全景图（HTML）
 
@@ -210,7 +216,7 @@
 ### 智谱 AI（Zhipu）
 
 - 公司分析: [智谱 AI 公司分析](knowledge/zhipu/general_intro.md) — 2026.01 港股 IPO（02513.HK，全球大模型第一股）、GLM-5 编程开源 SOTA、MaaS ARR 17 亿元
-- 模型系列: [GLM 系列](knowledge/zhipu/glm-series.md) — GLM-4 / 4.5 / 4.6 / 5 / 5.1 / 5.2 / **5.3（8/14 发布，同基座后训练 Scaling，TB 3.0 28.3 开源第一，安全攻防涌现能力）** / **5.3-Flash（8/26 发布并开源，系列首个原生多模态，320B-A18B，¥0.8/¥2.8，AA 57）+ FlashX 高速服务档（9/18，同模型扩容集群 200 t/s，¥2/¥7）**，GLM-5.2 Solid 1M 上下文 + 长程任务开源 SOTA
+- 模型系列: [GLM 系列](knowledge/zhipu/glm-series.md) — GLM-4 / 4.5 / 4.6 / 5 / 5.1 / 5.2 / **5.3（8/14 发布，同基座后训练 Scaling，TB 3.0 28.3 开源第一，安全攻防涌现能力）** / **5.3-Flash（8/26 发布并开源，系列首个原生多模态，320B-A18B，¥0.8/¥2.8，AA 57）+ FlashX 高速服务档（9/18，同模型扩容集群 200 t/s，¥2/¥7）**，GLM-5.2 Solid 1M 上下文 + 长程任务开源 SOTA；**GLM-Legal（10/12，首个自有品牌法律 Agent 模型，Harvey LAB 19.2% 开放权重第一，Beta 申请制）**
 
 ### 月之暗面（Moonshot AI）
 
@@ -224,7 +230,11 @@
 
 ### 腾讯混元（Tencent Hunyuan）
 
-- 模型: [Hy3](knowledge/tencent/hy3.md) — 295B MoE/21B 激活，OpenRouter 工具调用 #1，SWE-bench 74.4%，开源可自部署，价格碾压
+- 模型: [混元系列](knowledge/tencent/hunyuan.md) — 🚩 **Hy4 preview（770B/49B，1M 上下文，coding/终端强、纯文本、正式版未发）** / Hy3（295B/21B，¥1/¥4，开源可自部署，价格碾压）
+
+### 小米 MiMo（Xiaomi MiMo）
+
+- 模型系列: [MiMo-V2.6 系列](knowledge/xiaomi/mimo-v2.6-series.md) — 原生全模态 + 1M 上下文 + MIT；**Flash（309B/15B，$0.14/$0.28，AA 38、$0.06/task）** / Pro（1.02T/42B）；RL 规模化 You Only RL Once，知识可靠性弱（AA-Omniscience −13）
 
 ### 阶跃星辰（StepFun）
 

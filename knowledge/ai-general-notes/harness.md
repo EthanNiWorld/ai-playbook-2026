@@ -1,12 +1,12 @@
 # Harness（AI Agent 缰绳）
 
-> 最后更新: 2026-06-09
+> 最后更新: 2026-10-19
 > 领域: AI Engineering
 > 状态: Published
 
 <!-- SUMMARY_START -->
 **一句话说明**: Harness 是 Agent 的约束+治理层，定义 Agent 能做什么、不能做什么、何时需要人工介入；同时也覆盖调用层可靠性工程（多账号路由、限流熔断、连接池）
-**核心价值**: 模型是同质化 commodity，Harness 是真正的差异化竞争护城河；Harness Engineering 已成行业正式工程方法论（Anthropic/OpenAI/Hashimoto 共同验证）；Model-Harness 协同演进是下一层竞争前沿
+**核心价值**: 模型是同质化 commodity，Harness 是真正的差异化竞争护城河；Harness Engineering 已成行业正式工程方法论（Anthropic/OpenAI/Hashimoto 共同验证）；Model-Harness 协同演进是下一层竞争前沿；2026-10 起官方 benchmark 分数已是「模型 × Harness 配置」的联合属性而非模型固有属性
 **相关产品**: [HiClaw/龙虾家族](../../alibaba-ai-hub/ai-application/claw-family.md), [JVS Crew](../../alibaba-ai-hub/ai-application/jvs-crew.md)
 <!-- SUMMARY_END -->
 
@@ -120,6 +120,23 @@ Harness 的战略价值不仅在于治理层设计，更在于 **Model 与 Harne
 
 **核心洞察**：当模型能力趋同时（V4 ≈ Claude ≈ GPT），竞争壁垒从「谁模型强」转移到「谁的 Harness 好」——评估任何 AI Agent 产品，要看 Harness 质量（工具权限设计、上下文管理策略、HITL 机制、错误恢复能力），而非仅看所用模型。同一模型接不同 Harness，产品体验可差一个数量级。
 
+### 2026-10 实证：分数成为「模型 × Harness」的联合属性
+
+2026 年 10 月中旬两个发布，把「Model-Harness 协同」从方法论推到了可量化的事实层面：
+
+| 案例 | Harness 依赖的事实 |
+|------|-------------------|
+| **DeepSeek-V4.1-Flash-1017**（2026-10-17） | 官方明写「低于 DeepSeek Harness 0.2.1-rc.1 拿不到完整收益」；官方 DeepSWE 77.0 由 mini-swe-v2 取得，换 `[CC]` 仅 **69.8（-7.2）**，跨 6 框架家族 8 种配置波动 65.5~74.2 |
+| **智谱 GLM-Legal**（2026-10-12） | 把「迭代 Agent 运行框架——改进材料组织、工具连接、反馈流程」**写进垂类模型训练流程本身**，垂类能力最终经 AutoClaw 分发 |
+
+由此得出三条判断：
+
+1. **Benchmark 分数的可比性下降**：分数是 `(model, harness, sampling config)` 的联合属性。任何「官方 X 分」不附 harness 名称与版本，不可用于跨厂商对比。
+2. **开源权重削弱了模型层锁定，厂商把锁定位移到 Harness 层**：权重可下载（MIT），但「最佳体验」绑定自家 harness 版本——类似「硬件开源、固件闭源」。**开源不等于无锁定**。
+3. **采购动作要变**：要求厂商在**你的** harness 下交付实测分（而非引用官方峰值）；把「harness 适配清单 + 版本门槛」写进验收条件。
+
+> ⚠️ 这与本章开头的「Harness 是治理层」形成互补：Harness 既是**风险防护盾**，也是**能力兑现器**——同一权重在不同 harness 下的实测能力可差 8 分以上。
+
 ## 调用层 Harness：容量与限流治理
 
 除了权限与审计，Harness 还覆盖「调用层可靠性」：如何在云厂商 RPM/TPM 限流下保证吞吐与稳定性。这是 Agent 产品从 demo 到生产的必经之路。
@@ -222,3 +239,4 @@ Harness 的战略价值不仅在于治理层设计，更在于 **Model 与 Harne
 | 2026-04-23 | 初始创建（修复原错误内容——原文是 RAG 模板复制残留），基于龙虾家族对话洞察：Harness 是企业战略级资产、Harness vs Prompt 区别 |
 | 2026-05-22 | 新增「调用层 Harness：容量与限流治理」主章节：多账号扩限流模式、客户端拥塞拐点（200 并发甜点 vs 500 并发自我 DDoS）、云厂商限流文档与实测差异、多账号 vs 提额 vs 自托管决策框架。来源：某推理模型双 UID 压测实践（8.5× TPM 提升、零限流验证） |
 | 2026-06-09 | 新增：公式演进（Anthropic→Hashimoto→OpenAI→LangChain→DeepSeek 传播史）、Model-Harness 协同演进厂商对比（含 DeepSeek Harness 团队战略视角）。来源：inbox/ai-knowledge-by-qoder-ai-native-agent-20260609.md（36氪、Verdent AI、Anthropic、Hashimoto、OpenAI、LangChain 原文交叉验证） |
+| 2026-10-19 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20261019.md - 新增「2026-10 实证：分数成为模型 × Harness 的联合属性」（DeepSeek 1017 的 Harness 版本门槛与 mini-swe-v2 77.0 vs [CC] 69.8；GLM-Legal 把 harness 迭代写入垂类训练流程）；三条判断：分数可比性下降、开源后锁定位移到 Harness 层、采购需指定 harness 实测分 |

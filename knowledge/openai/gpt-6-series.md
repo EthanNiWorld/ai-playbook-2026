@@ -77,6 +77,7 @@
 **能力增强**：
 - Sol：DeepSWE v1.1 max effort **68.8% ≈ Fable 5（69.9% xhigh）的 ~20% 成本**；OSWorld 2.0 offline xhigh 60.5% ≈ Opus 5 medium（60.3%）的 ~80% 折扣——"near-frontier at a fraction of the cost"
 - Luna：AutomationBench 较 5.6 Luna +5.4 分
+- **Luna 独立实测（AA v4.3.2，2026-10-19 核实）**：Intelligence Index **38**；AA-Briefcase 1335、GDPval-AA 1432、AutomationBench-AA 53%、Terminal-Bench 4.0 13%、SciCode 55%、HLE 39%、GDP.pdf 23%、CritPt 19%、AA-Omniscience **+1**、AA-LCR 83%；每任务成本 **$0.07**、输出 129 tok/s、TTFT 86.64s（Max effort 口径）、每任务输出 50k tokens。与 MiMo-V2.6-Flash 同为 38 分但画像互补（Luna 知识型/高速 vs MiMo agentic/全模态），完整对比见 [MiMo-V2.6 系列](../xiaomi/mimo-v2.6-series.md)
 - **对齐披露（官方透明度）**：Sol coding-deception 10.4%→1.3%；Luna "access denied" 绕过 76.5%→42.4%（大幅改善）但 Sol 仅 68.2%→64.4%（几乎未改善）——OpenAI 明示**权限边界必须由 harness 强制，不能指望模型自觉**；Luna coding-deception 28.7%（vs Sol 系 2-5%，GPT-6.1 Sol system card 披露）——小模型"诚实汇报自身工作"仍有代差
 
 **成本归因**：
@@ -120,7 +121,7 @@
 | **GPT-6 Astra** | $10.00 | $50.00 | cached $1 / write $12.50 | Fast mode 2.5× 速度 2× 价格；知识截止 [⚠️ 待核实] |
 | **GPT-6.1 Sol** | $2.00 | $10.00 | cached $0.10 | 09-29 点更新；max effort ~$5.47/task |
 | **GPT-6 Sol** | $2.00 | $10.00 | cached input 最高 90% off | 永久价（官方发言人确认） |
-| **GPT-6 Luna**（≤272K） | $0.10 | $0.50 | cached input 最高 90% off | 永久价；知识截止 2026-05-18 |
+| **GPT-6 Luna**（≤272K） | $0.10 | $0.50 | cached input 最高 90% off | 永久价；知识截止 2026-05-18；AA 每任务成本 $0.07 |
 | **GPT-6 Luna**（>272K） | $0.20 | $0.75 | 同上 | 分段定价 |
 
 > 定价来源：OpenAI 官方公告（2026-09-03 / 09-22 / 09-29）+ llm-stats / eigent / developers.openai.com 交叉，核实日期 2026-10-09。
@@ -148,9 +149,11 @@
 - [llm-stats — GPT-6 Astra Launch](https://llm-stats.com/blog/research/gpt-6-astra-launch)（定价与规格）
 - [eigent.ai — GPT-6 Sol & Luna](https://www.eigent.ai/blog/gpt-6-sol-luna)（定价/对齐披露/竞对时序）
 - [DataCamp — GPT-6.1 Sol 时间线](https://www.datacamp.com/blog/gpt-6-1-sol)
+- [Artificial Analysis — MiMo-V2.6-Flash vs GPT-6 Luna](https://artificialanalysis.ai/zh/models/comparisons/mimo-v2-6-flash-vs-gpt-6-luna)（Luna 独立评测，2026-10-19 核实）
 
 ## Changelog
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-10-19 | 合并：补强 GPT-6 Luna 的 AA v4.3.2 独立数据（Intelligence Index 38、每任务成本 $0.07、输出 129 tok/s、AA-Briefcase 1335、GDPval-AA 1432、AA-Omniscience +1、AA-LCR 83%、HLE 39%、GDP.pdf 23%），并标注与 MiMo-V2.6-Flash “同分不同命”的选型差异；核实 GPT-6.1 Luna 仍为传闻（官方仅发 6.1 Sol） |
 | 2026-10-09 | 新建文档，首次提炼 GPT-6 系列（Astra 09-02/03 / Sol·Luna 09-22 / 6.1 Sol 09-29）：🌟 Astra 三项首创（前代模型监督训练、首个 Critical 级、monitorability 前置）+ Daybreak 门控；Sol/Luna 缓存解耦与 272K 分段永久价；Luna coding-deception 28.7% 对齐披露；AA 指数双口径标注（v4.1.1 发布时 61.2 / 10 月口径 53）；GPT-5 世代归档指向 gpt-5-series.md |

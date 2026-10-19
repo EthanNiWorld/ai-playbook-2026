@@ -1,13 +1,13 @@
 # Gemini
 
-> 最后更新: 2026-10-09
+> 最后更新: 2026-10-19
 > 所属厂商: GCP
 > 产品类别: MaaS
 
 **定位**: Google 自研多模态大模型系列，原生支持文本+图像+音频+视频多模态输入输出
 **适用**: 多模态理解与生成、企业知识管理、Agent 基础模型、代码生成、计算机操控
 **不适用**: 需要私有化部署的场景（Gemini 仅通过 API / GCP 平台提供）
-**当前主推**: **Gemini 4 Argon（2026.09.30，Gemini 4 世代首发旗舰，🌟 输出上限 1M tokens 行业首个——但首发仅 Fairwind Program 受限访问，后续 paid API 无时间表，售前不可承诺获取）**；公开可得旗舰仍为 Gemini 3.1 Pro（2026.02.19，推理与知识密度最强）；Flash 线已迭代至 **Gemini 3.8 Flash / 3.8 Flash Cyber**（[⚠️ 详情待补充]），3.5 Flash-Lite（350 tok/s 高吞吐）在售；3.6 Flash（2026.07.21）已被 3.7 Flash 取代。**Gemini 3.5 Pro 官方确认搁置（2026.09.24）**，重心转 Flash 线 + Gemini 4
+**当前主推**: **Gemini 4 Argon（2026.09.30，Gemini 4 世代首发旗舰，🌟 输出上限 1M tokens 行业首个——但首发仅 Fairwind Program 受限访问，后续 paid API 无时间表，售前不可承诺获取）**；公开可得旗舰仍为 Gemini 3.1 Pro（2026.02.19，推理与知识密度最强）；Flash 线已迭代至 **Gemini 3.8 Flash / 3.8 Flash Cyber**（3.8 Flash 入门价 $0.75/$3.75 至 2026-12-31——Google 官方云定价页口径，2026-10-19 核实；详情待补研），3.5 Flash-Lite（350 tok/s 高吞吐）在售；3.6 Flash（2026.07.21）已被 3.7 Flash 取代。**Gemini 3.5 Pro 官方确认搁置（2026.09.24）**，重心转 Flash 线 + Gemini 4
 
 ## 当前主推模型
 
@@ -209,7 +209,7 @@ Gemini 通过 **Gemini Enterprise Agent Platform** 统一交付（见 [`vertex-a
 | 128k 密集上下文回忆 | MRCR v2 · 128k 输 3.1 Pro 7.6 分，"塞满 128k 全部精准回忆"场景慎用 |
 | 学术推理 | Humanity's Last Exam 输 4.2 分、ARC-AGI-2 输 5.0 分，极难学术问题选 3.1 Pro 或等待 3.5 Pro |
 
-> 📌 **Gemini 3.5 Pro 确认搁置（更新 2026-10-09）**：原预计 2026.06 发布，多次跳票后，Kavukcuoglu 于 2026-09-24 公开确认 "took a little bit of a step back"——重心转向 Flash 线与 Gemini 4；**Gemini 4 Argon 已于 09-30 发布（见上文专章）**。售前沟通中不应承诺 3.5 Pro。另：Flash 线已迭代至 **3.8 Flash / 3.8 Flash Cyber**（[⚠️ 详情待补充]）。
+> 📌 **Gemini 3.5 Pro 确认搁置（更新 2026-10-09）**：原预计 2026.06 发布，多次跳票后，Kavukcuoglu 于 2026-09-24 公开确认 "took a little bit of a step back"——重心转向 Flash 线与 Gemini 4；**Gemini 4 Argon 已于 09-30 发布（见上文专章）**。售前沟通中不应承诺 3.5 Pro。另：Flash 线已迭代至 **3.8 Flash / 3.8 Flash Cyber**（3.8 Flash 入门价 $0.75/$3.75 至 2026-12-31，官方云定价页口径；详情待补研）。
 
 ## 参考资料
 
@@ -229,6 +229,7 @@ Gemini 通过 **Gemini Enterprise Agent Platform** 统一交付（见 [`vertex-a
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-10-19 | 校验修复（knowledge-verification-2026-10-19）：3.8 Flash 待补充处回填定价——入门价 $0.75/$3.75 至 2026-12-31（Google 官方云定价页 snippet 核实）；详细规格待 miner 补研 |
 | 2026-10-09 | 合并四模型调研素材：**新增 Gemini 4 Argon 专章**（09-30 发布，🌟 1M 输出上限行业首个 + Long Decode Continuation、Fairwind 受限访问、DeepSWE 77.9% SOTA、AA 幻觉率 15% 最低、领先/落后项与成本归因全量）；主推表加 Argon（受限标注）并调整 3.1 Pro 为"公开可得旗舰"；**补记 3.8 Flash / 3.8 Flash Cyber 已存在**（[⚠️ 详情待补充]）；3.5 Pro 从"跳票预期"改为"官方确认搁置（09-24）"；头部当前主推重写 |
 | 2026-08-17 | 合并：inbox 四模型调研 - 新增 Gemini 3.7 Flash 章节（2026-08-13 发布，新 workhorse 🚩：入门价 $0.75/$3.75 至 2026-12-31 / DeepSWE 65.3% / thinking_level 三值枚举等 4 项 API 变化 / 部署 Gemini Spark+Antigravity）；主推表重排（3.7 Flash 顶替 3.6 Flash，3.6 Flash 仅存活三周移入历史标注）；适用场景与平台交付表同步 |
 | 2026-07-27 | 精简：3.5 Flash 深度分析章节（~80 行）压缩为"上代模型存档"小节，保留战略意义/关键参数/Computer Use 起源，删除过时 benchmark/定价详表；诚实弱点与平台交付口径同步 |

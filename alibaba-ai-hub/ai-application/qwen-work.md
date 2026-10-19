@@ -1,6 +1,6 @@
 # QwenWork（千问办公）
 
-> 最后更新: 2026-09-17
+> 最后更新: 2026-10-19
 > 所属厂商: 阿里巴巴（阿里云）
 > 产品类别: AI App
 > 状态: Published
@@ -78,11 +78,12 @@
 - 快速入门: https://help.aliyun.com/zh/document_detail/3047901.html
 - 常见问题: https://help.aliyun.com/zh/document_detail/3047945.html
 - 官方公告（阿里巴巴集团）: https://ali-home.alibaba.com/document-2021039099929952256
-- 关联文档: [QoderWork（已下架）](qoder-work.md) · [MuleRun](mulerun.md)
+- 关联文档: [QoderWork（已下架）](qoder-work-retired-product.md) · [MuleRun](mulerun-retired-product.md)
 
 ## Changelog
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-10-19 | 校验修复（knowledge-verification-2026-10-19）：关联文档断链修复——qoder-work.md → qoder-work-retired-product.md、mulerun.md → mulerun-retired-product.md |
 | 2026-09-17 | 增量：用户口述 - 支持阿里云 VPC 私有化部署（K8s），待官方验证 |
 | 2026-09-17 | 初始创建：依据官方帮助文档 + 集团公告 + 媒体报道（2026-07/08）；记录与 QoderWork / 悟空 / MuleRun 的整合关系；用户口述确认代替 QoderWork |

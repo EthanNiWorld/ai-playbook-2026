@@ -1,6 +1,6 @@
 # QoderWork
 
-> 最后更新: 2026-09-17
+> 最后更新: 2026-10-19
 > 所属厂商: 阿里云
 > 产品类别: AI App
 > 状态: Published
@@ -54,7 +54,7 @@ QoderWork 是一款**桌面端智能工作助手**——通过自然语言对话
 
 ## 与 MuleRun 的深度对比分析
 
-详见 [MuleRun 文档 — 深度对比分析](mulerun.md#与-qoderwork-的深度对比分析)
+详见 [MuleRun 文档 — 深度对比分析](mulerun-retired-product.md#与-qoderwork-的深度对比分析)
 
 **核心差异一句话**：QoderWork 是本地桌面方案（Qoder IDE 生态衍生），MuleRun 是云端方案（全球版数据出境，骡子快跑 = MuleRun CN 数据不出境）；QoderWork 如需数据不出境须选择 **QoderWork CN**。
 
@@ -64,6 +64,7 @@ QoderWork 是一款**桌面端智能工作助手**——通过自然语言对话
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-10-19 | 校验修复（knowledge-verification-2026-10-19）：MuleRun 深度对比分析链接断链修复——mulerun.md → mulerun-retired-product.md（锚点保留） |
 | 2026-09-17 | 标注产品已下架（用户口述，待官方验证）；能力由 QwenWork（千问办公）承接，新增关联链接 |
 | 2026-06-02 | 深度对比分析重构：更新引用链接至增强版对比分析；标注用户补充信息待验证 |
 | 2026-06-02 | 增量更新：强化"Qoder IDE 生态衍生"定位；修正数据主权说明（QoderWork 本身不保证数据不出境，须选 QoderWork CN）；不适用场景新增 HTML 网站发布 |
