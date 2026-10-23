@@ -1,6 +1,6 @@
 # CosyVoice
 
-> 最后更新: 2026-09-20
+> 最后更新: 2026-10-23
 > 所属厂商: Alibaba (Alibaba Cloud)
 > 产品类别: AI 语音合成（TTS）
 > 状态: Published
@@ -17,7 +17,7 @@
 
 ### 一句话定位
 
-阿里 FunAudioLLM 团队研发的多语言大语音生成模型。2026-07 起作为百炼售前主推 TTS 引擎（官方在同期将 Qwen-TTS 标注为"旧版"）；2026-09-18 起售前 TTS 主推移交 Qwen-Audio-TTS 3.x 系列（北京 3.1-flash / 国际站 3.0-plus），CosyVoice 系列仍在百炼在售。
+阿里 FunAudioLLM 团队研发的多语言大语音生成模型。2026-07 起作为百炼售前主推 TTS 引擎（官方在同期将 Qwen-TTS 标注为"旧版"）；2026-09-18 起售前 TTS 主推移交 Qwen-Audio-TTS 3.x 系列（3.1 flash / plus / next，北京 + 新加坡双节点），CosyVoice 系列仍在百炼在售。
 
 ### 底层原理（通俗版）
 
@@ -121,6 +121,7 @@ CosyVoice 基于 LLM 的流式语音合成架构（CosyVoice 2），支持双向
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-10-23 | 修正主推口径：Qwen-Audio-TTS 3.1 已扩为 flash / plus / next 三档且均上架新加坡，“北京 3.1-flash / 国际站 3.0-plus”的分节点口径作废（以 qwen-audio-tts.md 为准） |
 | 2026-09-20 | 主推口径更新：2026-09-18 起售前 TTS 主推移交 Qwen-Audio-TTS 3.x 系列（北京 3.1-flash / 国际站 3.0-plus）；本篇保留为 CosyVoice 产品参考文档 |
 | 2026-09-20 | 移除定价表「免费额度」列（用户规范：材料不再考虑免费额度） |
 | 2026-07-04 | 竞品对照表新增 MiniMax speech-2.8-hd |

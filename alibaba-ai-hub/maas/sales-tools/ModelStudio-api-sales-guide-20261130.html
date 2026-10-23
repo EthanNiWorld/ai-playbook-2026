@@ -577,8 +577,8 @@
         <!-- 语音 -->
         <div class="mx-panel mx-p3">
           <div class="mx-group">
-            <div class="mx-names"><span><b>Q</b>wen-Audio-3.1-TTS-Flash<em>主推 · 北京</em></span><span><b>Q</b>wen-Audio-3.0-TTS-Plus</span></div>
-            <div class="mx-bar">Text to Speech · TTS</div>
+            <div class="mx-names"><span><b>Q</b>wen-Audio-3.1-TTS-Flash<em>主推</em></span><span><b>Q</b>wen-Audio-3.1-TTS-Plus</span><span><b>Q</b>wen-Audio-3.1-TTS-Next<em>音频生成</em></span></div>
+            <div class="mx-bar">Text to Speech · TTS · AudioGen</div>
           </div>
           <div class="mx-group">
             <div class="mx-names"><span><b>Q</b>wen-Audio-3.0-ASR-Flash<em>主推</em></span></div>
@@ -899,8 +899,9 @@
         <table>
           <thead><tr><th>模型</th><th>用途</th></tr></thead>
           <tbody>
-            <tr><td class="model-name">qwen-audio-3.1-tts-flash</td><td>语音合成（TTS）· 北京节点新主推 · 74 系统音色（含多语种 / 方言），2026-09-18 上线</td></tr>
-            <tr><td class="model-name">qwen-audio-3.0-tts-plus</td><td>语音合成（TTS）· 国际站（新加坡）/ 高品质场景 · 指令控制 / 声音复刻</td></tr>
+            <tr><td class="model-name">qwen-audio-3.1-tts-flash<span class="badge badge-green">推荐</span></td><td>语音合成（TTS）· 新主推 · 北京 + 新加坡 · 74 系统音色（含多语种 / 方言）；比 plus 快约 2 倍，成本约为 plus 的 1/10</td></tr>
+            <tr><td class="model-name">qwen-audio-3.1-tts-plus</td><td>语音合成（TTS）· 精品音色 / 内容制作 · 北京 + 新加坡 · 4 个 v3.1 旗舰音色 · 指令控制 / 声音复刻</td></tr>
+            <tr><td class="model-name">qwen-audio-3.1-tts-next</td><td>音频生成（AudioGen，非纯 TTS 但兼容 TTS 用法）· 北京 + 新加坡 · text_prompt + 最多 3 段参考音频，@voice1~3 分角色→多人 voice 播客 / 对谈 / 有声剧；人声 + 音效 + 环境音一次生成；非流式（≤120s，播客 ≤240s）</td></tr>
             <tr><td class="model-name">qwen-audio-3.0-asr-flash</td><td>语音识别（ASR）· 词级时间戳</td></tr>
           </tbody>
         </table>

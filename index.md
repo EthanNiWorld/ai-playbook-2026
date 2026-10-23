@@ -26,7 +26,7 @@
 | Qwen / 通义千问 / 3.8-Max / 3.8-Flash / 3.7-Plus / 旗舰 | [Qwen](alibaba-ai-hub/maas/qwen.md) |
 | Qwen Embedding / Rerank / 向量化 / 重排序 / RAG 检索 / 精排 | [Qwen 向量与重排序](alibaba-ai-hub/maas/qwen-embedding-rerank.md) |
 | 万相 / Wan / 视频生成 / 图生视频 | [万相](alibaba-ai-hub/maas/wan.md) |
-| Qwen-Audio-TTS / 语音合成 / TTS / 声音复刻 | [Qwen-Audio TTS](alibaba-ai-hub/maas/qwen-audio-tts.md) · [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md)（前主推） |
+| Qwen-Audio-TTS / 语音合成 / TTS / 声音复刻 / 音频生成 / AudioGen / 多人播客 | [Qwen-Audio TTS](alibaba-ai-hub/maas/qwen-audio-tts.md) · [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md)（前主推） |
 | FunASR / 语音识别 / ASR / 说话人分离 | [FunASR](alibaba-ai-hub/maas/funasr.md) |
 | Qwen-Audio / Qwen-Audio-3.0-ASR / LLM 语音识别 / 即时热词 | [Qwen-Audio ASR](alibaba-ai-hub/maas/qwen-audio-asr.md) |
 | HappyHorse / 快乐小马 / AI 视频生成 / 音视频联合生成 | [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) |
@@ -130,8 +130,8 @@
 - [Qwen](alibaba-ai-hub/maas/qwen.md) — 3.8-Max（旗舰，2.4T MoE / 1M ctx / TB 2.1 86.6，开源版 qwen3.8-2.4t-a95b 原生 262K 可扩展 ~1M）/ 3.7-Plus（多模态智能体）/ 3.8-Flash（新架构轻量，2026-08-26：125B/6B 激活 + 51B N-gram Embedding，GDN+QSA 混合注意力，1M ctx，¥0.8/¥2.7，取代 3.7-Flash）
 - [Qwen 向量与重排序](alibaba-ai-hub/maas/qwen-embedding-rerank.md) — qwen3.7-text-embedding（向量旗舰，256~2560 维）/ flash（1/4 价轻量）/ text-rerank（500 条候选精排），RAG 两阶段检索，含北京/新加坡定价与限流
 - [万相](alibaba-ai-hub/maas/wan.md) — 视频生成旗舰、首尾帧控制
-- [Qwen-Audio TTS](alibaba-ai-hub/maas/qwen-audio-tts.md) — TTS 售前主推：北京 qwen-audio-3.1-tts-flash（74 系统音色含多语种方言）/ 国际站 qwen-audio-3.0-tts-plus，声音复刻 / 设计 / 指令控制
-- [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) — TTS 产品线（2026-09-18 起售前主推移交 Qwen-Audio-TTS 3.x：北京 3.1-flash / 国际 3.0-plus），声音复刻+声音设计+指令控制，仍在售
+- [Qwen-Audio TTS](alibaba-ai-hub/maas/qwen-audio-tts.md) — 语音售前主推：3.1 三档（flash 实时交互 / plus 精品音色 / next 音频生成 AudioGen，兼做 TTS + 多 voice 播客）北京 + 新加坡双节点，声音复刻 / 设计 / 指令控制 / 标签控制
+- [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) — TTS 产品线（2026-09-18 起售前主推移交 Qwen-Audio-TTS 3.x：3.1 flash/plus/next 北京 + 新加坡），声音复刻+声音设计+指令控制，仍在售
 - [FunASR](alibaba-ai-hub/maas/funasr.md) — ASR 产品线（2026-09-18 起售前主推移交 qwen-audio-3.0-asr-flash），六大能力一站式语音识别，仍在售
 - [Qwen-Audio ASR](alibaba-ai-hub/maas/qwen-audio-asr.md) — LLM-based ASR 系列，上下文理解+即时热词，含中英混说实测幻觉案例
 - [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) — AI 视频生成（音视频联合单次生成，淘天 ATH）
