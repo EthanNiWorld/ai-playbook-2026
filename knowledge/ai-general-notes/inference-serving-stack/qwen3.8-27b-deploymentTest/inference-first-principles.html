@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="以 Qwen3.8-27B 单实例 TP2 双卡 Blackwell 实测为例，从第一性原理讲解 LLM prefill、decode、吞吐公式、瓶颈诊断与场景化优化。">
+  <title>LLM 推理：TP2 第一性原理与吞吐实测</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: #0d1a2b;
+      --panel-2: #112238;
+      --ink: #e7f0fa;
+      --muted: #9db0c5;
+      --line: #263c54;
+      --cyan: #54d7e8;
+      --blue: #73a7ff;
+      --orange: #ffbd6e;
+      --green: #72ddb0;
+      --red: #ff8f98;
+      --violet: #b9a2ff;
+      --shadow: 0 18px 50px rgba(0, 0, 0, .22);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: radial-gradient(circle at 75% 0%, #142e47 0, var(--bg) 34rem);
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      line-height: 1.72;
+    }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    code { color: #bfe9ff; background: #081522; padding: .12rem .38rem; border-radius: 5px; }
+    .hero { max-width: 1440px; margin: 0 auto; padding: 64px 48px 38px; }
+    .eyebrow { color: var(--cyan); font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    h1 { max-width: 980px; margin: 14px 0 18px; font-size: clamp(34px, 5vw, 62px); line-height: 1.12; letter-spacing: -.035em; }
+    h1 span { color: var(--cyan); }
+    .subtitle { max-width: 920px; margin: 0; color: var(--muted); font-size: 18px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 24px; }
+    .badge { padding: 5px 11px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: rgba(13, 26, 43, .72); font-size: 12px; }
+    .hero-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 34px; }
+    .hero-card { padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: rgba(13, 26, 43, .84); box-shadow: var(--shadow); }
+    .hero-card b { display: block; margin-bottom: 5px; color: var(--ink); font-size: 17px; }
+    .hero-card span { color: var(--muted); font-size: 13px; }
+    .shell { display: grid; grid-template-columns: 238px minmax(0, 1fr); gap: 34px; max-width: 1440px; margin: 0 auto; padding: 0 48px 70px; }
+    nav { position: sticky; top: 20px; align-self: start; padding: 18px; border: 1px solid var(--line); border-radius: 15px; background: rgba(7, 17, 31, .94); }
+    nav strong { display: block; margin: 0 8px 10px; font-size: 13px; }
+    nav a { display: block; padding: 7px 9px; border-radius: 8px; color: var(--muted); font-size: 13px; }
+    nav a:hover { color: var(--ink); background: var(--panel-2); text-decoration: none; }
+    main { min-width: 0; }
+    section { scroll-margin-top: 20px; margin-bottom: 28px; padding: 30px; border: 1px solid var(--line); border-radius: 20px; background: rgba(13, 26, 43, .92); box-shadow: var(--shadow); }
+    .section-no { color: var(--cyan); font-size: 12px; font-weight: 800; letter-spacing: .12em; }
+    h2 { margin: 6px 0 12px; font-size: 28px; line-height: 1.3; letter-spacing: -.02em; }
+    h3 { margin: 26px 0 10px; font-size: 19px; line-height: 1.4; }
+    h4 { margin: 0 0 8px; font-size: 16px; }
+    p { margin: 9px 0; }
+    .lead, .muted { color: var(--muted); }
+    .lead { max-width: 960px; font-size: 16px; }
+    .note, .warning, .success { margin: 18px 0; padding: 15px 18px; border-left: 3px solid var(--blue); border-radius: 0 10px 10px 0; background: #0a1828; }
+    .warning { border-color: var(--orange); }
+    .success { border-color: var(--green); }
+    .note b, .warning b, .success b { color: var(--ink); }
+    .grid-2, .grid-3 { display: grid; gap: 15px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card { min-width: 0; padding: 19px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel-2); }
+    .card p { color: var(--muted); font-size: 14px; }
+    .card.cyan { border-top: 3px solid var(--cyan); }
+    .card.orange { border-top: 3px solid var(--orange); }
+    .card.green { border-top: 3px solid var(--green); }
+    .card.violet { border-top: 3px solid var(--violet); }
+    .tag { display: inline-block; margin-bottom: 8px; color: var(--cyan); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+    .pipeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 18px; margin: 24px 0; }
+    .step { position: relative; padding: 15px 12px; border: 1px solid var(--line); border-radius: 12px; background: #0a1726; text-align: center; }
+    .step:not(:last-child)::after { position: absolute; top: 50%; right: -17px; color: var(--cyan); content: "→"; transform: translateY(-50%); }
+    .step b { display: block; font-size: 14px; }
+    .step small { color: var(--muted); font-size: 11px; }
+    .step.hot { border-color: #77603d; background: #251f18; }
+    .step.cool { border-color: #275b68; background: #0b222a; }
+    .timeline { margin: 20px 0; padding: 20px; border-radius: 14px; background: #081522; }
+    .timeline-row { display: grid; grid-template-columns: 100px 1fr; align-items: center; gap: 12px; margin: 12px 0; }
+    .track { display: flex; height: 30px; overflow: hidden; border-radius: 7px; background: #14253a; }
+    .track span { display: flex; align-items: center; justify-content: center; min-width: 44px; font-size: 11px; font-weight: 700; }
+    .queue { width: 18%; background: #39455a; }
+    .prefill { width: 27%; background: #236778; }
+    .decode { width: 55%; background: #785329; }
+    .formula { overflow-x: auto; margin: 14px 0; padding: 17px 20px; border: 1px solid #2a485f; border-radius: 12px; background: #071522; color: #d8f6ff; font-family: "SFMono-Regular", Consolas, monospace; font-size: 16px; white-space: nowrap; }
+    .formula small { display: block; margin-top: 6px; color: var(--muted); font-family: Inter, "PingFang SC", sans-serif; white-space: normal; }
+    .defs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 14px; }
+    .def { padding: 10px 12px; border-radius: 9px; background: #0a1828; color: var(--muted); font-size: 12px; }
+    .def b { color: var(--ink); }
+    .table-wrap { overflow-x: auto; margin: 16px 0; border: 1px solid var(--line); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 12px 13px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: #c8d9e9; background: #14253a; font-size: 12px; white-space: nowrap; }
+    tr:last-child td { border-bottom: 0; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .best { color: var(--green); font-weight: 800; }
+    .bad { color: var(--red); }
+    .metric { display: block; margin: 5px 0; color: var(--ink); font-size: 26px; font-weight: 800; line-height: 1.2; }
+    .metric-label { color: var(--muted); font-size: 12px; }
+    .bars { display: grid; gap: 11px; margin: 20px 0; }
+    .bar-row { display: grid; grid-template-columns: 90px 1fr 92px; align-items: center; gap: 10px; font-size: 12px; }
+    .bar-track { height: 19px; overflow: hidden; border-radius: 5px; background: #15263a; }
+    .bar-fill { width: var(--w); height: 100%; border-radius: 5px; background: linear-gradient(90deg, #28788a, var(--cyan)); }
+    .bar-fill.effective { background: linear-gradient(90deg, #347a62, var(--green)); }
+    .bar-value { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .legend { display: flex; gap: 18px; color: var(--muted); font-size: 12px; }
+    .dot { display: inline-block; width: 9px; height: 9px; margin-right: 5px; border-radius: 50%; background: var(--cyan); }
+    .dot.green { background: var(--green); }
+    .calculator { margin-top: 18px; padding: 20px; border: 1px solid #31536b; border-radius: 15px; background: #091827; }
+    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    label { display: block; color: var(--muted); font-size: 12px; }
+    input { width: 100%; margin-top: 5px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; outline: none; color: var(--ink); background: #0f2236; font: inherit; }
+    input:focus { border-color: var(--cyan); }
+    .calc-results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 17px; }
+    .result { padding: 15px; border-radius: 10px; background: #10243a; }
+    .result b { display: block; color: var(--cyan); font-size: 22px; }
+    .result span { color: var(--muted); font-size: 11px; }
+    .decision { display: grid; grid-template-columns: 1fr 46px 1fr 46px 1fr; align-items: stretch; gap: 8px; margin: 18px 0; }
+    .decision .arrow { display: flex; align-items: center; justify-content: center; color: var(--cyan); font-size: 24px; }
+    .checklist { margin: 10px 0; padding-left: 20px; }
+    .checklist li { margin: 7px 0; }
+    .checklist li::marker { color: var(--cyan); }
+    .scenario { position: relative; }
+    .scenario .num { position: absolute; top: 15px; right: 17px; color: #38516a; font-size: 27px; font-weight: 900; }
+    .scenario ul { margin-bottom: 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+    .footer { max-width: 1440px; margin: 0 auto; padding: 0 48px 44px; color: var(--muted); font-size: 12px; }
+    .small { font-size: 12px; }
+    .nowrap { white-space: nowrap; }
+    @media (max-width: 1100px) {
+      .hero-grid, .calc-grid { grid-template-columns: repeat(2, 1fr); }
+      .shell { grid-template-columns: 1fr; }
+      nav { position: static; display: flex; flex-wrap: wrap; gap: 3px; }
+      nav strong { width: 100%; }
+      nav a { padding: 5px 8px; }
+      .pipeline { grid-template-columns: repeat(3, 1fr); }
+      .step:nth-child(3)::after { display: none; }
+    }
+    @media (max-width: 760px) {
+      .hero { padding: 38px 20px 24px; }
+      .shell { padding: 0 20px 40px; }
+      section { padding: 22px 18px; }
+      .hero-grid, .grid-2, .grid-3, .calc-grid, .calc-results, .defs { grid-template-columns: 1fr; }
+      .pipeline { grid-template-columns: repeat(2, 1fr); }
+      .step::after { display: none; }
+      .decision { grid-template-columns: 1fr; }
+      .decision .arrow { transform: rotate(90deg); }
+      .bar-row { grid-template-columns: 70px 1fr 78px; }
+      .footer { padding: 0 20px 30px; }
+    }
+    @media print {
+      :root { --ink: #172333; --muted: #526273; --line: #ccd5df; }
+      body { background: white; color: #172333; }
+      .hero { padding: 24px 0; }
+      .shell { display: block; padding: 0; }
+      nav, .calculator { display: none; }
+      section, .hero-card, .card { break-inside: avoid; box-shadow: none; background: white; }
+      .formula, .timeline, .note, .warning, .success { color: #172333; background: #f4f7fa; }
+      .footer { padding: 20px 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="eyebrow">LLM Inference · First Principles · Measured on Blackwell</div>
+    <h1>从一次请求，看懂<br><span>Prefill、Decode 与吞吐</span></h1>
+    <p class="subtitle">以 Qwen3.8-27B-FP8 实测和 NVFP4 原生 kernel 启动验证为例，在双 RTX PRO 5000 72GB Blackwell 的单实例 TP2 上，把“算力、显存带宽、KV Cache、PCIe 通信、并发与 SLA”连成一套可用于容量规划和性能调优的知识框架。</p>
+    <div class="badges">
+      <span class="badge">教学文档 + 交互式 Roofline</span>
+      <span class="badge">单实例 TP2 专项实测</span>
+      <span class="badge">NVFP4 启动与容量已验证</span>
+      <span class="badge">实测日期：2026-10-28</span>
+      <span class="badge">理论值 / 实测值 / 推断分层标注</span>
+      <span class="badge">无需外部 JS / CSS</span>
+    </div>
+    <div class="hero-grid">
+      <div class="hero-card"><b>Prefill</b><span>并行处理输入并建立 KV；长输入、大 batch 下通常偏算力瓶颈。</span></div>
+      <div class="hero-card"><b>Decode</b><span>逐 token 生成；低并发常受权重与 KV 的显存读取限制。</span></div>
+      <div class="hero-card"><b>Throughput</b><span>取计算 roofline 与访存 roofline 的较小值，而非只看 TFLOPS。</span></div>
+      <div class="hero-card"><b>Goodput</b><span>生产容量只看满足延迟与质量要求的有效吞吐，不追原始峰值。</span></div>
+    </div>
+  </header>
+
+  <div class="shell">
+    <nav aria-label="文档目录">
+      <strong>学习路径</strong>
+      <a href="#flow">01 请求全流程</a>
+      <a href="#principles">02 第一性原理</a>
+      <a href="#formulas">03 核心公式</a>
+      <a href="#example">04 27B 代入计算</a>
+      <a href="#measured">05 实测验证</a>
+      <a href="#diagnosis">06 瓶颈诊断</a>
+      <a href="#scenarios">07 场景化优化</a>
+      <a href="#capacity">08 容量与压测</a>
+      <a href="#cheatsheet">09 总结与误区</a>
+    </nav>
+
+    <main>
+      <section id="flow">
+        <div class="section-no">01 / REQUEST LIFECYCLE</div>
+        <h2>一次请求到底经历了什么？</h2>
+        <p class="lead">LLM 服务不是“把请求交给 GPU 然后等结果”。它是一条包含排队、调度、显存状态管理和流式输出的流水线。TTFT 主要发生在首个 token 之前，TPOT 则描述后续生成节奏。</p>
+        <div class="pipeline">
+          <div class="step"><b>Tokenize</b><small>文本 → token IDs</small></div>
+          <div class="step"><b>Queue</b><small>准入与连续批调度</small></div>
+          <div class="step cool"><b>Prefill</b><small>并行读入整个 Prompt</small></div>
+          <div class="step cool"><b>KV Build</b><small>写入上下文状态</small></div>
+          <div class="step hot"><b>Decode</b><small>逐 token 迭代生成</small></div>
+          <div class="step"><b>Stream</b><small>采样、 detokenize、返回</small></div>
+        </div>
+        <div class="timeline">
+          <div class="timeline-row"><b>时间轴</b><div class="track"><span class="queue">排队</span><span class="prefill">Prefill → 首 token</span><span class="decode">Decode：t₁ → t₂ → … → tₙ</span></div></div>
+          <div class="timeline-row"><b>主要指标</b><div class="track"><span class="queue">TTFT</span><span class="prefill">TTFT</span><span class="decode">TPOT / ITL · output tok/s</span></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card cyan">
+            <span class="tag">PREFILL · 首 token 前</span>
+            <h3>一次前向，处理 S 个输入 token</h3>
+            <p>输入位置可以大规模并行，权重被一批 token 复用，同时生成 Prompt 的 KV Cache。输入越长，注意力二次项越不能忽略。</p>
+            <p><b>直接影响：</b>TTFT、输入 token 吞吐、长 Prompt 成本。</p>
+          </div>
+          <div class="card orange">
+            <span class="tag">DECODE · 首 token 后</span>
+            <h3>每步依赖上一 token，自回归生成</h3>
+            <p>每个活跃序列通常每步推进一个 token，并读取已有 KV。权重在低 batch 下难以充分复用，kernel launch 与调度开销也更明显。</p>
+            <p><b>直接影响：</b>TPOT、输出 tok/s、长输出成本。</p>
+          </div>
+        </div>
+        <div class="warning"><b>真实引擎不是两个孤立阶段。</b> vLLM 的 continuous batching 会在同一调度循环中混合 prefill 与 decode。长 Prompt 的 prefill 可能阻塞其他请求的 decode，因此“提高 prefill batch”并不必然改善整体 SLA。</div>
+      </section>
+
+      <section id="principles">
+        <div class="section-no">02 / FIRST PRINCIPLES</div>
+        <h2>每个 token 都在消耗两种资源</h2>
+        <p class="lead">一类资源是计算：矩阵乘法和注意力；另一类是数据搬运：从显存读取权重、KV Cache 和激活。哪一类先耗尽，哪一类就是当前瓶颈。</p>
+        <div class="formula">R<sub>token</sub> ≤ min(C<sub>eff</sub> / F<sub>token</sub>, B<sub>eff</sub> / D<sub>token</sub>)<small>R：token/s；C：有效算力 FLOP/s；F：每 token 计算量；B：有效显存带宽 byte/s；D：每 token 显存读取量。</small></div>
+        <div class="defs">
+          <div class="def"><b>计算 roofline</b><br>C<sub>eff</sub> / F<sub>token</sub></div>
+          <div class="def"><b>访存 roofline</b><br>B<sub>eff</sub> / D<sub>token</sub></div>
+          <div class="def"><b>实际吞吐</b><br>两者取小，再受调度/通信约束</div>
+        </div>
+        <h3>用算术强度判断在哪一侧</h3>
+        <div class="formula">AI = F<sub>token</sub> / D<sub>token</sub>　　AI* = C / B<small>AI &lt; AI*：偏显存带宽瓶颈；AI &gt; AI*：偏算力瓶颈。实际系统还要叠加 KV、通信、kernel 与调度开销。</small></div>
+        <div class="grid-3">
+          <div class="card"><h4>为什么低并发 decode 偏访存？</h4><p>每步计算量约为 2P，却可能重新读取接近整份权重。batch=1 时权重无法跨序列摊薄，算术强度很低。</p></div>
+          <div class="card"><h4>为什么长 prefill 偏计算？</h4><p>S 个输入 token 共享同一份权重读取，权重流量被摊薄为约 W/S；矩阵规模更大，也更容易喂饱 Tensor Core。</p></div>
+          <div class="card"><h4>为什么高并发 decode 会转向？</h4><p>N 个序列摊薄权重读取，但每序列 KV 仍要读取。增大 N 可提高吞吐，最终撞上算力、KV 带宽或调度上限。</p></div>
+        </div>
+        <div class="note"><b>显存容量与显存带宽不是一回事。</b> 容量决定“能否装下权重、KV 和运行时”；带宽决定“每秒能读多少字节”。PCIe 带宽则主要影响模型加载、CPU↔GPU 与多卡 TP 通信，不能冒充显存带宽。</div>
+      </section>
+
+      <section id="formulas">
+        <div class="section-no">03 / CORE FORMULAS</div>
+        <h2>从参数量推导理论吞吐</h2>
+        <p class="lead">以下是用于理解数量级的简化模型。对 Dense LLM，线性层每 token 前向计算量约为 2P；注意力、视觉编码器、KV、采样和通信需另行计入。</p>
+        <h3>3.1 权重与容量</h3>
+        <div class="formula">W ≈ P × bytes/param + scales/metadata<br>M<sub>VRAM</sub> ≥ W + M<sub>KV</sub> + M<sub>activation</sub> + M<sub>runtime</sub><small>27B BF16 权重约 54 GB；FP8 理想权重约 27 GB，实际还需 scale、元数据与其他参数。</small></div>
+        <h3>3.2 Prefill：输入吞吐与 TTFT</h3>
+        <div class="formula">R<sub>prefill,compute</sub> ≈ C<sub>eff</sub> / (2P)<br>TTFT ≈ T<sub>queue</sub> + T<sub>tokenize</sub> + S / R<sub>prefill</sub> + T<sub>first-token</sub><small>S 为输入 token 数。长输入还要加入随 S² 增长的注意力项；排队经常比纯计算更主导 TTFT。</small></div>
+        <h3>3.3 Decode：计算与访存两个上限</h3>
+        <div class="formula">R<sub>out,compute</sub> ≈ C<sub>eff</sub> / (2P)<br>R<sub>out,memory</sub> ≈ N × B<sub>eff</sub> / (W + N × D<sub>KV</sub>)<br>R<sub>out</sub> ≤ min(R<sub>out,compute</sub>, R<sub>out,memory</sub>)<small>N 为活跃序列数，D<sub>KV</sub> 为每序列每步 KV 等相关读取量。N=1 且 KV 可忽略时，退化为最常用的 B/W。</small></div>
+        <div class="success"><b>最常用的单流近似：</b> output tok/s ≲ 显存带宽 ÷ 权重字节数。TP2 可先用两卡聚合显存带宽估算理想上限，再为 KV、PCIe TP 通信和运行时损耗留出余量；它不是通用公式。</div>
+        <h3>3.4 MTP / 推测解码为什么能突破朴素 B/W</h3>
+        <div class="formula">R<sub>out,MTP</sub> ≈ E[accepted tokens + 1] / T<sub>step</sub><small>一次主模型验证可能推进多个 token，但会增加 draft/verify 计算。收益取决于接受率、每步推进数、输出长度和并发。</small></div>
+        <h3>3.5 TPM、QPS 与输出吞吐的换算</h3>
+        <div class="formula">Output TPM = 60 × output tok/s<br>Total TPM = 60 × (input tok/s + output tok/s)<br>QPS = Total TPM / [60 × (S + O)] = Output TPM / (60 × O)<small>最后两个等式用于同一固定负载、同一测试轮次的记账换算；Total TPM 不同输入长度之间不可直接比较。</small></div>
+      </section>
+
+      <section id="example">
+        <div class="section-no">04 / WORKED EXAMPLE</div>
+        <h2>把 Qwen3.8-27B 和 Blackwell 代入公式</h2>
+        <p class="lead">硬件峰值采用题设 BF16 266 TFLOPS、FP8 530 TFLOPS；显存带宽采用 NVIDIA 官方 1,344 GB/s。模型按 27B Dense 估算，FP8 实测权重文件约 28.75 GiB（约 30.9 GB）。</p>
+        <div class="grid-2">
+          <div class="card cyan">
+            <span class="tag">计算 ROOFLINE · 理论值</span>
+            <h3>双卡 TP2 FP8：约 117.8 万总 TPM</h3>
+            <div class="formula">2×530×10¹² / (2×27×10⁹)<br>= 19,630 token/s<br>≈ 1,177,778 TPM</div>
+            <p>这是 100% 峰值利用率、忽略注意力与系统开销的线性层上限，不是 output tok/s 承诺。</p>
+          </div>
+          <div class="card orange">
+            <span class="tag">访存 ROOFLINE · 理论值</span>
+            <h3>TP2 单流 FP8：约 87.0 output tok/s</h3>
+            <div class="formula">2×1,344 GB/s / 30.9 GB<br>≈ 87.0 token/s<br>≈ 5,220 output TPM</div>
+            <p>假设 batch=1、双卡带宽理想聚合、KV 可忽略、无 MTP 和通信损耗。8K/512 下 TP2 实测约 65.8 tok/s，符合“实测低于理想 roofline”的预期。</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>精度与拓扑</th><th class="num">理论 token/s</th><th class="num">理论总 TPM</th><th>如何理解</th></tr></thead>
+            <tbody>
+              <tr><td>单卡 BF16 · 266 TFLOPS</td><td class="num">4,926</td><td class="num">295,556</td><td>理想计算上限</td></tr>
+              <tr><td>单卡 FP8 · 530 TFLOPS</td><td class="num">9,815</td><td class="num">588,889</td><td>理想计算上限</td></tr>
+              <tr><td>双卡 TP2 FP8 · 理想线性扩展</td><td class="num">19,630</td><td class="num">1,177,778</td><td>不含 TP 通信与调度损耗</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="calculator">
+          <h3>Roofline 小计算器</h3>
+          <p class="muted small">修改参数观察数量级。计算与 decode 均按 TP GPU 数量理想扩展；decode 采用单流、忽略 KV、MTP 和 TP 通信的简化模型。</p>
+          <div class="calc-grid">
+            <label>参数量 P（B）<input id="p" type="number" min="0.1" step="0.1" value="27"></label>
+            <label>单卡峰值（TFLOPS）<input id="c" type="number" min="1" step="1" value="530"></label>
+            <label>GPU 数量<input id="gpus" type="number" min="1" step="1" value="2"></label>
+            <label>有效算力比例（%）<input id="mfu" type="number" min="1" max="100" step="1" value="40"></label>
+            <label>权重 W（GB）<input id="w" type="number" min="0.1" step="0.1" value="30.9"></label>
+            <label>单卡显存带宽（GB/s）<input id="bw" type="number" min="1" step="1" value="1344"></label>
+            <label>有效带宽比例（%）<input id="memEff" type="number" min="1" max="100" step="1" value="100"></label>
+          </div>
+          <div class="calc-results">
+            <div class="result"><b id="peakTPM">—</b><span>100% 峰值计算总 TPM</span></div>
+            <div class="result"><b id="effectiveTPM">—</b><span>按有效算力比例折算的总 TPM</span></div>
+            <div class="result"><b id="decodeTPS">—</b><span>TP 单流 decode output tok/s（理想带宽）</span></div>
+          </div>
+        </div>
+        <div class="warning"><b>为什么 TP2 实测远低于 117.8 万理论总 TPM？</b> 8K/128 下，聚合 SLA 内最佳 38.8 万约为简化上限的 33%，原始最大 45.6 万约为 39%。实测还包含注意力、KV、调度、PCIe TP 通信、输入/输出混合和延迟约束；这些比例不是直接测得的 MFU。</div>
+      </section>
+
+      <section id="measured">
+        <div class="section-no">05 / MEASURED EVIDENCE</div>
+        <h2>实测：峰值、SLA 与有效吞吐不是同一个最优点</h2>
+        <p class="lead">测试条件：2×RTX PRO 5000 72GB、Qwen3.8-27B-FP8、FP8 KV、vLLM 0.32.0；一个 <code>tensor-parallel-size=2</code> 实例和单个服务入口。随机冷请求采用独立 seed，避免 Prefix Cache 污染。</p>
+        <h3>5.1 TP2 并发扫描：8K 输入 / 128 输出，MTP 关闭</h3>
+        <div class="legend"><span><i class="dot"></i>原始总 TPM</span><span><i class="dot green"></i>单请求 TTFT≤8s 有效总 TPM</span></div>
+        <div class="bars" aria-label="TP2 并发与总 TPM 对照图">
+          <div class="bar-row"><span>并发 1</span><div class="bar-track"><div class="bar-fill" style="--w:37.3%"></div></div><span class="bar-value">170,142</span></div>
+          <div class="bar-row"><span>并发 8</span><div class="bar-track"><div class="bar-fill" style="--w:85.2%"></div></div><span class="bar-value">388,224</span></div>
+          <div class="bar-row"><span>有效 TPM</span><div class="bar-track"><div class="bar-fill effective" style="--w:82.0%"></div></div><span class="bar-value">373,665</span></div>
+          <div class="bar-row"><span>并发 32</span><div class="bar-track"><div class="bar-fill" style="--w:99.9%"></div></div><span class="bar-value">455,162</span></div>
+          <div class="bar-row"><span>并发 48</span><div class="bar-track"><div class="bar-fill" style="--w:100%"></div></div><span class="bar-value">455,682</span></div>
+          <div class="bar-row"><span>有效 TPM</span><div class="bar-track"><div class="bar-fill effective" style="--w:1.3%"></div></div><span class="bar-value">5,696</span></div>
+        </div>
+        <div class="grid-3">
+          <div class="card"><span class="metric">455,682</span><span class="metric-label">原始最大总 TPM · 并发 48</span><p>TTFT P50 27.44s，SLA 失败，不能作为生产容量。</p></div>
+          <div class="card"><span class="metric">388,224</span><span class="metric-label">聚合 SLA 内最佳 · 并发 8</span><p>TTFT P50 7.88s、P95 8.00s，达到当前聚合门槛。</p></div>
+          <div class="card green"><span class="metric">373,665</span><span class="metric-label">有效总 TPM 最佳 · 并发 8</span><p>单请求 TTFT≤8s 过滤后，最佳点同样是并发 8。</p></div>
+        </div>
+        <div class="note"><b>平台期不等于可承接更多流量。</b> 并发 32、48、64 的原始总 TPM 分别约 45.52 万、45.57 万、45.54 万，几乎不再增长；TTFT P50 却从 16.00s 增至 27.44s、42.72s。</div>
+        <h3>5.2 MTP：主要改善 decode，但收益随并发变化</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>并发 · 8K/512</th><th class="num">MTP 关闭总 TPM</th><th class="num">MTP=3 总 TPM</th><th class="num">TPOT：关闭 → 3</th><th class="num">总 TPM 收益</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td class="num">60,111</td><td class="num">95,685</td><td class="num">15.21 → 8.95ms</td><td class="num best">+59.2%</td></tr>
+              <tr><td>8</td><td class="num">241,671</td><td class="num">308,718</td><td class="num">18.63 → 21.33ms</td><td class="num best">+27.7%</td></tr>
+              <tr><td>16</td><td class="num">305,139</td><td class="num">355,417</td><td class="num">21.21 → 32.90ms</td><td class="num best">+16.5%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted small">后续默认固定 MTP=3，不再把 MTP=2 作为调优变量。TPOT 是单请求体验，总 TPM 是整机吞吐，两者可能向不同方向变化。</p>
+        <div class="success"><b>MTP=3 的运行点：</b> 8K/512 下，并发 20 的聚合 SLA 内总 TPM 为 374,926；并发 32 原始值 382,511 但 SLA 失败。按单请求 TTFT≤8s 过滤，有效 TPM 最佳仍是并发 8，为 254,691。</div>
+        <h3>5.3 Prefix Cache、KV dtype 与 Prefill budget</h3>
+        <div class="grid-3">
+          <div class="card cyan"><span class="tag">PREFIX CACHE</span><h4>减少重复 prefill</h4><span class="metric">+75.5%</span><p>4.2K/128、并发 8，命中率 66.00%，总 TPM 337,244 → 591,917；TTFT P50 4.00s → 0.42s。并发 16 的共享前缀负载达到 869,219 总 TPM。</p></div>
+          <div class="card violet"><span class="tag">FP8 KV</span><h4>容量收益大于即时加速</h4><span class="metric">1.76×</span><p>TP2 KV token 容量 1,312,085 → 2,313,178；并发 16 总 TPM 仅由 293,871 提至 305,139，约 +3.8%。</p></div>
+          <div class="card orange"><span class="tag">PREFILL BUDGET</span><h4>32768 是基线，不是已证明最优</h4><span class="metric">待 A/B</span><p>当前 TP2 统一使用 <code>max-num-batched-tokens=32768</code>，尚需对比 16384，并联合输入长度、并发和 TTFT/TPOT 判断。</p></div>
+        </div>
+        <h3>5.4 NVFP4：把权重显存节约转化为 KV 余量</h3>
+        <p class="lead">对照组保持 TP2、32K 上下文、FP8 KV、MTP=3 和 batch 参数一致，仅改变权重精度。NVFP4 已确认使用原生 <code>FlashInferCutlassNvFp4LinearKernel</code>。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>指标</th><th class="num">FP8 权重 + FP8 KV</th><th class="num">NVFP4 权重 + FP8 KV</th><th>变化</th></tr></thead>
+            <tbody>
+              <tr><td>每卡模型加载显存</td><td class="num">14.98 GiB</td><td class="num">12.82 GiB</td><td class="best">节约 2.16 GiB/卡</td></tr>
+              <tr><td>TP2 KV 逻辑容量</td><td class="num">1,553,749 tokens</td><td class="num">1,612,913 tokens</td><td class="best">+59,164（+3.81%）</td></tr>
+              <tr><td>全部按 32K 估算的逻辑请求容量</td><td class="num">47.42</td><td class="num">49.22</td><td>整数槽位约 47 → 49</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted small">这里的 FP8 KV 容量来自 MTP=3 对照配置，不能与 5.3 节 MTP 关闭时的 2,313,178 tokens 直接比较。NVFP4 当前只完成启动与容量验证，尚无吞吐或质量结论。</p>
+        <div class="formula">C<sub>32K</sub> = min(max-num-seqs, floor(KV tokens / 32768))<small>当前 max-num-seqs=32 时，两种权重精度都先受调度上限约束，满 32K 请求并发上限均为 32；NVFP4 增加的是余量，不是立即把生产并发提高到 49。</small></div>
+        <div class="grid-2">
+          <div class="card violet"><h4>TP2 KV 容量是什么？</h4><p>它是启动时为 KV Cache 预留的逻辑 token 槽位总数，不是当前使用量，也不是每请求容量。两卡分片存储 KV，但该数值已是 TP2 实例的逻辑容量，不能再乘以 2。</p><p><code>max-num-batched-tokens</code> 是调度预算，不是总 KV 上限。</p></div>
+          <div class="card orange"><h4>峰值功耗低，是否等于省电？</h4><p>初步观察 NVFP4 峰值功耗低约 10%～15%，但峰值不等于平均能耗。只有在相同负载和 SLA 下比较稳态平均功耗与吞吐，才能判断能效。</p><div class="formula">E<sub>token</sub> ∝ P<sub>avg</sub> / R<sub>token</sub></div></div>
+        </div>
+        <div class="warning"><b>大 KV 池本身不会拖慢 Attention。</b> 未使用槽位不需要扫描，TPOT 取决于真实上下文长度、活跃请求和 KV 读取。也不要机械追求 60%～80% 使用率，应结合 preemption、waiting、TTFT/TPOT、Goodput 和 Prefix Cache 价值判断。</div>
+        <div class="note"><b>数据不能跨负载直接排名。</b> Prefix Cache 的 4.2K/128、MTP/KV 的 8K/512、并发扫描的 8K/128 是不同实验；共享前缀的 869,219 总 TPM 也不能与随机冷请求混用。</div>
+      </section>
+
+      <section id="diagnosis">
+        <div class="section-no">06 / BOTTLENECK DIAGNOSIS</div>
+        <h2>先定位阶段，再选择优化手段</h2>
+        <p class="lead">不要从“我要调哪个参数”开始，而要从“哪个指标变差、哪个资源先饱和”开始。至少需要同时观察 TTFT、TPOT、吞吐、排队、KV 使用率和 GPU 利用率。</p>
+        <div class="decision">
+          <div class="card"><h4>首 token 慢？</h4><p>看 TTFT 分解、waiting 队列、输入长度、prefix 命中与 prefill 阻塞。</p></div>
+          <div class="arrow">→</div>
+          <div class="card"><h4>后续生成慢？</h4><p>看 TPOT、活跃 batch、权重/KV 读取、MTP 接受率与 CUDA Graph。</p></div>
+          <div class="arrow">→</div>
+          <div class="card"><h4>总吞吐不达标？</h4><p>看并发膝点、TP 通信、准入控制、preemption 与 SLA 过滤后的 Goodput。</p></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>观测症状</th><th>可能瓶颈</th><th>优先验证</th><th>不要直接做什么</th></tr></thead>
+            <tbody>
+              <tr><td>TTFT 高，GPU 利用率低，waiting 增长</td><td>排队、入口过量、调度</td><td>限制 TP2 实例入口并发；检查 waiting/running 与调度</td><td>盲目增大 <code>max-num-seqs</code></td></tr>
+              <tr><td>长输入 TTFT 高，GPU 接近饱和</td><td>Prefill 算力或大块 prefill 阻塞</td><td>在 TP2 下扫描 token budget；检查长输入分布</td><td>把 batch budget 越大越好当规律</td></tr>
+              <tr><td>重复长系统提示，TTFT 高</td><td>重复 prefill</td><td>TP2 本地 Prefix Cache 命中率与前缀复用比例</td><td>用随机 Prompt 评估缓存收益</td></tr>
+              <tr><td>低并发 TPOT 高，算力利用率低</td><td>权重带宽、kernel/调度开销</td><td>双卡聚合 B/W roofline；CUDA Graph；MTP A/B；PCIe P2P 通信</td><td>只凭 TFLOPS 推算单流 tok/s</td></tr>
+              <tr><td>长上下文、高并发 TPOT 高</td><td>KV 读取与容量压力</td><td>KV dtype、上下文长度、preemption、KV 使用率</td><td>假设 KV 量化会让单流翻倍</td></tr>
+              <tr><td>吞吐进入平台，TTFT/TPOT 快速恶化</td><td>已超过并发膝点</td><td>降低入口并发，按 Goodput 选择运行点</td><td>继续追求原始最大 TPM</td></tr>
+              <tr><td>显存 OOM 或频繁 preemption</td><td>权重 + KV + runtime 超出容量</td><td>降低并发/上下文；FP8 KV；检查显存利用率配置</td><td>把剩余显存全部当可用 KV</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="scenarios">
+        <div class="section-no">07 / OPTIMIZATION PLAYBOOK</div>
+        <h2>六类典型场景的优化思路</h2>
+        <div class="grid-2">
+          <div class="card scenario cyan"><span class="num">01</span><h3>单流 / 低并发交互</h3><p><b>目标：</b>最低 TTFT 与 TPOT，而不是整机峰值。</p><ul><li>8K/512、MTP 关闭时，TP2 单流约 65.8 tok/s；MTP=3 时 TPOT 8.95ms，约 111.7 tok/s。</li><li>开启 CUDA Graph，吞吐测试不要用 <code>--enforce-eager</code>。</li><li>长输出可 A/B MTP，观察接受率与每步推进数。</li><li>验收：TTFT、TPOT P50/P95、单流 output tok/s。</li></ul></div>
+          <div class="card scenario cyan"><span class="num">02</span><h3>长输入 / Prefill 密集</h3><p><b>目标：</b>缩短 prefill，同时避免阻塞 decode。</p><ul><li>在 TP2 下扫描 <code>max-num-batched-tokens</code>；32768 是当前基线，下一步对比 16384。</li><li>使用 chunked prefill，并控制入口长请求并发。</li><li>共享前缀优先启用并验证 Prefix Cache 命中率。</li><li>验收：按 2K/8K/32K 分层看 TTFT，不看混合均值。</li></ul></div>
+          <div class="card scenario green"><span class="num">03</span><h3>高并发 / 短输出服务</h3><p><b>目标：</b>SLA 内请求 Goodput 最大。</p><ul><li><code>max-num-seqs=32</code> 是引擎调度上限，不是推荐入口并发。</li><li>MTP 关闭、8K/128 先限制入口为 8；MTP=3、8K/512 需区分聚合 SLA 点 20 与有效 TPM 点 8。</li><li>FP8 KV 可释放容量，但必须做业务质量回归。</li><li>验收：原始 TPM、SLA 内 TPM、有效 TPM 三口径并列。</li></ul></div>
+          <div class="card scenario orange"><span class="num">04</span><h3>长输出 / Decode 密集</h3><p><b>目标：</b>降低 TPOT 与每输出 token 成本。</p><ul><li>MTP 是重点 A/B 项，但不能外推固定 token 数。</li><li>避免过大的 prefill budget 长时间干扰 decode。</li><li>关注长上下文 KV 读取，而非只看权重 B/W。</li><li>验收：512/2048 输出分别测试 TPOT、接受率与总成本。</li></ul></div>
+          <div class="card scenario violet"><span class="num">05</span><h3>Agent / 共享长前缀</h3><p><b>目标：</b>把重复 prefill 转化为缓存命中。</p><ul><li>Prefix Cache 收益由共享比例与后缀长度共同决定。</li><li>单 TP2 只有一个引擎和一份本地 Prefix Cache，重点检查前缀组织与命中率，不涉及跨实例路由。</li><li>缓存命中不直接等于吞吐提升，还要观察 KV 容量、后缀长度和并发。</li><li>验收：随机冷请求与共享前缀分组报告。</li></ul></div>
+          <div class="card scenario violet"><span class="num">06</span><h3>长上下文 / 显存受限</h3><p><b>目标：</b>不 OOM、不频繁抢占，并维持可接受 TPOT。</p><ul><li>先算权重、KV、激活与 runtime 的完整容量账。</li><li>TP2 的 FP8 KV 容量约 1.76×，32K 估算并发由 40.04 提至 70.59；本轮吞吐仅增约 3%～4%。</li><li>NVFP4 权重再节约 2.16 GiB/卡，使 MTP=3 对照下 KV 容量增加 3.81%；max-num-seqs=32 时仍先受调度上限约束。</li><li>控制 <code>max-model-len</code>、并发与准入，监控 preemption。</li><li>验收：32K 及目标最大上下文，补质量与尾延迟回归。</li></ul></div>
+        </div>
+      </section>
+
+      <section id="capacity">
+        <div class="section-no">08 / CAPACITY & BENCHMARK</div>
+        <h2>从理论估算走到生产容量</h2>
+        <p class="lead">Roofline 用来判断数量级和瓶颈方向，真实负载压测用来确定运行点。两者之间不能跳过 SLA、请求分布与重复性验证。</p>
+        <div class="grid-3">
+          <div class="card"><h4>第一步：理论边界</h4><p>用参数量、精度、峰值算力、权重字节与显存带宽，分别计算 prefill/decode roofline；检查显存能否容纳权重和 KV。</p></div>
+          <div class="card"><h4>第二步：负载矩阵</h4><p>固定输入/输出长度扫描并发，再分别改变 batch、MTP、权重/KV 精度和 Prefix Cache，一次只改一个变量。</p></div>
+          <div class="card"><h4>第三步：Goodput 与成本</h4><p>以 SLA 过滤无效吞吐，选择有余量的膝点前运行点，并按 ECS 小时成本计算有效百万 token 成本。</p></div>
+        </div>
+        <div class="formula">Goodput<sub>request</sub> = 满足 SLA 的请求数 / 测试时长<br>Cost / 1M effective tokens = ECS 小时价格 / (有效 token/s × 3600 / 10⁶)<small>“有效”必须同时绑定延迟和质量门槛；若按 token 统计 Goodput，应明确只统计哪些请求的哪些 token。</small></div>
+        <h3>本轮 TP2 实测给出的运行起点，而非永久答案</h3>
+        <div class="table-wrap">
+          <table>
+            <tbody>
+              <tr><th>服务形态</th><td>一个 <code>tensor-parallel-size=2</code> vLLM 实例，两张 GPU 共同服务同一模型</td></tr>
+              <tr><th>调度上限</th><td><code>max-num-seqs=32</code>，入口仍需按负载独立限流</td></tr>
+              <tr><th>入口并发</th><td>MTP 关闭、8K/128 先选 8；MTP=3、8K/512 聚合 SLA 可到 20，但有效 TPM 最佳仍为 8</td></tr>
+              <tr><th>Prefill batch</th><td><code>max-num-batched-tokens=32768</code> 仅作统一基线，仍需对比 16384</td></tr>
+              <tr><th>Decode / KV</th><td>MTP=3、FP8 KV、<code>max-model-len=32768</code>、CUDA Graph <code>-O2</code></td></tr>
+              <tr><th>卡间通信</th><td>PHB，经 PCIe Host Bridge；未见 NVLink，性能评估需包含 TP 通信开销</td></tr>
+              <tr><th>下一轮</th><td>补 bt=16384/32768、32K 输入、2048 输出与 Poisson QPS；候选点 500 请求 × 3 个 seed；增加 FP8/NVFP4 性能、质量与能效 A/B</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="warning"><b>重复性也是容量的一部分。</b> 当前 MTP 与 KV A/B 每组仅 20～40 请求，属于首轮工程筛选；候选运行点需扩大样本并独立复测，尚不能宣称生产 SLA 已稳定通过。</div>
+      </section>
+
+      <section id="cheatsheet">
+        <div class="section-no">09 / CHEAT SHEET</div>
+        <h2>一页记住：阶段、瓶颈与优化</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>阶段 / 场景</th><th>首先看什么</th><th>常见瓶颈</th><th>优先优化</th></tr></thead>
+            <tbody>
+              <tr><td>Prefill / 长输入</td><td>TTFT、输入吞吐</td><td>算力、注意力、排队、prefill 阻塞</td><td>token budget、Prefix Cache、TP、准入</td></tr>
+              <tr><td>Decode / 低并发</td><td>TPOT、单流 output tok/s</td><td>权重带宽、kernel/调度开销</td><td>CUDA Graph、MTP、PCIe 通信检查</td></tr>
+              <tr><td>Decode / 高并发长上下文</td><td>TPOT、KV 使用率</td><td>KV 带宽与容量、算力</td><td>FP8 KV、并发/上下文控制</td></tr>
+              <tr><td>NVFP4 权重</td><td>权重显存、KV 余量、每 token 能耗</td><td>调度上限、质量与真实平均功耗</td><td>已验证原生 kernel；性能/质量/能效继续 A/B</td></tr>
+              <tr><td>TP2 卡间通信</td><td>单流与高并发分开测</td><td>PCIe P2P、逐层同步</td><td>保持 CUDA Graph，按 SLA 限制入口</td></tr>
+              <tr><td>生产容量</td><td>有效 Goodput、成本</td><td>尾延迟、排队、preemption</td><td>膝点前运行、双层限流、多轮压测</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid-2">
+          <div class="card green"><h3>正确的心智模型</h3><ul class="checklist"><li>理论吞吐 = 计算与访存 roofline 取小。</li><li>Prefill 通常偏计算，decode 低并发通常偏访存。</li><li>batch 能摊薄权重，却会增加 KV 与排队压力。</li><li>优化必须绑定输入、输出、并发和 SLA。</li></ul></div>
+          <div class="card orange"><h3>需要避免的误区</h3><ul class="checklist"><li>用 PCIe 128 GB/s 除以权重大小推 decode。</li><li>把总 TPM 当 output TPM，或跨输入长度比较。</li><li>把原始最大 TPM 当生产可承载容量。</li><li>认为某个 batch、MTP 或拓扑永远最优。</li></ul></div>
+        </div>
+        <div class="success"><b>最终结论：</b> 对当前 27B FP8 单实例 TP2，理论计算上限约 117.8 万总 TPM；8K/128 冷请求实测聚合 SLA 内最佳约 38.8 万、单请求有效口径最佳约 37.4 万，均出现在并发 8。NVFP4 已证明原生启动与容量余量收益，但在性能、质量和稳态能效 A/B 完成前，不纳入生产吞吐结论。</div>
+        <h3>数据与参考资料</h3>
+        <ul class="checklist small">
+          <li><a href="TP2_README.md">单实例 TP2 主报告：并发、Prefix Cache、MTP、KV dtype 与 NVFP4 启动/容量验证</a></li>
+          <li><a href="https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-5000/" target="_blank" rel="noopener">NVIDIA RTX PRO 5000 Blackwell 官方规格：72GB GDDR7、1,344 GB/s</a></li>
+          <li><a href="https://docs.vllm.ai/en/latest/configuration/optimization/" target="_blank" rel="noopener">vLLM Optimization and Tuning</a></li>
+          <li><a href="https://docs.vllm.ai/en/latest/cli/bench/serve/" target="_blank" rel="noopener">vLLM Bench Serve</a></li>
+          <li><a href="https://huggingface.co/Qwen/Qwen3.8-27B-FP8" target="_blank" rel="noopener">Qwen3.8-27B-FP8 官方模型</a></li>
+        </ul>
+        <p class="muted small">范围说明：本页公式为 Dense Transformer 的简化教学模型；实测结论仅覆盖当前硬件、软件版本和已测负载。长上下文、视觉输入、PD 分离，以及 NVFP4 的性能、业务质量与稳态能效需单独验证。</p>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">LLM Inference First Principles · Qwen3.8-27B Single-Instance TP2 Case Study · Reviewed 2026-10-28</footer>
+
+  <script>
+    (function () {
+      const ids = ["p", "c", "gpus", "mfu", "w", "bw", "memEff"];
+      const $ = id => document.getElementById(id);
+      const fmt = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 0 });
+      const fmt1 = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 1 });
+      function value(id, fallback) {
+        const n = Number($(id).value);
+        return Number.isFinite(n) && n > 0 ? n : fallback;
+      }
+      function update() {
+        const p = value("p", 27) * 1e9;
+        const c = value("c", 530) * 1e12;
+        const gpus = value("gpus", 2);
+        const mfu = Math.min(value("mfu", 40), 100) / 100;
+        const w = value("w", 30.9);
+        const bw = value("bw", 1344);
+        const memEff = Math.min(value("memEff", 100), 100) / 100;
+        const peak = c * gpus / (2 * p) * 60;
+        $("peakTPM").textContent = fmt.format(peak);
+        $("effectiveTPM").textContent = fmt.format(peak * mfu);
+        $("decodeTPS").textContent = fmt1.format(bw * memEff * gpus / w);
+      }
+      ids.forEach(id => $(id).addEventListener("input", update));
+      update();
+    })();
+  </script>
+</body>
+</html>

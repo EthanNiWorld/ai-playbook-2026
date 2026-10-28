@@ -1,0 +1,28 @@
+{
+  "total_tpm_semantics": "All successful requests are included, regardless of TTFT SLA.",
+  "raw_max_tpm": {
+    "max_concurrency": 40,
+    "total_tpm": 452941.21,
+    "p50_ttft_ms": 19739.65,
+    "p95_ttft_ms": 39168.36,
+    "p50_tpot_ms": 41.68,
+    "sla_pass": false
+  },
+  "sla_max_tpm": {
+    "max_concurrency": 25,
+    "total_tpm": 440997.16,
+    "p50_ttft_ms": 7079.56,
+    "p95_ttft_ms": 20621.53,
+    "p50_tpot_ms": 34.63,
+    "sla_pass": true
+  },
+  "balanced_lowest_ttft_within_ratio": {
+    "max_concurrency": 20,
+    "total_tpm": 438759.64,
+    "p50_ttft_ms": 2611.32,
+    "p95_ttft_ms": 16510.82,
+    "p50_tpot_ms": 31.76,
+    "sla_pass": true
+  },
+  "balanced_ratio_of_sla_max": 0.99
+}

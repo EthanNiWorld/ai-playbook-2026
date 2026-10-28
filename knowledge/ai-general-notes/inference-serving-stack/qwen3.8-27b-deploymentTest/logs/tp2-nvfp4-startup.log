@@ -1,0 +1,10 @@
+(APIServer pid=111726) INFO 10-28 18:10:23 [api_utils.py:286] non-default args: {'model_tag': '/data/Qwen3.8-27B-NVFP4', 'host': '127.0.0.1', 'model': '/data/Qwen3.8-27B-NVFP4', 'max_model_len': 32768, 'served_model_name': ['Qwen3.8-27B-NVFP4'], 'reasoning_parser': 'qwen3', 'tensor_parallel_size': 2, 'gpu_memory_utilization': 0.9, 'kv_cache_dtype': 'fp8', 'max_num_batched_tokens': 32768, 'max_num_seqs': 32, 'speculative_config': {'method': 'mtp', 'num_speculative_tokens': 3}, 'optimization_level': '2'}
+(APIServer pid=111726) INFO 10-28 18:10:23 [model.py:733] Resolved architecture: Qwen3_5ForConditionalGeneration
+(APIServer pid=111726) INFO 10-28 18:10:25 [model.py:733] Resolved architecture: Qwen3_5MTP
+(APIServer pid=111726) WARNING 10-28 18:10:25 [speculative.py:1381] Enabling num_speculative_tokens > 1 will run multiple times of forward on same MTP layer,which may result in lower acceptance rate
+(Worker_TP0 pid=112375) INFO 10-28 18:10:39 [__init__.py:1240] Using FlashInferCutlassNvFp4LinearKernel for NVFP4 GEMM
+(Worker_TP1 pid=112376) INFO 10-28 18:10:43 [model_runner.py:424] Model loading took 12.82 GiB memory and 4.184058 seconds
+(Worker_TP0 pid=112375) INFO 10-28 18:10:43 [model_runner.py:424] Model loading took 12.82 GiB memory and 4.373892 seconds
+(EngineCore pid=112075) INFO 10-28 18:11:42 [kv_cache_utils.py:2327] GPU KV cache size: 1,612,913 tokens, Maximum concurrency for 32,768 tokens per request: 49.22x
+(EngineCore pid=112075) INFO 10-28 18:12:29 [core.py:395] init engine (profile, create kv cache, warmup model) took 105.72 s (compilation: 30.41 s)
+(APIServer pid=111726) INFO 10-28 18:12:33 [entry.py:140] Starting vLLM server on http://127.0.0.1:8000

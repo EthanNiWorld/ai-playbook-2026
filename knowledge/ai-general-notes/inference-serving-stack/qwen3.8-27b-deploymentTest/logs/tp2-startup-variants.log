@@ -1,0 +1,43 @@
+===== vllm-fp8-tp2-matrix-mtp0.log =====
+(APIServer pid=85727) INFO 10-28 15:34:37 [api_utils.py:286] non-default args: {'model_tag': '/data/Qwen3.8-27B-FP8', 'host': '127.0.0.1', 'model': '/data/Qwen3.8-27B-FP8', 'max_model_len': 32768, 'served_model_name': ['Qwen3.8-27B-FP8'], 'reasoning_parser': 'qwen3', 'tensor_parallel_size': 2, 'gpu_memory_utilization': 0.9, 'kv_cache_dtype': 'fp8', 'max_num_batched_tokens': 32768, 'max_num_seqs': 32, 'optimization_level': '2'}
+(APIServer pid=85727) INFO 10-28 15:34:37 [model.py:733] Resolved architecture: Qwen3_5ForConditionalGeneration
+(Worker_TP0 pid=86377) INFO 10-28 15:34:53 [__init__.py:758] Selected CutlassFp8BlockScaledMMKernel for Fp8LinearMethod
+(Worker_TP0 pid=86377) INFO 10-28 15:34:53 [cuda.py:506] Using FLASHINFER attention backend out of potential backends: ['FLASHINFER', 'TRITON_ATTN'].
+(Worker_TP0 pid=86377) INFO 10-28 15:34:56 [model_runner.py:424] Model loading took 14.44 GiB memory and 3.359464 seconds
+(Worker_TP1 pid=86378) INFO 10-28 15:34:56 [model_runner.py:424] Model loading took 14.44 GiB memory and 3.452821 seconds
+(EngineCore pid=86077) INFO 10-28 15:35:21 [kv_cache_utils.py:2327] GPU KV cache size: 2,313,178 tokens, Maximum concurrency for 32,768 tokens per request: 70.59x
+(EngineCore pid=86077) INFO 10-28 15:35:27 [core.py:395] init engine (profile, create kv cache, warmup model) took 31.32 s (compilation: 0.31 s)
+(APIServer pid=85727) INFO 10-28 15:35:31 [entry.py:140] Starting vLLM server on http://127.0.0.1:8000
+===== vllm-fp8-tp2-matrix-mtp2.log =====
+(APIServer pid=94695) INFO 10-28 16:05:50 [api_utils.py:286] non-default args: {'model_tag': '/data/Qwen3.8-27B-FP8', 'host': '127.0.0.1', 'model': '/data/Qwen3.8-27B-FP8', 'max_model_len': 32768, 'served_model_name': ['Qwen3.8-27B-FP8'], 'reasoning_parser': 'qwen3', 'tensor_parallel_size': 2, 'gpu_memory_utilization': 0.9, 'kv_cache_dtype': 'fp8', 'max_num_batched_tokens': 32768, 'max_num_seqs': 32, 'speculative_config': {'method': 'mtp', 'num_speculative_tokens': 2}, 'optimization_level': '2'}
+(APIServer pid=94695) INFO 10-28 16:05:50 [model.py:733] Resolved architecture: Qwen3_5ForConditionalGeneration
+(APIServer pid=94695) INFO 10-28 16:05:51 [model.py:733] Resolved architecture: Qwen3_5MTP
+(APIServer pid=94695) WARNING 10-28 16:05:51 [speculative.py:1381] Enabling num_speculative_tokens > 1 will run multiple times of forward on same MTP layer,which may result in lower acceptance rate
+(Worker_TP0 pid=95344) INFO 10-28 16:06:10 [__init__.py:758] Selected CutlassFp8BlockScaledMMKernel for Fp8LinearMethod
+(Worker_TP0 pid=95344) INFO 10-28 16:06:10 [cuda.py:506] Using FLASHINFER attention backend out of potential backends: ['FLASHINFER', 'TRITON_ATTN'].
+(Worker_TP1 pid=95415) INFO 10-28 16:06:13 [model_runner.py:424] Model loading took 14.98 GiB memory and 4.153812 seconds
+(Worker_TP0 pid=95344) INFO 10-28 16:06:13 [model_runner.py:424] Model loading took 14.98 GiB memory and 4.264303 seconds
+(EngineCore pid=95044) INFO 10-28 16:07:18 [kv_cache_utils.py:2327] GPU KV cache size: 1,697,978 tokens, Maximum concurrency for 32,768 tokens per request: 51.82x
+(EngineCore pid=95044) INFO 10-28 16:07:35 [core.py:395] init engine (profile, create kv cache, warmup model) took 81.38 s (compilation: 36.61 s)
+(APIServer pid=94695) INFO 10-28 16:07:39 [entry.py:140] Starting vLLM server on http://127.0.0.1:8000
+===== vllm-fp8-tp2-matrix-mtp3.log =====
+(APIServer pid=97626) INFO 10-28 16:13:52 [api_utils.py:286] non-default args: {'model_tag': '/data/Qwen3.8-27B-FP8', 'host': '127.0.0.1', 'model': '/data/Qwen3.8-27B-FP8', 'max_model_len': 32768, 'served_model_name': ['Qwen3.8-27B-FP8'], 'reasoning_parser': 'qwen3', 'tensor_parallel_size': 2, 'gpu_memory_utilization': 0.9, 'kv_cache_dtype': 'fp8', 'max_num_batched_tokens': 32768, 'max_num_seqs': 32, 'speculative_config': {'method': 'mtp', 'num_speculative_tokens': 3}, 'optimization_level': '2'}
+(APIServer pid=97626) INFO 10-28 16:13:52 [model.py:733] Resolved architecture: Qwen3_5ForConditionalGeneration
+(APIServer pid=97626) INFO 10-28 16:13:53 [model.py:733] Resolved architecture: Qwen3_5MTP
+(APIServer pid=97626) WARNING 10-28 16:13:53 [speculative.py:1381] Enabling num_speculative_tokens > 1 will run multiple times of forward on same MTP layer,which may result in lower acceptance rate
+(Worker_TP0 pid=98276) INFO 10-28 16:14:12 [__init__.py:758] Selected CutlassFp8BlockScaledMMKernel for Fp8LinearMethod
+(Worker_TP0 pid=98276) INFO 10-28 16:14:12 [cuda.py:506] Using FLASHINFER attention backend out of potential backends: ['FLASHINFER', 'TRITON_ATTN'].
+(Worker_TP0 pid=98276) INFO 10-28 16:14:15 [model_runner.py:424] Model loading took 14.98 GiB memory and 4.127984 seconds
+(Worker_TP1 pid=98349) INFO 10-28 16:14:15 [model_runner.py:424] Model loading took 14.98 GiB memory and 4.173213 seconds
+(EngineCore pid=97975) INFO 10-28 16:15:21 [kv_cache_utils.py:2327] GPU KV cache size: 1,553,749 tokens, Maximum concurrency for 32,768 tokens per request: 47.42x
+(EngineCore pid=97975) INFO 10-28 16:15:37 [core.py:395] init engine (profile, create kv cache, warmup model) took 81.78 s (compilation: 36.65 s)
+(APIServer pid=97626) INFO 10-28 16:15:41 [entry.py:140] Starting vLLM server on http://127.0.0.1:8000
+===== vllm-fp8-tp2-matrix-kvbf16.log =====
+(APIServer pid=101642) INFO 10-28 16:29:43 [api_utils.py:286] non-default args: {'model_tag': '/data/Qwen3.8-27B-FP8', 'host': '127.0.0.1', 'model': '/data/Qwen3.8-27B-FP8', 'max_model_len': 32768, 'served_model_name': ['Qwen3.8-27B-FP8'], 'reasoning_parser': 'qwen3', 'tensor_parallel_size': 2, 'gpu_memory_utilization': 0.9, 'max_num_batched_tokens': 32768, 'max_num_seqs': 32, 'optimization_level': '2'}
+(APIServer pid=101642) INFO 10-28 16:29:43 [model.py:733] Resolved architecture: Qwen3_5ForConditionalGeneration
+(Worker_TP0 pid=102227) INFO 10-28 16:29:59 [__init__.py:758] Selected CutlassFp8BlockScaledMMKernel for Fp8LinearMethod
+(Worker_TP1 pid=102228) INFO 10-28 16:30:01 [model_runner.py:424] Model loading took 14.44 GiB memory and 3.424297 seconds
+(Worker_TP0 pid=102227) INFO 10-28 16:30:01 [model_runner.py:424] Model loading took 14.44 GiB memory and 3.383183 seconds
+(EngineCore pid=101989) INFO 10-28 16:31:04 [kv_cache_utils.py:2327] GPU KV cache size: 1,312,085 tokens, Maximum concurrency for 32,768 tokens per request: 40.04x
+(EngineCore pid=101989) INFO 10-28 16:31:13 [core.py:395] init engine (profile, create kv cache, warmup model) took 71.81 s (compilation: 36.65 s)
+(APIServer pid=101642) INFO 10-28 16:31:17 [entry.py:140] Starting vLLM server on http://127.0.0.1:8000

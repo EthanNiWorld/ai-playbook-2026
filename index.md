@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-10-19
+> 最后更新：2026-10-28
 
 ## 目录
 
@@ -54,7 +54,7 @@
 | 长程任务 / Long Horizon / METR / 8 小时 / 策略切换 | [长程任务](knowledge/ai-general-notes/long-horizon-task.md) ⭐ |
 | 前沿模型路线 / 选型框架 / Fable 5 vs Qwen vs GPT | [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) |
 | 推测解码 / Speculative Decoding / DSpark / 推理加速 | [推测解码](knowledge/ai-general-notes/speculative-decoding.md) ⭐ |
-| vLLM / SGLang / 推理引擎 / PagedAttention / RadixAttention / PD 分离 / EPD 分离 / Mooncake / KV Cache 传输 | [vLLM](knowledge/ai-general-notes/inference-serving-stack/vllm.md) · [SGLang](knowledge/ai-general-notes/inference-serving-stack/sglang.md) · [Mooncake](knowledge/ai-general-notes/inference-serving-stack/Mooncake.md) · [EPD 分离](knowledge/ai-general-notes/inference-serving-stack/epd-disaggregation.md) |
+| vLLM / SGLang / 推理引擎 / PagedAttention / RadixAttention / PD 分离 / EPD 分离 / Mooncake / KV Cache 传输 / Qwen3.8-27B 部署实测 | [vLLM](knowledge/ai-general-notes/inference-serving-stack/vllm.md) · [SGLang](knowledge/ai-general-notes/inference-serving-stack/sglang.md) · [Mooncake](knowledge/ai-general-notes/inference-serving-stack/Mooncake.md) · [EPD 分离](knowledge/ai-general-notes/inference-serving-stack/epd-disaggregation.md) · [Qwen3.8-27B 部署实测](knowledge/ai-general-notes/inference-serving-stack/qwen3.8-27b-deploymentTest/README.md) · [TP2 专项](knowledge/ai-general-notes/inference-serving-stack/qwen3.8-27b-deploymentTest/TP2_README.md) · [NVFP4 对比](knowledge/ai-general-notes/inference-serving-stack/qwen3.8-27b-deploymentTest/TP2_NVFP4_README.md) · [原生 Sweep](knowledge/ai-general-notes/inference-serving-stack/qwen3.8-27b-deploymentTest/NATIVE_SWEEP_README.md) |
 | 存储超级周期 / HBM / 内存涨价 / 上下文经济学 / KV cache 显存需求 / 三星利润超英伟达 | [AI 存储超级周期](knowledge/ai-general-notes/ai-memory-supercycle.md) |
 | 安全护栏 / 分类器拦截 / 降级兜底 / 护栏粒度 / CVP | [安全护栏粒度](knowledge/ai-general-notes/safety-guardrail-granularity.md) ⭐ |
 | MSA / 稀疏注意力 / MiniMax 架构 | [MSA 稀疏注意力](knowledge/minimax/msa-sparse-attention.md) |
