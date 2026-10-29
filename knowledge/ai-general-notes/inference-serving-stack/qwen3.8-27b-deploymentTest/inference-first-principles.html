@@ -168,12 +168,12 @@
   <header class="hero">
     <div class="eyebrow">LLM Inference · First Principles · Measured on Blackwell</div>
     <h1>从一次请求，看懂<br><span>Prefill、Decode 与吞吐</span></h1>
-    <p class="subtitle">以 Qwen3.8-27B-FP8 实测和 NVFP4 原生 kernel 启动验证为例，在双 RTX PRO 5000 72GB Blackwell 的单实例 TP2 上，把“算力、显存带宽、KV Cache、PCIe 通信、并发与 SLA”连成一套可用于容量规划和性能调优的知识框架。</p>
+    <p class="subtitle">以 Qwen3.8-27B-FP8 与 NVFP4 在同负载、同 TP2 配置下的对比实测为例，在双 RTX PRO 5000 72GB Blackwell 上，把“算力、显存带宽、KV Cache、PCIe 通信、并发与 SLA”连成一套可用于容量规划和性能调优的知识框架。</p>
     <div class="badges">
       <span class="badge">教学文档 + 交互式 Roofline</span>
       <span class="badge">单实例 TP2 专项实测</span>
-      <span class="badge">NVFP4 启动与容量已验证</span>
-      <span class="badge">实测日期：2026-10-28</span>
+      <span class="badge">NVFP4 输出吞吐 +7.6%～18.4%</span>
+      <span class="badge">数据日期：2026-10-28</span>
       <span class="badge">理论值 / 实测值 / 推断分层标注</span>
       <span class="badge">无需外部 JS / CSS</span>
     </div>
@@ -358,7 +358,7 @@
           <div class="card violet"><span class="tag">FP8 KV</span><h4>容量收益大于即时加速</h4><span class="metric">1.76×</span><p>TP2 KV token 容量 1,312,085 → 2,313,178；并发 16 总 TPM 仅由 293,871 提至 305,139，约 +3.8%。</p></div>
           <div class="card orange"><span class="tag">PREFILL BUDGET</span><h4>32768 是基线，不是已证明最优</h4><span class="metric">待 A/B</span><p>当前 TP2 统一使用 <code>max-num-batched-tokens=32768</code>，尚需对比 16384，并联合输入长度、并发和 TTFT/TPOT 判断。</p></div>
         </div>
-        <h3>5.4 NVFP4：把权重显存节约转化为 KV 余量</h3>
+        <h3>5.4 NVFP4：显存、KV 余量与输出吞吐</h3>
         <p class="lead">对照组保持 TP2、32K 上下文、FP8 KV、MTP=3 和 batch 参数一致，仅改变权重精度。NVFP4 已确认使用原生 <code>FlashInferCutlassNvFp4LinearKernel</code>。</p>
         <div class="table-wrap">
           <table>
@@ -370,12 +370,29 @@
             </tbody>
           </table>
         </div>
-        <p class="muted small">这里的 FP8 KV 容量来自 MTP=3 对照配置，不能与 5.3 节 MTP 关闭时的 2,313,178 tokens 直接比较。NVFP4 当前只完成启动与容量验证，尚无吞吐或质量结论。</p>
+        <p class="muted small">这里的 FP8 KV 容量来自 MTP=3 对照配置，不能与 5.3 节 MTP 关闭时的 2,313,178 tokens 直接比较。NVFP4 已完成同负载工程吞吐 A/B，但业务质量与稳态能效仍未回归。</p>
         <div class="formula">C<sub>32K</sub> = min(max-num-seqs, floor(KV tokens / 32768))<small>当前 max-num-seqs=32 时，两种权重精度都先受调度上限约束，满 32K 请求并发上限均为 32；NVFP4 增加的是余量，不是立即把生产并发提高到 49。</small></div>
         <div class="grid-2">
           <div class="card violet"><h4>TP2 KV 容量是什么？</h4><p>它是启动时为 KV Cache 预留的逻辑 token 槽位总数，不是当前使用量，也不是每请求容量。两卡分片存储 KV，但该数值已是 TP2 实例的逻辑容量，不能再乘以 2。</p><p><code>max-num-batched-tokens</code> 是调度预算，不是总 KV 上限。</p></div>
           <div class="card orange"><h4>峰值功耗低，是否等于省电？</h4><p>初步观察 NVFP4 峰值功耗低约 10%～15%，但峰值不等于平均能耗。只有在相同负载和 SLA 下比较稳态平均功耗与吞吐，才能判断能效。</p><div class="formula">E<sub>token</sub> ∝ P<sub>avg</sub> / R<sub>token</sub></div></div>
         </div>
+        <h4>同负载输出吞吐：NVFP4 提升 7.6%～18.4%</h4>
+        <p>固定 8K 输入 / 512 输出、TP2、FP8 KV、MTP=3，FP8 与 NVFP4 使用相同 batch 与独立 seed。输出 token/s 由原始 CSV 的 <code>output_tpm / 60</code> 得到。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th class="num">并发</th><th class="num">FP8 output tok/s</th><th class="num">NVFP4 output tok/s</th><th class="num">NVFP4 提升</th><th>SLA</th></tr></thead>
+            <tbody>
+              <tr><td class="num">1</td><td class="num">93.25</td><td class="num">100.30</td><td class="num best">+7.6%</td><td>均通过</td></tr>
+              <tr><td class="num">8</td><td class="num">300.85</td><td class="num">332.97</td><td class="num best">+10.7%</td><td>均通过</td></tr>
+              <tr><td class="num">16</td><td class="num">346.37</td><td class="num">399.54</td><td class="num best">+15.4%</td><td>均通过</td></tr>
+              <tr><td class="num">20</td><td class="num">365.38</td><td class="num">427.34</td><td class="num best">+17.0%</td><td>均通过</td></tr>
+              <tr><td class="num">24</td><td class="num">364.15</td><td class="num">431.24</td><td class="num best">+18.4%</td><td>NVFP4 通过，FP8 P50 超标</td></tr>
+              <tr><td class="num">32</td><td class="num">372.76</td><td class="num">437.62</td><td class="num">+17.4%</td><td>均未通过 P50</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="success"><b>SLA 可比点：</b> FP8 聚合 SLA 最佳为并发 20，输出约 365.38 tok/s；NVFP4 将最佳点推到并发 24，输出约 431.24 tok/s，提升约 <b>18.0%</b>。NVFP4 原始最高总 TPM 为并发 32 的 449,069，但 TTFT P50 13.47s，只能视为原始峰值。</div>
+        <div class="warning"><b>聚合输出吞吐不等于单请求更快。</b> 因测试输入/输出长度固定，输出 tok/s 与总 TPM 的提升比例相同；但并发 32 时 NVFP4 的 TPOT P50 仍比 FP8 高约 3.9%。应同时看 TTFT、TPOT 与 SLA，不能只用 output tok/s 排序。</div>
         <div class="warning"><b>大 KV 池本身不会拖慢 Attention。</b> 未使用槽位不需要扫描，TPOT 取决于真实上下文长度、活跃请求和 KV 读取。也不要机械追求 60%～80% 使用率，应结合 preemption、waiting、TTFT/TPOT、Goodput 和 Prefix Cache 价值判断。</div>
         <div class="note"><b>数据不能跨负载直接排名。</b> Prefix Cache 的 4.2K/128、MTP/KV 的 8K/512、并发扫描的 8K/128 是不同实验；共享前缀的 869,219 总 TPM 也不能与随机冷请求混用。</div>
       </section>
@@ -411,9 +428,9 @@
         <div class="section-no">07 / OPTIMIZATION PLAYBOOK</div>
         <h2>六类典型场景的优化思路</h2>
         <div class="grid-2">
-          <div class="card scenario cyan"><span class="num">01</span><h3>单流 / 低并发交互</h3><p><b>目标：</b>最低 TTFT 与 TPOT，而不是整机峰值。</p><ul><li>8K/512、MTP 关闭时，TP2 单流约 65.8 tok/s；MTP=3 时 TPOT 8.95ms，约 111.7 tok/s。</li><li>开启 CUDA Graph，吞吐测试不要用 <code>--enforce-eager</code>。</li><li>长输出可 A/B MTP，观察接受率与每步推进数。</li><li>验收：TTFT、TPOT P50/P95、单流 output tok/s。</li></ul></div>
+          <div class="card scenario cyan"><span class="num">01</span><h3>单流 / 低并发交互</h3><p><b>目标：</b>最低 TTFT 与 TPOT，而不是整机峰值。</p><ul><li>8K/512、MTP 关闭时，TP2 单流约 65.8 tok/s；MTP=3、并发 1 时聚合输出为 FP8 93.25、NVFP4 100.30 tok/s，NVFP4 TPOT 8.33ms 亦低于 FP8 的 8.95ms。</li><li>开启 CUDA Graph，吞吐测试不要用 <code>--enforce-eager</code>。</li><li>长输出可 A/B MTP，观察接受率与每步推进数。</li><li>验收：TTFT、TPOT P50/P95、单流 output tok/s。</li></ul></div>
           <div class="card scenario cyan"><span class="num">02</span><h3>长输入 / Prefill 密集</h3><p><b>目标：</b>缩短 prefill，同时避免阻塞 decode。</p><ul><li>在 TP2 下扫描 <code>max-num-batched-tokens</code>；32768 是当前基线，下一步对比 16384。</li><li>使用 chunked prefill，并控制入口长请求并发。</li><li>共享前缀优先启用并验证 Prefix Cache 命中率。</li><li>验收：按 2K/8K/32K 分层看 TTFT，不看混合均值。</li></ul></div>
-          <div class="card scenario green"><span class="num">03</span><h3>高并发 / 短输出服务</h3><p><b>目标：</b>SLA 内请求 Goodput 最大。</p><ul><li><code>max-num-seqs=32</code> 是引擎调度上限，不是推荐入口并发。</li><li>MTP 关闭、8K/128 先限制入口为 8；MTP=3、8K/512 需区分聚合 SLA 点 20 与有效 TPM 点 8。</li><li>FP8 KV 可释放容量，但必须做业务质量回归。</li><li>验收：原始 TPM、SLA 内 TPM、有效 TPM 三口径并列。</li></ul></div>
+          <div class="card scenario green"><span class="num">03</span><h3>高并发 / 短输出服务</h3><p><b>目标：</b>SLA 内请求 Goodput 最大。</p><ul><li><code>max-num-seqs=32</code> 是引擎调度上限，不是推荐入口并发。</li><li>MTP 关闭、8K/128 先限制入口为 8；MTP=3、8K/512 需区分聚合 SLA 点 20 与有效 TPM 点 8。</li><li>8K/512 下，NVFP4 将聚合 SLA 最佳点推到并发 24，输出 tok/s 较 FP8 最佳点提升约 18.0%。</li><li>FP8 KV 可释放容量，但必须做业务质量回归。</li><li>验收：原始 TPM、SLA 内 TPM、有效 TPM 三口径并列。</li></ul></div>
           <div class="card scenario orange"><span class="num">04</span><h3>长输出 / Decode 密集</h3><p><b>目标：</b>降低 TPOT 与每输出 token 成本。</p><ul><li>MTP 是重点 A/B 项，但不能外推固定 token 数。</li><li>避免过大的 prefill budget 长时间干扰 decode。</li><li>关注长上下文 KV 读取，而非只看权重 B/W。</li><li>验收：512/2048 输出分别测试 TPOT、接受率与总成本。</li></ul></div>
           <div class="card scenario violet"><span class="num">05</span><h3>Agent / 共享长前缀</h3><p><b>目标：</b>把重复 prefill 转化为缓存命中。</p><ul><li>Prefix Cache 收益由共享比例与后缀长度共同决定。</li><li>单 TP2 只有一个引擎和一份本地 Prefix Cache，重点检查前缀组织与命中率，不涉及跨实例路由。</li><li>缓存命中不直接等于吞吐提升，还要观察 KV 容量、后缀长度和并发。</li><li>验收：随机冷请求与共享前缀分组报告。</li></ul></div>
           <div class="card scenario violet"><span class="num">06</span><h3>长上下文 / 显存受限</h3><p><b>目标：</b>不 OOM、不频繁抢占，并维持可接受 TPOT。</p><ul><li>先算权重、KV、激活与 runtime 的完整容量账。</li><li>TP2 的 FP8 KV 容量约 1.76×，32K 估算并发由 40.04 提至 70.59；本轮吞吐仅增约 3%～4%。</li><li>NVFP4 权重再节约 2.16 GiB/卡，使 MTP=3 对照下 KV 容量增加 3.81%；max-num-seqs=32 时仍先受调度上限约束。</li><li>控制 <code>max-model-len</code>、并发与准入，监控 preemption。</li><li>验收：32K 及目标最大上下文，补质量与尾延迟回归。</li></ul></div>
@@ -440,7 +457,7 @@
               <tr><th>Prefill batch</th><td><code>max-num-batched-tokens=32768</code> 仅作统一基线，仍需对比 16384</td></tr>
               <tr><th>Decode / KV</th><td>MTP=3、FP8 KV、<code>max-model-len=32768</code>、CUDA Graph <code>-O2</code></td></tr>
               <tr><th>卡间通信</th><td>PHB，经 PCIe Host Bridge；未见 NVLink，性能评估需包含 TP 通信开销</td></tr>
-              <tr><th>下一轮</th><td>补 bt=16384/32768、32K 输入、2048 输出与 Poisson QPS；候选点 500 请求 × 3 个 seed；增加 FP8/NVFP4 性能、质量与能效 A/B</td></tr>
+              <tr><th>下一轮</th><td>补 bt=16384/32768、32K 输入、2048 输出与 Poisson QPS；候选点 500 请求 × 3 个 seed；增加 NVFP4 业务质量、稳态能效与重复性验证</td></tr>
             </tbody>
           </table>
         </div>
@@ -457,7 +474,7 @@
               <tr><td>Prefill / 长输入</td><td>TTFT、输入吞吐</td><td>算力、注意力、排队、prefill 阻塞</td><td>token budget、Prefix Cache、TP、准入</td></tr>
               <tr><td>Decode / 低并发</td><td>TPOT、单流 output tok/s</td><td>权重带宽、kernel/调度开销</td><td>CUDA Graph、MTP、PCIe 通信检查</td></tr>
               <tr><td>Decode / 高并发长上下文</td><td>TPOT、KV 使用率</td><td>KV 带宽与容量、算力</td><td>FP8 KV、并发/上下文控制</td></tr>
-              <tr><td>NVFP4 权重</td><td>权重显存、KV 余量、每 token 能耗</td><td>调度上限、质量与真实平均功耗</td><td>已验证原生 kernel；性能/质量/能效继续 A/B</td></tr>
+              <tr><td>NVFP4 权重</td><td>输出 tok/s、权重显存、KV 余量</td><td>调度上限、质量与真实平均功耗</td><td>原生 kernel；8K/512 输出吞吐 +7.6%～18.4%，质量/能效待验证</td></tr>
               <tr><td>TP2 卡间通信</td><td>单流与高并发分开测</td><td>PCIe P2P、逐层同步</td><td>保持 CUDA Graph，按 SLA 限制入口</td></tr>
               <tr><td>生产容量</td><td>有效 Goodput、成本</td><td>尾延迟、排队、preemption</td><td>膝点前运行、双层限流、多轮压测</td></tr>
             </tbody>
@@ -467,21 +484,23 @@
           <div class="card green"><h3>正确的心智模型</h3><ul class="checklist"><li>理论吞吐 = 计算与访存 roofline 取小。</li><li>Prefill 通常偏计算，decode 低并发通常偏访存。</li><li>batch 能摊薄权重，却会增加 KV 与排队压力。</li><li>优化必须绑定输入、输出、并发和 SLA。</li></ul></div>
           <div class="card orange"><h3>需要避免的误区</h3><ul class="checklist"><li>用 PCIe 128 GB/s 除以权重大小推 decode。</li><li>把总 TPM 当 output TPM，或跨输入长度比较。</li><li>把原始最大 TPM 当生产可承载容量。</li><li>认为某个 batch、MTP 或拓扑永远最优。</li></ul></div>
         </div>
-        <div class="success"><b>最终结论：</b> 对当前 27B FP8 单实例 TP2，理论计算上限约 117.8 万总 TPM；8K/128 冷请求实测聚合 SLA 内最佳约 38.8 万、单请求有效口径最佳约 37.4 万，均出现在并发 8。NVFP4 已证明原生启动与容量余量收益，但在性能、质量和稳态能效 A/B 完成前，不纳入生产吞吐结论。</div>
+        <div class="success"><b>最终结论：</b> 对当前 27B FP8 单实例 TP2，理论计算上限约 117.8 万总 TPM；8K/128 冷请求聚合 SLA 内最佳约 38.8 万，出现在并发 8。NVFP4 在 8K/512、MTP=3 下将输出 tok/s 提升 7.6%～18.4%，SLA 可比点约 +18.0%；但业务质量与稳态能效仍需验证。</div>
         <h3>数据与参考资料</h3>
         <ul class="checklist small">
-          <li><a href="TP2_README.md">单实例 TP2 主报告：并发、Prefix Cache、MTP、KV dtype 与 NVFP4 启动/容量验证</a></li>
+          <li><a href="TP2_README.md">单实例 TP2 主报告：并发、Prefix Cache、MTP 与 KV dtype</a></li>
+          <li><a href="TP2_NVFP4_README.md">FP8 vs NVFP4 同负载专项报告：总 TPM、输出 tok/s、SLA、显存与功耗</a></li>
+          <li><a href="results/tp2-nvfp4-mtp3-summary.csv">NVFP4 MTP=3 原始结果 CSV：output_tpm、TTFT、TPOT 与功耗</a></li>
           <li><a href="https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-5000/" target="_blank" rel="noopener">NVIDIA RTX PRO 5000 Blackwell 官方规格：72GB GDDR7、1,344 GB/s</a></li>
           <li><a href="https://docs.vllm.ai/en/latest/configuration/optimization/" target="_blank" rel="noopener">vLLM Optimization and Tuning</a></li>
           <li><a href="https://docs.vllm.ai/en/latest/cli/bench/serve/" target="_blank" rel="noopener">vLLM Bench Serve</a></li>
           <li><a href="https://huggingface.co/Qwen/Qwen3.8-27B-FP8" target="_blank" rel="noopener">Qwen3.8-27B-FP8 官方模型</a></li>
         </ul>
-        <p class="muted small">范围说明：本页公式为 Dense Transformer 的简化教学模型；实测结论仅覆盖当前硬件、软件版本和已测负载。长上下文、视觉输入、PD 分离，以及 NVFP4 的性能、业务质量与稳态能效需单独验证。</p>
+        <p class="muted small">范围说明：本页公式为 Dense Transformer 的简化教学模型；实测结论仅覆盖当前硬件、软件版本和已测负载。长上下文、视觉输入、PD 分离，以及 NVFP4 的业务质量与稳态能效需单独验证。</p>
       </section>
     </main>
   </div>
 
-  <footer class="footer">LLM Inference First Principles · Qwen3.8-27B Single-Instance TP2 Case Study · Reviewed 2026-10-28</footer>
+  <footer class="footer">LLM Inference First Principles · Qwen3.8-27B FP8 vs NVFP4 · Single-Instance TP2 Case Study · Reviewed 2026-10-29</footer>
 
   <script>
     (function () {
