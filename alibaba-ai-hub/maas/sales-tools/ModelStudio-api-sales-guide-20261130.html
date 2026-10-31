@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Model Studio API 销售快速指南 · 2026-09-17</title>
+<title>Model Studio API 销售快速指南 · 2026-10-30</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap');
 
@@ -516,7 +516,7 @@
 
   <!-- Hero -->
   <div class="hero">
-    <div class="hero-badge">📋 Model Studio · API 销售快速指南 · 2026-09-17</div>
+    <div class="hero-badge">📋 Model Studio · API 销售快速指南 · 2026-10-30</div>
     <h1><span class="highlight">百炼 API</span> 产品线速览</h1>
     <p class="hero-sub">阿里云一站式大模型服务平台，聚合自研 Qwen 与主流第三方模型，一套 API Key 统一调用；支持模型微调（fine-tuning）、评测（evaluation）、部署（deployment）、可观测监控（observability）、知识库（RAG）与 Agent 编排（agent building）。</p>
   </div>
@@ -537,9 +537,9 @@
           </div>
           <div class="mx-group">
             <div class="mx-names">
-              <span><b>Q</b>wen3.8-Omni-Flash-Realtime<em>主推 · 实时</em></span><span><b>Q</b>wen3.8-Omni-Flash<em>offline</em></span>
+              <span><b>Q</b>wen3.8-Omni-Flash-Realtime<em>全模态实时</em></span><span><b>Q</b>wen3.8-Omni-Flash<em>offline</em></span>
             </div>
-            <div class="mx-bar">Qwen Omni · 实时/离线</div>
+            <div class="mx-bar">Qwen Omni · 全模态实时/离线</div>
           </div>
           <div class="mx-group">
             <div class="mx-vendors">
@@ -579,6 +579,10 @@
           <div class="mx-group">
             <div class="mx-names"><span><b>Q</b>wen-Audio-3.1-TTS-Flash<em>主推</em></span><span><b>Q</b>wen-Audio-3.1-TTS-Plus</span><span><b>Q</b>wen-Audio-3.1-TTS-Next<em>音频生成</em></span></div>
             <div class="mx-bar">Text to Speech · TTS · AudioGen</div>
+          </div>
+          <div class="mx-group">
+            <div class="mx-names"><span><b>Q</b>wen-Audio-3.1-Realtime-Flash<em>主推 · 实时对话</em></span><span><b>Q</b>wen-Audio-3.1-Realtime-Plus</span></div>
+            <div class="mx-bar">Realtime · 实时双工语音对话</div>
           </div>
           <div class="mx-group">
             <div class="mx-names"><span><b>Q</b>wen-Audio-3.0-ASR-Flash<em>主推</em></span></div>
@@ -894,7 +898,7 @@
         </table>
       </div>
 
-      <div class="model-subsection">ASR & TTS（语音识别 & 合成）</div>
+      <div class="model-subsection">ASR & TTS & 实时语音（识别 / 合成 / 双工对话）</div>
       <div class="table-wrap">
         <table>
           <thead><tr><th>模型</th><th>用途</th></tr></thead>
@@ -902,6 +906,9 @@
             <tr><td class="model-name">qwen-audio-3.1-tts-flash<span class="badge badge-green">推荐</span></td><td>语音合成（TTS）· 新主推 · 北京 + 新加坡 · 74 系统音色（含多语种 / 方言）；比 plus 快约 2 倍，成本约为 plus 的 1/10</td></tr>
             <tr><td class="model-name">qwen-audio-3.1-tts-plus</td><td>语音合成（TTS）· 精品音色 / 内容制作 · 北京 + 新加坡 · 4 个 v3.1 旗舰音色 · 指令控制 / 声音复刻</td></tr>
             <tr><td class="model-name">qwen-audio-3.1-tts-next</td><td>音频生成（AudioGen，非纯 TTS 但兼容 TTS 用法）· 北京 + 新加坡 · text_prompt + 最多 3 段参考音频，@voice1~3 分角色→多人 voice 播客 / 对谈 / 有声剧；人声 + 音效 + 环境音一次生成；非流式（≤120s，播客 ≤240s）</td></tr>
+            <tr><td class="model-name">qwen-audio-3.1-realtime-flash<span class="badge badge-green">推荐</span></td><td>实时双工语音对话（听 + 想 + 说一体）· 北京 + 新加坡 · 语义轮次 smart_turn_v2（“嗯”“啊”不打断）、说话人增强、声音复刻、FC + 联网搜索可同时开；输入 16kHz / 输出 24kHz，上下文 262K</td></tr>
+            <tr><td class="model-name">qwen-audio-3.1-realtime-plus</td><td>实时双工语音对话 · 高表现力档 · 北京 + 新加坡 · 音色与 flash 同库，但音频输出单价约为 flash 的 12.8 倍；联网搜索与 FC 不可同时开</td></tr>
+            <tr><td class="model-name">qwen3.8-omni-flash-realtime</td><td>全模态实时交互（文本 + 音频 + 视频帧）· 北京 + 新加坡 · 多通道音频 1/2/4 声道、远程 MCP、音频与文本分别计费；纯语音场景请选 qwen-audio-3.1-realtime-flash</td></tr>
             <tr><td class="model-name">qwen-audio-3.0-asr-flash</td><td>语音识别（ASR）· 词级时间戳</td></tr>
           </tbody>
         </table>
@@ -953,7 +960,7 @@
   </div>
 
   <div class="footer">
-    阿里云 Model Studio · API 销售快速指南 · 2026年9月
+    阿里云 Model Studio · API 销售快速指南 · 2026年10月
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:12.5px;line-height:1.9;">
       📖 本指南背后的知识库（模型选型 · 竞品对比 · 行业方案 · 技术通识，持续更新）：<br>
       <a href="https://github.com/EthanNiWorld/ai-playbook-2026" target="_blank" rel="noopener" style="color:var(--primary);font-weight:700;text-decoration:none;">github.com/EthanNiWorld/ai-playbook-2026</a>

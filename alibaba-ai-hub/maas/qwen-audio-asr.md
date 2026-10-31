@@ -1,6 +1,6 @@
 # Qwen-Audio-3.0-ASR 系列
 
-> 最后更新: 2026-09-02
+> 最后更新: 2026-10-30
 > 所属厂商: Alibaba (Alibaba Cloud)
 > 产品类别: MaaS（AI 语音识别）
 > 状态: Published
@@ -21,6 +21,9 @@
 | qwen-audio-3.0-asr-flash-streaming | 流式 | [⚠️ 待补充] | [⚠️ 待补充] | 新增流式变体（2026-09-02 定价页收录），新加坡 $0.00009/秒 |
 
 qwen-audio-3.0-asr-flash 与 filetrans 均在北京、新加坡地域上线（streaming 地域覆盖 [⚠️ 待补充]）。官方选型建议：5 分钟内短音频用同步模型，超 5 分钟长音频用 filetrans 异步模型。
+
+> **3.1 代际（待补全）**：官方已上架 qwen-audio-3.1-asr-flash / -flash-streaming / -flash-filetrans / -flash-messages 四个变体（合规 ZDR 模型清单已按 3.1 口径收录），但规格、地域与定价尚未核验，本页暂以 3.0 档为主推；待 3.1 参数补齐后再切换主推口径。
+> 相关产品线：语音合成见 [Qwen-Audio TTS](qwen-audio-tts.md)，实时双工对话见 [Qwen-Audio Realtime](qwen-audio-realtime.md)。
 
 ### qwen-audio-3.0-asr-flash
 - 模型：qwen-audio-3.0-asr-flash
@@ -119,5 +122,6 @@ qwen-audio-3.0-asr-flash 与 filetrans 均在北京、新加坡地域上线（st
 | 日期 | 变更内容 |
 |------|----------|
 | 2026-09-02 | 校验修复（knowledge-verifier 2026-09-02 报告）：填充 filetrans 定价（新加坡 $0.000035/秒、北京 $0.000032/秒）；新增 qwen-audio-3.0-asr-flash-streaming 条目（流式，新加坡 $0.00009/秒）——主推表 / 定价概览 / 独立小节同步 |
+| 2026-10-30 | 补充 3.1 代际提示：官方已上架 qwen-audio-3.1-asr-flash / -flash-streaming / -flash-filetrans / -flash-messages（规格待补全，暂不切主推）；新增与 TTS / Realtime 产品线的交叉引用 |
 | 2026-08-04 | 补充 qwen-audio-3.0-asr-flash 定价 $0.000035/秒（用户确认，直接入库） |
 | 2026-08-04 | 初始创建：基于 inbox/ai-knowledge-by-qoder-ai-native-agent-20260804.md 提炼，含官方口径与中英混说实测对比 |

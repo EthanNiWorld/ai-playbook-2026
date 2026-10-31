@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-10-28
+> 最后更新：2026-10-30
 
 ## 目录
 
@@ -29,6 +29,7 @@
 | Qwen-Audio-TTS / 语音合成 / TTS / 声音复刻 / 音频生成 / AudioGen / 多人播客 | [Qwen-Audio TTS](alibaba-ai-hub/maas/qwen-audio-tts.md) · [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md)（前主推） |
 | FunASR / 语音识别 / ASR / 说话人分离 | [FunASR](alibaba-ai-hub/maas/funasr.md) |
 | Qwen-Audio / Qwen-Audio-3.0-ASR / LLM 语音识别 / 即时热词 | [Qwen-Audio ASR](alibaba-ai-hub/maas/qwen-audio-asr.md) |
+| 实时语音对话 / 实时双工 / Realtime / 语音助手 / smart_turn / 说话人增强 / vs Omni Realtime | [Qwen-Audio Realtime](alibaba-ai-hub/maas/qwen-audio-realtime.md) |
 | HappyHorse / 快乐小马 / AI 视频生成 / 音视频联合生成 | [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) |
 | Fun-Music / 音乐生成 / AI 作曲 / 歌词生成歌曲 | [Fun-Music](alibaba-ai-hub/maas/fun-music.md) |
 | 决策模型 / decision-model / System One / 工单分流 / 内容审核判断 | [百炼决策模型](alibaba-ai-hub/maas/decision-model.md) |
@@ -59,6 +60,7 @@
 | 安全护栏 / 分类器拦截 / 降级兜底 / 护栏粒度 / CVP | [安全护栏粒度](knowledge/ai-general-notes/safety-guardrail-granularity.md) ⭐ |
 | MSA / 稀疏注意力 / MiniMax 架构 | [MSA 稀疏注意力](knowledge/minimax/msa-sparse-attention.md) |
 | Claude / Opus 5.5 / Sonnet 5.5 / Haiku 5.5 / Fable 5.1 / 分层定价 | [Claude API](knowledge/anthropic/claude-api.md) |
+| S-1 / 招股书 / 营收增速 / 毛利率 / NRR / 客户分层 / IPO | [Anthropic 公司分析](knowledge/anthropic/general_intro.md) ⭐ + [看板](knowledge/anthropic/general_intro.html) |
 | Claude Code / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) |
 | Gemini / Gemini 4 Argon / 1M 输出上限 / Google / Computer Use | [Gemini](knowledge/google/maas/gemini.md) |
 | GPT-6 / Astra / Sol / Luna / GPT-5 / ChatGPT / OpenAI / Codex | [GPT-6 系列](knowledge/openai/gpt-6-series.md) · [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
@@ -120,7 +122,7 @@
 
 > 分组顺序：**云厂商**（阿里云 / Google）→ **海外模型厂商** → **中国模型厂商**。
 
-### 🟧 阿里云（核心阵地，32 篇深度文档）
+### 🟧 阿里云（核心阵地，33 篇深度文档）
 
 > **从底层算力到上层应用，覆盖 MaaS / AI Coding / AI App / AI Infra / 竞品对比全链路。**
 
@@ -130,10 +132,11 @@
 - [Qwen](alibaba-ai-hub/maas/qwen.md) — 3.8-Max（旗舰，2.4T MoE / 1M ctx / TB 2.1 86.6，开源版 qwen3.8-2.4t-a95b 原生 262K 可扩展 ~1M）/ 3.7-Plus（多模态智能体）/ 3.8-Flash（新架构轻量，2026-08-26：125B/6B 激活 + 51B N-gram Embedding，GDN+QSA 混合注意力，1M ctx，¥0.8/¥2.7，取代 3.7-Flash）
 - [Qwen 向量与重排序](alibaba-ai-hub/maas/qwen-embedding-rerank.md) — qwen3.7-text-embedding（向量旗舰，256~2560 维）/ flash（1/4 价轻量）/ text-rerank（500 条候选精排），RAG 两阶段检索，含北京/新加坡定价与限流
 - [万相](alibaba-ai-hub/maas/wan.md) — 视频生成旗舰、首尾帧控制
-- [Qwen-Audio TTS](alibaba-ai-hub/maas/qwen-audio-tts.md) — 语音售前主推：3.1 三档（flash 实时交互 / plus 精品音色 / next 音频生成 AudioGen，兼做 TTS + 多 voice 播客）北京 + 新加坡双节点，声音复刻 / 设计 / 指令控制 / 标签控制
+- [Qwen-Audio TTS](alibaba-ai-hub/maas/qwen-audio-tts.md) — 语音合成主推：3.1 三档（flash 实时交互型 TTS / plus 精品音色 / next 音频生成 AudioGen，兼做 TTS + 多 voice 播客）北京 + 新加坡双节点，声音复刻 / 设计 / 指令控制 / 标签控制
 - [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) — TTS 产品线（2026-09-18 起售前主推移交 Qwen-Audio-TTS 3.x：3.1 flash/plus/next 北京 + 新加坡），声音复刻+声音设计+指令控制，仍在售
 - [FunASR](alibaba-ai-hub/maas/funasr.md) — ASR 产品线（2026-09-18 起售前主推移交 qwen-audio-3.0-asr-flash），六大能力一站式语音识别，仍在售
 - [Qwen-Audio ASR](alibaba-ai-hub/maas/qwen-audio-asr.md) — LLM-based ASR 系列，上下文理解+即时热词，含中英混说实测幻觉案例
+- [Qwen-Audio Realtime](alibaba-ai-hub/maas/qwen-audio-realtime.md) — 端到端实时双工语音对话：3.1 flash（低延迟主力）/ plus（高表现力）北京 + 新加坡，语义轮次 smart_turn_v2、说话人增强、声音复刻；含与 Qwen3.8-Omni-Flash-Realtime 的官方场景切分与逐项对比
 - [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) — AI 视频生成（音视频联合单次生成，淘天 ATH）
 - [Fun-Music](alibaba-ai-hub/maas/fun-music.md) — AI 音乐生成，歌词到歌曲端到端，fun-music-v1 实测
 - [百炼决策模型](alibaba-ai-hub/maas/decision-model.md) — decision-model-preview（09-24，System One 协议结构化决策：choice/noul/score 一次前向并行，P50 51ms，限时免费；含端点约束与三坑实测）
@@ -183,7 +186,7 @@
 
 ### Anthropic
 
-- 公司分析: [Anthropic 公司分析](knowledge/anthropic/general_intro.md) — PBC 治理、Scaling Laws 团队、Claude 家族、ARR $2B+（2026.04）
+- 公司分析: [Anthropic 公司分析](knowledge/anthropic/general_intro.md) + [📊 增长与单位经济看板](knowledge/anthropic/general_intro.html) — S-1 口径：2026 H1 营收 $162.86 亿、Q2 单季 $115.55 亿（YoY +1,368%）、毛利率 85.4%、NRR ~900%、1.19 万家 $10 万+ 客户
 - MaaS: [Claude API](knowledge/anthropic/claude-api.md) — 🚩 Fable 5.1（最高能力档 $10/$50）/ **⭐ Opus 5.5（2026.09.22，$4/$20，TB 4.0 66.4%、AA 独立榜第一）** / **Sonnet 5.5（2026.09.28，$2/$10 + cache 读减半）** / **Haiku 5.5（2026.10.07，1M ctx，Claude 系首个分层定价 $0.10/$0.50）**
 - AI Coding: [Claude Code](knowledge/anthropic/claude-code.md) — 终端 AI 编程
 - AI App: [Claude Cowork](knowledge/anthropic/claude-cowork.md) — 桌面通用知识工作 Agent · [Claude Managed Agents](knowledge/anthropic/claude-managed-agents.md)

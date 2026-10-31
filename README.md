@@ -2,14 +2,14 @@
 
 > **AI 解决方案售前知识库** — 模型选型 · 竞品对比 · 行业方案 · 技术通识，一站式参考
 >
-> 最后更新：2026-10-29
+> 最后更新：2026-10-30
 
 <p align="center">
   <img src="https://img.shields.io/badge/覆盖厂商-13-blue?style=for-the-badge" alt="覆盖厂商 13 家：阿里云 + 12 家外部厂商">
-  <img src="https://img.shields.io/badge/结构化文档-100-orange?style=for-the-badge" alt="结构化文档 100 篇">
+  <img src="https://img.shields.io/badge/结构化文档-101-orange?style=for-the-badge" alt="结构化文档 101 篇">
   <img src="https://img.shields.io/badge/知识维度-4-green?style=for-the-badge" alt="知识维度 4 类：通识 · 产品 · 对比 · 方案">
   <img src="https://img.shields.io/badge/核心阵地-阿里云-purple?style=for-the-badge" alt="核心阵地：阿里云 MaaS · Coding · App · Infra">
-  <img src="https://img.shields.io/badge/最后更新-2026--10--29-lightgrey?style=for-the-badge" alt="最后更新 2026-10-29">
+  <img src="https://img.shields.io/badge/最后更新-2026--10--30-lightgrey?style=for-the-badge" alt="最后更新 2026-10-30">
 </p>
 
 <p align="center">
@@ -28,9 +28,9 @@
 <td width="50%" valign="top">
 
 **☁️ 阿里云 AI 全栈**
-> 40 篇 · MaaS / Coding / App / Infra / 行业方案 全链路
+> 41 篇 · MaaS / Coding / App / Infra / 行业方案 全链路
 
-[百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [决策模型](alibaba-ai-hub/maas/decision-model.md) · [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work-retired-product.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun-retired-product.md) · [GPU](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [全部 40 篇 → index.md](index.md)
+[百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [决策模型](alibaba-ai-hub/maas/decision-model.md) · [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work-retired-product.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun-retired-product.md) · [GPU](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [全部 41 篇 → index.md](index.md)
 
 </td>
 <td width="50%" valign="top">
@@ -132,7 +132,7 @@
 
 ## ☁️ 阿里云 AI 全栈速览
 
-> **40 篇深度文档，覆盖从底层算力到上层应用的完整 AI 产品矩阵（含行业方案）。**
+> **41 篇深度文档，覆盖从底层算力到上层应用的完整 AI 产品矩阵（含行业方案）。**
 
 | 层级 | 核心产品 | 快速入口 |
 |------|---------|---------|
@@ -160,7 +160,7 @@ mindmap
       安全护栏 / 长程任务 / 存储超级周期
       算子经济学 / Agent Native 存储
     点:厂商与产品
-      阿里云 ☁️ 40 篇
+      阿里云 ☁️ 41 篇
         MaaS: Qwen3.8 / Wan3.0 / HappyHorse
         AI Coding: Qoder
         AI App: QwenWork / QoderWork / MuleRun / Claw
@@ -233,8 +233,8 @@ flowchart LR
 
 ```
 .
-├── alibaba-ai-hub/     ← 🟧 阿里云 AI 全栈（核心阵地·主推，40 篇）
-│   ├── maas/                  ← MaaS 模型服务（百炼 / Qwen / Qwen Embedding & Rerank / Wan / CosyVoice / FunASR / Qwen-Audio TTS / Qwen-Audio ASR / HappyHorse / Fun-Music / sales-tools）
+├── alibaba-ai-hub/     ← 🟧 阿里云 AI 全栈（核心阵地·主推，41 篇）
+│   ├── maas/                  ← MaaS 模型服务（百炼 / Qwen / Qwen Embedding & Rerank / Wan / CosyVoice / FunASR / Qwen-Audio TTS / Qwen-Audio ASR / Qwen-Audio Realtime / HappyHorse / Fun-Music / sales-tools）
 │   ├── ai-coding/             ← Qoder（企业级 AI Coding IDE）
 │   ├── ai-application/        ← QwenWork / QoderWork / MuleRun / Claw / JVS Crew / 万镜一刻
 │   ├── ai-infra/              ← GPU 选型 / AgenticFS（Agent 原生文件存储）

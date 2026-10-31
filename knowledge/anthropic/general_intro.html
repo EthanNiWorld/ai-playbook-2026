@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anthropic 增长与单位经济看板 · S-1 口径</title>
+<style>
+  :root{
+    --bg:#faf9f7;
+    --card:#ffffff;
+    --ink:#1f1d1a;
+    --ink-2:#5c5650;
+    --ink-3:#8a8279;
+    --line:#e7e2da;
+    --accent:#c15f3c;
+    --accent-2:#e08d6b;
+    --accent-soft:#fbeee9;
+    --green:#2f7d5d;
+    --green-soft:#e8f4ee;
+    --red:#b03a2e;
+    --red-soft:#fbeae7;
+    --blue:#3a6ea5;
+    --blue-soft:#eaf1f8;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 80px}
+  header.hero{padding:56px 0 32px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  h1{font-size:40px;line-height:1.2;margin:12px 0 8px;letter-spacing:-.02em}
+  .sub{color:var(--ink-2);font-size:16px;max-width:720px}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{font-size:12px;padding:5px 11px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--ink-2)}
+  .badge.solid{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .badge.warn{background:var(--red-soft);color:var(--red);border-color:#f0d3cd}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:32px 0 8px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .kpi .k{font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .kpi .v{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:4px 0 2px}
+  .kpi .d{font-size:12px;color:var(--ink-2)}
+  .kpi.hero-k{background:linear-gradient(160deg,#2a2622,#403a33);border-color:#403a33}
+  .kpi.hero-k .k{color:#c9bfb4}
+  .kpi.hero-k .v{color:#fff}
+  .kpi.hero-k .d{color:var(--accent-2)}
+
+  section{margin-top:52px}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sec-num{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700}
+  h2{font-size:22px;margin:0;letter-spacing:-.01em}
+  .sec-note{color:var(--ink-2);font-size:14px;margin:0 0 18px;max-width:820px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px}
+  .card + .card{margin-top:14px}
+  .card h3{font-size:15px;margin:0 0 2px}
+  .card .cap{font-size:12.5px;color:var(--ink-3);margin:0 0 14px}
+  .chart svg{display:block;width:100%;height:auto;overflow:visible}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:right;padding:9px 10px;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{font-size:12px;color:var(--ink-3);font-weight:600;text-transform:none}
+  tbody tr:last-child td{border-bottom:none}
+  tr.mark td{background:var(--accent-soft);font-weight:700}
+  td.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+  .insights{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .insight{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:16px 18px}
+  .insight h4{margin:0 0 6px;font-size:14px}
+  .insight p{margin:0;font-size:13px;color:var(--ink-2)}
+  .insight .fig{display:block;font-size:20px;font-weight:700;color:var(--accent);margin-bottom:4px;letter-spacing:-.02em}
+
+  .callout{background:var(--accent-soft);border:1px solid #f0d8ce;border-radius:12px;padding:14px 18px;font-size:13.5px;color:#7a3a24}
+  .callout.warn{background:var(--red-soft);border-color:#f0d3cd;color:#8c2f24}
+  .callout.info{background:var(--blue-soft);border-color:#d5e3f0;color:#2b5480}
+  .callout strong{color:inherit}
+
+  footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-3)}
+  footer a{color:var(--blue);text-decoration:none;word-break:break-all}
+  footer ol{padding-left:20px;margin:8px 0 0}
+  footer li{margin-bottom:4px}
+
+  @media (max-width:860px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .grid-2,.insights{grid-template-columns:1fr}
+    h1{font-size:30px}
+    .wrap{padding:0 16px 60px}
+  }
+  @media print{
+    body{background:#fff}
+    .card,.kpi,.insight{break-inside:avoid}
+    section{break-inside:avoid-page}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Anthropic · Form S-1 拆解</div>
+  <h1>增长速度、客群与推理毛利</h1>
+  <p class="sub">基于 2026-10-26 递交 SEC 的 S-1 招股书。财务数据截至 2026-06-30，客户数据截至 2026-09-30。用三张曲线回答一个问题：Anthropic 的钱是怎么从倒挂毛利长成 85% 毛利率的。</p>
+  <div class="badges">
+    <span class="badge solid">S-1 官方口径</span>
+    <span class="badge">财务期：2023 – 2026 H1</span>
+    <span class="badge">客户期：截至 2026.09.30</span>
+    <span class="badge">纳斯达克 · ANT</span>
+    <span class="badge warn">2026 Q3 由招股书倍数推导</span>
+  </div>
+</header>
+
+<div class="kpis">
+  <div class="kpi hero-k">
+    <div class="k">2026 Q2 单季营收</div>
+    <div class="v">$115.6 亿</div>
+    <div class="d">YoY +1,368% · QoQ +144%</div>
+  </div>
+  <div class="kpi">
+    <div class="k">2026 H1 营收</div>
+    <div class="v">$162.9 亿</div>
+    <div class="d">为 2025 全年的 3.6 倍</div>
+  </div>
+  <div class="kpi">
+    <div class="k">毛利率（2026 H1）</div>
+    <div class="v">85.4%</div>
+    <div class="d">Note 8 推导值 · 2024 为 -95%</div>
+  </div>
+  <div class="kpi">
+    <div class="k">净收入留存 NRR</div>
+    <div class="v">~900%</div>
+    <div class="d">存量客户支出年放大约 9 倍</div>
+  </div>
+  <div class="kpi">
+    <div class="k">年付 ≥ $10 万客户</div>
+    <div class="v">11,900+</div>
+    <div class="d">一年前 950 家 · 12.5×</div>
+  </div>
+  <div class="kpi">
+    <div class="k">年付 ≥ $100 万客户</div>
+    <div class="v">1,900+</div>
+    <div class="d">顶层 ≥ $1,000 万：约 250 家</div>
+  </div>
+  <div class="kpi">
+    <div class="k">2026 Q2 经营利润</div>
+    <div class="v">+$9.74 亿</div>
+    <div class="d">首个经营盈利季度（GAAP 8.4%）</div>
+  </div>
+  <div class="kpi">
+    <div class="k">算力支出 / 营收</div>
+    <div class="v">48%</div>
+    <div class="d">2025 Q1 为 251%</div>
+  </div>
+</div>
+
+<section>
+  <div class="sec-head"><span class="sec-num">01</span><h2>季度营收：五个季度 31 倍</h2></div>
+  <p class="sec-note">S-1 披露六个连续季度的营收与经营利润。曲线形状是典型「拐点后垂直起飞」——2025 Q4 环比增速一度降到 +48%，随后 2026 Q1、Q2 重新加速到 +132% / +144%，没有出现常规 SaaS 的规模衰减。</p>
+  <div class="card">
+    <h3>季度营收</h3>
+    <p class="cap">单位：百万美元 · 2024 Q4 为可比期（第三方整理，待原文核对）</p>
+    <div class="chart" id="chart-quarter"></div>
+  </div>
+  <div class="grid-2" style="margin-top:14px">
+    <div class="card">
+      <h3>环比增速</h3>
+      <p class="cap">2025 Q4 见底 +48% 后重新加速</p>
+      <div class="chart" id="chart-qoq"></div>
+    </div>
+    <div class="card">
+      <h3>营收表</h3>
+      <p class="cap">数据同左图，可核对</p>
+      <table>
+        <thead><tr><th>季度</th><th>营收</th><th>环比</th><th>同比</th></tr></thead>
+        <tbody>
+          <tr><td>2024 Q4</td><td class="num">$1.97 亿</td><td class="num">—</td><td class="num">—</td></tr>
+          <tr><td>2025 Q1</td><td class="num">$3.76 亿</td><td class="num">+91%</td><td class="num">—</td></tr>
+          <tr><td>2025 Q2</td><td class="num">$7.87 亿</td><td class="num">+109%</td><td class="num">—</td></tr>
+          <tr><td>2025 Q3</td><td class="num">$13.82 亿</td><td class="num">+76%</td><td class="num">—</td></tr>
+          <tr><td>2025 Q4</td><td class="num">$20.40 亿</td><td class="num">+48%</td><td class="num">—</td></tr>
+          <tr><td>2026 Q1</td><td class="num">$47.31 亿</td><td class="num">+132%</td><td class="num">+1,158%</td></tr>
+          <tr class="mark"><td>2026 Q2</td><td class="num">$115.55 亿</td><td class="num">+144%</td><td class="num">+1,368%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="callout" style="margin-top:14px">
+    <strong>单季超三年总和：</strong>2026 Q2 一个季度（$115.6 亿）等于 2023–2025 三年累计营收（$50.1 亿）的 2.3 倍。2026 Q3 摘要页数字<b>留空</b>，但 Business 章节称其为 2024 Q4（$1.97 亿）的 <b>86 倍</b>，据此推导约 <b>$168–170 亿</b>（环比 +约 47%）——这不是传闻，是招股书自己留下的算式。
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">02</span><h2>年度营收：三年 111 倍</h2></div>
+  <p class="sec-note">2023 年 $4,100 万 → 2025 年 $45.85 亿，两年放大 111 倍。2026 上半年单半年 $162.86 亿，已是 2025 全年的 3.6 倍。注意 2026 只有半年，柱形用浅色标注，不可与整年直接比较。</p>
+  <div class="card">
+    <h3>年度 / 半年度营收</h3>
+    <p class="cap">单位：百万美元 · 纵轴为对数刻度（否则 2023 年的柱子将不可见）</p>
+    <div class="chart" id="chart-annual"></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">03</span><h2>推理毛利：从 -95% 到 85%</h2></div>
+  <p class="sec-note">先说一个容易踩坑的列报口径：Anthropic 自 2025 年起把费用从「按功能」改为「按性质」列报，<b>cost of revenue 与 gross profit 不再出现在利润表正面</b>，改在补充附注（Note 8）披露。所以下面这条毛利率是 <b>Note 8 成本收入 ÷ 营收</b> 的推导值。2024 年 -95%，意味着每收 1 美元要花近 2 美元推理成本；2026 H1 成本收入仅 $23.80 亿（占营收 14.6%），毛利率 85.4%。真正的分水岭是：<b>算力总额 $89.45 亿里只有约 27% 落在成本收入，其余是训练与前沿研发</b>——这就是为什么 85% 毛利率能与 -4% 经营利润率共存。</p>
+  <div class="card">
+    <h3>毛利率（Note 8 推导）</h3>
+    <p class="cap">2024 与 2025 H1 为负 / 低位，2026 年进入平台期</p>
+    <div class="chart" id="chart-gm"></div>
+  </div>
+  <div class="grid-2" style="margin-top:14px">
+    <div class="card">
+      <h3>算力与基础设施 / 营收（总额口径）</h3>
+      <p class="cap">含训练、评估与免费用户推理；2026 H1 仅约 27% 计入成本收入</p>
+      <div class="chart" id="chart-compute"></div>
+    </div>
+    <div class="card">
+      <h3>经营杠杆</h3>
+      <p class="cap">收入放大后，固定成本被摊薄</p>
+      <table>
+        <thead><tr><th>指标</th><th>2025 全年</th><th>2026 H1</th></tr></thead>
+        <tbody>
+          <tr><td>营收</td><td class="num">$45.85 亿</td><td class="num">$162.86 亿</td></tr>
+          <tr><td>成本收入（Note 8，仅服务付费客户算力）</td><td class="num">$27.73 亿</td><td class="num">$23.80 亿</td></tr>
+          <tr><td>算力与基础设施（总额，含训练/免费）</td><td class="num">$73.26 亿</td><td class="num">$89.45 亿</td></tr>
+          <tr><td>研发费用</td><td class="num">$63.36 亿（138%）</td><td class="num">$97.41 亿（59.8%）</td></tr>
+          <tr><td>经营损益</td><td class="num" style="color:var(--red)">-$80.60 亿</td><td class="num" style="color:var(--green)">-$6.93 亿</td></tr>
+          <tr class="mark"><td>2026 Q2 单季经营利润</td><td class="num">—</td><td class="num" style="color:var(--green)">+$9.74 亿</td></tr>
+          <tr><td>净损益</td><td class="num" style="color:var(--red)">-$420 亿</td><td class="num" style="color:var(--red)">-$807.5 亿</td></tr>
+        </tbody>
+      </table>
+      <div class="callout info" style="margin-top:12px">
+        <strong>别看净亏损吓人：</strong>2026 H1 净亏损 $807 亿中，$723.9 亿是<b>可转债、衍生品与 SAFE 的公允价值变动</b>（非现金、随估值上调记账）。经营口径同期只亏 $6.93 亿。
+      </div>
+    </div>
+  </div>
+  <div class="callout warn" style="margin-top:14px">
+    <strong>毛利率 ≠ 到手的钱（但机制与直觉不同）：</strong>S-1 把经云市场成交的<strong>全额确认为收入</strong>（principal 口径），平台分销费另记在 <b>销售、市场与合作费用</b>（2026 H1 $31.68 亿，占营收 19%，该科目还含<b>免费用户推理算力</b>），<strong>不进 COGS</strong>。2025 年经 Amazon、Google 成交 $21.6 亿，分销费约 $3.51 亿 ≈ <b>每 1 美元渠道销售额付 16 美分</b>（折总营收仅 7.7%）。S-1 未按云厂商拆分费率，加权值不可当作单家费率。
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">04</span><h2>客群：4,000 万长尾 + 1.19 万腰部 + 250 个顶部</h2></div>
+  <p class="sec-note">Anthropic 的客群是极端金字塔。底层约 4,000 万自助用户年付不足 $10 万，几乎不贡献收入；真正的收入来自 11,900 家年付 ≥ $10 万的客户——而这个数字一年前只有 950 家，增长 12.5 倍。注意横轴是对数刻度，否则顶层会被压成一条线。</p>
+  <div class="card">
+    <h3>客户金额分层（截至 2026.09.30）</h3>
+    <p class="cap">单位：家 / 人 · 对数刻度</p>
+    <div class="chart" id="chart-customers"></div>
+  </div>
+  <div class="grid-2" style="margin-top:14px">
+    <div class="card">
+      <h3>为什么增速能超过 100%</h3>
+      <p style="font-size:13.5px;color:var(--ink-2);margin:0">
+        <b style="color:var(--accent);font-size:22px">NRR ≈ 900%</b><br>
+        净收入留存（截至 2026.09.30）。典型 SaaS 的 NRR 是 110%–130%，这意味着 Anthropic 的存量客户一年内支出放大近 9 倍。<br><b>口径限定：NRR 不含 Claude Pro / Max 订阅用户</b>，只覆盖按量与企业类客户。
+      </p>
+      <p style="font-size:13px;color:var(--ink-2);margin:12px 0 0">
+        增长因此不是「靠不断拉新」，而是<b>同一批客户把 token 用量越用越多</b>——这是 Agent 类产品特有的曲线：一次接入，用量随任务复杂度自发膨胀。
+      </p>
+    </div>
+    <div class="card">
+      <h3>客群质量</h3>
+      <table>
+        <tbody>
+          <tr><td>Fortune 500 中年付 ≥ $10 万的比例</td><td class="num"><b>超过一半</b></td></tr>
+          <tr><td>Ramp 平台美国企业的付费渗透率（2026.09）</td><td class="num">43.8%</td></tr>
+          <tr><td>美国企业 LLM 支出份额（2025，Menlo）</td><td class="num">40%</td></tr>
+          <tr><td>AI coding 支出份额（2025 底，Menlo）</td><td class="num">54%</td></tr>
+          <tr><td>前五大客户营收占比（2026.01–09）</td><td class="num">约 25%</td></tr>
+          <tr><td>单一客户最高占比（2025，共两家各 12%）</td><td class="num">12%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">05</span><h2>收入结构：八成按量计费，近半走云市场</h2></div>
+  <p class="sec-note">按量计费（API / token）占了约八成收入，订阅只有两成——这是一个「用量驱动」而非「席位驱动」的模型，也是 NRR 能到 900% 的结构性原因。同时云市场渠道占比从 2023 年的 11% 涨到 48%，经 <b>Amazon、Google、Microsoft 三家</b>云市场成交（S-1 口径；其中 2025 年可拆出的 $21.6 亿为 Amazon + Google）。三家同时是投资方、算力供应商与分销商，且各自有自研模型与 Claude 竞争。</p>
+  <div class="grid-2">
+    <div class="card">
+      <h3>按计费方式拆分（2026 H1）</h3>
+      <p class="cap">合计 $162.86 亿</p>
+      <div style="margin-top:8px">
+        <div style="display:flex;height:44px;border-radius:8px;overflow:hidden">
+          <div style="width:80.4%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">按量计费 80.4%</div>
+          <div style="width:19.6%;background:#8d5a44;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600">订阅</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-2);margin-top:10px">
+          <span><b>$131 亿</b> · pay-per-use</span>
+          <span><b>$32 亿</b> · subscription 19.6%</span>
+        </div>
+      </div>
+      <div class="callout info" style="margin-top:16px">
+        <strong>口径提醒：</strong>「约 80% 收入来自企业客户」（CNBC 2026.01）与「约 80% 来自按量计费」是两个不同维度（客户类型 vs 计费方式），不能混为一句话引用。
+      </div>
+    </div>
+    <div class="card">
+      <h3>云市场渠道占比</h3>
+      <p class="cap">经云市场成交的收入比例（S-1 口径：Amazon / Google / Microsoft 三家）</p>
+      <div class="chart" id="chart-marketplace"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">06</span><h2>三句话记住这份招股书</h2></div>
+  <div class="insights">
+    <div class="insight">
+      <span class="fig">31×</span>
+      <h4>增速：五个季度，不是五年</h4>
+      <p>Q1 2025 $3.76 亿 → Q2 2026 $115.6 亿。且增速在 2026 年二次加速（环比 +132% / +144%），而不是递减。</p>
+    </div>
+    <div class="insight">
+      <span class="fig">900%</span>
+      <h4>客群：窄腰 + 长尾</h4>
+      <p>4,000 万长尾几乎不产出收入；1.19 万家 $10 万+ 客户贡献主体。存量客户自己长大（NRR 900%），是增长主引擎。</p>
+    </div>
+    <div class="insight">
+      <span class="fig">85%</span>
+      <h4>毛利：两年走完别人十年的路</h4>
+      <p>2024 年毛利 -95%（推理倒挂）→ 2026 H1 85.4%（Note 8 推导）。但别把渠道费从毛利里扣——它走销售费用；真正吞利润的是研发，占营收 59.8%。</p>
+    </div>
+  </div>
+  <div class="callout" style="margin-top:14px">
+    <strong>但风险不在毛利表里：</strong>S-1 逐份列明的具名算力合同合计 <b>$6,370 亿</b>（Google $1,145 亿 / Amazon $1,100 亿 / Microsoft $449 亿 / SpaceXAI 至多 $1,205 亿 / Nscale $446 亿 / Lambda $413 亿 / Broadcom 租金 $1,612 亿，逐项相加可验算），直线摊销约 <b>$1,145 亿/年</b>。注意三点：不可与额外 TPU 估算（$1,250–1,500 亿）及 AMD（>$200 亿）相加；并非全部 take-or-pay（SpaceXAI 部分可 90 天取消、Nscale/Lambda 按交付计费）；若增速放缓，刚性部分会从「护城河」变成「固定成本」。
+  </div>
+</section>
+
+<footer>
+  <strong>数据来源与口径</strong>
+  <ol>
+    <li>SEC Form S-1（Anthropic, PBC，2026-10-26 递交）— <a href="https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm">EDGAR 原文</a>；官方公告（代码 ANT）— <a href="https://www.anthropic.com/news/s1-sec">anthropic.com/news/s1-sec</a></li>
+    <li>Aardvark Labs S-1 Analysis（<b>含逐字原文引文与逐笔金额，本文“原文口径”的主要依据</b>）— <a href="https://research.aardvarklabs.co/research/ant/earnings/2026-s1/ant-2026-s1-analysis">链接</a>：列报变更原文、Note 8 成本收入、费用性质表、算力承诺逐笔条款、客户分层轨迹、9 月季度 86 倍关系</li>
+    <li>Tim Schipper《The price cut was never a discount》— <a href="https://tim-schipper.nl/en/blog/llm-price-cuts-anthropic-s1">链接</a>（Note 8 成本收入与毛利率推导）</li>
+    <li>Reuters（2026.09.29）、The VC Corner、MangoThrive：渠道金额与数据聚合</li>
+  </ol>
+  <p style="margin-top:14px">
+    ⚠️ EDGAR 对程序化访问全局返回 403（原始 URL、/ix 视图、data.sec.gov、R 财务页、Wayback 均已实测不可达），本文“原文口径”经上述<b>含逐字引文与逐笔金额的逐页拆解</b>重建，并做过交叉验算：成本收入 2,380 ÷ 营收 16,286 = 14.6% → 毛利率 85.4%（各期均自洽）；算力承诺逐项相加 = 6,370 亿 与 S-1 总数吻合。<br>
+    配套文档：<a href="general_intro.md">general_intro.md</a>（完整公司分析）· 最后更新：2026-10-29
+  </p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var ACCENT='#c15f3c', MUTED='#d5c8bb', INK3='#8a8279', INK2='#5c5650';
+
+  function thousands(v){ return v.toLocaleString('en-US'); }
+
+  /* -------- 垂直柱状图（支持对数）-------- */
+  function bar(el, data, o){
+    o = o || {};
+    var log = !!o.log;
+    var W=760, H=o.h||300, padL=60, padR=18, padT=30, padB=o.padB||58;
+    var iw=W-padL-padR, ih=H-padT-padB;
+    var vals=data.map(function(d){return d.v;});
+    var lo, hi, y;
+    if(log){
+      lo=Math.log10(Math.min.apply(null,vals)*0.55);
+      hi=Math.log10(Math.max.apply(null,vals)*1.55);
+      y=function(v){ return padT+ih*(1-(Math.log10(v)-lo)/(hi-lo)); };
+    } else {
+      var mn=(o.min!==undefined)?o.min:0;
+      var mx=(o.max!==undefined)?o.max:Math.max.apply(null,vals);
+      y=function(v){ return padT+ih*(1-(v-mn)/(mx-mn)); };
+    }
+    var step=iw/data.length, bw=Math.min(66,step*0.54);
+    var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" preserveAspectRatio="xMidYMid meet">';
+
+    var gridVals = o.grid || [];
+    gridVals.forEach(function(gv){
+      var yy=y(gv);
+      s+='<line x1="'+padL+'" y1="'+yy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yy.toFixed(1)+'" stroke="#eee9e2" stroke-width="1"/>';
+      s+='<text x="'+(padL-10)+'" y="'+(yy+4).toFixed(1)+'" text-anchor="end" font-size="11" fill="'+INK3+'">'+o.gridFmt(gv)+'</text>';
+    });
+
+    data.forEach(function(d,i){
+      var cx=padL+step*i+step/2;
+      var baseY=y(o.base!==undefined?o.base:(log?Math.min.apply(null,vals)*0.55:((o.min!==undefined)?o.min:0)));
+      var topY=y(d.v);
+      var hgt=Math.max(2, baseY-topY);
+      s+='<rect x="'+(cx-bw/2).toFixed(1)+'" y="'+topY.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+hgt.toFixed(1)+'" rx="4" fill="'+(d.hi?ACCENT:MUTED)+'"/>';
+      s+='<text x="'+cx.toFixed(1)+'" y="'+(topY-8).toFixed(1)+'" text-anchor="middle" font-size="11.5" font-weight="'+(d.hi?700:600)+'" fill="'+(d.hi?ACCENT:INK2)+'">'+d.vLabel+'</text>';
+      s+='<text x="'+cx.toFixed(1)+'" y="'+(padT+ih+20)+'" text-anchor="middle" font-size="11.5" fill="'+INK2+'">'+d.label+'</text>';
+      if(d.sub){ s+='<text x="'+cx.toFixed(1)+'" y="'+(padT+ih+36)+'" text-anchor="middle" font-size="10.5" fill="#a9a199">'+d.sub+'</text>'; }
+    });
+    s+='</svg>';
+    el.innerHTML=s;
+  }
+
+  /* -------- 折线图 -------- */
+  function line(el, data, o){
+    o = o || {};
+    var W=760, H=o.h||300, padL=58, padR=30, padT=34, padB=56;
+    var iw=W-padL-padR, ih=H-padT-padB;
+    var vals=data.map(function(d){return d.v;});
+    var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
+    var padv=(mx-mn)*0.18 || 1;
+    var lo=(o.min!==undefined)?o.min:mn-padv;
+    var hi=(o.max!==undefined)?o.max:mx+padv;
+    var step=iw/data.length;
+    function Y(v){ return padT+ih*(1-(v-lo)/(hi-lo)); }
+    function X(i){ return padL+step*i+step/2; }
+    var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" preserveAspectRatio="xMidYMid meet">';
+
+    (o.grid||[]).forEach(function(gv){
+      var yy=Y(gv);
+      s+='<line x1="'+padL+'" y1="'+yy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yy.toFixed(1)+'" stroke="#eee9e2"/>';
+      s+='<text x="'+(padL-10)+'" y="'+(yy+4).toFixed(1)+'" text-anchor="end" font-size="11" fill="'+INK3+'">'+o.gridFmt(gv)+'</text>';
+    });
+    if(lo<0 && hi>0){
+      var zy=Y(0);
+      s+='<line x1="'+padL+'" y1="'+zy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+zy.toFixed(1)+'" stroke="#c9beb2" stroke-dasharray="4 4"/>';
+    }
+
+    var pts=data.map(function(d,i){ return [X(i), Y(d.v)]; });
+    var path=pts.map(function(p,i){ return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1); }).join(' ');
+    s+='<path d="'+path+'" fill="none" stroke="'+ACCENT+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+
+    pts.forEach(function(p,i){
+      var d=data[i];
+      var neg = d.v<0;
+      s+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="5" fill="'+(neg?'#b03a2e':ACCENT)+'" stroke="#fff" stroke-width="2"/>';
+      s+='<text x="'+p[0].toFixed(1)+'" y="'+(p[1]-14).toFixed(1)+'" text-anchor="middle" font-size="12" font-weight="700" fill="'+(neg?'#b03a2e':INK2)+'">'+d.vLabel+'</text>';
+      s+='<text x="'+p[0].toFixed(1)+'" y="'+(padT+ih+22)+'" text-anchor="middle" font-size="11.5" fill="'+INK2+'">'+d.label+'</text>';
+    });
+    s+='</svg>';
+    el.innerHTML=s;
+  }
+
+  /* -------- 水平对数条 -------- */
+  function hLog(el, data, o){
+    o=o||{};
+    var rowH=54, W=760, padL=150, padR=110, padT=6;
+    var H=padT+data.length*rowH+44;
+    var iw=W-padL-padR;
+    var vals=data.map(function(d){return d.v;});
+    var lo=Math.log10(Math.min.apply(null,vals)*0.5);
+    var hi=Math.log10(Math.max.apply(null,vals)*1.5);
+    function X(v){ return padL+iw*(Math.log10(v)-lo)/(hi-lo); }
+    var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" preserveAspectRatio="xMidYMid meet">';
+    (o.marks||[]).forEach(function(m){
+      var x=X(m.v);
+      s+='<line x1="'+x.toFixed(1)+'" y1="'+padT+'" x2="'+x.toFixed(1)+'" y2="'+(padT+data.length*rowH)+'" stroke="#eee9e2"/>';
+      s+='<text x="'+x.toFixed(1)+'" y="'+(padT+data.length*rowH+20)+'" text-anchor="middle" font-size="10" fill="'+INK3+'">'+m.label+'</text>';
+    });
+    data.forEach(function(d,i){
+      var yTop=padT+i*rowH;
+      var bx=X(d.v), bh=20, by=yTop+(rowH-bh)/2-4;
+      s+='<rect x="'+padL+'" y="'+by.toFixed(1)+'" width="'+Math.max(2,bx-padL).toFixed(1)+'" height="'+bh+'" rx="4" fill="'+(d.hi?ACCENT:MUTED)+'"/>';
+      s+='<text x="'+(padL-12)+'" y="'+(by+bh/2+4).toFixed(1)+'" text-anchor="end" font-size="12" fill="'+INK2+'">'+d.label+'</text>';
+      s+='<text x="'+(bx+10).toFixed(1)+'" y="'+(by+bh/2+4).toFixed(1)+'" font-size="12" font-weight="700" fill="'+(d.hi?ACCENT:INK2)+'">'+d.vLabel+'</text>';
+    });
+    s+='</svg>';
+    el.innerHTML=s;
+  }
+
+  /* ================= 数据 ================= */
+  var quarters=[
+    {label:'24Q4', v:197,   vLabel:'197'},
+    {label:'25Q1', v:376,   vLabel:'376'},
+    {label:'25Q2', v:787,   vLabel:'787'},
+    {label:'25Q3', v:1382,  vLabel:'1,382'},
+    {label:'25Q4', v:2040,  vLabel:'2,040'},
+    {label:'26Q1', v:4731,  vLabel:'4,731'},
+    {label:'26Q2', v:11555, vLabel:'11,555', hi:true}
+  ];
+
+  bar(document.getElementById('chart-quarter'), quarters, {
+    h:330, max:12600,
+    grid:[0,3000,6000,9000,12000],
+    gridFmt:function(v){ return v===0?'0':'$'+v/1000+'B'; }
+  });
+
+  line(document.getElementById('chart-qoq'), [
+    {label:'25Q1', v:91,  vLabel:'+91%'},
+    {label:'25Q2', v:109, vLabel:'+109%'},
+    {label:'25Q3', v:76,  vLabel:'+76%'},
+    {label:'25Q4', v:48,  vLabel:'+48%'},
+    {label:'26Q1', v:132, vLabel:'+132%'},
+    {label:'26Q2', v:144, vLabel:'+144%'}
+  ], {
+    h:280, min:0, max:170,
+    grid:[0,50,100,150],
+    gridFmt:function(v){ return v+'%'; }
+  });
+
+  bar(document.getElementById('chart-annual'), [
+    {label:'2023', v:41,    vLabel:'$41M'},
+    {label:'2024', v:386,   vLabel:'$386M'},
+    {label:'2025', v:4585,  vLabel:'$4.59B'},
+    {label:'2026 H1', v:16286, vLabel:'$16.3B', hi:true, sub:'仅半年'}
+  ], {
+    h:350, padB:76, log:true,
+    grid:[100,1000,10000],
+    gridFmt:function(v){ return v>=1e6?('$'+(v/1e6)+'T'):(v>=1000?('$'+(v/1000)+'B'):('$'+v+'M')); }
+  });
+
+  line(document.getElementById('chart-gm'), [
+    {label:'2024', v:-95,   vLabel:'-95%'},
+    {label:'2025 H1', v:12.4, vLabel:'12.4%'},
+    {label:'2025', v:39.5,  vLabel:'39.5%'},
+    {label:'2026 H1', v:85.4, vLabel:'85.4%'},
+    {label:'2026 Q3', v:85,  vLabel:'85%'}
+  ], {
+    h:320, min:-110, max:100,
+    grid:[-100,-50,0,50,100],
+    gridFmt:function(v){ return v+'%'; }
+  });
+
+  bar(document.getElementById('chart-compute'), [
+    {label:'25Q1', v:251, vLabel:'251%'},
+    {label:'25Q2', v:177, vLabel:'177%'},
+    {label:'25Q3', v:148, vLabel:'148%'},
+    {label:'25Q4', v:144, vLabel:'144%'},
+    {label:'26Q1', v:72,  vLabel:'72%'},
+    {label:'26Q2', v:48,  vLabel:'48%', hi:true}
+  ], {
+    h:286, max:280,
+    grid:[0,70,140,210,280],
+    gridFmt:function(v){ return v+'%'; }
+  });
+
+  hLog(document.getElementById('chart-customers'), [
+    {label:'年付 ≥ $1,000 万', v:250,     vLabel:'约 250 家'},
+    {label:'年付 ≥ $100 万',   v:1900,    vLabel:'超 1,900 家'},
+    {label:'年付 ≥ $10 万',    v:11900,   vLabel:'超 11,900 家', hi:true},
+    {label:'年付 < $10 万',    v:40000000, vLabel:'约 4,000 万'}
+  ], {
+    marks:[
+      {v:100,    label:'100'},
+      {v:1000,   label:'1 千'},
+      {v:10000,  label:'1 万'},
+      {v:100000, label:'10 万'},
+      {v:1000000,label:'100 万'},
+      {v:10000000,label:'1,000 万'}
+    ]
+  });
+
+  line(document.getElementById('chart-marketplace'), [
+    {label:'2023', v:11, vLabel:'11%'},
+    {label:'2024', v:32, vLabel:'32%'},
+    {label:'2025', v:47, vLabel:'47%'},
+    {label:'2026 H1', v:48, vLabel:'48%'}
+  ], {
+    h:280, min:0, max:60,
+    grid:[0,20,40,60],
+    gridFmt:function(v){ return v+'%'; }
+  });
+})();
+</script>
+</body>
+</html>
