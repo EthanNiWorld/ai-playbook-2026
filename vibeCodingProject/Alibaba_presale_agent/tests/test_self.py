@@ -56,6 +56,15 @@ def test_price_verifier_units():
           pv.extract_model_names("qwen 3.8 max 价格") == ["qwen3.8-max"])
     check("模型名提取: 规范 ID 不受归一化二次改写",
           pv.extract_model_names("kimi-k3.1-pro 价格") == ["kimi-k3.1-pro"])
+    # 产品（非百炼模型）定价题不走百炼校验（Qoder 事故：百炼回落证据会误导 LLM 把
+    # model-pricing 链接安到产品头上）；产品定价交给知识库检索回答
+    check("产品定价题不触发模型校验: qoder", not pv.is_price_question("qoder是怎么计费的"))
+    check("产品定价题不触发模型校验: Qoder Teams", not pv.is_price_question("Qoder Teams 多少钱"))
+    check("产品定价题不触发模型校验: qoderwake", not pv.is_price_question("qoderwake 价格"))
+    check("产品定价题不触发模型校验: 汉字紧贴", not pv.is_price_question("那qoder的价格呢？"))
+    check("产品+模型混问仍触发（含模型名）", pv.is_price_question("qoder 和 kimi k3.1 pro 多少钱"))
+    check("纯模型价格题仍触发", pv.is_price_question("qwen3.8-max 价格"))
+    check("泛化价格题仍触发（无产品无模型）", pv.is_price_question("百炼怎么收费"))
 
 
 def test_table_render_and_followup():

@@ -1,15 +1,18 @@
-"""前端 UI 回归（CDP 驱动真实浏览器，42 项）
-运行: .venv/bin/python tests/e2e/ui_regression.py
-前置: 8000 端口服务已就绪（会真实调一次 LLM，约 30-60s）
+"""前端 UI 回归（CDP 驱动真实浏览器）
+运行: .venv/bin/python tests/e2e/ui_regression.py [--mock]
+前置: 8000 端口服务已就绪；默认真实调用 LLM，--mock 拦截问答与反馈请求。
+--mock 不消耗模型额度、不写入问答数据库，可独立回归布局与流式交互。
 
 覆盖：空态首屏 / 真实流式对话 / 消息与气泡样式 / 来源与价格徽章 /
 思考折叠 / 反馈面板 hidden 显隐 / 价格表宽屏免横滑与窄屏横滑 /
-表头不逐字折行 / 移动端断点 / 控制台零报错 / 背景层可见性
+表头不逐字折行 / 移动端断点 / 控制台零报错 / 首屏聚焦布局 /
+侧栏收起 / 新会话状态 / 中文输入法 / 短视口与空态恢复
 
-注意：会向 data/qa.db 写入 1 条回答 + 1 条点踩反馈（session 为本次随机 uuid），
+注意：默认模式会向 data/qa.db 写入 1 条回答 + 1 条点踩反馈（session 为本次随机 uuid），
 验证后可自行清理。
 """
 
+import argparse
 import base64
 import json
 import subprocess
@@ -26,6 +29,52 @@ CDP_PORT = 9333
 APP = "http://127.0.0.1:8000/"
 PROFILE = f"/tmp/apa-cdp-prof-{int(time.time())}"
 PASS, FAIL = 0, 0
+
+# 仅在测试浏览器中替换 fetch；数据为 UI 夹具，不代表真实模型报价。
+MOCK_API = r"""
+(() => {
+  const originalFetch = window.fetch.bind(window);
+  window.__uiRequests = [];
+  window.__uiFeedback = [];
+  window.__uiFailNext = false;
+  window.fetch = async (url, init = {}) => {
+    const path = new URL(url, location.href).pathname;
+    if (path === '/api/feedback') {
+      window.__uiFeedback.push(JSON.parse(init.body));
+      return new Response('{}', {headers: {'Content-Type': 'application/json'}});
+    }
+    if (path !== '/api/chat') return originalFetch(url, init);
+    window.__uiRequests.push(JSON.parse(init.body));
+    if (window.__uiFailNext) {
+      window.__uiFailNext = false;
+      throw new TypeError('模拟连接中断');
+    }
+    const table = '## 测试价格表（仅用于 UI 回归）\n\n' +
+      '| Region | 输入价格 (Input) | 缓存输入价格 (Cache Input) | 输出价格 (Output) | 显式缓存创建 (Cache Write) | 备注 |\n' +
+      '| --- | --- | --- | --- | --- | --- |\n' +
+      '| Singapore | $1.00 | $0.10 | $2.00 | — | 测试 |\n' +
+      '| Beijing | $1.00 | $0.10 | $2.00 | — | 测试 |\n';
+    const events = [
+      {type: 'status', message: '正在核实测试来源…'},
+      {type: 'sources', sources: [{kind: 'official', title: '测试定价来源', url: 'https://example.com/pricing'}]},
+      {type: 'think', text: '这是模拟流式思考，用于检查折叠状态。'},
+      {type: 'delta', text: table.slice(0, 80)},
+      {type: 'delta', text: table.slice(80)},
+      {type: 'done', answer_id: 1, price_status: 'official'},
+    ];
+    const encoder = new TextEncoder();
+    return new Response(new ReadableStream({
+      async start(controller) {
+        for (const ev of events) {
+          await new Promise(resolve => setTimeout(resolve, 150));
+          controller.enqueue(encoder.encode('data: ' + JSON.stringify(ev) + '\n\n'));
+        }
+        controller.close();
+      }
+    }), {headers: {'Content-Type': 'text/event-stream'}});
+  };
+})();
+"""
 
 
 def check(name, cond, detail=""):
@@ -101,8 +150,11 @@ def wait_devtools():
 
 
 def main():
+    parser = argparse.ArgumentParser(description="真实浏览器 UI 回归")
+    parser.add_argument("--mock", action="store_true", help="拦截问答和反馈，不调用模型或写数据库")
+    args = parser.parse_args()
     print("=" * 60)
-    print("前端 UI 回归（真实页面 + 真实流式对话）")
+    print("前端 UI 回归（真实页面 + " + ("模拟 SSE" if args.mock else "真实流式对话") + "）")
     print("=" * 60)
 
     try:
@@ -125,6 +177,8 @@ def main():
         cdp.send("Page.enable")
         cdp.send("Emulation.setDeviceMetricsOverride",
                  width=1440, height=900, deviceScaleFactor=1, mobile=False)
+        if args.mock:
+            cdp.send("Page.addScriptToEvaluateOnNewDocument", source=MOCK_API)
         cdp.send("Page.navigate", url=APP)
         time.sleep(2.5)
 
@@ -145,24 +199,38 @@ def main():
             chips: document.querySelectorAll('.chip').length,
             userMsgs: document.querySelectorAll('.msg.user').length,
             composerRadius: cs('.composer', 'borderRadius'),
-            h3size: cs('.msg.welcome h3', 'fontSize'),
+            headingSize: cs('.msg.welcome h1', 'fontSize'),
+            newDisabled: q('#newSession').disabled && q('#newSessionTop').disabled,
+            sendDisabled: q('#send').disabled,
+            subtitleSize: cs('.brand-sub', 'fontSize'),
+            welcomeBottom: q('.msg.welcome').getBoundingClientRect().bottom,
+            composerTop: q('.composer').getBoundingClientRect().top,
+            composerBottom: q('.composer').getBoundingClientRect().bottom,
+            suggestionsTop: q('#suggestions').getBoundingClientRect().top,
+            suggestionsBottom: q('#suggestions').getBoundingClientRect().bottom,
             docOverflow: document.documentElement.scrollWidth > window.innerWidth,
           };
         })()""")
         check("#chat 带 is-empty", "is-empty" in st["chatClass"], st["chatClass"])
-        check("首屏标题已渲染为 h3 文本（无字面量 ###/**）",
+        check("首屏标题已渲染为 h1 文本（无字面量 ###/**）",
               "今天想了解什么？" in st["text"] and "###" not in st["text"]
               and "**" not in st["text"], st["text"][:80])
-        check("欢迎标题字号 26px", st["h3size"] == "26px", st["h3size"])
+        check("欢迎标题字号 36px", st["headingSize"] == "36px", st["headingSize"])
+        check("品牌副标题 12px，弱于主标题", st["subtitleSize"] == "12px", st["subtitleSize"])
+        check("空态两个新会话入口与发送按钮禁用", st["newDisabled"] and st["sendDisabled"])
+        check("首屏欢迎语、输入框、推荐问题集中有序",
+              0 <= st["composerTop"] - st["welcomeBottom"] < 60
+              and st["composerBottom"] <= st["suggestionsTop"]
+              and st["suggestionsBottom"] < 900, str(st))
         check("头像隐藏 display:none", st["avatarDisplay"] == "none", st["avatarDisplay"])
-        check("发送按钮 34×34 圆形近黑",
-              (st["sendW"], st["sendH"]) == (34.0, 34.0)
-              and st["sendBg"] == "rgb(13, 13, 13)" and st["sendRadius"] == "50%",
+        check("发送按钮 40×40 / 13px 圆角 / 空态弱化",
+              (st["sendW"], st["sendH"]) == (40.0, 40.0)
+              and st["sendBg"] == "rgb(238, 236, 230)" and st["sendRadius"] == "13px",
               str((st["sendW"], st["sendH"], st["sendBg"], st["sendRadius"])))
         check("侧栏 1440 下可见", st["sidebarDisplay"] != "none", st["sidebarDisplay"])
-        check("侧栏 4 个示例问题", st["chips"] == 4, st["chips"])
+        check("首屏 4 个推荐问题", st["chips"] == 4, st["chips"])
         check("空态无用户消息", st["userMsgs"] == 0, st["userMsgs"])
-        check("composer 胶囊圆角 26px", st["composerRadius"] == "26px", st["composerRadius"])
+        check("composer 圆角 22px", st["composerRadius"] == "22px", st["composerRadius"])
         check("1440 下无横向溢出", st["docOverflow"] is False)
 
         # 背景层（实景虚化方案已于 2026-11-05 放弃回滚，现为纯白极简）
@@ -182,9 +250,34 @@ def main():
 
         cdp.shot("/tmp/apa-reg-1-empty.png")
 
+        cdp.ev("document.querySelector('#sidebarToggle').click()")
+        check("桌面侧栏可收起，顶栏保留新会话入口", cdp.ev("""(() => {
+          const q = s => document.querySelector(s);
+          return getComputedStyle(q('#sidebar')).display === 'none'
+            && q('#sidebarToggle').getAttribute('aria-expanded') === 'false'
+            && getComputedStyle(q('#newSessionTop')).display !== 'none';
+        })()"""))
+        cdp.ev("document.querySelector('#sidebarToggle').click()")
+        check("侧栏可重新展开", cdp.ev("document.querySelector('#sidebarToggle').getAttribute('aria-expanded') === 'true'"))
+        cdp.ev("""(() => {
+          const input = document.querySelector('#input');
+          input.value = '输入法测试';
+          input.dispatchEvent(new Event('input', {bubbles: true}));
+          input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', isComposing: true, bubbles: true}));
+          input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', shiftKey: true, bubbles: true}));
+        })()""")
+        check("中文组词确认与 Shift+Enter 不误发送", cdp.ev("!document.querySelector('.msg.user') && !document.querySelector('#send').disabled"))
+        cdp.ev("document.querySelector('#input').value = ''; document.querySelector('#input').dispatchEvent(new Event('input'))")
+
         # ── [2] 真实对话：点第一个 chip ──
-        print("\n[2] 点击示例问题 → 真实流式回答（最长等 180s）")
+        print("\n[2] 点击示例问题 → 流式回答（最长等 180s）")
         cdp.ev("document.querySelectorAll('.chip')[0].click()")
+        check("生成期间禁止新会话且推荐问题收起", cdp.ev("""(() => {
+          const q = s => document.querySelector(s);
+          return q('#newSession').disabled && q('#newSessionTop').disabled
+            && q('#send').disabled && q('#suggestions').hidden
+            && getComputedStyle(q('#suggestions')).display === 'none';
+        })()"""))
         done = False
         for i in range(90):
             time.sleep(2)
@@ -261,6 +354,7 @@ def main():
         check("正文无知识库路径泄漏",
               snap["bodyHasKbPath"] is False)
         check("对话态无横向溢出", snap["docOverflow"] is False)
+        check("回复完成后两个新会话入口恢复可用", cdp.ev("!document.querySelector('#newSession').disabled && !document.querySelector('#newSessionTop').disabled"))
         cdp.shot("/tmp/apa-reg-2-chat.png")
 
         # ── [3] 反馈面板 hidden 回归（历史 bug：display 覆盖 hidden）──
@@ -343,17 +437,62 @@ def main():
               m["thNowrap"] == "nowrap" and max(m["thRows"]) <= 1,
               str((m["thNowrap"], m["thRows"], m["thTexts"])))
         check("移动端 placeholder 不被裁切", len(m["placeholder"]) <= 10, m["placeholder"])
-        check("移动端发送按钮仍 34px", m["sendSize"] == 34.0, m["sendSize"])
+        check("移动端发送按钮触控尺寸 44px", m["sendSize"] == 44.0, m["sendSize"])
+        check("移动端新会话入口可见且可用", cdp.ev("getComputedStyle(document.querySelector('#newSessionTop')).display !== 'none' && !document.querySelector('#newSessionTop').disabled"))
         cdp.shot("/tmp/apa-reg-4-mobile.png")
 
-        # ── [5] 控制台 ──
-        print("\n[5] 控制台")
+        # ── [5] 短视口、空态恢复与模拟异常 ──
+        cdp.send("Emulation.setDeviceMetricsOverride",
+                 width=390, height=420, deviceScaleFactor=1, mobile=True)
+        check("短视口对话区仍可滚动，输入区未被裁切", cdp.ev("""(() => {
+          const q = s => document.querySelector(s);
+          const input = q('.composer').getBoundingClientRect();
+          return q('#chat').clientHeight > 100 && input.top > 0 && input.bottom <= innerHeight;
+        })()"""))
+        cdp.ev("document.querySelector('#newSessionTop').click()")
+        check("手机新会话恢复欢迎语、推荐问题与禁用状态", cdp.ev("""(() => {
+          const q = s => document.querySelector(s);
+          return q('#workspace').classList.contains('is-empty') && !!q('.msg.welcome h1')
+            && !q('.msg.user') && !q('#suggestions').hidden
+            && q('#newSession').disabled && q('#newSessionTop').disabled && q('#send').disabled;
+        })()"""))
+        for width, height in [(320, 568), (390, 844), (820, 700), (1024, 768)]:
+            cdp.send("Emulation.setDeviceMetricsOverride",
+                     width=width, height=height, deviceScaleFactor=1, mobile=width <= 820)
+            check(f"空态 {width}×{height} 无横向溢出且输入框可达", cdp.ev("""(() => {
+              const q = s => document.querySelector(s);
+              q('#input').scrollIntoView({block: 'center'});
+              const r = q('#input').getBoundingClientRect();
+              return document.documentElement.scrollWidth <= innerWidth
+                && r.top >= 0 && r.bottom <= innerHeight
+                && [...document.querySelectorAll('.chip')].every(el => el.scrollWidth <= el.clientWidth);
+            })()"""))
+            if width == 390:
+                cdp.shot("/tmp/apa-reg-5-mobile-empty.png")
+        if args.mock:
+            cdp.ev("""(() => {
+              window.__uiFailNext = true;
+              const input = document.querySelector('#input');
+              input.value = '模拟网络错误';
+              input.dispatchEvent(new Event('input'));
+              input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}));
+            })()""")
+            time.sleep(0.3)
+            check("异常后恢复操作，错误信息可见", cdp.ev("!!document.querySelector('.error-text') && !document.querySelector('#newSession').disabled && document.querySelector('#statusBar').hidden"))
+            check("新会话请求不携带旧对话历史", cdp.ev("window.__uiRequests.at(-1).history.length === 0"))
+            check("反馈走模拟接口且只提交一次", cdp.ev("window.__uiFeedback.length === 1"))
+            cdp.ev("document.querySelector('#newSession').click()")
+            check("桌面入口同样可重置失败对话", cdp.ev("!!document.querySelector('.msg.welcome') && !document.querySelector('.error-text')"))
+
+        # ── [6] 控制台 ──
+        print("\n[6] 控制台")
         time.sleep(0.5)
         errs = [c for c in cdp.console]
         check("控制台零 error/warning", len(errs) == 0, " | ".join(errs[:5]))
 
     finally:
         proc.terminate()
+        proc.wait(timeout=10)
 
     print("-" * 60)
     print(f"结果: {PASS} 通过 / {FAIL} 失败")

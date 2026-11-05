@@ -6,6 +6,12 @@ const statusBar = document.getElementById("statusBar");
 const inputEl = document.getElementById("input");
 const sendBtn = document.getElementById("send");
 const newBtn = document.getElementById("newSession");
+const newTopBtn = document.getElementById("newSessionTop");
+const workspaceEl = document.getElementById("workspace");
+const suggestionsEl = document.getElementById("suggestions");
+const sidebarToggle = document.getElementById("sidebarToggle");
+const layoutEl = document.querySelector(".layout");
+const desktopQuery = window.matchMedia("(min-width: 821px)");
 
 let busy = false;
 let history = []; // [{role, content}] 供多轮上下文
@@ -39,6 +45,29 @@ function renderMd(text) {
 
 function scrollBottom() {
   chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+/* ── 布局与按钮状态 ── */
+
+function setEmptyState(empty) {
+  chatEl.classList.toggle("is-empty", empty);
+  workspaceEl.classList.toggle("is-empty", empty);
+  suggestionsEl.hidden = !empty;
+}
+
+function syncButtons() {
+  const canReset = !busy && !!chatEl.querySelector(".msg.user");
+  newBtn.disabled = !canReset;
+  newTopBtn.disabled = !canReset;
+  sendBtn.disabled = busy || !inputEl.value.trim();
+  chatEl.setAttribute("aria-busy", String(busy));
+}
+
+function syncSidebar() {
+  const expanded = desktopQuery.matches && !layoutEl.classList.contains("sidebar-collapsed");
+  sidebarToggle.setAttribute("aria-expanded", String(expanded));
+  sidebarToggle.setAttribute("aria-label", expanded ? "收起侧边栏" : "展开侧边栏");
+  sidebarToggle.title = expanded ? "收起侧边栏" : "展开侧边栏";
 }
 
 /* ── 消息渲染 ── */
@@ -210,18 +239,17 @@ async function sendFeedback(answerId, rating, reason) {
 async function send(question) {
   if (busy || !question.trim()) return;
   busy = true;
-  sendBtn.disabled = true;
+  syncButtons();
 
   // 首条提问后移除空态首屏，主区回到对话流布局
   const welcomeEl = chatEl.querySelector(".msg.welcome");
   if (welcomeEl) {
     welcomeEl.remove();
-    chatEl.classList.remove("is-empty");
+    setEmptyState(false);
   }
 
   addUserMsg(question);
-  // 已有对话内容，新会话按钮可用
-  newBtn.disabled = false;
+  // 流式生成期间两个新会话入口都保持禁用，避免旧回答写入新会话。
   const ui = addBotMsg();
   let answerText = "";
   let answerId = null;
@@ -319,8 +347,8 @@ async function send(question) {
   } finally {
     hideStatus();
     busy = false;
-    sendBtn.disabled = false;
-    inputEl.focus();
+    syncButtons();
+    if (desktopQuery.matches) inputEl.focus();
     scrollBottom();
   }
 }
@@ -337,7 +365,7 @@ sendBtn.addEventListener("click", () => {
 });
 
 inputEl.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && !e.shiftKey) {
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing && e.keyCode !== 229) {
     e.preventDefault();
     sendBtn.click();
   }
@@ -345,18 +373,31 @@ inputEl.addEventListener("keydown", (e) => {
 
 inputEl.addEventListener("input", () => {
   inputEl.style.height = "auto";
-  inputEl.style.height = Math.min(inputEl.scrollHeight, 160) + "px";
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 176) + "px";
+  syncButtons();
 });
 
-newBtn.addEventListener("click", () => {
-  if (newBtn.disabled) return;
+function resetSession() {
+  if (busy || !chatEl.querySelector(".msg.user")) return;
   localStorage.removeItem("apa_session");
   history = [];
   chatEl.innerHTML = "";
+  inputEl.value = "";
+  inputEl.style.height = "auto";
+  hideStatus();
   welcome();
-  newBtn.disabled = true;
   sessionId();
+  workspaceEl.scrollTop = 0;
+  if (desktopQuery.matches) inputEl.focus();
+}
+
+newBtn.addEventListener("click", resetSession);
+newTopBtn.addEventListener("click", resetSession);
+sidebarToggle.addEventListener("click", () => {
+  layoutEl.classList.toggle("sidebar-collapsed");
+  syncSidebar();
 });
+desktopQuery.addEventListener("change", syncSidebar);
 
 document.querySelectorAll(".chip").forEach((chip) => {
   chip.addEventListener("click", () => {
@@ -372,16 +413,17 @@ function welcome() {
   div.innerHTML =
     '<div class="avatar">🤖</div>' +
     '<div class="bubble-wrap"><div class="bubble"></div></div>';
-  // 走 renderMd，否则 markdown 语法会以字面量显示在首屏
-  div.querySelector(".bubble").innerHTML = renderMd(
-    "### 今天想了解什么？\n\n" +
-    "比如：Qwen3.8-Max 的价格？/ Wan3.0-Video 支持哪些分辨率？\n\n" +
-    "价格类问题会自动联网核实官方定价页。"
-  );
+  div.querySelector(".bubble").innerHTML =
+    '<div class="welcome-mark" aria-hidden="true">' +
+    '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M11 7H6v18h5M21 7h5v18h-5M11 19c3 3 7 3 10 0"/>' +
+    '<path d="M12 13h.01M20 13h.01" stroke-width="3"/></svg></div>' +
+    '<h1>今天想了解什么？</h1>' +
+    '<p>从模型选型到产品方案，把问题交给我。</p>';
   chatEl.appendChild(div);
-  chatEl.classList.add("is-empty");
+  setEmptyState(true);
+  syncButtons();
 }
 
 welcome();
-// 首屏无对话内容，新会话按钮禁用（点击无意义）
-newBtn.disabled = true;
+syncSidebar();

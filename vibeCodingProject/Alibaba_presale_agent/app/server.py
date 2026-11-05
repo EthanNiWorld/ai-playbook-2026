@@ -6,8 +6,10 @@ FastAPI 入口 — 聊天 SSE / 反馈 / 后台分析 / 知识库同步
     # 或本地开发: python run.py
 """
 
+import asyncio
 import json
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
@@ -16,7 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from . import knowledge, pipeline, store
-from .config import PROJECT_ROOT, get_admin_token, get_llm_config
+from .config import KB_SYNC_INTERVAL_HOURS, PROJECT_ROOT, get_admin_token, get_llm_config
 
 logging.basicConfig(
     level=logging.INFO,
@@ -27,6 +29,26 @@ log = logging.getLogger("server")
 STATIC_DIR = PROJECT_ROOT / "static"
 
 
+async def _kb_auto_sync_loop() -> None:
+    """周期性检查知识库远端提交：有新提交才 pull 并重建索引（失败只告警不报错）"""
+    if os.getenv("KB_AUTO_SYNC", "1") != "1":
+        log.info("知识库自动同步已通过 KB_AUTO_SYNC=0 关闭")
+        return
+    interval_s = KB_SYNC_INTERVAL_HOURS * 3600
+    log.info(
+        "知识库自动同步已启用：每 %.1f 小时检查远端提交，有更新才拉取",
+        KB_SYNC_INTERVAL_HOURS,
+    )
+    while True:
+        await asyncio.sleep(interval_s)
+        try:
+            n = knowledge.sync_if_remote_changed()
+            if n is not None:
+                log.info("知识库自动同步完成，索引重建: %d 个片段", n)
+        except Exception:
+            log.warning("知识库自动同步异常（跳过本轮）", exc_info=True)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     store.init_db()
@@ -35,10 +57,12 @@ async def lifespan(app: FastAPI):
         log.info("知识库索引就绪: %d 个片段", n)
     except Exception:
         log.exception("启动时知识库构建失败（服务继续运行，可稍后在后台手动同步）")
+    sync_task = asyncio.create_task(_kb_auto_sync_loop())
     yield
+    sync_task.cancel()
 
 
-app = FastAPI(title="阿里小可爱AI问答助手", lifespan=lifespan)
+app = FastAPI(title="阿里小可爱 EthanNi的小助手", lifespan=lifespan)
 
 
 # ──────────────────────────── 请求模型 ────────────────────────────

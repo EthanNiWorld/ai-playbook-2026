@@ -273,3 +273,33 @@ def sync_and_rebuild() -> int:
     """手动同步（git 拉最新）+ 重建索引，返回片段数"""
     root = ensure_knowledge(force=True)
     return _index.rebuild(root)
+
+
+def sync_if_remote_changed() -> int | None:
+    """检查远端是否有新提交，有才 pull 并重建索引（供定时任务调用）。
+
+    返回重建后的片段数；无新提交 / 非 git 仓库 / git 或网络失败均返回 None，绝不抛错。
+    """
+    _, root = resolve_source_root()
+    if not (root / ".git").exists():
+        log.info("知识目录非 git 仓库（%s），自动同步跳过", root)
+        return None
+    r = _run_git(["fetch", "-q", "origin"], cwd=root)
+    if r.returncode != 0:
+        log.warning("git fetch 失败，跳过本轮自动同步: %s", r.stderr.strip()[:200])
+        return None
+    local = _run_git(["rev-parse", "HEAD"], cwd=root).stdout.strip()
+    remote = _run_git(["rev-parse", "FETCH_HEAD"], cwd=root).stdout.strip()
+    if not local or not remote:
+        log.warning("无法读取 HEAD/FETCH_HEAD，跳过本轮自动同步")
+        return None
+    if local == remote:
+        log.info("知识库远端无新提交（HEAD %s）", local[:8])
+        return None
+    log.info("知识库远端有新提交（%s → %s），执行 git pull...", local[:8], remote[:8])
+    r = _run_git(["pull", "--ff-only"], cwd=root)
+    if r.returncode != 0:
+        log.warning("git pull 失败（沿用现有内容）: %s", r.stderr.strip()[:200])
+        return None
+    _touch_sync_meta()
+    return _index.rebuild(root)

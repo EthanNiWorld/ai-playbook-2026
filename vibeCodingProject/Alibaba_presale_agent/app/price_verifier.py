@@ -66,6 +66,16 @@ _FAMILY_HINT_RE = re.compile(
     re.IGNORECASE,
 )
 
+# 非百炼模型的阿里云产品（订阅/席位制，不在百炼 model-pricing 页上）。
+# 问它们的价格时若走了百炼模型校验，models 提取为空 → 注入"未能核实，
+# 请引导 model-studio/model-pricing"的兜底证据 → LLM 把百炼定价页链接
+# 安到 Qoder 头上（事故实测）。产品定价题应交给知识库检索回答。
+# 边界同上：(?<![a-z])…(?![a-z])，防 "qoder的" /"那qoder呢" 漏匹配。
+_PRODUCT_NAME_RE = re.compile(
+    r"(?<![a-z])(qoder(?:wake|work)?|qwen-?work|百小可爱)(?![a-z])",
+    re.IGNORECASE,
+)
+
 # 定价页分表的地域标题（口径优先级：Singapore > China (Beijing) > 其他）
 _REGIONS = (
     "Singapore",
@@ -83,9 +93,15 @@ def is_price_question(question: str, history: list | None = None) -> bool:
 
     追问兜底：短句含模型名（如 "qwen3.8 flash呢？"）且历史中出现价格话题时
     也触发校验——否则追问会静默跳过联网核实，LLM 只能凭知识库拼表。
+
+    例外：当前句提到非百炼模型的产品（Qoder 等，订阅/席位制，不在
+    model-pricing 页）且抽不出任何百炼模型名时，跳过模型价格校验——
+    这类产品定价交给知识库检索回答，注入百炼“未能核实”兜底证据只会
+    误导 LLM 把 model-pricing 链接安到产品头上。
     """
     if question and PRICE_KEYWORDS_RE.search(question):
-        return True
+        if extract_model_names(question) or not _PRODUCT_NAME_RE.search(question):
+            return True
     if history and question and len(question) <= 30 and extract_model_names(question):
         for h in history[-8:]:
             if h.get("role") == "user" and PRICE_KEYWORDS_RE.search(
