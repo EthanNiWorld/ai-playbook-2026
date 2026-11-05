@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>百炼问答 · 后台分析</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: #F5F6F8; color: #1F2937; padding: 24px 32px;
+}
+h1 { font-size: 20px; margin-bottom: 4px; }
+.sub { font-size: 13px; color: #6B7280; margin-bottom: 20px; }
+.token-row { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+input[type=text], input[type=password] {
+  border: 1px solid #DDE1E7; border-radius: 10px; padding: 8px 12px;
+  font-size: 13px; outline: none; background: #fff;
+}
+button {
+  border: none; border-radius: 10px; padding: 9px 16px; font-size: 13.5px;
+  font-weight: 600; cursor: pointer; transition: all .15s;
+}
+.btn-primary { background: linear-gradient(135deg, #FF6A00, #EE0979); color: #fff; }
+.btn-ghost { background: #fff; border: 1px solid #DDE1E7; color: #1F2937; }
+button:hover { transform: translateY(-1px); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.card {
+  background: #fff; border: 1px solid #EDEFF3; border-radius: 14px;
+  padding: 16px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+.card .label { font-size: 12px; color: #6B7280; margin-bottom: 6px; }
+.card .value { font-size: 26px; font-weight: 800; }
+.card .value.red { color: #DC2626; }
+.card .value.green { color: #059669; }
+.card .value.orange { color: #FF6A00; }
+
+table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 14px; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04); font-size: 13px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #F0F1F3; vertical-align: top; }
+th { background: #F9FAFB; font-weight: 600; color: #4B5563; }
+td.q { max-width: 260px; }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.tag.up { background: #F0FDF4; color: #166534; }
+.tag.down { background: #FEF2F2; color: #B91C1C; }
+.tag.none { background: #F3F4F6; color: #6B7280; }
+.price-tag { font-size: 12px; color: #166534; }
+.answer-cell { max-width: 420px; max-height: 90px; overflow: hidden; white-space: pre-wrap; }
+details summary { cursor: pointer; color: #FF6A00; font-weight: 600; }
+.empty { text-align: center; color: #9CA3AF; padding: 40px; }
+.error { color: #DC2626; font-size: 13px; margin: 8px 0; }
+</style>
+</head>
+<body>
+<h1>📊 百炼问答 · 后台分析</h1>
+<div class="sub">交付记录与反馈分析 — 点踩记录用于定位坏 case、迭代知识库与 prompt</div>
+
+<div class="token-row">
+  <input type="password" id="token" placeholder="Admin Token（未配置则留空）" style="width:240px" />
+  <button class="btn-primary" onclick="refresh()">刷新数据</button>
+  <button class="btn-ghost" onclick="setFilter('')">全部</button>
+  <button class="btn-ghost" onclick="setFilter('down')">仅点踩</button>
+  <button class="btn-ghost" onclick="setFilter('up')">仅点赞</button>
+  <input type="text" id="kw" placeholder="关键词搜索问题/回答" style="width:220px" onkeydown="if(event.key==='Enter')refresh()" />
+  <button class="btn-ghost" onclick="exportCsv()">导出 CSV</button>
+  <button class="btn-ghost" onclick="syncKb()">同步知识库</button>
+</div>
+<div id="error" class="error" hidden></div>
+
+<div class="cards" id="stats"></div>
+<table>
+  <thead>
+    <tr>
+      <th style="width:60px">ID</th>
+      <th>问题</th>
+      <th>回答摘要</th>
+      <th style="width:70px">反馈</th>
+      <th style="width:190px">点踩原因</th>
+      <th style="width:90px">价格核实</th>
+      <th style="width:150px">时间</th>
+    </tr>
+  </thead>
+  <tbody id="rows"></tbody>
+</table>
+
+<script>
+"use strict";
+let currentRating = "";
+
+function token() { return localStorage.getItem("apa_admin_token") || ""; }
+document.getElementById("token").value = token();
+document.getElementById("token").addEventListener("change", (e) => {
+  localStorage.setItem("apa_admin_token", e.target.value.trim());
+});
+
+function headers() { return { "X-Admin-Token": token() }; }
+
+function setFilter(rating) {
+  currentRating = rating;
+  refresh();
+}
+
+function showError(msg) {
+  const el = document.getElementById("error");
+  el.hidden = !msg;
+  el.textContent = msg || "";
+}
+
+async function refresh() {
+  showError("");
+  await loadStats();
+  await loadRows();
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch("/api/admin/stats", { headers: headers() });
+    if (!r.ok) throw new Error("stats " + r.status);
+    const s = await r.json();
+    const cards = [
+      ["总回复数", s.total, ""],
+      ["👍 点赞", s.up, "green"],
+      ["👎 点踩", s.down, "red"],
+      ["点踩率", s.down_rate + "%", s.down_rate >= 10 ? "red" : "orange"],
+      ["价格已官方核实", s.price_official_verified, "green"],
+      ["平均耗时", (s.avg_latency_ms / 1000).toFixed(1) + "s", ""],
+      ["近 7 天回复", s.recent_7d, ""],
+    ];
+    document.getElementById("stats").innerHTML = cards.map(
+      ([label, value, cls]) =>
+        '<div class="card"><div class="label">' + label + '</div><div class="value ' + cls + '">' + value + "</div></div>"
+    ).join("");
+  } catch (e) {
+    showError("统计加载失败：" + e.message + "（如已设置 ADMIN_TOKEN，请先在上方填写）");
+  }
+}
+
+async function loadRows() {
+  const kw = document.getElementById("kw").value.trim();
+  const params = new URLSearchParams({ limit: 100 });
+  if (currentRating) params.set("rating", currentRating);
+  if (kw) params.set("q", kw);
+  try {
+    const r = await fetch("/api/admin/answers?" + params, { headers: headers() });
+    if (!r.ok) throw new Error("answers " + r.status);
+    const data = await r.json();
+    const rows = data.items || [];
+    const tbody = document.getElementById("rows");
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="empty">暂无记录</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map((it) => {
+      const fb = it.feedback === "up"
+        ? '<span class="tag up">👍 赞</span>'
+        : it.feedback === "down"
+          ? '<span class="tag down">👎 踩</span>'
+          : '<span class="tag none">未反馈</span>';
+      const price = it.price_status === "official"
+        ? '<span class="price-tag">✅ 官方</span>'
+        : it.price_status ? (it.price_status === "error" ? "⚠️ 失败" : it.price_status) : "—";
+      const reason = it.feedback_reason
+        ? escapeHtml(it.feedback_reason).slice(0, 180)
+        : "";
+      const excerpt = escapeHtml(it.answer).slice(0, 220);
+      return "<tr>" +
+        "<td>" + it.id + "</td>" +
+        '<td class="q">' + escapeHtml(it.question).slice(0, 200) + "</td>" +
+        '<td class="answer-cell">' + excerpt +
+          '<details><summary>展开全文</summary><div style="white-space:pre-wrap;max-height:300px;overflow:auto">' +
+          escapeHtml(it.answer) + "</div></details></td>" +
+        "<td>" + fb + "</td>" +
+        "<td>" + reason + "</td>" +
+        "<td>" + price + "</td>" +
+        "<td>" + it.created_at + "</td>" +
+        "</tr>";
+    }).join("");
+  } catch (e) {
+    showError("记录加载失败：" + e.message);
+  }
+}
+
+async function exportCsv() {
+  try {
+    const r = await fetch("/api/admin/export.csv", { headers: headers() });
+    if (!r.ok) throw new Error("export " + r.status);
+    const blob = await r.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "answers.csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch (e) {
+    showError("导出失败：" + e.message);
+  }
+}
+
+async function syncKb() {
+  showError("");
+  if (!confirm("从 GitHub 拉取最新知识库并重建索引？")) return;
+  try {
+    const r = await fetch("/api/admin/kb/sync", { method: "POST", headers: headers() });
+    if (!r.ok) throw new Error("sync " + r.status);
+    const d = await r.json();
+    alert("同步完成，索引片段数：" + d.chunks);
+  } catch (e) {
+    showError("知识库同步失败：" + e.message);
+  }
+}
+
+function escapeHtml(s) {
+  return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+refresh();
+</script>
+</body>
+</html>

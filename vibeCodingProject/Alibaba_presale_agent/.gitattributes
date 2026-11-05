@@ -1,0 +1,15 @@
+# 统一换行符：Windows 上 clone 后仍可 bash 执行部署脚本
+* text=auto eol=lf
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+
+# 二进制资源不做换行转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary

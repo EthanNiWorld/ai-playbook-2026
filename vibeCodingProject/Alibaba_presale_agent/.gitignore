@@ -1,0 +1,31 @@
+# 运行时数据 / 本地配置 —— 一律不入库
+data/
+.env
+.env.*
+
+# 保留示例配置
+!.env.example
+
+# SQLite（含 -wal/-shm 副本）
+*.db
+*.db-wal
+*.db-shm
+
+# 虚拟环境与字节码
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# 测试与临时产物
+.pytest_cache/
+.reports/
+output/
+*.log
+*.tmp
+
+# 系统/编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,24 @@
+# 构建上下文排除 —— 避免把密钥/数据库/虚拟环境送进 Docker daemon
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# 运行时数据：SQLite 交付记录、知识库克隆、定价页缓存、本地质量报告
+data/
+.env
+.env.*
+!.env.example
+
+# 文档与测试不参与镜像构建
+docs/
+tests/
+deploy/
+*.md
+!requirements.txt
+
+# 版本控制与系统文件
+.git/
+.gitignore
+.gitattributes
+.DS_Store
