@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#fcfbf9"/>
 <title>阿里小可爱 EthanNi的小助手</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230d0d0d'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ff6a00'/%3E%3C/svg%3E"/>
-<link rel="stylesheet" href="/static/style.css?v=20261106d"/>
+<link rel="stylesheet" href="/static/style.css?v=20261106e"/>
 </head>
 <body>
 <div class="layout">
@@ -52,15 +52,23 @@
       <div id="chat" class="chat" role="region" aria-label="对话内容"></div>
       <div class="composer-wrap">
         <div id="statusBar" class="status-bar" role="status" hidden></div>
+        <div id="queueBar" class="queue-bar" role="status" aria-live="polite" hidden></div>
         <div class="composer">
           <textarea id="input" rows="2" placeholder="向阿里小可爱提问" aria-label="输入你的问题" aria-describedby="inputHint"></textarea>
           <div class="composer-actions">
             <span id="inputHint" class="input-hint">Enter 发送<span> · Shift + Enter 换行</span></span>
-            <button id="send" class="send-btn" aria-label="发送" title="发送" disabled>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M12 19V5"/><path d="M5 12l7-7 7 7"/>
-              </svg>
-            </button>
+            <div class="composer-btns">
+              <button id="stop" class="send-btn stop-btn" aria-label="停止生成" title="停止生成" hidden>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="7" y="7" width="10" height="10" rx="2.5" fill="currentColor" stroke="none"/>
+                </svg>
+              </button>
+              <button id="send" class="send-btn" aria-label="发送" title="发送" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 19V5"/><path d="M5 12l7-7 7 7"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
         <div id="suggestions" class="tips" aria-label="推荐问题">
@@ -94,6 +102,6 @@
   </main>
 </div>
 <script src="/static/vendor/marked.min.js"></script>
-<script src="/static/app.js?v=20261106d"></script>
+<script src="/static/app.js?v=20261106e"></script>
 </body>
 </html>

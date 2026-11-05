@@ -45,8 +45,13 @@ td.q { max-width: 260px; }
 .tag.up { background: #F0FDF4; color: #166534; }
 .tag.down { background: #FEF2F2; color: #B91C1C; }
 .tag.none { background: #F3F4F6; color: #6B7280; }
+.tag.stop { background: #FFFBEB; color: #92400E; }
 .price-tag { font-size: 12px; color: #166534; }
 .answer-cell { max-width: 420px; max-height: 90px; overflow: hidden; white-space: pre-wrap; }
+.think-cell { max-width: 260px; color: #6B7280; }
+.think-cell .think-preview { max-height: 60px; overflow: hidden; white-space: pre-wrap; font-size: 12px; }
+.ip-cell { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; white-space: nowrap; }
+.ip-cell .ua { display: block; color: #9CA3AF; font-size: 11px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
 details summary { cursor: pointer; color: #FF6A00; font-weight: 600; }
 .empty { text-align: center; color: #9CA3AF; padding: 40px; }
 .error { color: #DC2626; font-size: 13px; margin: 8px 0; }
@@ -54,7 +59,7 @@ details summary { cursor: pointer; color: #FF6A00; font-weight: 600; }
 </head>
 <body>
 <h1>📊 百炼问答 · 后台分析</h1>
-<div class="sub">交付记录与反馈分析 — 点踩记录用于定位坏 case、迭代知识库与 prompt</div>
+<div class="sub">交付记录与反馈分析 — 含提问者 IP / UA 与模型思考过程，点踩记录用于定位坏 case、迭代知识库与 prompt</div>
 
 <div class="token-row">
   <input type="password" id="token" placeholder="Admin Token（未配置则留空）" style="width:240px" />
@@ -74,7 +79,9 @@ details summary { cursor: pointer; color: #FF6A00; font-weight: 600; }
     <tr>
       <th style="width:60px">ID</th>
       <th>问题</th>
+      <th>思考过程</th>
       <th>回答摘要</th>
+      <th style="width:120px">提问者 IP</th>
       <th style="width:70px">反馈</th>
       <th style="width:190px">点踩原因</th>
       <th style="width:90px">价格核实</th>
@@ -125,6 +132,7 @@ async function loadStats() {
       ["点踩率", s.down_rate + "%", s.down_rate >= 10 ? "red" : "orange"],
       ["价格已官方核实", s.price_official_verified, "green"],
       ["平均耗时", (s.avg_latency_ms / 1000).toFixed(1) + "s", ""],
+      ["用户中断", s.interrupted || 0, (s.interrupted || 0) > 0 ? "orange" : ""],
       ["近 7 天回复", s.recent_7d, ""],
     ];
     document.getElementById("stats").innerHTML = cards.map(
@@ -148,11 +156,13 @@ async function loadRows() {
     const rows = data.items || [];
     const tbody = document.getElementById("rows");
     if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="7" class="empty">暂无记录</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="empty">暂无记录</td></tr>';
       return;
     }
     tbody.innerHTML = rows.map((it) => {
-      const fb = it.feedback === "up"
+      const fb = it.interrupted
+        ? '<span class="tag stop">⏹ 已中断</span>'
+        : it.feedback === "up"
         ? '<span class="tag up">👍 赞</span>'
         : it.feedback === "down"
           ? '<span class="tag down">👎 踩</span>'
@@ -164,12 +174,27 @@ async function loadRows() {
         ? escapeHtml(it.feedback_reason).slice(0, 180)
         : "";
       const excerpt = escapeHtml(it.answer).slice(0, 220);
+      const thinkText = it.thinking || "";
+      const thinkHtml = thinkText
+        ? '<div class="think-preview">' + escapeHtml(thinkText).slice(0, 160) + "</div>" +
+          '<details><summary>展开思考全文</summary>' +
+          '<div style="white-space:pre-wrap;max-height:300px;overflow:auto;font-size:12px;color:#6B7280">' +
+          escapeHtml(thinkText) + "</div></details>"
+        : '<span style="color:#9CA3AF">—</span>';
+      const ipText = it.client_ip
+        ? escapeHtml(it.client_ip) +
+          (it.user_agent
+            ? '<span class="ua" title="' + escapeHtml(it.user_agent) + '">' + escapeHtml(it.user_agent) + "</span>"
+            : "")
+        : '<span style="color:#9CA3AF">—</span>';
       return "<tr>" +
         "<td>" + it.id + "</td>" +
         '<td class="q">' + escapeHtml(it.question).slice(0, 200) + "</td>" +
+        '<td class="think-cell">' + thinkHtml + "</td>" +
         '<td class="answer-cell">' + excerpt +
           '<details><summary>展开全文</summary><div style="white-space:pre-wrap;max-height:300px;overflow:auto">' +
           escapeHtml(it.answer) + "</div></details></td>" +
+        '<td class="ip-cell">' + ipText + "</td>" +
         "<td>" + fb + "</td>" +
         "<td>" + reason + "</td>" +
         "<td>" + price + "</td>" +

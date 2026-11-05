@@ -18,10 +18,14 @@ CREATE TABLE IF NOT EXISTS answers (
     session_id      TEXT NOT NULL,
     question        TEXT NOT NULL,
     answer          TEXT NOT NULL,
+    thinking        TEXT DEFAULT '',          -- 模型思考过程 reasoning_content
     sources_json    TEXT DEFAULT '[]',
     price_status    TEXT DEFAULT '',          -- ''|official|web|none|error
     llm_model       TEXT DEFAULT '',
     latency_ms      INTEGER DEFAULT 0,
+    client_ip       TEXT DEFAULT '',          -- 提问者 IP（反代场景取 X-Forwarded-For 首跳）
+    user_agent      TEXT DEFAULT '',          -- 提问者 UA（用于区分人员/终端）
+    interrupted     INTEGER DEFAULT 0,        -- 1 = 用户主动停止，仅保存已生成部分
     created_at      TEXT NOT NULL,            -- ISO 本地时间
     feedback        TEXT,                     -- 'up' | 'down' | NULL
     feedback_reason TEXT DEFAULT '',
@@ -31,6 +35,19 @@ CREATE INDEX IF NOT EXISTS idx_answers_created ON answers(created_at);
 CREATE INDEX IF NOT EXISTS idx_answers_feedback ON answers(feedback);
 CREATE INDEX IF NOT EXISTS idx_answers_session ON answers(session_id);
 """
+
+# 老库补列：CREATE TABLE IF NOT EXISTS 不会给已存在的表加字段
+_MIGRATIONS = {
+    "thinking": "TEXT DEFAULT ''",
+    "client_ip": "TEXT DEFAULT ''",
+    "user_agent": "TEXT DEFAULT ''",
+    "interrupted": "INTEGER DEFAULT 0",
+}
+
+# 依赖补列后才能建的索引（放在补列之后执行，否则老库报 no such column）
+_POST_INDEXES = [
+    "CREATE INDEX IF NOT EXISTS idx_answers_client_ip ON answers(client_ip)",
+]
 
 
 def _connect() -> sqlite3.Connection:
@@ -44,6 +61,12 @@ def init_db() -> None:
     conn = _connect()
     try:
         conn.executescript(_SCHEMA)
+        cols = {r["name"] for r in conn.execute("PRAGMA table_info(answers)")}
+        for name, decl in _MIGRATIONS.items():
+            if name not in cols:
+                conn.execute(f"ALTER TABLE answers ADD COLUMN {name} {decl}")
+        for stmt in _POST_INDEXES:
+            conn.execute(stmt)
         conn.commit()
     finally:
         conn.close()
@@ -57,6 +80,10 @@ def insert_answer(
     price_status: str,
     llm_model: str,
     latency_ms: int,
+    thinking: str = "",
+    client_ip: str = "",
+    user_agent: str = "",
+    interrupted: bool = False,
 ) -> int:
     """写入一条交付记录，返回 id（前端反馈凭此 id 关联）"""
     now = datetime.now().astimezone().isoformat(timespec="seconds")
@@ -65,17 +92,21 @@ def insert_answer(
         with conn:
             cur = conn.execute(
                 """INSERT INTO answers
-                   (session_id, question, answer, sources_json, price_status,
-                    llm_model, latency_ms, created_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                   (session_id, question, answer, thinking, sources_json, price_status,
+                    llm_model, latency_ms, client_ip, user_agent, interrupted, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     session_id,
                     question,
                     answer,
+                    thinking,
                     json.dumps(sources, ensure_ascii=False),
                     price_status,
                     llm_model,
                     latency_ms,
+                    client_ip,
+                    user_agent,
+                    1 if interrupted else 0,
                     now,
                 ),
             )
@@ -118,6 +149,9 @@ def stats() -> dict:
         recent = conn.execute(
             "SELECT COUNT(*) c FROM answers WHERE created_at >= ?", (week_ago,)
         ).fetchone()["c"]
+        interrupted = conn.execute(
+            "SELECT COUNT(*) c FROM answers WHERE interrupted=1"
+        ).fetchone()["c"]
     finally:
         conn.close()
     return {
@@ -128,6 +162,7 @@ def stats() -> dict:
         "price_official_verified": official,
         "avg_latency_ms": int(avg),
         "recent_7d": recent,
+        "interrupted": interrupted,
     }
 
 
@@ -145,8 +180,10 @@ def list_answers(
         where.append("feedback = ?")
         params.append(rating)
     if q:
-        where.append("(question LIKE ? OR answer LIKE ?)")
-        params.extend([f"%{q}%", f"%{q}%"])
+        where.append(
+            "(question LIKE ? OR answer LIKE ? OR thinking LIKE ? OR client_ip LIKE ?)"
+        )
+        params.extend([f"%{q}%"] * 4)
     if where:
         sql += " WHERE " + " AND ".join(where)
     sql += " ORDER BY id DESC LIMIT ? OFFSET ?"
@@ -173,8 +210,9 @@ def export_csv() -> str:
     conn = _connect()
     try:
         rows = conn.execute(
-            "SELECT id, session_id, question, answer, price_status, llm_model,"
-            " latency_ms, created_at, feedback, feedback_reason, feedback_at, sources_json"
+            "SELECT id, session_id, client_ip, user_agent, question, answer, thinking,"
+            " price_status, llm_model, latency_ms, interrupted, created_at, feedback,"
+            " feedback_reason, feedback_at, sources_json"
             " FROM answers ORDER BY id"
         ).fetchall()
     finally:
@@ -182,9 +220,9 @@ def export_csv() -> str:
     buf = io.StringIO()
     writer = csv.writer(buf)
     writer.writerow(
-        ["id", "session_id", "question", "answer", "price_status", "llm_model",
-         "latency_ms", "created_at", "feedback", "feedback_reason", "feedback_at",
-         "sources"]
+        ["id", "session_id", "client_ip", "user_agent", "question", "answer",
+         "thinking", "price_status", "llm_model", "latency_ms", "interrupted",
+         "created_at", "feedback", "feedback_reason", "feedback_at", "sources"]
     )
     for r in rows:
         writer.writerow(list(r))

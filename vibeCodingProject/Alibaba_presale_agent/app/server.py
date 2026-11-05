@@ -12,7 +12,7 @@ import logging
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import FileResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -90,6 +90,27 @@ def require_admin(x_admin_token: str = Header(default="")):
         raise HTTPException(status_code=401, detail="invalid admin token")
 
 
+def client_ip_of(request: Request) -> str:
+    """取真实提问者 IP。
+
+    优先级：X-Real-IP（nginx 用 $remote_addr 设置，客户无法伪造）
+    > X-Forwarded-For 首跳 > 直连对端地址。XFF 首跳可被客户端伪造，
+    故放在 X-Real-IP 之后。
+    """
+    ip = request.headers.get("x-real-ip", "").strip()
+    if not ip:
+        xff = request.headers.get("x-forwarded-for", "")
+        ip = xff.split(",")[0].strip() if xff else ""
+    if not ip and request.client:
+        ip = request.client.host or ""
+    # IPv4-mapped IPv6 / 本机回环归一化，便于排查
+    if ip.startswith("::ffff:"):
+        ip = ip[len("::ffff:"):]
+    if ip in ("::1", "localhost"):
+        ip = "127.0.0.1"
+    return ip[:64]
+
+
 # ──────────────────────────── 页面 ────────────────────────────
 
 
@@ -120,15 +141,24 @@ async def health():
 
 
 @app.post("/api/chat")
-async def chat(req: ChatRequest):
+async def chat(req: ChatRequest, request: Request):
     question = req.question.strip()
     if not question:
         raise HTTPException(status_code=400, detail="question is empty")
     session_id = (req.session_id or "anonymous")[:64]
+    client_ip = client_ip_of(request)
+    user_agent = request.headers.get("user-agent", "")[:300]
+    log.info("chat session=%s ip=%s", session_id, client_ip)
 
     async def event_gen():
         try:
-            async for ev in pipeline.stream_answer(question, req.history, session_id):
+            async for ev in pipeline.stream_answer(
+                question,
+                req.history,
+                session_id,
+                client_ip=client_ip,
+                user_agent=user_agent,
+            ):
                 yield f"data: {json.dumps(ev, ensure_ascii=False)}\n\n"
         except Exception as e:
             log.exception("chat 管线异常")

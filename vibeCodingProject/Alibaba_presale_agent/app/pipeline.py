@@ -2,6 +2,7 @@
 问答管线 — 检索 → 价格联网校验（条件触发）→ 流式生成 → 交付记录入库
 """
 
+import asyncio
 import logging
 import time
 
@@ -31,7 +32,13 @@ def _format_kb(chunks: list[dict]) -> str:
     return "\n\n".join(parts)
 
 
-async def stream_answer(question: str, history: list, session_id: str):
+async def stream_answer(
+    question: str,
+    history: list,
+    session_id: str,
+    client_ip: str = "",
+    user_agent: str = "",
+):
     """async generator，产出 SSE 事件 dict（server 层负责序列化）。
 
     事件类型：
@@ -115,38 +122,57 @@ async def stream_answer(question: str, history: list, session_id: str):
     # ── 4. 流式生成（思考过程实时推送，等待期可见进展）──
     yield {"type": "status", "stage": "answering", "message": "✍️ 生成回答..."}
     parts: list[str] = []
+    think_parts: list[str] = []
     thinking = False
     cfg = get_llm_config()
+
+    def persist(interrupted: bool) -> int:
+        return store.insert_answer(
+            session_id=session_id,
+            question=question,
+            answer="".join(parts),
+            sources=sources,
+            price_status=price_status,
+            llm_model=cfg["model"],
+            latency_ms=int((time.time() - t0) * 1000),
+            thinking="".join(think_parts),
+            client_ip=client_ip,
+            user_agent=user_agent,
+            interrupted=interrupted,
+        )
+
     try:
         async for kind, text in stream_chat(messages):
             if kind == "think":
                 if not thinking:
                     thinking = True
                     yield {"type": "status", "stage": "thinking", "message": "🧠 模型思考中（过程实时显示）..."}
+                think_parts.append(text)
                 yield {"type": "think", "text": text}
             else:
                 parts.append(text)
                 yield {"type": "delta", "text": text}
+    except (asyncio.CancelledError, GeneratorExit):
+        # 客户点「停止」或直接关闭页面：uvicorn 取消任务，上游 LLM 流随之关闭（真省 token）。
+        # 取消路径里不能再 await，只能同步写库；已生成部分仍入库存档并标记 interrupted，
+        # 便于后台统计「哪些问题用户等不下去」。（无内容可存时直接跳过）
+        if parts or think_parts:
+            try:
+                persist(True)
+                log.info("用户中断，已保存部分回答：%d 字", len("".join(parts)))
+            except Exception:
+                log.exception("中断记录落库失败")
+        raise
     except Exception as e:
         log.exception("LLM 流式生成失败")
         yield {"type": "error", "message": f"生成失败：{e}"}
         return
 
     # ── 5. 交付记录入库（供后台分析与迭代）──
-    answer = "".join(parts)
-    latency_ms = int((time.time() - t0) * 1000)
-    answer_id = store.insert_answer(
-        session_id=session_id,
-        question=question,
-        answer=answer,
-        sources=sources,
-        price_status=price_status,
-        llm_model=cfg["model"],
-        latency_ms=latency_ms,
-    )
+    answer_id = persist(False)
     yield {
         "type": "done",
         "answer_id": answer_id,
         "price_status": price_status,
-        "latency_ms": latency_ms,
+        "latency_ms": int((time.time() - t0) * 1000),
     }

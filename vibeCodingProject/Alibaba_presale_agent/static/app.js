@@ -5,6 +5,9 @@ const chatEl = document.getElementById("chat");
 const statusBar = document.getElementById("statusBar");
 const inputEl = document.getElementById("input");
 const sendBtn = document.getElementById("send");
+const stopBtn = document.getElementById("stop");
+const inputHint = document.getElementById("inputHint");
+const queueBar = document.getElementById("queueBar");
 const newBtn = document.getElementById("newSession");
 const newTopBtn = document.getElementById("newSessionTop");
 const workspaceEl = document.getElementById("workspace");
@@ -15,6 +18,9 @@ const desktopQuery = window.matchMedia("(min-width: 821px)");
 
 let busy = false;
 let history = []; // [{role, content}] 供多轮上下文
+let queue = []; // 待发送问题（串行：当前回答结束后依次自动发送）
+let controller = null; // 当前流的 AbortController，供「停止」中断
+const MAX_QUEUE = 3; // 排队上限，避免无限堆叠
 const REASONS = ["价格不对/过期", "内容过时", "答非所问", "来源不可信", "其他"];
 
 /* ── 工具函数 ── */
@@ -59,8 +65,48 @@ function syncButtons() {
   const canReset = !busy && !!chatEl.querySelector(".msg.user");
   newBtn.disabled = !canReset;
   newTopBtn.disabled = !canReset;
+  // 生成中：发送按钮换成「停止」，输入框仍可用（回车入队）
+  sendBtn.hidden = busy;
   sendBtn.disabled = busy || !inputEl.value.trim();
+  stopBtn.hidden = !busy;
+  inputHint.innerHTML = busy
+    ? "Enter 加入排队<span> · 当前回答结束后依次发送</span>"
+    : "Enter 发送<span> · Shift + Enter 换行</span>";
   chatEl.setAttribute("aria-busy", String(busy));
+}
+
+/* ── 排队（串行）── */
+
+function renderQueue() {
+  queueBar.innerHTML = "";
+  if (!queue.length) {
+    queueBar.hidden = true;
+    return;
+  }
+  const head = queue[0].length > 30 ? queue[0].slice(0, 30) + "…" : queue[0];
+  const text = document.createElement("span");
+  text.className = "queue-text";
+  text.textContent = "⏳ 已排队 " + queue.length + " 条 · 下一条：" + head;
+  const clearBtn = document.createElement("button");
+  clearBtn.type = "button";
+  clearBtn.className = "queue-clear";
+  clearBtn.textContent = "清空";
+  clearBtn.addEventListener("click", () => {
+    queue = [];
+    renderQueue();
+    syncButtons();
+  });
+  queueBar.appendChild(text);
+  queueBar.appendChild(clearBtn);
+  queueBar.hidden = false;
+}
+
+// 当前回答结束后取队首发送（串行，始终只有一条流在跑）
+function drainQueue() {
+  if (busy || !queue.length) return;
+  const next = queue.shift();
+  renderQueue();
+  ask(next);
 }
 
 function syncSidebar() {
@@ -234,11 +280,33 @@ async function sendFeedback(answerId, rating, reason) {
   }
 }
 
-/* ── 发送与 SSE 接收 ── */
+/* ── 发送、停止与排队 ── */
 
-async function send(question) {
-  if (busy || !question.trim()) return;
+// 生成中再发送 = 入队；空闲时立刻开新一轮
+function submit(text) {
+  const fromInput = text == null;
+  const q = (fromInput ? inputEl.value : text).trim();
+  if (!q) return;
+  if (fromInput) {
+    inputEl.value = "";
+    inputEl.style.height = "auto";
+  }
+  if (busy) {
+    if (queue.length >= MAX_QUEUE) {
+      showStatus("排队已满（最多 " + MAX_QUEUE + " 条），等当前回答结束再问");
+      return;
+    }
+    queue.push(q);
+    renderQueue();
+    syncButtons();
+    return;
+  }
+  ask(q);
+}
+
+async function ask(question) {
   busy = true;
+  controller = new AbortController();
   syncButtons();
 
   // 首条提问后移除空态首屏，主区回到对话流布局
@@ -262,6 +330,7 @@ async function send(question) {
     const resp = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
       body: JSON.stringify({
         question: question,
         session_id: sessionId(),
@@ -342,32 +411,47 @@ async function send(question) {
       history.push({ role: "assistant", content: answerText });
     }
   } catch (e) {
-    ui.bubble.innerHTML =
-      '<span class="error-text">❌ 连接失败：' + e.message + "</span>";
+    if (e && e.name === "AbortError") {
+      // 用户点了「停止」：保留已生成部分（不计入对话上下文，后台已标记 interrupted）
+      if (thinkText && !thinkCollapsed) {
+        thinkCollapsed = true;
+        ui.thinkTitle.textContent = "思考过程";
+        ui.thinkMeta.textContent = " · 已停止";
+        ui.think.open = false;
+      }
+      ui.bubble.innerHTML =
+        (answerText ? renderMd(answerText) : "") +
+        '<div class="stop-note">⏹ 已停止生成' +
+        (answerText ? "，以上为已生成部分" : "") +
+        "</div>";
+    } else {
+      ui.bubble.innerHTML =
+        '<span class="error-text">❌ 连接失败：' + e.message + "</span>";
+    }
   } finally {
     hideStatus();
     busy = false;
+    controller = null;
     syncButtons();
     if (desktopQuery.matches) inputEl.focus();
     scrollBottom();
+    drainQueue(); // 串行：自动发送排队中的下一条
   }
 }
 
 /* ── 事件绑定 ── */
 
-sendBtn.addEventListener("click", () => {
-  const q = inputEl.value.trim();
-  if (q) {
-    inputEl.value = "";
-    inputEl.style.height = "auto";
-    send(q);
-  }
+sendBtn.addEventListener("click", () => submit());
+
+stopBtn.addEventListener("click", () => {
+  if (!busy || !controller) return;
+  controller.abort(); // 断开 SSE，服务端取消上游 LLM 调用
 });
 
 inputEl.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey && !e.isComposing && e.keyCode !== 229) {
     e.preventDefault();
-    sendBtn.click();
+    submit(); // 生成中回车 = 加入排队
   }
 });
 
@@ -381,6 +465,8 @@ function resetSession() {
   if (busy || !chatEl.querySelector(".msg.user")) return;
   localStorage.removeItem("apa_session");
   history = [];
+  queue = [];
+  renderQueue();
   chatEl.innerHTML = "";
   inputEl.value = "";
   inputEl.style.height = "auto";
@@ -401,7 +487,7 @@ desktopQuery.addEventListener("change", syncSidebar);
 
 document.querySelectorAll(".chip").forEach((chip) => {
   chip.addEventListener("click", () => {
-    if (!busy) send(chip.dataset.q);
+    submit(chip.dataset.q); // 生成中点击推荐问题同样入队
   });
 });
 

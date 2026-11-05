@@ -39,6 +39,11 @@ stream_answer(question, history, session_id)
 
 SSE 事件类型：`status`（检索中/核实中/生成中）→ `sources` → `delta`\* → `done{answer_id, price_status, latency_ms}` / `error`。
 
+## 前端交互：停止与排队
+
+- **停止**：流式期间发送按钮换成「停止」，点击即 `AbortController.abort()` 断开 SSE；uvicorn 感知断连后取消任务，上游 LLM 流随之关闭（真省 token）。落库侧用 `except (asyncio.CancelledError, GeneratorExit)` 将已生成正文/思考写入并标记 `interrupted=1`，不会出现「点了停止后台却什么都没留」；该条不返回 `answer_id`，所以前端不给反馈按钮，也不计入对话上下文。
+- **排队**：生成中仍可输入，回车/点发送 = 入队（最多 3 条，超出提示），队首问题在当前流结束后由 `drainQueue()` 串行发出；输入提示文案随 busy 切换，排队条可一键清空。串行而非并行，避免多流并发打满 TPM 限流。
+
 ## 价格硬约束（prompts.py 摘要）
 
 - 价格数字只能逐字引用「官方定价页证据」，注明币种/计价单位 + 来源链接
@@ -49,10 +54,17 @@ SSE 事件类型：`status`（检索中/核实中/生成中）→ `sources` → 
 ## 数据表 answers
 
 ```
-id, session_id, question, answer, sources_json, price_status(''|official|web|none|error),
-llm_model, latency_ms, created_at,
+id, session_id, question, answer, thinking, sources_json,
+price_status(''|official|web|none|error), llm_model, latency_ms,
+client_ip, user_agent, interrupted, created_at,
 feedback('up'|'down'|NULL), feedback_reason, feedback_at
 ```
+
+`thinking` 落库模型思考过程（reasoning_content），后台可回看模型当时的推理依据；
+`client_ip` 为提问者真实 IP（优先取 nginx 写入的 X-Real-IP，其次 X-Forwarded-For 首跳，
+最后才是直连对端地址），`user_agent` 用于辅助区分提问人/终端。`interrupted=1` 表示用户主动停止，
+此时 `answer` 为已生成部分，用于统计「哪些问题客户等不下去」。老库在启动时由
+`init_db()` 的 `_MIGRATIONS` 自动 `ALTER TABLE` 补列，无需手工迁移。
 
 `price_status` 让后台可直接分析「价格类回答的核实成功率」；点踩原因聚类定位知识库缺口。
 
