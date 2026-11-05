@@ -42,7 +42,71 @@ def test_price_verifier_units():
     check("模型名提取: 多模型去重",
           set(pv.extract_model_names("qwen3.8-max 与 deepseek-v4.1-flash 对比价格")) ==
           {"qwen3.8-max", "deepseek-v4.1-flash"})
-    check("模型名提取: wan3.0", pv.extract_model_names("Wan3.0-Video 秒价") == ["wan3.0"])
+    check("模型名提取: wan3.0", pv.extract_model_names("Wan3.0-Video 秒价") == ["wan3.0-video"])
+    # wan 视频线档位后缀：漏掉 prime 会让详情页去抓 wan3-0（空壳页），
+    # 拿不到分辨率分档价 → 模型在残缺证据上长篇内耗（思考 5818 字事故）
+    check("模型名提取: 'wan3.0 prime'→'wan3.0-prime'",
+          pv.extract_model_names("wan3.0 prime多少钱") == ["wan3.0-prime"])
+    check("模型名提取: 'wan3.0 video prime' 多段后缀",
+          pv.extract_model_names("wan3.0 video prime 多少钱") == ["wan3.0-video-prime"])
+    check("模型名提取: 'wan2.2 t2v plus' 多段后缀",
+          pv.extract_model_names("wan2.2 t2v plus 价格") == ["wan2.2-t2v-plus"])
+    check("slug 候选: wan3.0-prime → wan3-0-video-prime",
+          "wan3-0-video-prime" in pv._slug_candidates("wan3.0-prime"))
+    check("slug 候选: 裸版本号同时对应 video / video-prime",
+          pv._slug_candidates("wan3.0") == ["wan3-0", "wan3-0-video", "wan3-0-video-prime"])
+
+    # 生图线：qwen-image-* 漏识别会退化成泛化 token "qwen"，把一整片模型扒进证据
+    check("模型名提取: qwen-image-2.1-pro",
+          pv.extract_model_names("qwen-image-2.1-pro 多少钱") == ["qwen-image-2.1-pro"])
+    check("模型名提取: 'qwen image 2.1 pro' 口语写法",
+          pv.extract_model_names("qwen image 2.1 pro 多少钱") == ["qwen-image-2.1-pro"])
+    check("模型名提取: qwen-mt-image-2.0",
+          pv.extract_model_names("qwen-mt-image-2.0 价格") == ["qwen-mt-image-2.0"])
+    check("slug→ID: qwen-image-2-1-pro",
+          pv._id_from_slug("qwen-image-2-1-pro") == "qwen-image-2.1-pro")
+
+    # 生图详情页：输入图/输出图两个价，单价列必须取输出图价
+    image_text = (
+        "Pricing This page only shows the original pricing. "
+        "China (Beijing) Billing Item Price (USD) Unit "
+        "1KImageInput 0.00275 Per image 1KImage Generation 0.03438 Per image "
+        "2KImage Generation 0.068761 Per image "
+        "Singapore Scope: International Billing Item Price (USD) Unit "
+        "1K Image Input 0.003 Per image 1K Image Output 0.04 Per image "
+        "2K Image Output 0.075 Per image Rate limits"
+    )
+    img = pv._parse_media_pricing(image_text)
+    img_block = pv._media_evidence("qwen-image-3.0-pro", img)[0]
+    check("生图计费: 单价取输出图价而非输入图价",
+          "$0.04/张" in img_block and "$0.003/张" not in img_block.split("输入图")[0])
+    check("生图计费: 输入图价进备注", "输入图 $0.003/张" in img_block)
+    check("生图计费: 分辨率档位保留（无空格写法也要认）",
+          "1K" in img_block and "2K" in img_block and "$0.075/张" in img_block)
+
+    # 视频模型详情页按秒计费（"Video generation (480P) 0.068 Per second"）
+    media_text = (
+        "Pricing This topic only shows the original price. "
+        "China (Beijing) Billing item Price (USD) Unit "
+        "Video generation (480P) 0.063600 Per second "
+        "Video generation (720P) 0.127199 Per second "
+        "Singapore Service scope: International Billing item Price (USD) Unit "
+        "Video generation (480P) 0.068 Per second "
+        "Video generation (1080P) 0.28 Per second "
+        "Japan (Tokyo) Service scope: Global Billing item "
+        "Video generation (480P) 0.999 Per second Rate limits"
+    )
+    media = pv._parse_media_pricing(media_text)
+    check("视频计费解析: 取到 Singapore/Beijing 两节点",
+          set(media) == {"Singapore", "China (Beijing)"}, list(media))
+    check("视频计费解析: 分辨率与单位保留",
+          media["Singapore"][0][0] == "480P" and media["Singapore"][0][2] == "$0.068/秒",
+          media.get("Singapore"))
+    check("视频计费解析: 不串入 Tokyo 等其他 region 价格",
+          all("0.999" not in p for items in media.values() for _, _, p in items))
+    block = pv._media_evidence("wan3.0-video-prime", media)[0]
+    check("视频证据表: 只含模型/分辨率/单价，无 token 列",
+          "分辨率" in block and "输入价格" not in block and "$0.28/秒" in block)
     # 口语空格/前缀写法归一（'kimi k3.1 pro' 曾因提取失败回退挪用历史模型）
     check("模型名提取: 'kimi k3.1 pro'→'kimi-k3.1-pro'",
           pv.extract_model_names("kimi k3.1 pro的价格呢？") == ["kimi-k3.1-pro"])

@@ -29,18 +29,31 @@ from .searcher import web_search
 
 log = logging.getLogger("price")
 
+# 档位后缀：口语里跟在版本号后面，可多段（"wan3.0 video prime" → wan3.0-video-prime）。
+# max/plus/flash/pro/turbo/thinking 为通用 LLM 档位；video/prime/t2v/i2v 等为 wan 视频线档位。
+_TIER_ALT = (
+    "max|plus|flash|pro|turbo|thinking|preview|video|prime"
+    "|t2v|i2v|r2v|s2v|kf2v|t2i|animate|videoedit|vace"
+)
+
 # 模型名识别（价格校验的检索目标）
+# wan 线要带档位后缀：wan3.0-prime / wan3.0-video-prime / wan2.2-t2v-plus。
+# 只写 wan[\d.]+ 会把 "wan3.0 prime" 削成 wan3.0，于是详情页去抓 wan3-0
+# （一个空壳页），拿不到分辨率分档价，模型只能在主表残缺证据上反复权衡。
 MODEL_NAME_RE = re.compile(
     r"(qwen[\d.]*-(?:max|plus|flash|turbo)(?:-preview)?"
     r"|qwen[\d.]+"
-    r"|wan[\d.]+"
+    # 生图线：qwen-image-3.0-pro / qwen-image-2.1-turbo / qwen-mt-image-2.0，
+    # 漏了就提取不到型号 → 落到泛化 token "qwen"，把一整片 qwen 模型都扒进证据
+    r"|qwen-(?:mt-)?image(?:-[\d.]+)?(?:-(?:pro|turbo|max|flash|preview))*"
+    rf"|wan[\d.]+(?:-(?:{_TIER_ALT}))*"
     r"|happyhorse[\d.]*"
     r"|deepseek-v[\d.]+(?:-pro|-flash)?"
     r"|claude-(?:opus|sonnet|haiku)-?[\d.]*"
     r"|gpt-[\d.]+(?:-mini|-nano)?"
     r"|gemini-[\d.]+"
     r"|kimi-k[\d.]+(?:-pro|-thinking)?"
-    r"|glm-[\d.]+"
+    rf"|glm-[\d.]+(?:-(?:{_TIER_ALT}))*"
     r"|doubao-[\w-]+"
     r"|minimax-[\w-]+"
     r"|cosyvoice[\w-]*"
@@ -111,6 +124,35 @@ def is_price_question(question: str, history: list | None = None) -> bool:
     return False
 
 
+def _slug_candidates(model: str) -> list[str]:
+    """口语模型名 → 官方详情页 slug 候选（按顺序尝试）。
+
+    wan 视频线的官方 ID 里往往带 video：口语说 "wan3.0 prime"，页面却是
+    wan3-0-video-prime；裸版本号 wan3.0 则同时对应 video 与 video-prime。
+    早期只用 model.replace('.','-') 直拼，结果去抓了 wan3-0（空壳页），
+    分辨率分档价全部拿不到。
+    """
+    base = model.replace(".", "-")
+    # 注意不能直接 base.split("-")：wan3.0 转成 wan3-0 后会被误拆为 head=wan3/rest=0
+    m = re.fullmatch(r"(wan[\d.]+)(?:-(.+))?", model, re.IGNORECASE)
+    if not m:
+        return [base]
+    head, rest = m.group(1).replace(".", "-"), m.group(2)
+    base = f"{head}-{rest}" if rest else head
+    cands = [base]
+    if rest and not re.search(
+        r"(video|t2v|i2v|r2v|s2v|kf2v|t2i|animate|videoedit|vace)", rest
+    ):
+        cands.append(f"{head}-video-{rest}")
+    elif not rest:
+        cands += [f"{base}-video", f"{base}-video-prime"]
+    out: list[str] = []
+    for c in cands:
+        if c not in out:
+            out.append(c)
+    return out
+
+
 def _models_with_history(question: str, history: list | None) -> list[str]:
     """提取模型名；当前句没有时，从历史 user 消息倒序找最近的模型名。
 
@@ -142,14 +184,31 @@ def extract_model_names(question: str) -> list[str]:
     #    边界用 (?<![a-z]) 而非 \b：汉字也算 \w，"和deepseek v4.1" 在 \b 下不命中
     q = re.sub(r"(?<![a-z])(kimi|deepseek|glm)[\s-]+([a-z]?[\d.]+)", r"\1-\2", q, flags=re.IGNORECASE)
     q = re.sub(r"(?<![a-z])(qwen|wan)\s+([a-z]?[\d.]+)", r"\1\2", q, flags=re.IGNORECASE)
+    # ①-b 生图线："qwen image 2.1 pro" → qwen-image-2.1-pro（三类前缀都要归）
+    q = re.sub(
+        r"(?<![a-z])qwen[\s_\-]*(mt[\s_\-]+)?image",
+        lambda m: "qwen-mt-image" if m.group(1) else "qwen-image",
+        q,
+        flags=re.IGNORECASE,
+    )
+    q = re.sub(r"(qwen-(?:mt-)?image)[\s_\-]+([\d.]+)", r"\1-\2", q, flags=re.IGNORECASE)
     # ② 版本号与档位后缀之间的空格归并为连字符（保留 ① 拼出的 k/v 前缀）。
     #    后缀边界用 (?![a-z]) 而非 \b：CJK 汉字在 Python 正则中也算 \w，
     #    "pro的价格" 在 "pro" 后没有 \b，会漏归一（"kimi-k3.1 pro的价格" 实测踩坑）
+    #    循环替换以支持多段后缀（"wan3.0 video prime" → "wan3.0-video-prime"）。
+    suffix_re = re.compile(
+        rf"(?<![a-z])(qwen|wan|kimi|deepseek|glm)(-?[a-z]?[\d.]+(?:-(?:{_TIER_ALT}))*)"
+        rf"\s+({_TIER_ALT})(?![a-z])",
+        re.IGNORECASE,
+    )
+    while True:
+        q2 = suffix_re.sub(r"\1\2-\3", q)
+        if q2 == q:
+            break
+        q = q2
+    # 生图线的档位后缀（"qwen image 2.1 pro" → qwen-image-2.1-pro）
     q = re.sub(
-        r"(?<![a-z])(qwen|wan|kimi|deepseek|glm)(-?[a-z]?[\d.]+)\s+(max|plus|flash|pro|turbo|thinking)(?![a-z])",
-        r"\1\2-\3",
-        q,
-        flags=re.IGNORECASE,
+        rf"(qwen-(?:mt-)?image-[\d.]+)\s+({_TIER_ALT})(?![a-z])", r"\1-\2", q, flags=re.IGNORECASE
     )
     return sorted({m.group(0).lower() for m in MODEL_NAME_RE.finditer(q)})
 
@@ -316,6 +375,226 @@ def _detail_evidence(model_id: str, page_url: str, pricing: dict) -> list[str]:
     ]
 
 
+# ────────────── 视频/图像模型：按秒/按张计费（分辨率分档） ──────────────
+# 详情页写法："Video generation (480P) 0.068 Per second"，与 LLM 的
+# "Input/Output ... Per million tokens" 完全不同。早期只认 token 计费，
+# 视频页解析结果为空 → 退回主表 → 模型拿到"标题写每 1M tokens、值却是每秒、
+# 丢分辨率与单位"的残缺证据，只能长篇权衡（实测思考 5818 字 / 正文 445 字）。
+# 详情页计费项写法不统一，不能靠固定模板匹配。实测三种：
+#   Video generation (480P) 0.068 Per second
+#   Image Generation 0.04 Per image            （qwen-image-2.1-pro，无括号）
+#   1K Image Output 0.04 / 2KImage Generation 0.068761 / 1KImageInput 0.00275
+# 因此只锤“价格 + Per 单位”锚点，向前取 60 字当计费项文本，再从中抽分辨率与类别。
+_MEDIA_PRICE_RE = re.compile(
+    r"\$?(\d+(?:\.\d+)?)\s+Per\s+(second|image|video|generation|item)", re.IGNORECASE
+)
+# 分辨率： 1K / 2K / 480P / 1080P / 1024x1024。
+# 不能用 \b 收尾：详情页有 "1KImage Generation"（无空格）写法，K 后直接接字母。
+_RES_RE = re.compile(
+    r"(\d{1,2}\s*[Kk])|(\d{3,4}\s*[Pp])|(\d{3,4}\s*[x×*]\s*\d{3,4})"
+)
+_UNIT_ZH = {"second": "秒", "image": "张", "video": "条", "generation": "次", "item": "项"}
+
+
+def _media_label(seg: str, pos: int) -> str:
+    """取价格之前的计费项文字，砍掉上一项尾巴与表头噪声（Billing Item / Price (USD) Unit）"""
+    tail = seg[max(0, pos - 60) : pos]
+    tail = re.split(r"Per\s+(?:second|image|video|generation|item)", tail, flags=re.I)[-1]
+    tail = re.split(r"\bUnit\b", tail, flags=re.I)[-1]
+    tail = re.split(r"\bBilling [Ii]tem\b", tail)[-1]
+    return re.sub(r"\s+", " ", tail).strip(" ,")
+
+
+def _media_kind(label: str) -> str:
+    """计费项 → 输出图 / 输入图 / 视频 / 未知（去空格后判，容忍 1KImageInput 写法）"""
+    low = label.lower().replace(" ", "")
+    if "imageinput" in low:
+        return "输入图"
+    if "imageoutput" in low or "imagegeneration" in low:
+        return "输出图"
+    if "videogeneration" in low or "videooutput" in low:
+        return "视频"
+    return ""
+
+
+def _media_res(label: str) -> str:
+    m = _RES_RE.search(label)
+    if not m:
+        return ""
+    return re.sub(r"\s+", "", m.group(0)).upper().replace("*", "×")
+
+# 详情页全部地域标题（仅用于切段，输出仍只取 Singapore + China (Beijing)）
+_ALL_REGION_HEADS = (
+    "Singapore",
+    "China (Beijing)",
+    "Japan (Tokyo)",
+    "Germany (Frankfurt)",
+    "US (Virginia)",
+    "China (Hong Kong)",
+)
+
+_MEDIA_HEADER = "| 模型 (Model ID) | Region | 分辨率 | 单价 | 备注 |"
+_MEDIA_SEP = "|---|---|---|---|---|"
+
+
+def _pricing_window(text: str) -> str:
+    """从详情页纯文本切出 Pricing 节（到 Rate limits 为止）"""
+    pi = text.find("original price")
+    if pi < 0:
+        pi = text.lower().find("pricing")
+    if pi < 0:
+        return ""
+    ri = min(
+        [p for p in (text.find("Rate limits", pi), text.find("Rate Limits", pi)) if p > 0],
+        default=-1,
+    )
+    return text[pi : ri if ri > 0 else pi + 20000]
+
+
+def _seg_by_region(window: str) -> dict:
+    """按地域标题切段。必须扫全部地域：只扫 Singapore/Beijing 会让 Singapore 段
+    吞下 Tokyo/Frankfurt 等分表的价格（同一模型不同地域价不同，串了就错）。"""
+    heads = sorted(
+        (window.find(n), n) for n in _ALL_REGION_HEADS if window.find(n) >= 0
+    )
+    out: dict = {}
+    for i, (p, name) in enumerate(heads):
+        end = heads[i + 1][0] if i + 1 < len(heads) else len(window)
+        out.setdefault(name, window[p + len(name) : end])
+    return out
+
+
+def _parse_media_pricing(text: str) -> dict:
+    """从模型详情页提取「分辨率 × 单价」的按秒/按张计费。
+
+    返回 {region: [(分辨率, 计费项类别, "$0.04/张")]}，类别为 输出图/输入图/视频。
+    空 dict 表示该页不是按秒/按张计费（即按 token 计费的常规模型）。
+    """
+    window = _pricing_window(text)
+    if not window:
+        return {}
+    segs = _seg_by_region(window)
+    out: dict = {}
+    for region in _REGIONS:  # Singapore 主口径 + China (Beijing) 第二参考
+        seg = segs.get(region)
+        if not seg:
+            continue
+        items = []
+        for m in _MEDIA_PRICE_RE.finditer(seg):
+            label = _media_label(seg, m.start())
+            unit = _UNIT_ZH.get(m.group(2).lower(), m.group(2))
+            items.append((_media_res(label), _media_kind(label), f"${m.group(1)}/{unit}"))
+        if items:
+            out[region] = items
+    return out
+
+
+def _id_from_slug(slug: str) -> str:
+    """详情页 slug → 官方 Model ID（wan3-0-video-prime → wan3.0-video-prime；
+    qwen-image-2-1-pro → qwen-image-2.1-pro）。表格里的模型名要给客户看的官方 ID。
+    """
+    out = re.sub(r"^(wan|qwen|happyhorse)(\d+)-(\d+)", r"\1\2.\3", slug, flags=re.I)
+    if out == slug:
+        out = re.sub(r"(image)-(\d+)-(\d+)", r"\1-\2.\3", slug, flags=re.I)
+    return out
+
+
+def _render_media_table(title: str, rows: list[tuple]) -> str:
+    """rows 元素: (model_id, region, resolution, price, note)"""
+    lines = [f"**{title}**", "", _MEDIA_HEADER, _MEDIA_SEP]
+    lines += [f"| {r[0]} | {r[1]} | {r[2]} | {r[3]} | {r[4]} |" for r in rows]
+    return "\n".join(lines)
+
+
+def _media_evidence(model_id: str, media: dict) -> list[str]:
+    """详情页分辨率分档价 → 按秒/按张计费表。
+
+    图片模型有输入图/输出图两个价：**单价列取输出图价**（用户问“每张多少钱”），
+    输入图价放备注，不能混为一谈（qwen-image-3.0 输入 $0.003 vs 输出 $0.04）。
+    """
+    rows: list[tuple] = []
+    for region in _REGIONS:
+        items = media.get(region, [])
+        input_by_res = {res: p for res, kind, p in items if kind == "输入图"}
+        outputs = [it for it in items if it[1] in ("输出图", "视频")]
+        if not outputs:  # 只有输入价等异常情况：原样给出，不吞数据
+            outputs = [it for it in items if it[1] != "输入图"] or items
+        for res, kind, price in outputs:
+            note = "—"
+            if kind == "输出图" and res in input_by_res:
+                note = f"输入图 {input_by_res[res]}"
+            rows.append((model_id, region, res or "—", price, note))
+    if not rows:
+        return []
+    return [_render_media_table(f"{model_id} · 模型详情页定价（按秒/按张计费）", rows)]
+
+
+def _row_matches(model_id: str, token: str) -> bool:
+    """主表行与问题里的模型 token 匹配。
+
+    先试子串（wan3.0 → wan3.0-video 系列），再试分段全含：
+    "wan3.0-prime" 的 [wan3.0, prime] 必须都在 model_id 里，
+    这样只命中 wan3.0-video-prime，不会把普通版 wan3.0-video 混进来。
+    """
+    mid = model_id.lower()
+    if token in mid:
+        return True
+    parts = [p for p in token.lower().split("-") if p]
+    return len(parts) > 1 and all(p in mid for p in parts)
+
+
+def _media_rows_from_main(rows: list[dict], token: str) -> list[tuple]:
+    """主定价页里的按秒/按张行 → 媒体计费表行（带模型列，避免多个型号混行）。
+
+    图片模型表头同时有 Input unit price 与 Output unit price：**单价列取输出价**
+    （问“每张多少钱”指的是生成价），否则会把 $0.003 的输入图价当报价报出去。
+    """
+    out: list[tuple] = []
+    seen: set = set()
+    for r in [x for x in rows if _row_matches(x["model_id"], token)][:16]:
+        cells = r["cells"]
+        hc = r.get("header_cells") or []
+
+        def _idx(*kws: str) -> int | None:
+            """表头同时含所有这些关键词的列（先精确，后宽松）"""
+            for i, c in enumerate(hc):
+                cl = c.lower()
+                if all(k in cl for k in kws):
+                    return i
+            return None
+
+        def _price_at(i: int | None) -> str:
+            if i is None or i >= len(cells):
+                return ""
+            m = re.search(r"\$([\d.]+)\s*/\s*(second|image)", cells[i], re.I)
+            return f"${m.group(1)}/{_UNIT_ZH[m.group(2).lower()]}" if m else ""
+
+        res_i = _idx("resolution")
+        scope_i = _idx("scope")
+        # 优先输出价，其次任意价格列
+        price = _price_at(_idx("output", "price"))
+        if not price:
+            price = _price_at(_idx("price"))
+        if not price:
+            continue
+        input_price = _price_at(_idx("input", "price"))
+        scope = cells[scope_i] if scope_i is not None and scope_i < len(cells) else ""
+        region = f"{r['region']} · {scope}" if scope.strip() else r["region"]
+        res = cells[res_i] if res_i is not None and res_i < len(cells) else "—"
+        res = _media_res(res) or res  # 统一成 1K/2K/480P 写法（页面里有 1k 小写）
+        # 官方页同一型号会按 scope 重复多行（Global/无 scope 同价），按型号+地域+分辨率+价去重
+        key = (r["model_id"], r["region"], res, price)
+        if key in seen:
+            continue
+        seen.add(key)
+        raw = cells[_idx("price")] if _idx("price") is not None else ""
+        note = "列表价，限时折扣以官方页为准" if "limited" in raw.lower() else "—"
+        if input_price and input_price != price:
+            note = f"输入图 {input_price}" if note == "—" else f"输入图 {input_price}；{note}"
+        out.append((r["model_id"], region, res, price, note))
+    return out
+
+
 # ──────────────────── 结构化解析 ────────────────────
 
 
@@ -422,9 +701,20 @@ def _model_evidence(rows: list[dict], token: str) -> list[str]:
     曾被当成 Singapore·International 价）。busy/idle 双价同格的行拆为两行，
     同 region 同 scope 同价的重复行合并。
     """
-    hits = [r for r in rows if token in r["model_id"].lower()]
+    hits = [r for r in rows if _row_matches(r["model_id"], token)]
     if not hits:
         return []
+
+    # 视频/图像模型按秒/按张计费：直接出「分辨率 × 单价」表，不套用 LLM 列。
+    # 强拉进输入/输出/缓存六列会让标题（每 1M tokens）与数值（每秒）互相矛盾，
+    # 丢失分辨率与单位，模型只能靠推理猜哪行属于哪个型号。
+    media = _media_rows_from_main(hits, token)
+    if media:
+        return [
+            _render_media_table(
+                f"{token} · 官方定价页（按秒/按张计费 USD）", media
+            )
+        ]
     sg = [r for r in hits if r["region"] == "Singapore"]
     bj = [r for r in hits if r["region"] == "China (Beijing)"]
     selected = sg + bj or hits[:4]
@@ -577,20 +867,46 @@ async def verify_prices(question: str, history: list | None = None) -> dict:
     web_blocks: list[str] = []
     need_main_page_models: list[str] = []  # 详情页未命中、回退主定价页的模型
 
-    # 〇级证据：模型详情页（含缓存/显式缓存/批量等细项价，优先）
+    # 〇级证据：模型详情页（含分辨率分档/缓存等细项价，优先）
     for m in models:
         if m == "qwen":  # 泛化 token，无详情页
             need_main_page_models.append(m)
             continue
-        slug = re.sub(r"\.", "-", m)
-        url = f"https://www.alibabacloud.com/help/en/model-studio/{slug}"
-        try:
-            html = await _cached_fetch(f"model_{slug}", url)
-        except Exception as e:
-            log.warning("模型详情页抓取失败 %s: %s", url, e)
-            html = ""
-        if html:
-            pricing = _parse_model_pricing(_strip_tags(html))
+        # 口语型号与官方 slug 不完全一致：wan3.0-prime 的实际页面是
+        # wan3-0-video-prime；裸版本号（wan3.0）则同时对应 video 与 video-prime。
+        bare_version = bool(re.fullmatch(r"wan[\d.]+", m))
+        got = False
+        for slug in _slug_candidates(m):
+            url = f"https://www.alibabacloud.com/help/en/model-studio/{slug}"
+            try:
+                html = await _cached_fetch(f"model_{slug}", url)
+            except Exception as e:
+                log.warning("模型详情页抓取失败 %s: %s", url, e)
+                html = ""
+            if not html:
+                continue
+            text = _strip_tags(html)
+            # 视频/图像：按秒/按张计费（分辨率分档），与 token 计费分开渲染
+            media = _parse_media_pricing(text)
+            if media:
+                model_id = _id_from_slug(slug)
+                official_blocks.append(
+                    f"#### {model_id} · 模型详情页定价（按秒/按张计费 · 权威）\n"
+                    f"来源链接（回答时**直接引用此 URL**，不要自己拼接）：{url}"
+                )
+                official_blocks.extend(_media_evidence(model_id, media))
+                sources.append(
+                    {
+                        "title": f"{model_id} 模型详情页（分辨率分档价 · 权威）",
+                        "url": url,
+                        "kind": "official",
+                    }
+                )
+                got = True
+                if not bare_version:
+                    break
+                continue
+            pricing = _parse_model_pricing(text)
             if pricing:
                 official_blocks.append(
                     f"#### {m} · 模型详情页定价（权威，优先于主定价页）"
@@ -603,8 +919,10 @@ async def verify_prices(question: str, history: list | None = None) -> dict:
                         "kind": "official",
                     }
                 )
-                continue
-        need_main_page_models.append(m)
+                got = True
+                break
+        if not got:
+            need_main_page_models.append(m)
 
     # 一级证据：官方定价页主表（详情页未命中时）
     html = await _get_pricing_html()
@@ -676,8 +994,10 @@ async def verify_prices(question: str, history: list | None = None) -> dict:
     if official_blocks:
         evidence_md += (
             "### 官方定价页证据（权威 — 具体价格数字仅可引用此处）\n"
-            "以下价格表格为系统代码渲染的成品：必须逐字原样输出，"
-            "不得改写列名/行序/“—”占位，不得增删行列或自行重组表格。\n"
+            "输出规则：证据块里的「表格部分」（表头行 + 数据行）必须逐字原样输出，"
+            "不得改写列名/行序/“—”占位，不得增删行列或自行重组表格；\n"
+            "证据块的 `####` 标题行仅供你定位，**不要复制到回答里**；但题目下方的来源 URL 请直接引用，不要自己拼接或改动；\n"
+            "若下方知识库片段里出现与证据不一致的旧价/折扣价，直接忽略，不要说明、不要比对。\n"
             + "\n".join(official_blocks)
             + "\n\n"
         )
