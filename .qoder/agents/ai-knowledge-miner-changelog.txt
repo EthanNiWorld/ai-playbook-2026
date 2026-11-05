@@ -1,5 +1,15 @@
 # AI Knowledge Miner Changelog
 
+## 2026-11-03
+### 依据 knowledge-verification-2026-11-03 报告的 Agent 定义优化（C 组）
+- inbox Glob/Grep 陷阱写明：列目录改用 `Bash ls`（安全边界同步放开 `ls`/`find` 只读）；语义搜索空结果回退「index 定位候选 + Read 候选文档」，不得视为无文档可合并
+- Step 5d 取代关系判定改为「同系列同层级官方生命周期/定位优先，日期仅辅助」（防止晚发布专用档误判取代旗舰）
+- 模板完整性红线分级：核心节必填 vs 可选节可省略（Changelog 记录原因），不再为模板完整堆空占位制造僵尸文档；Step 4 正文同步
+- 快捷通道不再完全跳过脱敏：移动前保留密钥/客户名/个人信息写入前扫描
+- Step 6 新建文档路径统一为「Step 2 决定的目标路径」（消除与阿里云特例的矛盾）；index/README 路径去掉易误解的 `/` 前缀
+- Step 7 改为 README/index 同步：合并导致主推模型、版本代号或摘要变化时也必须检查门面
+- 纯模型厂商清单补 xiaomi
+
 ## 2026-08-14
 ### 分类表补全
 - 新增「公司介绍」分类：knowledge/{厂商}/general_intro.md + _general_company_intro_template.md（此前 7 个厂商已有该文档但分类表无入口）

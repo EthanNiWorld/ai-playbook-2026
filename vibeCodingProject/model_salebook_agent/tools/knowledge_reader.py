@@ -21,7 +21,7 @@ def load_model_knowledge(model_name: str) -> str:
     kb = get_knowledge_base_path()
     model_lower = model_name.lower()
 
-    # 关键词提取：如 "Qwen3.7-Max" → ["qwen", "3.7", "max"]
+    # 关键词提取：如 "Qwen3.8-Max" → ["qwen", "3.8", "max"]
     # "Wan2.7" → ["wan", "2.7"]
     keywords = _extract_keywords(model_lower)
 
@@ -94,7 +94,7 @@ def _extract_keywords(model_name: str) -> list[str]:
     parts = re.split(r"[-_.\s]+", model_name)
     # 合并：保留完整名（如 "qwen"）和版本片段
     keywords = [p for p in parts if p]
-    # 也加入整体名的主要部分（如 "qwen3" from "qwen3.7-max"）
+    # 也加入整体名的主要部分（如 "qwen3" from "qwen3.8-max"）
     main_name = re.match(r"([a-z]+)", model_name)
     if main_name:
         keywords.append(main_name.group(1))

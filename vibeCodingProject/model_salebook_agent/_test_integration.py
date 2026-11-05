@@ -15,7 +15,7 @@ from graph import build_graph
 
 # 模拟用户回答序列（按对话顺序）
 SCENARIO = {
-    "target_model": "Qwen3.7-Max",
+    "target_model": "Qwen3.8-Max",
     "answers": [
         # 第一句：透露多个字段
         "客户现在用 Claude Opus 4.8，但觉得太贵想换，他们核心是做 AI Coding 工具，技术团队主导决策",

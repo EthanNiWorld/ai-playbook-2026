@@ -9,7 +9,7 @@ class SalebookState(TypedDict, total=False):
     """贯穿所有节点的共享状态"""
 
     # ─── 输入 ───
-    target_model: str  # 用户指定的模型名（如 "Qwen3.7-Max", "Wan2.7"）
+    target_model: str  # 用户指定的模型名（如 "Qwen3.8-Max", "Wan2.7"）
     user_brief: str  # SA/BD 累积输入的自由文本（首条剩余 + 后续 iterate 反馈）
 
     # ─── LLM 推断/收集的客户字段（全部可选，strategy 阶段推断填充）───

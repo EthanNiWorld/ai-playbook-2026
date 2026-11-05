@@ -7,12 +7,12 @@ Model Salebook Agent — 终端入口
 
 使用:
     python main.py                                    # 交互式（会提示输入模型名）
-    python main.py --model "Qwen3.7-Max"              # 直接指定目标模型
-    python main.py --llm qwen3.7-plus                 # 切换底层 LLM
+    python main.py --model "Qwen3.8-Max"              # 直接指定目标模型
+    python main.py --llm qwen3.8-max                  # 切换底层 LLM
 
 环境变量:
     DASHSCOPE_API_KEY  — 必须，DashScope API Key
-    SALEBOOK_MODEL     — 可选，底层 LLM（默认 qwen3.7-max，可用 --llm 覆盖）
+    SALEBOOK_MODEL     — 可选，底层 LLM（默认 qwen3.8-max，可用 --llm 覆盖）
 """
 
 import sys
@@ -29,6 +29,7 @@ from config import MODEL_OPTIONS, DEFAULT_MODEL, set_runtime_model
 
 MODEL_NAME_RE = re.compile(
     r"(qwen[\d.]+-(?:max|plus|flash)(?:-preview)?"
+    r"|qwen[\d.]+-\d+(?:\.\d+)?[bt](?:-[\w.]+)?"
     r"|wan[\d.]+"
     r"|deepseek-v[\d.]+(?:-pro|-flash)?"
     r"|claude-(?:opus|sonnet|haiku)-?[\d.]*"
@@ -55,7 +56,7 @@ def main():
     parser = argparse.ArgumentParser(description="Model Salebook Agent")
     parser.add_argument(
         "--model", "-m", type=str, default="",
-        help="首条输入：模型名 + 客户场景一句话（如 'Qwen3.7-Plus 德勤 3.6 升级'）",
+        help="首条输入：模型名 + 客户场景一句话（如 'Qwen3.8-Max 德勤 3.7 升级'）",
     )
     parser.add_argument(
         "--llm", "-l", type=str, default="",
@@ -79,7 +80,7 @@ def main():
     if not first_msg:
         first_msg = input(
             "请一句话说明目标模型 + 客户场景：\n"
-            "  示例：“Qwen3.7-Plus 德勤从 3.6-Plus 升级，纠结上 Max 还是 Plus”\n> "
+            "  示例：“Qwen3.8-27B 德勤从 3.7-Plus 升级，纠结上 Max 还是 27B”\n> "
         ).strip()
         if not first_msg:
             print("[ERROR] 未输入任何内容，退出。")

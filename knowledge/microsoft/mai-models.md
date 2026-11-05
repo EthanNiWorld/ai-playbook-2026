@@ -1,6 +1,6 @@
 # MAI 模型家族
 
-> 最后更新: 2026-09-17
+> 最后更新: 2026-11-03
 > 所属厂商: Microsoft AI (MAI)
 > 产品类别: AI 模型（推理 / 编码 / 图像 / 语音 / 转录）
 > 状态: Published
@@ -9,7 +9,7 @@
 **定位**: 微软自研多模态模型家族，2026 年 Build 大会首发 7 款模型，覆盖推理、编码、图像、语音、转录全品类
 **当前主推**: 🚩 MAI-Thinking-1（推理旗舰）、MAI-Code-1-Flash（高效编码）
 **适用**: 企业级推理与编码辅助、GitHub Copilot 集成、Microsoft Foundry 部署
-**不适用**: 通用对话（MAI-Thinking-1 侧重推理/编码，非通用 chatbot）；当前仅私有预览，尚未全面开放 API
+**不适用**: 通用对话（MAI-Thinking-1 侧重推理/编码，非通用 chatbot）；公开预览（public preview）阶段，尚未 GA
 **竞品**: Claude Opus 4.6 / Sonnet 4.6（Anthropic）、GPT 5.4（OpenAI）、Gemini 2.5 Pro（Google）
 **常搭配**: GitHub Copilot、VS Code、Microsoft Foundry、Azure
 <!-- SUMMARY_END -->
@@ -40,7 +40,7 @@
   - 支持函数调用（function calling）、开发者指令、Chat Completions API
 - 训练数据：商业许可数据，排除 AI 生成内容；含自有爬虫（~1.2T 页爬取，过滤后 794B 页）+ Common Crawl（过滤后 24.2B 页）；过滤含 UT1 黑名单（成人/盗版域名）和内容级去重
 - 训练规模：30T tokens，8192 GB200 GPU
-- 可用性：Microsoft Foundry 私有预览
+- 可用性：Microsoft Foundry 公开预览（public preview，2026-11-03 官方模型页核实，含 MAI Playground 入口）；尚未 GA，公开定价未发布
 
 ### MAI-Code-1-Flash
 - 模型：MAI-Code-1-Flash
@@ -105,7 +105,7 @@
 
 | 限制项 | 具体值 | 说明 |
 |--------|--------|------|
-| 私有预览 | MAI-Thinking-1 仅 Microsoft Foundry 私有预览 | 公开预览时间待定 |
+| 公开预览（非 GA） | MAI-Thinking-1 已转 Microsoft Foundry 公开预览（2026-11-03 官方模型页核实） | 仍处 preview 阶段，GA 时间与公开定价未发布 |
 | 编码模型可用范围 | MAI-Code-1-Flash 目前仅限 GitHub Copilot + VS Code | 滚动上线中 |
 | 多模态模型详情 | Image-2.5 / Voice-2 / Transcribe-1.5 参数/定价未公开 | 可用性已确认：Foundry + OpenRouter/Fireworks/Baseten 第三方分发（2026-09-17 复核官方博客）；参数与定价官方仍未披露 |
 | 训练数据性质 | 虽强调"商业许可"，实际含 Common Crawl 和公开网络爬取 | 见"常见误解" |
@@ -128,7 +128,7 @@
 
 | 场景 | 不适用原因 | 替代方案 |
 |------|-----------|----------|
-| 通用对话（当前阶段） | MAI-Thinking-1 侧重推理/编码，私有预览中 | GPT 5.4 / Claude Sonnet 4.6 |
+| 通用对话（当前阶段） | MAI-Thinking-1 侧重推理/编码，公开预览中 | GPT 5.4 / Claude Sonnet 4.6 |
 | 非 VS Code 编码环境 | MAI-Code-1-Flash 目前仅 VS Code + Copilot | Claude Code / Qoder（多 IDE 支持） |
 
 ### ⚠️ 常见误解
@@ -174,7 +174,7 @@
 | SWE-Bench Pro | 与 Opus 4.6 持平 | 持平 | — |
 | 盲测 vs Sonnet 4.6 | 偏好优于 | — | — |
 | 上下文 | 256K | 1M（2026-03-14 起标准价 GA）[来源: anthropic.com/news/claude-opus-4-6] | 256K–1M [来源: 库内 gpt-5-series.md] |
-| 可用性 | Foundry 私有预览 | 已公开 | 已公开 |
+| 可用性 | Foundry 公开预览（非 GA） | 已公开 | 已公开 |
 
 | 维度 | MAI-Code-1-Flash | Claude Haiku 4 |
 |------|------------------|----------------|
@@ -195,4 +195,5 @@
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-03 | 校验修复（knowledge-verification-2026-11-03）：MAI-Thinking-1 私有预览转公开预览（官方模型页核实，含 MAI Playground）；SUMMARY/限制/场景/竞品表同步；不延伸为 GA 或公开定价 |
 | 2026-09-17 | 合并：knowledge-verification-2026-09-17 报告 — 14 项待补充系统补研：Code-1-Flash 上下文回填 256K（ℹ️ 第三方转述官方模型卡）；Image-2.5/Transcribe-1.5/Voice-2 尺寸确认为官方未公开、可用性回填（Foundry + OpenRouter/Fireworks/Baseten 第三方分发，官方博客 2026-06-02）；竞品对照表 Opus 4.6 上下文 1M（2026-03-14 GA 标准价）/ GPT 5.4 256K-1M 回填、两者架构标未公开；解除僵尸文档标注 |

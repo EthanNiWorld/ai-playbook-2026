@@ -320,14 +320,14 @@
 | 2026-09-02 | 校验修复（knowledge-verifier 2026-09-02 报告）：解除 GLM-5.3 待验证——API 已于 08-19 上线（定价与 5.2 持平）、权重已于 08-28 开源；补 GLM-5.2 百炼国际站定价 $1.400/$4.400（新加坡）；主推表 / 头部 / 能力表 / 场景表同步 |
 | 2026-09-02 | GLM-5.3-Flash 小节新增"原生多模态"定义澄清（单模型多模态输入/预训练即多模态/视觉内生 Agent 循环；输出仅文本）与"非 5.3/5.2 同基座轻量版"说明（全新架构 320B-A18B，官方对标 GLM-4.5 量级） |
 | 2026-09-02 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20260902.md - 新增 GLM-5.3-Flash 小节（2026-08-26 发布并开源：320B-A18B、系列首个原生多模态、稀疏+线性混合注意力、AA 57、¥0.8/¥2.8、MIT、10 万张国产芯片、Ox-Alpha 盲测营销）；主推表加入 Flash 行；头部"不适用"与核心限制/场景表按模型区分修正；交叉链接 [开源权重下的 API 定价下限](../ai-general-notes/open-weights-api-pricing-floor.md) |
-| 2026-08-17 | 合并：inbox 四模型调研 - 新增 GLM-5.3 小节（2026-08-14 发布：同基座后训练 Scaling、TB 3.0 28.3 开源第一、DeepSWE 66.9、网络安全涌现能力 2,436 漏洞、后训练技术路线）；主推切换 GLM-5.3 🚩（API 即将上线 / Coding Plan 已全量 / 两周后开放权重待验证），GLM-5.1 移入历史标注；核心能力表新增安全攻防行；适用场景表同步 |
-| 2026-07-30 | 合并：inbox 2026-07-30 素材 - 新增 GLM-5.2 小节（1M 上下文、基准分数、IndexShare/MTP、RL 路线切换），主推切换为 GLM-5.2，修正上下文限制与适用场景表述，交叉链接 rl-algorithm-selection-grpo-vs-ppo.md |
+| 2026-08-17 | 合并：inbox 四模型调研 - 新增 GLM-5.3 小节（2026-08-14 发布：同基座后训练 Scaling、TB 3.0 28.3 开源第一、DeepSWE 66.9、网络安全涌现能力 2,436 漏 洞、后训练技术路线）；主推切换 GLM-5.3 🚩（API 即将上线 / Coding Plan 已全量 /  两周后开放权重待验证），GLM-5.1 移入历史标注；核心能力表新增安全攻防行；适用场景表同步 |
 
 <details>
-<summary>历史早期记录（2026-05 ~ 2026-06）</summary>
+<summary>历史早期记录（2026-05 ~ 2026-07）</summary>
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-07-30 | 合并：inbox 2026-07-30 素材 - 新增 GLM-5.2 小节（1M 上下文、基准 分数、IndexShare/MTP、RL 路线切换），主推切换为 GLM-5.2，修正上下文限制与适用场 景表述，交叉链接 rl-algorithm-selection-grpo-vs-ppo.md |
 | 2026-06-15 | GLM-5.1 长程任务特点补充技术原理摘要（Progressive Alignment + 阶梯型策略切换），新增智谱研究文档参考链接，交叉链接 [long-horizon-task.md](../ai-general-notes/long-horizon-task.md) |
 | 2026-06-03 | 全面更新 GLM-5.1：修正发布时间为 2026.04.07（正式公告）；补充架构参数（744B MoE, 256 experts）；新增全部基准分数（SWE-Bench Pro/Verified、Terminal-Bench 2.0、NL2Repo、Coding Score、AIME 2026）；新增中国站/国际站定价；新增与 Claude Opus 4.8 / GPT-5.5 / Qwen3.7-Max 对比表；补充华为昇腾训练、MIT 协议、纯文本限制等关键信息；更新适用/不适用场景 |
 | 2026-05-28 | 新建文档，首次提炼 GLM 系列模型系列信息 |

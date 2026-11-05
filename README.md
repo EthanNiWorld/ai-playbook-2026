@@ -2,14 +2,14 @@
 
 > **AI 解决方案售前知识库** — 模型选型 · 竞品对比 · 行业方案 · 技术通识，一站式参考
 >
-> 最后更新：2026-10-30
+> 最后更新：2026-11-03
 
 <p align="center">
   <img src="https://img.shields.io/badge/覆盖厂商-13-blue?style=for-the-badge" alt="覆盖厂商 13 家：阿里云 + 12 家外部厂商">
   <img src="https://img.shields.io/badge/结构化文档-101-orange?style=for-the-badge" alt="结构化文档 101 篇">
   <img src="https://img.shields.io/badge/知识维度-4-green?style=for-the-badge" alt="知识维度 4 类：通识 · 产品 · 对比 · 方案">
   <img src="https://img.shields.io/badge/核心阵地-阿里云-purple?style=for-the-badge" alt="核心阵地：阿里云 MaaS · Coding · App · Infra">
-  <img src="https://img.shields.io/badge/最后更新-2026--10--30-lightgrey?style=for-the-badge" alt="最后更新 2026-10-30">
+  <img src="https://img.shields.io/badge/最后更新-2026--11--03-lightgrey?style=for-the-badge" alt="最后更新 2026-10-30">
 </p>
 
 <p align="center">
@@ -92,7 +92,7 @@
 |------|-----------|
 | [百炼平台](alibaba-ai-hub/maas/overview.md) | UID 级限流、多账号扩 TPM（8.5× 实测）、deepseek-v4-flash 压测 |
 | [百炼安全合规](alibaba-ai-hub/maas/model_studio_security-compliance_cn.md) | SOC 2 / ISO 42001 / CMaaS / Geo-fencing，企业级安全应答 |
-| [Qwen3.8 系列](alibaba-ai-hub/maas/qwen.md) | Max（2.4T 旗舰）/ 3.7-Plus（多模态智能体）/ 3.8-Flash（Next 架构轻量），1M 上下文 |
+| [Qwen3.8 系列](alibaba-ai-hub/maas/qwen.md) | Max（2.4T 旗舰）/ 3.8-27B（开源 Dense 视觉语言）/ 3.8-Flash（Next 架构轻量），1M / 262K 上下文 |
 | [万相 Wan3.0](alibaba-ai-hub/maas/wan.md) | 30 秒长视频 All-in-One、文/图/音/视频/文档多模态输入（Wan2.7 主攻 LoRA 定制） |
 | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) | 企业级 AI Coding IDE，vs Claude Code / Trae 定位差异 |
 | [GPU 产品线选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) | 阿里云 GPU 全线产品对比 + 场景选型决策树 |
@@ -124,9 +124,9 @@
 | [MiniMax Agent Team](knowledge/minimax/agent-team.md) | Leader–Worker–Verifier 对抗制衡、多 Agent runtime 设计哲学 |
 | [DeepSeek V 系列](knowledge/deepseek/deepseek-v-series.md) | V4.1 Flash CED 非对称架构（输入 8B / 输出 16B 激活）、原生视觉、峰谷分时定价 |
 | [GLM 系列](knowledge/zhipu/glm-series.md) | GLM-5.3 / 5.3-Flash 开源 SOTA，Terminal-Bench 3.0 28.3 开源第一，1M 上下文 |
-| [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) | K3 2.8T / 1M 上下文，Terminal-Bench 非 OpenAI 模型第一，已开源 |
+| [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) | K3.1 Pro（10-24 后训练旗舰，$2/$10）/ K3 2.8T / 1M 上下文，K3 已开源 |
 | [Claude API](knowledge/anthropic/claude-api.md) | Claude 5.5 家族（Opus 5.5 $4/$20 / Sonnet 5.5 / Haiku 5.5 分层定价 $0.10/$0.50），护栏从领域级下沉到任务阶段级 |
-| [GPT-6 系列](knowledge/openai/gpt-6-series.md) | Astra（🌟 前代模型监督训练 + 首个 Critical 级 cyber）/ Sol / Luna（272K 分段 $0.10/$0.50），1.05M 上下文 |
+| [GPT-6 系列](knowledge/openai/gpt-6-series.md) | Astra（🌟 前代模型监督训练 + 首个 Critical 级 cyber）/ Sol / 6.1 Terra（性价比档）/ Luna（272K 分段 $0.10/$0.50），1.05M 上下文 |
 
 ---
 
@@ -168,9 +168,9 @@ mindmap
       Anthropic
         Opus 5.5 / Sonnet 5.5 / Haiku 5.5 · Claude Code
       OpenAI
-        GPT-6 Astra·Sol·Luna · Codex
+        GPT-6 Astra·Sol·Terra·Luna · Codex
       Google
-        Gemini 4 Argon / 3.8 Flash · Vertex AI
+        Gemini 4 Carbon·Argon / 3.8 Flash · Vertex AI
       Microsoft AI
         MAI-Thinking-1 / MAI-Code-1-Flash
       DeepSeek
@@ -178,9 +178,9 @@ mindmap
       智谱
         GLM-5.3 / 5.3-Flash 开源 SOTA
       月之暗面
-        Kimi K3：2.8T / 1M / 已开源
+        Kimi K3.1 Pro / K3：2.8T / 1M
       MiniMax
-        M3 开源 / H3 视频 / Agent Team
+        M3.1-Flash / M3 开源 / H3 视频 / Agent Team
       字节跳动
         Doubao-Seed-2.1 Pro 0915 · Seedance 2.5
       腾讯混元
@@ -188,7 +188,7 @@ mindmap
       小米 MiMo
         V2.6 Flash / Pro
       阶跃星辰
-        Step 3.7 Flash / AI+终端
+        Step 5 Preview / Step 3.7 Flash / AI+终端
     线:竞品对比
       Qoder vs Trae
       Qwen vs Hy3 / Doubao
@@ -253,9 +253,9 @@ flowchart LR
 │   ├── moonshot/           ← 🟣 月之暗面（2 篇：公司分析 / Kimi K系列）
 │   ├── bytedance/          ← 🟣 字节跳动（2 篇：Doubao-Seed-2.1 / Seedance 系列）
 │   ├── zhipu/              ← 🟣 智谱 AI（2 篇：公司分析 / GLM系列）
-│   ├── stepfun/            ← 🟣 阶跃星辰（2 篇：公司分析 / Step 3系列）
+│   ├── stepfun/            ← 🟣 阶跃星辰（2 篇：公司分析 / Step 系列）
 │   ├── tencent/            ← 🟣 腾讯混元（1 篇：混元系列 Hy3/Hy4）
-│   └── xiaomi/             ← 🟣 小米 MiMo（1 篇：MiMo-V2.6 系列）
+│   └── xiaomi/             ← 🟣 小米 MiMo（1 篇：MiMo 系列）
 ├── vibeCodingProject/  ← 🧪 实验代码（Demo 脚本、CHM 查看器）
 ├── index.md            ← 📋 全局索引导航
 └── README.md

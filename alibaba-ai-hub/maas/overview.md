@@ -1,6 +1,6 @@
 # 百炼平台
 
-> 最后更新: 2026-09-02
+> 最后更新: 2026-11-05
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 > 状态: Published
@@ -23,9 +23,11 @@
 
 | 地域 | 接入点 | 适用范围 |
 |------|--------|--------|
-| 中国大陆（默认）| `dashscope.aliyuncs.com` | 大陆站 UID，Qwen / DeepSeek-V4 / Wan 系列 |
-| 新加坡国际 | `dashscope-intl.aliyuncs.com` | 国际站 UID，Qwen / DeepSeek-V4 / DeepSeek-V3.2 |
-| 美国 | `dashscope-us.aliyuncs.com` | 国际站 UID，主要面向 DeepSeek-V4-* 与 qwen-plus-us / qwen-flash-us |
+| 中国大陆（默认）| `dashscope.aliyuncs.com` | 大陆站 UID，Qwen / DeepSeek-V4.1-Flash / DeepSeek-V4-Pro / Wan 系列 |
+| 新加坡国际 | `dashscope-intl.aliyuncs.com` | 国际站 UID，Qwen / DeepSeek-V4.1-Flash / DeepSeek-V4-Pro |
+| 美国 | `dashscope-us.aliyuncs.com` | 国际站 UID，主要面向 DeepSeek-V4.1-Flash / DeepSeek-V4-Pro 与 qwen-plus-us / qwen-flash-us |
+
+> **DeepSeek 代际提示**：DeepSeek-V3.2 已于 2026-07-24 下线；V4-Flash（0731 快照）官方侧已于 2026-09-10 下线并把旧名路由至 V4.1-Flash。当前选型基线为 V4.1-Flash-1017 / V4-Pro GA（详见 [deepseek-v-series.md](../../knowledge/deepseek/deepseek-v-series.md)）。
 
 > **重要**：大陆站账号体系与国际站独立，同一款物理人在两边注册会产生两个独立 UID。这是多账号扩 TPM 方案可行的前提之一。
 
@@ -50,7 +52,7 @@
 
 ### 文档限流与实测限流的差异⚠️
 
-百炼官方文档发布的 RPM/TPM 是「理论上限」，实测会明显打折扣，以 deepseek-v4-flash 思考模式为例：
+百炼官方文档发布的 RPM/TPM 是「理论上限」，实测会明显打折扣，以 deepseek-v4-flash（0731 快照）思考模式为例（该型号官方侧已下线，但限流机制结论对其他思考模型同样成立）：
 
 | 项 | 文档值 | 实测值 | 差异 |
 |----|--------|--------|------|
@@ -71,7 +73,7 @@
 
 单个 UID 额度无法满足业务吞吐需求、且官方提额不够或审批号隆占时，可通过注册多个独立阿里云账号，在业务层路由以获得近似 N 倍额度。
 
-### 实测验证（2 UID 跑 deepseek-v4-flash）
+### 实测验证（2 UID 跑 deepseek-v4-flash-0731，历史实测 2026-05-22）
 
 **环境**：大陆站 UID + 新加坡国际站 UID，思考模式默认开启，500 总并发。
 
@@ -167,16 +169,16 @@
 
 | 需求 | 推荐模型 | 地域 |
 |------|---------|------|
-| 中文推理 | qwen3.8-max / qwen3.7-plus | 任意 |
-| 思考推理 | deepseek-v4-flash / deepseek-v4-pro | 大陆 / 新加坡 / 美国 |
-| 中文生成 | qwen3.7-plus | 任意 |
+| 中文推理 | qwen3.8-max / qwen3.8-27b | 任意 |
+| 思考推理 | deepseek-v4.1-flash / deepseek-v4-pro | 大陆 / 新加坡 / 美国 |
+| 中文生成 | qwen3.8-flash / qwen3.8-27b | 任意 |
 | 图像生成 | qwen-image-3.0-pro（Qwen-Image 系列，图像线已自 Wan*-Image 移交） | [⚠️ 待补充] |
 
 ### 踩坑记录
 
 | 问题 | 原因 | 解决方案 | 记录日期 |
 |------|------|----------|----------|
-| 500 并发 deepseek-v4-flash 吞吐反而下降 | 客户端自我 DDoS，超过 RPM 软限后重试风暴挤占资源 | 并发控制在甜点（~200），需更高吞吐走多账号池化 | 2026-05-22 |
+| 500 并发 deepseek-v4-flash（0731）吞吐反而下降 | 客户端自我 DDoS，超过 RPM 软限后重试风暴挤占资源 | 并发控制在甜点（~200），需更高吞吐走多账号池化 | 2026-05-22 |
 | 创建多个 API Key 后 TPM 未提升 | API Key 同账号额度共享 | 注册 N 个独立阿里云账号，业务层路由 | 2026-05-22 |
 | 同一 deepseek-v4 在 base_url 不匹配的地域报无权限 | API Key 与 base_url 地域必须匹配 | 为每个账号记录正确的 base_url，在路由器中绑定 | 2026-05-22 |
 
@@ -203,4 +205,5 @@
 | 2026-05-22 | 合并：inbox 多账号扩 TPM 实践。新增地域与接入点表、限流机制（UID 级、RPM/TPM/RPS/TPS）、文档 vs 实测差异、多账号扩 TPM 方案（8.5× 实测验证）、选型建议、踩坑记录、与 Bedrock/Vertex AI 竞品快照。状态仍为 Draft（仅补充限流主题，其他产品能力待补） |
 | 2026-06-09 | 修正：选型建议模型名更新为当前主推（qwen3.7-max / qwen3.7-plus / qwen3.6-flash / wan2.7） |
 | 2026-07-08 | 选型建议表移除 qwen3.6-flash（已非主推），中文生成推荐更新为 qwen3.7-plus |
-| 2026-09-02 | 校验修复（knowledge-verifier 2026-09-02 报告）：选型建议表更新——中文推理主推切换 qwen3.7-max → qwen3.8-max；图像生成 wan2.7 → qwen-image-3.0-pro（Wan*-Image 图像线已移交 Qwen-Image）；状态 Draft → Published |
+| 2026-09-02 | 校验修复（knowledge-verifier 2026-09-02 报告）：选型建议表更新—— 中文推理主推切换 qwen3.7-max → qwen3.8-max；图像生成 wan2.7 → qwen-image-3.0-pro（Wan*-Image 图像线已移交 Qwen-Image）；状态 Draft → Published |
+| 2026-11-05 | 模型代际同步：地域接入点表 DeepSeek-V4 / V3.2 → V4.1-Flash / V4-Pro（V3.2 已于 2026-07-24 下线，V4-Flash 0731 已于 2026-09-10 下线）；选型建议「思考推理」行更新为 deepseek-v4.1-flash，「中文推理/中文生成」行去除已退出主推的 qwen3.7-plus、改推 qwen3.8-max / qwen3.8-27b / qwen3.8-flash；历史压测记录（deepseek-v4-flash-0731）统一加旧快照标注 |

@@ -1,12 +1,12 @@
 # Kimi K 系列模型
 
-> 最后更新: 2026-07-17
+> 最后更新: 2026-11-03
 > 所属厂商: 月之暗面（Moonshot AI）
 > 产品类别: MaaS
 
 <!-- SUMMARY_START -->
 **定位**: 开源 Agent 模型系列，聚焦长程编码、端到端知识工作与多 Agent 协作
-**当前主推**: Kimi K3（旗舰，2.8T / 1M 上下文）/ Kimi K2.7-Code（编码专精）/ Kimi K2.6（长程 Agent）
+**当前主推**: Kimi K3.1 Pro（2026-10-24 后训练旗舰，$2/$10，权重承诺 11-04 前发布）/ Kimi K3（旗舰，2.8T / 1M 上下文，权重已开放）/ Kimi K2.7-Code（编码专精）/ Kimi K2.6（长程 Agent）
 **适用**: AI 编码助手、Agent 应用、多 Agent 系统、自动化工作流、超长上下文知识工作
 **不适用**: 轻量级对话、纯文本生成（性价比不如 Qwen/GPT 系列）
 <!-- SUMMARY_END -->
@@ -15,14 +15,26 @@
 
 | 模型 | 定位 | 上下文 | 特点 | 推出时间 |
 |------|------|--------|------|----------|
-| 🚩 **Kimi K3** | 旗舰 | 1M | 2.8T MoE（896 专家/激活 16）、KDA 线性注意力、原生多模态、始终 max 思考 | 2026-07-17 |
+| 🚩 **Kimi K3.1 Pro** | 当前旗舰（K3 后训练版） | 1M | 沿用 K3 架构（2.8T MoE），长程编码/知识工作强化；$2/$10（低于 K3）；思考 low/high/max；权重承诺 2026-11-04 前发布 | 2026-10-24 |
+| **Kimi K3** | 旗舰（权重已开放） | 1M | 2.8T MoE（896 专家/激活 16）、KDA 线性注意力、原生多模态、始终 max 思考 | 2026-07-17 |
 | **Kimi K2.7-Code** | 编码专精 | 256K | 基于 K2.6 的编码专精模型，推理 token 减少 30%，长程软件工程优化 | 2026-06-12 |
 | **Kimi K2.6** | 长程 Agent | 256K | 原生多模态、13 小时长周期编码、Agent Swarm（300 子 Agent），价位低于 K3 | 2026-04-20 |
 
-> 📌 **产品分层**：K3 为高端旗舰（始终 max 思考、旗舰定价 $3/$15）；K2.7-Code 守 IDE 快速编码循环；K2.6 守低价长程 Agent。K3 发布不取代 K2.7-Code / K2.6，三者按场景分流。
+> 📌 **产品分层**：K3.1 Pro 为当前旗舰（K3 后训练版，定价 $2/$10 低于 K3 的 $3/$15）；K3 为高端旗舰（始终 max 思考、权重已开放、可自部署评估）；K2.7-Code 守 IDE 快速编码循环；K2.6 守低价长程 Agent。K3.1 Pro 发布不取代 K2.7-Code / K2.6，按场景分流。
 > 📌 **历史模型**：Kimi K2.5（2026-01-27）仍可调用，但已被 K2.6 取代，不建议新项目选用。Kimi K2（2025-07-11）已于 2026-05-25 正式下线。
 
 ## 模型演进
+
+### Kimi K3.1 Pro（2026 年 10 月，当前旗舰）
+
+- **发布**：2026-10-24（官网研究索引口径；10-23 UTC 网页 / Kimi Work / Kimi Code / API 已开放）；官方 API ID `kimi-k3.1-pro`，高速版 `kimi-k3.1-pro-highspeed`
+- **与 K3 关系**：K3 后训练版本——主要增加强化学习算力，改进长上下文推理、沙箱、任务调度与环境质量检查；**官方未公布架构变化**，沿用 K3 规格（2.8T 总参 / 104B 激活 MoE；AA 登记同为 2.8T）[来源: kimi.com/en/blog/kimi-k3-1-pro + datalearner 汇总]
+- **上下文 / 输出**：1M（1,048,576）；max_completion_tokens 默认 131,072、最大可设 1,048,576（受总上下文预算限制）
+- **多模态**：文本 + 图片 + 视频输入 → 文本输出；3D 成果通过生成并执行 Blender / CAD / 游戏引擎代码完成，非原生 3D 模态
+- **思考**：始终开启，推理强度 low / high / max（默认 max）；支持工具调用与结构化输出
+- **定价**（官方，datalearner 转述）：标准版 $2 输入 / $10 输出（¥13/¥68）；缓存读取 $0.20（¥1.30）；缓存写入 5 分钟 $2（¥13）/ 1 小时 $4（¥26）；高速版 $4/$20（¥26/¥136），官方称同等智能、速度约 2–3×，缓存读取同价。人民币与美元为两区域实际标价而非汇率换算
+- **开放权重**：官方承诺 **2026-11-04 前发布完整权重**——截至 2026-11-03 尚未发布，许可证待确认（Kimi K3 License 为上一代参考）；AA 暂标闭源。需立即自部署的团队仍可评估已开放权重的 K3
+- **评测**：官方与 AA 独立双口径数据（TB 4.0、HLE、GDPval 等）统一收录于下方「Benchmark 对比」节，此处不重复
 
 ### Kimi K3（2026 年 7 月，旗舰）
 
@@ -42,7 +54,6 @@
 - **API**：模型 ID `kimi-k3`；`https://api.moonshot.cn/v1`（国内）/ `https://api.moonshot.ai/v1`（国际）
 - **定价**：缓存命中 $0.30 / 输入 $3.00 / 输出 $15.00（每 M tokens）；Mooncake 分离式推理架构下编程任务缓存命中率 >90%
 - **限制**：始终思考无法关闭（轻量任务成本高）；联网搜索工具更新中，近期不建议生产使用
-- **百炼接入**：模型 ID `kimi/kimi-k3`（仅华北2/北京地域 Key）；MaaS 专属端点上为 `kimi-k3`（无前缀）。实测（2026-08-24，三个 MaaS 端点：北京 workspace×2 + 新加坡节点，结论一致）：图片输入 base64 与公网 URL 均可用；**视频输入不支持**（报 400 "Video inputs are not supported by this model"，字符串/嵌套格式/含 fps 均被拒），同端点 qwen3.8-max / qwen-vl-max 及 **kimi-k2.6 / kimi-k2.7-code 视频均正常** → 系百炼 kimi-k3 部署专属限制（非 kimi 系列整体问题），客户需 kimi + 视频理解时引导用 kimi-k2.6 / kimi-k2.7-code。测试脚本：`alibaba-ai-hub/maas/maas-solution-and-api-sample/test_kimi_k3_multimodal.py`
 
 ### Kimi K2.7-Code（2026 年 6 月，编码专精）
 
@@ -71,8 +82,6 @@
   - **主动 Agent（Proactive Agents）**：支持 24/7 持续运行的自主 Agent
   - **Claw Groups**（研究预览）：异构多 Agent + 人类协作的新架构
   - **Skills 系统**：将 PDF/幻灯片/文档转化为可复用技能
-- **百炼平台接入**：模型 ID `kimi/kimi-k2.6`（标准端点）/ `kimi-k2.6`（MaaS 专属端点），通过阿里云 DashScope API 调用
-- **百炼视频实测**（2026-08-24）：视频输入可用，嵌套格式 `{"video_url": {"url": ...}}`（含 fps 参数）与 qwen 风格字符串格式均通过；需 kimi + 视频理解时首选 k2.6（kimi-k3 视频不可用）
 - **缓存折扣**：命中缓存按输入价格的 16.9% 计费
 
 ### Kimi K2.5（2026 年 1 月）
@@ -108,6 +117,20 @@
 - **状态**：已于 2026-05-25 下线
 
 ## Benchmark 对比
+
+### Kimi K3.1 Pro（2026-10-24 发布）
+
+| Benchmark | Kimi K3.1 Pro | 对比参照 | 来源 |
+|-----------|---------------|----------|------|
+| Terminal-Bench 4.0（Claude Code; max） | **65.7%** | Claude Opus 5.5 66.4%、GPT-6 Astra 58.2%（官方比较图） | 官方发布材料 |
+| HLE Full（w/ tools; max） | **70.0%** | — | 官方发布材料 |
+| OSWorld V2.1（max） | 79.6% | — | 官方发布材料 |
+| GDPval-AA v2.1（Elo） | **1846**（95% 区间 1820–1872） | AA 自测值与官方图一致 | Artificial Analysis |
+| Intelligence Index v4.3.2 / v5.0 | 55.1（#4/215）/ 46（22/76） | — | Artificial Analysis |
+| Kimi Hallu Bench Hard（w/ tools） | **8.3%** | K3 为 23.4%（刻意选择题集，非日常错误率） | 官方发布材料 |
+| 输出速度（AA 实测） | 约 80.7 tok/s | — | Artificial Analysis |
+
+> 官方另报：SWE-Marathon v1.1 51.7、Kimi Code Bench 3.0 Long-horizon 61.2（K3 为 55.95）、BenchCAD 92.7%/72.8%（带/不带工具）、OfficeQA Pro v2 64.4、Frontier Finance 58.6、Chartography 90.2%、ZeroBench Main 63.0%（pass@5）。均厂商评估口径，不与独立复测混比。
 
 ### Kimi K3（2026-07-17 发布）
 
@@ -169,33 +192,6 @@
 | K3 联网搜索 | 更新中 | 近期不建议用于生产流程 |
 | 推理/数学 | 略弱于 GPT-5.4 | AIME 96.4 vs 99.2，HMMT 92.7 vs 97.7 |
 | 视觉理解 | 略弱于 Gemini 3.1 Pro | MMMU-Pro 79.4 vs 83.0 |
-| 不支持 | 联网搜索 | 百炼平台暂不支持联网搜索功能 |
-
-## 百炼平台接入
-
-通过阿里云百炼调用 Kimi K2.6：
-
-```python
-from openai import OpenAI
-import os
-
-client = OpenAI(
-    api_key=os.getenv("DASHSCOPE_API_KEY"),
-    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
-)
-
-completion = client.chat.completions.create(
-    model="kimi/kimi-k2.6",
-    messages=[{"role": "user", "content": "你好"}],
-    extra_body={"enable_thinking": True}  # 可选：开启思考模式
-)
-```
-
-**支持功能**：多轮对话、Function Calling、前缀续写、上下文缓存（隐式缓存自动开启）、结构化输出。
-
-**不支持**：联网搜索、thinking_budget 限制思考长度；K2.7-Code 额外不支持关闭思考模式（thinking: disabled 会报错）。
-
-**参数默认值**：K2.6 思考模式 temperature=1.0、非思考模式 temperature=0.6、top_p=0.95；K2.7-Code 仅思考模式，temperature 固定 1.0、top_p 固定 0.95，不可调整。
 
 ## 推理部署
 
@@ -220,6 +216,7 @@ Kimi K2 系列模型权重开源（block-fp8 格式），推荐推理引擎：
 
 | 日期 | 变更内容 |
 |------|---------|
+| 2026-11-03 | 校验修复+补研（knowledge-verification-2026-11-03）：新增 Kimi K3.1 Pro 并切为当前旗舰（2026-10-24，K3 后训练版；定价 $2/$10；官方/AA 双口径评测见正文；权重承诺 11-04 前发布、截至 11-03 未发布，AA 暂标闭源）；解除 109 天未更新状态 |
 | 2026-09-07 | 调研补充：区分 K3 官方托管 API 与开源权重的模态边界——开源权重（HF checkpoint）官方口径 Modality 仅 Text + Image、不支持视频输入（GitHub README Model Summary 表格 + vLLM day-0 "multimodal preprocessing (image-only)" + HF 仓库 py 源码级验证三重佐证），视频输入仅官方 API 可用（files API 上传 + `video_url` `ms://` 示例）；preprocessor_config.json 残留视频参数（sample_fps=8.0 等）+ vision tower 预留 4 帧时序 pos emb（init_pos_emb_time=4/sd2_tpool）确认架构留有视频口子但 processor 未开放；与百炼实测 k3 视频 400 结论一致 |
 | 2026-09-01 | 路径修复：`api-sample` 目录已重命名为 `maas-solution-and-api-sample`，更新实测脚本引用路径 |
 | 2026-08-24 | 实测补全：K3 百炼 MaaS 端点多模态实测（北京 workspace×2 + 新加坡节点三端点交叉验证）——k3 图片 base64/URL 均可用、视频不支持（400 报错）；同端点 kimi-k2.6 / kimi-k2.7-code 视频正常，确认系 k3 专属限制；补全 K3/K2.6 百炼接入信息；新增测试脚本 test_kimi_k3_multimodal.py |
@@ -230,6 +227,8 @@ Kimi K2 系列模型权重开源（block-fp8 格式），推荐推理引擎：
 
 ## 参考资料
 
+- [Kimi K3.1 Pro 官方发布博客](https://www.kimi.com/en/blog/kimi-k3-1-pro)（2026-10-24，规格/官方评测/权重承诺）
+- [DataLearner — Kimi K3.1 Pro 价格与评测汇总](https://www.datalearner.com/ai-models/pretrained-models/kimi-k3-1)（API 定价/AA 独立评测，2026-11-03 核实）
 - [Kimi K3 Quickstart（官方文档）](https://platform.kimi.com/docs/guide/kimi-k3-quickstart)
 - [Kimi K3 技术博客](https://www.kimi.com/blog/kimi-k3)
 - [Kimi K2.6 技术博客](https://www.kimi.com/blog/kimi-k2-6)

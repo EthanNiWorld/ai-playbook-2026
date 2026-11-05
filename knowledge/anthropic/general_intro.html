@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Anthropic 增长与单位经济看板 · S-1 口径</title>
+<title>Anthropic 增长与单位经济看板 · S-1/A 口径</title>
 <style>
   :root{
     --bg:#faf9f7;
@@ -93,6 +93,11 @@
     h1{font-size:30px}
     .wrap{padding:0 16px 60px}
   }
+  @media (max-width:640px){
+    /* SVG 等比缩放会让 11px 标注字缩到约 5px，小屏改为横向滑动保持可读 */
+    .chart{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .chart svg{min-width:640px}
+  }
   @media print{
     body{background:#fff}
     .card,.kpi,.insight{break-inside:avoid}
@@ -104,32 +109,32 @@
 <div class="wrap">
 
 <header class="hero">
-  <div class="eyebrow">Anthropic · Form S-1 拆解</div>
+  <div class="eyebrow">Anthropic · Form S-1/A 拆解</div>
   <h1>增长速度、客群与推理毛利</h1>
-  <p class="sub">基于 2026-10-26 递交 SEC 的 S-1 招股书。财务数据截至 2026-06-30，客户数据截至 2026-09-30。用三张曲线回答一个问题：Anthropic 的钱是怎么从倒挂毛利长成 85% 毛利率的。</p>
+  <p class="sub">基于 2026-10-26 递交、<b>2026-11-02 修正（S-1/A）</b>的招股书。修正案把财务数据从 2026 H1 推进到 <b>2026 Q3</b>，客户数据截至 2026-09-30。用三张曲线回答一个问题：Anthropic 的钱是怎么从倒挂毛利长成 85% 毛利率的，以及 Q3 增速为什么突然掉档。</p>
   <div class="badges">
-    <span class="badge solid">S-1 官方口径</span>
-    <span class="badge">财务期：2023 – 2026 H1</span>
+    <span class="badge solid">S-1/A 官方口径</span>
+    <span class="badge">财务期：2023 – 2026 Q3</span>
     <span class="badge">客户期：截至 2026.09.30</span>
     <span class="badge">纳斯达克 · ANT</span>
-    <span class="badge warn">2026 Q3 由招股书倍数推导</span>
+    <span class="badge warn">Q3 环比降至 +47%</span>
   </div>
 </header>
 
 <div class="kpis">
   <div class="kpi hero-k">
-    <div class="k">2026 Q2 单季营收</div>
-    <div class="v">$115.6 亿</div>
-    <div class="d">YoY +1,368% · QoQ +144%</div>
+    <div class="k">2026 Q3 单季营收</div>
+    <div class="v">$169.5 亿</div>
+    <div class="d">YoY +1,127% · QoQ +47%</div>
   </div>
   <div class="kpi">
-    <div class="k">2026 H1 营收</div>
-    <div class="v">$162.9 亿</div>
-    <div class="d">为 2025 全年的 3.6 倍</div>
+    <div class="k">2026 前三季营收</div>
+    <div class="v">$332.4 亿</div>
+    <div class="d">为 2025 全年的 7.2 倍</div>
   </div>
   <div class="kpi">
-    <div class="k">毛利率（2026 H1）</div>
-    <div class="v">85.4%</div>
+    <div class="k">毛利率（2026 9M）</div>
+    <div class="v">约 85%</div>
     <div class="d">Note 8 推导值 · 2024 为 -95%</div>
   </div>
   <div class="kpi">
@@ -148,29 +153,29 @@
     <div class="d">顶层 ≥ $1,000 万：约 250 家</div>
   </div>
   <div class="kpi">
-    <div class="k">2026 Q2 经营利润</div>
-    <div class="v">+$9.74 亿</div>
-    <div class="d">首个经营盈利季度（GAAP 8.4%）</div>
+    <div class="k">2026 Q3 经营损益</div>
+    <div class="v" style="color:var(--red)">-$5.67 亿</div>
+    <div class="d">再度转负（-3%）· Q2 曾 +$9.74 亿</div>
   </div>
   <div class="kpi">
-    <div class="k">算力支出 / 营收</div>
-    <div class="v">48%</div>
-    <div class="d">2025 Q1 为 251%</div>
+    <div class="k">算力支出 / 营收（Q3）</div>
+    <div class="v">58%</div>
+    <div class="d">Q2 为 48% · 短期高价算力 $50 亿</div>
   </div>
 </div>
 
 <section>
-  <div class="sec-head"><span class="sec-num">01</span><h2>季度营收：五个季度 31 倍</h2></div>
-  <p class="sec-note">S-1 披露六个连续季度的营收与经营利润。曲线形状是典型「拐点后垂直起飞」——2025 Q4 环比增速一度降到 +48%，随后 2026 Q1、Q2 重新加速到 +132% / +144%，没有出现常规 SaaS 的规模衰减。</p>
+  <div class="sec-head"><span class="sec-num">01</span><h2>季度营收：六个季度 45 倍</h2></div>
+  <p class="sec-note">S-1/A 披露七个连续季度的营收。曲线形状是典型「拐点后垂直起飞」——2025 Q4 环比增速一度降到 +48%，随后 2026 Q1、Q2 重新加速到 +132% / +144%，Q3 回落到 +47%。这不是普通的规模衰减：Q3 单季营收首次超过上半年总和，但增速仍回到 2025 Q4 的水位。</p>
   <div class="card">
     <h3>季度营收</h3>
-    <p class="cap">单位：百万美元 · 2024 Q4 为可比期（第三方整理，待原文核对）</p>
+    <p class="cap">单位：百万美元 · 26Q3 为 S-1/A（2026.11.02）实披露值 · 2024 Q4 为可比期（第三方整理，待原文核对）</p>
     <div class="chart" id="chart-quarter"></div>
   </div>
   <div class="grid-2" style="margin-top:14px">
     <div class="card">
       <h3>环比增速</h3>
-      <p class="cap">2025 Q4 见底 +48% 后重新加速</p>
+      <p class="cap">Q2 见顶 +144% 后回落至 +47%</p>
       <div class="chart" id="chart-qoq"></div>
     </div>
     <div class="card">
@@ -185,68 +190,81 @@
           <tr><td>2025 Q3</td><td class="num">$13.82 亿</td><td class="num">+76%</td><td class="num">—</td></tr>
           <tr><td>2025 Q4</td><td class="num">$20.40 亿</td><td class="num">+48%</td><td class="num">—</td></tr>
           <tr><td>2026 Q1</td><td class="num">$47.31 亿</td><td class="num">+132%</td><td class="num">+1,158%</td></tr>
-          <tr class="mark"><td>2026 Q2</td><td class="num">$115.55 亿</td><td class="num">+144%</td><td class="num">+1,368%</td></tr>
+          <tr><td>2026 Q2</td><td class="num">$115.55 亿</td><td class="num">+144%</td><td class="num">+1,368%</td></tr>
+          <tr class="mark"><td>2026 Q3</td><td class="num">$169.54 亿</td><td class="num">+47%</td><td class="num">+1,127%</td></tr>
         </tbody>
       </table>
     </div>
   </div>
   <div class="callout" style="margin-top:14px">
-    <strong>单季超三年总和：</strong>2026 Q2 一个季度（$115.6 亿）等于 2023–2025 三年累计营收（$50.1 亿）的 2.3 倍。2026 Q3 摘要页数字<b>留空</b>，但 Business 章节称其为 2024 Q4（$1.97 亿）的 <b>86 倍</b>，据此推导约 <b>$168–170 亿</b>（环比 +约 47%）——这不是传闻，是招股书自己留下的算式。
+    <strong>单季超上半年总和：</strong>2026 Q3 一个季度（$169.5 亿）首次超过 H1 两个季度合计（$162.9 亿），是 2023–2025 三年累计营收（$50.1 亿）的 3.4 倍。修正案前这一数字靠「9 月季度为 2024 Q4 的 86 倍」推导（$168–170 亿），现已由 S-1/A 实披露 $169.5 亿<b>证实</b>；按 4 倍年化约 <b>$678 亿</b>，与公司 7 月底向投资者披露的 $650 亿 run-rate 基本对齐。
+  </div>
+  <div class="callout info" style="margin-top:14px">
+    <strong>Q3 增速为什么掉档（招股书与第三方各说一半）：</strong>① <b>5–7% 的 9 个月营收</b>来自后被认定违反使用政策的客户（以<b>蒸馏</b>为主），8–9 月收紧执法；② 据 Sacra，<b>Meta 与 Microsoft 削减内部 Claude Code 用量约 50% / 35%</b>；③ 大客户用量合约<b>无长期锁定</b>，可即时下调（而算力承诺是刚性的）；④ 招股书原文明确“不应期待营收延续近期增速”。同时 5 家最大客户各自都创了单季营收新高——所以这更像<b>分母减速</b>而非客户流失。
   </div>
 </section>
 
 <section>
-  <div class="sec-head"><span class="sec-num">02</span><h2>年度营收：三年 111 倍</h2></div>
-  <p class="sec-note">2023 年 $4,100 万 → 2025 年 $45.85 亿，两年放大 111 倍。2026 上半年单半年 $162.86 亿，已是 2025 全年的 3.6 倍。注意 2026 只有半年，柱形用浅色标注，不可与整年直接比较。</p>
-  <div class="card">
-    <h3>年度 / 半年度营收</h3>
-    <p class="cap">单位：百万美元 · 纵轴为对数刻度（否则 2023 年的柱子将不可见）</p>
-    <div class="chart" id="chart-annual"></div>
+  <div class="sec-head"><span class="sec-num">02</span><h2>年度营收：三年 111 倍，九个月 7.2 倍</h2></div>
+  <p class="sec-note">同一组数据用两种刻度看：<b>对数刻度看倍数</b>——每年约 10 倍，柱子之间等高差就是一个数量级；<b>线性刻度看体量</b>——2026 前三季一根柱子的高度是 2025 全年的 7.2 倍，而 2023 / 2024 被压成一条线，这正是指数增长的直观证据。注意 2026 只有 9 个月，不可与整年直接比较。</p>
+  <div class="grid-2">
+    <div class="card">
+      <h3>对数刻度：看倍数</h3>
+      <p class="cap">单位：百万美元 · 每格一个数量级（否则 2023 年的柱子将不可见）</p>
+      <div class="chart" id="chart-annual"></div>
+    </div>
+    <div class="card">
+      <h3>线性刻度：看体量</h3>
+      <p class="cap">虚线为 2025 全年水位 · 2026 9M 柱高 ≈ 其 7.2 倍</p>
+      <div class="chart" id="chart-annual-linear"></div>
+    </div>
   </div>
 </section>
 
 <section>
   <div class="sec-head"><span class="sec-num">03</span><h2>推理毛利：从 -95% 到 85%</h2></div>
-  <p class="sec-note">先说一个容易踩坑的列报口径：Anthropic 自 2025 年起把费用从「按功能」改为「按性质」列报，<b>cost of revenue 与 gross profit 不再出现在利润表正面</b>，改在补充附注（Note 8）披露。所以下面这条毛利率是 <b>Note 8 成本收入 ÷ 营收</b> 的推导值。2024 年 -95%，意味着每收 1 美元要花近 2 美元推理成本；2026 H1 成本收入仅 $23.80 亿（占营收 14.6%），毛利率 85.4%。真正的分水岭是：<b>算力总额 $89.45 亿里只有约 27% 落在成本收入，其余是训练与前沿研发</b>——这就是为什么 85% 毛利率能与 -4% 经营利润率共存。</p>
+  <p class="sec-note">先说一个容易踩坑的列报口径：Anthropic 自 2025 年起把费用从「按功能」改为「按性质」列报，<b>cost of revenue 与 gross profit 不再出现在利润表正面</b>，改在补充附注（Note 8）披露。所以下面这条毛利率是 <b>Note 8 成本收入 ÷ 营收</b> 的推导值。2024 年 -95%，意味着每收 1 美元要花近 2 美元推理成本；2026 前三季成本收入约 $49.9 亿（推导），毛利率仍在 <b>约 85%</b> 平台。真正的分水岭是：<b>算力总额 $188.10 亿里只有约 27% 落在成本收入，其余是训练与前沿研发</b>——这就是为什么 85% 毛利率能与 -3% 经营利润率共存。</p>
   <div class="card">
     <h3>毛利率（Note 8 推导）</h3>
-    <p class="cap">2024 与 2025 H1 为负 / 低位，2026 年进入平台期</p>
+    <p class="cap">2024 与 2025 H1 为负 / 低位，2026 进入约 85% 平台期；Q3 为 9 个月口径推算</p>
     <div class="chart" id="chart-gm"></div>
   </div>
   <div class="grid-2" style="margin-top:14px">
     <div class="card">
       <h3>算力与基础设施 / 营收（总额口径）</h3>
-      <p class="cap">含训练、评估与免费用户推理；2026 H1 仅约 27% 计入成本收入</p>
+      <p class="cap">含训练、评估与免费用户推理；2026 前三季仅约 27% 计入成本收入</p>
       <div class="chart" id="chart-compute"></div>
     </div>
     <div class="card">
       <h3>经营杠杆</h3>
       <p class="cap">收入放大后，固定成本被摊薄</p>
       <table>
-        <thead><tr><th>指标</th><th>2025 全年</th><th>2026 H1</th></tr></thead>
+        <thead><tr><th>指标</th><th>2025 全年</th><th>2026 H1</th><th>2026 9M</th></tr></thead>
         <tbody>
-          <tr><td>营收</td><td class="num">$45.85 亿</td><td class="num">$162.86 亿</td></tr>
-          <tr><td>成本收入（Note 8，仅服务付费客户算力）</td><td class="num">$27.73 亿</td><td class="num">$23.80 亿</td></tr>
-          <tr><td>算力与基础设施（总额，含训练/免费）</td><td class="num">$73.26 亿</td><td class="num">$89.45 亿</td></tr>
-          <tr><td>研发费用</td><td class="num">$63.36 亿（138%）</td><td class="num">$97.41 亿（59.8%）</td></tr>
-          <tr><td>经营损益</td><td class="num" style="color:var(--red)">-$80.60 亿</td><td class="num" style="color:var(--green)">-$6.93 亿</td></tr>
-          <tr class="mark"><td>2026 Q2 单季经营利润</td><td class="num">—</td><td class="num" style="color:var(--green)">+$9.74 亿</td></tr>
-          <tr><td>净损益</td><td class="num" style="color:var(--red)">-$420 亿</td><td class="num" style="color:var(--red)">-$807.5 亿</td></tr>
+          <tr><td>营收</td><td class="num">$45.85 亿</td><td class="num">$162.86 亿</td><td class="num">$332.40 亿</td></tr>
+          <tr><td>成本收入（Note 8，仅服务付费客户算力）</td><td class="num">$27.73 亿</td><td class="num">$23.80 亿</td><td class="num">约 $49.9 亿*</td></tr>
+          <tr><td>算力与基础设施（总额，含训练/免费）</td><td class="num">$73.26 亿</td><td class="num">$89.45 亿</td><td class="num">$188.10 亿（57%）</td></tr>
+          <tr><td>研发费用</td><td class="num">$63.36 亿（138%）</td><td class="num">$97.41 亿（59.8%）</td><td class="num">未单列</td></tr>
+          <tr><td>经营损益</td><td class="num" style="color:var(--red)">-$80.60 亿</td><td class="num" style="color:var(--red)">-$6.93 亿</td><td class="num" style="color:var(--red)">-$12.60 亿</td></tr>
+          <tr class="mark"><td>2026 单季经营损益</td><td class="num">—</td><td class="num">Q2 +$9.74 亿</td><td class="num">Q3 -$5.67 亿</td></tr>
+          <tr><td>经营现金流</td><td class="num">—</td><td class="num">+$39 亿</td><td class="num">+$66 亿</td></tr>
+          <tr><td>净损益</td><td class="num" style="color:var(--red)">-$420 亿</td><td class="num" style="color:var(--red)">-$807.5 亿</td><td class="num" style="color:var(--red)">-$1,040.4 亿</td></tr>
         </tbody>
       </table>
+      <p style="font-size:12px;color:var(--ink-3);margin:8px 0 0">* 由「9 个月毛利率仍为约 85%」反推，S-1/A 未在可读节选里单列 Q3 / 9M 成本收入金额。</p>
       <div class="callout info" style="margin-top:12px">
-        <strong>别看净亏损吓人：</strong>2026 H1 净亏损 $807 亿中，$723.9 亿是<b>可转债、衍生品与 SAFE 的公允价值变动</b>（非现金、随估值上调记账）。经营口径同期只亏 $6.93 亿。
+        <strong>别看净亏损吓人：</strong>2026 前三季净亏损 $1,040 亿中，$943.2 亿是<b>可转债、衍生品与 SAFE 的公允价值变动</b>（非现金、随估值上调记账），经营口径同期只亏 $12.60 亿；Q3 单季该类费用再增 $219 亿。按现金看，9 个月经营现金流是正的 $66 亿。
       </div>
     </div>
   </div>
   <div class="callout warn" style="margin-top:14px">
-    <strong>毛利率 ≠ 到手的钱（但机制与直觉不同）：</strong>S-1 把经云市场成交的<strong>全额确认为收入</strong>（principal 口径），平台分销费另记在 <b>销售、市场与合作费用</b>（2026 H1 $31.68 亿，占营收 19%，该科目还含<b>免费用户推理算力</b>），<strong>不进 COGS</strong>。2025 年经 Amazon、Google 成交 $21.6 亿，分销费约 $3.51 亿 ≈ <b>每 1 美元渠道销售额付 16 美分</b>（折总营收仅 7.7%）。S-1 未按云厂商拆分费率，加权值不可当作单家费率。
+    <strong>毛利率 ≠ 到手的钱（但机制与直觉不同）：</strong>S-1/A 把经云市场成交的<strong>全额确认为收入</strong>（principal 口径），平台分销费另记在 <b>销售、市场与合作费用</b>（2026 H1 $31.68 亿，占营收 19%，该科目还含<b>免费用户推理算力</b>），<strong>不进 COGS</strong>。2025 年经 Amazon、Google 成交 $21.6 亿，分销费约 $3.51 亿 ≈ <b>每 1 美元渠道销售额付 16 美分</b>（折总营收仅 7.7%）。S-1 未按云厂商拆分费率，加权值不可当作单家费率；2026 年费率未披露美元金额。
   </div>
 </section>
 
 <section>
   <div class="sec-head"><span class="sec-num">04</span><h2>客群：4,000 万长尾 + 1.19 万腰部 + 250 个顶部</h2></div>
-  <p class="sec-note">Anthropic 的客群是极端金字塔。底层约 4,000 万自助用户年付不足 $10 万，几乎不贡献收入；真正的收入来自 11,900 家年付 ≥ $10 万的客户——而这个数字一年前只有 950 家，增长 12.5 倍。注意横轴是对数刻度，否则顶层会被压成一条线。</p>
+  <p class="sec-note">Anthropic 的客群是极端金字塔。底层约 4,000 万自助用户年付不足 $10 万，几乎不贡献收入；真正的收入来自 11,900 家年付 ≥ $10 万的客户——而这个数字一年前只有 950 家，增长 12.5 倍。注意横轴是对数刻度，否则顶层会被压成一条线。Q3 出现一个反向信号：五家最大客户各自都创了单季营收新高，但它们的<b>合计占比反而从 36% 降到 21%</b>——分母膨胀式分散，不等于大客户变小。</p>
   <div class="card">
     <h3>客户金额分层（截至 2026.09.30）</h3>
     <p class="cap">单位：家 / 人 · 对数刻度</p>
@@ -257,7 +275,7 @@
       <h3>为什么增速能超过 100%</h3>
       <p style="font-size:13.5px;color:var(--ink-2);margin:0">
         <b style="color:var(--accent);font-size:22px">NRR ≈ 900%</b><br>
-        净收入留存（截至 2026.09.30）。典型 SaaS 的 NRR 是 110%–130%，这意味着 Anthropic 的存量客户一年内支出放大近 9 倍。<br><b>口径限定：NRR 不含 Claude Pro / Max 订阅用户</b>，只覆盖按量与企业类客户。
+        净收入留存（截至 2026.09.30）。典型 SaaS 的 NRR 是 110%–130%，这意味着同一批存量客户的收入一年间放大约 9 倍。<br><b>口径限定：① 不含 Claude Pro / Max 订阅用户</b>，只覆盖按量与企业类客户；<b>② 为「今年 Q3 vs 去年 Q3」三个月口径而非 TTM</b>——去年同期基数极小（2025 Q3 全部营收也仅 $13.82 亿），900% 是低基数下的爆发值，不能外推为稳态扩张率。
       </p>
       <p style="font-size:13px;color:var(--ink-2);margin:12px 0 0">
         增长因此不是「靠不断拉新」，而是<b>同一批客户把 token 用量越用越多</b>——这是 Agent 类产品特有的曲线：一次接入，用量随任务复杂度自发膨胀。
@@ -268,10 +286,13 @@
       <table>
         <tbody>
           <tr><td>Fortune 500 中年付 ≥ $10 万的比例</td><td class="num"><b>超过一半</b></td></tr>
+          <tr><td>Fortune 10 中年付 ≥ $10 万的覆盖</td><td class="num">全部 10 家</td></tr>
+          <tr><td>但该层客户支出占其总费用的比例（Q3）—— 渗透率而非饱和度</td><td class="num">不足 0.1%</td></tr>
           <tr><td>Ramp 平台美国企业的付费渗透率（2026.09）</td><td class="num">43.8%</td></tr>
           <tr><td>美国企业 LLM 支出份额（2025，Menlo）</td><td class="num">40%</td></tr>
           <tr><td>AI coding 支出份额（2025 底，Menlo）</td><td class="num">54%</td></tr>
           <tr><td>前五大客户营收占比（2026.01–09）</td><td class="num">约 25%</td></tr>
+          <tr><td>单一客户最高占比（2026.01–09）</td><td class="num">低于 10%</td></tr>
           <tr><td>单一客户最高占比（2025，共两家各 12%）</td><td class="num">12%</td></tr>
         </tbody>
       </table>
@@ -281,20 +302,21 @@
 
 <section>
   <div class="sec-head"><span class="sec-num">05</span><h2>收入结构：八成按量计费，近半走云市场</h2></div>
-  <p class="sec-note">按量计费（API / token）占了约八成收入，订阅只有两成——这是一个「用量驱动」而非「席位驱动」的模型，也是 NRR 能到 900% 的结构性原因。同时云市场渠道占比从 2023 年的 11% 涨到 48%，经 <b>Amazon、Google、Microsoft 三家</b>云市场成交（S-1 口径；其中 2025 年可拆出的 $21.6 亿为 Amazon + Google）。三家同时是投资方、算力供应商与分销商，且各自有自研模型与 Claude 竞争。</p>
+  <p class="sec-note">按量计费（API / token）占约八成收入，订阅两成——这是一个「用量驱动」而非「席位驱动」的模型，也是 NRR 能到 900% 的结构性原因。云市场渠道占比从 2023 年的 11% 涨到 2026 H1 的 48%，<b>前三季回落到 44%</b>——直销占比随企业客户回归而上升。渠道口径是 <b>Amazon、Google、Microsoft 三家</b>（S-1/A；其中 2025 年可拆出的 $21.6 亿为 Amazon + Google）。三家同时是投资方、算力供应商与分销商，且各自有自研模型与 Claude 竞争。</p>
   <div class="grid-2">
     <div class="card">
-      <h3>按计费方式拆分（2026 H1）</h3>
-      <p class="cap">合计 $162.86 亿</p>
+      <h3>按计费方式拆分（2026 前三季）</h3>
+      <p class="cap">合计 $332.40 亿</p>
       <div style="margin-top:8px">
         <div style="display:flex;height:44px;border-radius:8px;overflow:hidden">
-          <div style="width:80.4%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">按量计费 80.4%</div>
-          <div style="width:19.6%;background:#8d5a44;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600">订阅</div>
+          <div style="width:79.1%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">按量计费 79.1%</div>
+          <div style="width:20.9%;background:#8d5a44;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600">订阅</div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-2);margin-top:10px">
-          <span><b>$131 亿</b> · pay-per-use</span>
-          <span><b>$32 亿</b> · subscription 19.6%</span>
+          <span><b>$263 亿</b> · pay-per-use</span>
+          <span><b>$69 亿</b> · subscription 20.9%</span>
         </div>
+        <div style="font-size:12.5px;color:var(--ink-2);margin-top:6px">其中美国开票客户 <b>$117.63 亿</b> · 约 72%（H1 口径，9M 未单独披露）</div>
       </div>
       <div class="callout info" style="margin-top:16px">
         <strong>口径提醒：</strong>「约 80% 收入来自企业客户」（CNBC 2026.01）与「约 80% 来自按量计费」是两个不同维度（客户类型 vs 计费方式），不能混为一句话引用。
@@ -302,7 +324,7 @@
     </div>
     <div class="card">
       <h3>云市场渠道占比</h3>
-      <p class="cap">经云市场成交的收入比例（S-1 口径：Amazon / Google / Microsoft 三家）</p>
+      <p class="cap">经云市场成交的收入比例（S-1/A 口径：Amazon / Google / Microsoft 三家）</p>
       <div class="chart" id="chart-marketplace"></div>
     </div>
   </div>
@@ -312,9 +334,9 @@
   <div class="sec-head"><span class="sec-num">06</span><h2>三句话记住这份招股书</h2></div>
   <div class="insights">
     <div class="insight">
-      <span class="fig">31×</span>
-      <h4>增速：五个季度，不是五年</h4>
-      <p>Q1 2025 $3.76 亿 → Q2 2026 $115.6 亿。且增速在 2026 年二次加速（环比 +132% / +144%），而不是递减。</p>
+      <span class="fig">45×</span>
+      <h4>增速：六个季度，不是六年</h4>
+      <p>Q1 2025 $3.76 亿 → Q3 2026 $169.5 亿。2026 年先二次加速（+132% / +144%），Q3 又回落到 +47%——增长仍在，但斜率已经换了档。</p>
     </div>
     <div class="insight">
       <span class="fig">900%</span>
@@ -324,25 +346,25 @@
     <div class="insight">
       <span class="fig">85%</span>
       <h4>毛利：两年走完别人十年的路</h4>
-      <p>2024 年毛利 -95%（推理倒挂）→ 2026 H1 85.4%（Note 8 推导）。但别把渠道费从毛利里扣——它走销售费用；真正吞利润的是研发，占营收 59.8%。</p>
+      <p>2024 年毛利 -95%（推理倒挂）→ 2026 前三季约 85%（Note 8 推导）。但别把渠道费从毛利里扣——它走销售费用；真正吞利润的是研发（H1 占营收 59.8%），Q3 则是短期高价算力把经营利润重砸回负值。</p>
     </div>
   </div>
   <div class="callout" style="margin-top:14px">
-    <strong>但风险不在毛利表里：</strong>S-1 逐份列明的具名算力合同合计 <b>$6,370 亿</b>（Google $1,145 亿 / Amazon $1,100 亿 / Microsoft $449 亿 / SpaceXAI 至多 $1,205 亿 / Nscale $446 亿 / Lambda $413 亿 / Broadcom 租金 $1,612 亿，逐项相加可验算），直线摊销约 <b>$1,145 亿/年</b>。注意三点：不可与额外 TPU 估算（$1,250–1,500 亿）及 AMD（>$200 亿）相加；并非全部 take-or-pay（SpaceXAI 部分可 90 天取消、Nscale/Lambda 按交付计费）；若增速放缓，刚性部分会从「护城河」变成「固定成本」。
+    <strong>但风险不在毛利表里：</strong>S-1/A 披露的采购合同与租约<b>合计承诺约 $8,954 亿</b>（截至 2026.09.30，绝大部分为算力与基础设施，期限延伸至 <b>2045 年</b>）：其中约 $4,475 亿于 2030 年底前到期，$698 亿在 2026.09.30 之后的 12 个月内到期。半年内这个数字从 $5,870 亿（6 月末：最低采购承诺 $2,656 亿 + 已签未启用租约 $3,214 亿）增到 $8,954 亿，等于<b>九个月营收的 27 倍</b>。注意三点：此数为「全部承诺」合计口径，不再与早前逐笔列名拆解（如 $6,370 亿）并列相加；绝大部分为刚性承诺（最低采购量，用不用都要付），而收入端是按量计费、无锁定的；若增速放缓，刚性部分会从「护城河」变成「固定成本」。
   </div>
 </section>
 
 <footer>
   <strong>数据来源与口径</strong>
   <ol>
-    <li>SEC Form S-1（Anthropic, PBC，2026-10-26 递交）— <a href="https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm">EDGAR 原文</a>；官方公告（代码 ANT）— <a href="https://www.anthropic.com/news/s1-sec">anthropic.com/news/s1-sec</a></li>
-    <li>Aardvark Labs S-1 Analysis（<b>含逐字原文引文与逐笔金额，本文“原文口径”的主要依据</b>）— <a href="https://research.aardvarklabs.co/research/ant/earnings/2026-s1/ant-2026-s1-analysis">链接</a>：列报变更原文、Note 8 成本收入、费用性质表、算力承诺逐笔条款、客户分层轨迹、9 月季度 86 倍关系</li>
-    <li>Tim Schipper《The price cut was never a discount》— <a href="https://tim-schipper.nl/en/blog/llm-price-cuts-anthropic-s1">链接</a>（Note 8 成本收入与毛利率推导）</li>
-    <li>Reuters（2026.09.29）、The VC Corner、MangoThrive：渠道金额与数据聚合</li>
+    <li>SEC Form S-1/A（Anthropic, PBC，<b>2026-11-02 修正案，含至 2026-09-30 财报</b>）— <a href="https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm">EDGAR 原文</a>；原始 S-1（2026-10-26）— <a href="https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm">链接</a>；官方公告（代码 ANT）— <a href="https://www.anthropic.com/news/s1-sec">anthropic.com/news/s1-sec</a></li>
+    <li>Aardvark Labs S-1 Analysis（<b>含逐字原文引文与逐笔金额，本文“原文口径”的主要依据</b>）— <a href="https://research.aardvarklabs.co/research/ant/earnings/2026-s1/ant-2026-s1-analysis">链接</a>：列报变更原文、Note 8 成本收入、费用性质表、客户分层轨迹</li>
+    <li>Luminix《Anthropic Revenue and Burn Rate: Q3 2026 S-1 Numbers》— <a href="https://www.useluminix.com/reports/company-overviews/anthropic-revenue-and-burn-rate">链接</a>（Q3 经营损益、算力 $98.6 亿、9 个月收入结构与承诺到期结构、$1,260 亿经营亏损桥接到 $1,040 亿净亏损）</li>
+    <li>CNBC（2026.11.02）修正案首发报道 — <a href="https://www.cnbc.com/2026/11/02/anthropic-ant-s-1-quarter-financials.html">链接</a>；Tim Schipper《The price cut was never a discount》（Note 8 毛利率推导）；Reuters / Bloomberg：渠道金额、到期结构与估值区间</li>
   </ol>
   <p style="margin-top:14px">
-    ⚠️ EDGAR 对程序化访问全局返回 403（原始 URL、/ix 视图、data.sec.gov、R 财务页、Wayback 均已实测不可达），本文“原文口径”经上述<b>含逐字引文与逐笔金额的逐页拆解</b>重建，并做过交叉验算：成本收入 2,380 ÷ 营收 16,286 = 14.6% → 毛利率 85.4%（各期均自洽）；算力承诺逐项相加 = 6,370 亿 与 S-1 总数吻合。<br>
-    配套文档：<a href="general_intro.md">general_intro.md</a>（完整公司分析）· 最后更新：2026-10-29
+    ⚠️ EDGAR 对程序化访问全局返回 403（原始 URL、/ix 视图、data.sec.gov、R 财务页、Wayback 均已实测不可达），本文“原文口径”经上述<b>含逐字引文与逐笔金额的逐页拆解</b>重建，并做过交叉验算：33,240 − 16,286 = 16,954（Q3 营收），−1,260 −(−693) = −567（Q3 经营损益），两者均与 CNBC / Luminix 一致；9 个月毛利率约 85% 与 H1 85.4% 自洽；承诺 $8,954 亿 经 CNBC 与 Bloomberg 双源确认。部分 Q3 细分项（如单季成本收入金额）原文未在可读节选内，已在表内标 * 注明为推导值。<br>
+    配套文档：<a href="general_intro.md">general_intro.md</a>（完整公司分析）· 最后更新：2026-11-03
   </p>
 </footer>
 
@@ -373,6 +395,7 @@
     }
     var step=iw/data.length, bw=Math.min(66,step*0.54);
     var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" preserveAspectRatio="xMidYMid meet">';
+    if(o.title){ s+='<title>'+o.title+'</title>'; }
 
     var gridVals = o.grid || [];
     gridVals.forEach(function(gv){
@@ -380,6 +403,11 @@
       s+='<line x1="'+padL+'" y1="'+yy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yy.toFixed(1)+'" stroke="#eee9e2" stroke-width="1"/>';
       s+='<text x="'+(padL-10)+'" y="'+(yy+4).toFixed(1)+'" text-anchor="end" font-size="11" fill="'+INK3+'">'+o.gridFmt(gv)+'</text>';
     });
+    if(o.ref){
+      var ry=y(o.ref.v);
+      s+='<line x1="'+padL+'" y1="'+ry.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+ry.toFixed(1)+'" stroke="#c9beb2" stroke-dasharray="5 4"/>';
+      s+='<text x="'+(padL+6)+'" y="'+(ry-6).toFixed(1)+'" text-anchor="start" font-size="11" fill="'+INK2+'">'+o.ref.label+'</text>';
+    }
 
     data.forEach(function(d,i){
       var cx=padL+step*i+step/2;
@@ -409,6 +437,7 @@
     function Y(v){ return padT+ih*(1-(v-lo)/(hi-lo)); }
     function X(i){ return padL+step*i+step/2; }
     var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" preserveAspectRatio="xMidYMid meet">';
+    if(o.title){ s+='<title>'+o.title+'</title>'; }
 
     (o.grid||[]).forEach(function(gv){
       var yy=Y(gv);
@@ -446,6 +475,7 @@
     var hi=Math.log10(Math.max.apply(null,vals)*1.5);
     function X(v){ return padL+iw*(Math.log10(v)-lo)/(hi-lo); }
     var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" preserveAspectRatio="xMidYMid meet">';
+    if(o.title){ s+='<title>'+o.title+'</title>'; }
     (o.marks||[]).forEach(function(m){
       var x=X(m.v);
       s+='<line x1="'+x.toFixed(1)+'" y1="'+padT+'" x2="'+x.toFixed(1)+'" y2="'+(padT+data.length*rowH)+'" stroke="#eee9e2"/>';
@@ -470,12 +500,14 @@
     {label:'25Q3', v:1382,  vLabel:'1,382'},
     {label:'25Q4', v:2040,  vLabel:'2,040'},
     {label:'26Q1', v:4731,  vLabel:'4,731'},
-    {label:'26Q2', v:11555, vLabel:'11,555', hi:true}
+    {label:'26Q2', v:11555, vLabel:'11,555'},
+    {label:'26Q3', v:16954, vLabel:'16,954', hi:true}
   ];
 
   bar(document.getElementById('chart-quarter'), quarters, {
-    h:330, max:12600,
-    grid:[0,3000,6000,9000,12000],
+    title:'季度营收（百万美元）：2024 Q4 至 2026 Q3，26Q3 为 S-1/A 实披露值',
+    h:330, max:18500,
+    grid:[0,5000,10000,15000],
     gridFmt:function(v){ return v===0?'0':'$'+v/1000+'B'; }
   });
 
@@ -485,8 +517,10 @@
     {label:'25Q3', v:76,  vLabel:'+76%'},
     {label:'25Q4', v:48,  vLabel:'+48%'},
     {label:'26Q1', v:132, vLabel:'+132%'},
-    {label:'26Q2', v:144, vLabel:'+144%'}
+    {label:'26Q2', v:144, vLabel:'+144%'},
+    {label:'26Q3', v:47,  vLabel:'+47%'}
   ], {
+    title:'季度营收环比增速（%）：Q2 见顶 +144% 后回落至 +47%',
     h:280, min:0, max:170,
     grid:[0,50,100,150],
     gridFmt:function(v){ return v+'%'; }
@@ -496,11 +530,25 @@
     {label:'2023', v:41,    vLabel:'$41M'},
     {label:'2024', v:386,   vLabel:'$386M'},
     {label:'2025', v:4585,  vLabel:'$4.59B'},
-    {label:'2026 H1', v:16286, vLabel:'$16.3B', hi:true, sub:'仅半年'}
+    {label:'2026 9M', v:33240, vLabel:'$33.2B', hi:true, sub:'仅 9 个月'}
   ], {
+    title:'年度营收（对数刻度，百万美元）：每年约一个数量级，2026 为前三季',
     h:350, padB:76, log:true,
     grid:[100,1000,10000],
     gridFmt:function(v){ return v>=1e6?('$'+(v/1e6)+'T'):(v>=1000?('$'+(v/1000)+'B'):('$'+v+'M')); }
+  });
+
+  bar(document.getElementById('chart-annual-linear'), [
+    {label:'2023', v:41,    vLabel:'$41M'},
+    {label:'2024', v:386,   vLabel:'$386M'},
+    {label:'2025', v:4585,  vLabel:'$4.59B'},
+    {label:'2026 9M', v:33240, vLabel:'$33.2B', hi:true, sub:'仅 9 个月'}
+  ], {
+    title:'年度营收（线性刻度，百万美元）：虚线为 2025 全年水位，2026 为前三季',
+    h:350, padB:76, max:36000,
+    grid:[0,10000,20000,30000],
+    gridFmt:function(v){ return v===0?'0':('$'+v/1000+'B'); },
+    ref:{v:4585, label:'2025 全年 $4.59B'}
   });
 
   line(document.getElementById('chart-gm'), [
@@ -508,8 +556,9 @@
     {label:'2025 H1', v:12.4, vLabel:'12.4%'},
     {label:'2025', v:39.5,  vLabel:'39.5%'},
     {label:'2026 H1', v:85.4, vLabel:'85.4%'},
-    {label:'2026 Q3', v:85,  vLabel:'85%'}
+    {label:'2026 9M', v:85,  vLabel:'约 85%'}
   ], {
+    title:'毛利率（Note 8 推导，%）：2024 年 -95% → 2026 年约 85% 平台期',
     h:320, min:-110, max:100,
     grid:[-100,-50,0,50,100],
     gridFmt:function(v){ return v+'%'; }
@@ -521,8 +570,10 @@
     {label:'25Q3', v:148, vLabel:'148%'},
     {label:'25Q4', v:144, vLabel:'144%'},
     {label:'26Q1', v:72,  vLabel:'72%'},
-    {label:'26Q2', v:48,  vLabel:'48%', hi:true}
+    {label:'26Q2', v:48,  vLabel:'48%'},
+    {label:'26Q3', v:58,  vLabel:'58%', hi:true}
   ], {
+    title:'算力与基础设施支出占营收比（总额口径，%）：2026 Q3 回升至 58%',
     h:286, max:280,
     grid:[0,70,140,210,280],
     gridFmt:function(v){ return v+'%'; }
@@ -534,6 +585,7 @@
     {label:'年付 ≥ $10 万',    v:11900,   vLabel:'超 11,900 家', hi:true},
     {label:'年付 < $10 万',    v:40000000, vLabel:'约 4,000 万'}
   ], {
+    title:'客户金额分层（对数刻度）：约 4,000 万长尾 + 超 1.19 万家 $10 万+ 客户',
     marks:[
       {v:100,    label:'100'},
       {v:1000,   label:'1 千'},
@@ -548,8 +600,10 @@
     {label:'2023', v:11, vLabel:'11%'},
     {label:'2024', v:32, vLabel:'32%'},
     {label:'2025', v:47, vLabel:'47%'},
-    {label:'2026 H1', v:48, vLabel:'48%'}
+    {label:'2026 H1', v:48, vLabel:'48%'},
+    {label:'2026 9M', v:44, vLabel:'44%'}
   ], {
+    title:'云市场渠道收入占比（%）：Amazon / Google / Microsoft 三家口径',
     h:280, min:0, max:60,
     grid:[0,20,40,60],
     gridFmt:function(v){ return v+'%'; }

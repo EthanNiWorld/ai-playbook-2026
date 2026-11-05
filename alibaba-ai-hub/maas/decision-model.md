@@ -1,13 +1,13 @@
 # 百炼决策模型（decision-model-preview）
 
-> 最后更新: 2026-10-09
+> 最后更新: 2026-11-03
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 > 状态: Published
 
 <!-- SUMMARY_START -->
 **定位**: 面向高频业务判断的结构化决策模型（预览版）——一次前向并行返回分类（choice）/是非判断（noul）/评分（score）及概率分布与置信度，**不生成文本**，延迟与成本与输出长度无关
-**当前主推**: decision-model-preview（2026.09.24 上线，API 全量开放，限时免费）
+**当前主推**: decision-model-preview（2026.09.24 上线，API 全量开放）
 **适用**: 工单分流、内容审核、智能体路由、质检评分、Agent 编排的"判断原语"（Router / Guardrail / Reviewer 节点）
 **不适用**: 需要校准概率的量化决策、需要生成解释/理由、多跳推理、存量标准端点系统（决策模型仅支持 workspace 专属域名）
 <!-- SUMMARY_END -->
@@ -18,7 +18,7 @@
 
 | 模型 | 定位 | 输入上限 | 特点 | 推出时间 |
 |------|------|--------|------|----------|
-| **decision-model-preview** 🚩 | 结构化决策（非生成） | 65,536 tokens | System One 协议；choice/noul/score 一次前向并行返回；P50 51ms（约 qwen3.7-plus 的 1/25）；限时免费 | 2026.09.24 |
+| **decision-model-preview** 🚩 | 结构化决策（非生成） | 65,536 tokens | System One 协议；choice/noul/score 一次前向并行返回；P50 51ms（约 qwen3.7-plus 的 1/25） | 2026.09.24 |
 
 ### decision-model-preview
 
@@ -27,7 +27,7 @@
 - **模型 ID**：`decision-model-preview`（预览版），2026-09-24 上线，API 全量开放
 - **协议**：System One（`POST /compatible-mode/v1/systemone`），**不兼容 chat/completions**
 - **能力**：一次前向并行返回 choice（分类）/ noul（是非判断）/ score（评分）及概率分布与置信度；不生成文本，延迟与成本与输出长度无关（官方口径）
-- **限流**：RPM 1,200 / TPM 2,000,000（北京与新加坡相同）；**限时免费**（两节点均免费，支持 Token Plan）
+- **限流**：RPM 1,200 / TPM 2,000,000（北京与新加坡相同）
 - **不支持**：Function Calling / 流式 / 联网 / 缓存
 - **参数边界**：问题数不设上限（建议 ≤16，延迟近线性：实测 3 问 56ms → 16 问 103ms）；choice 选项 ≤255；score 等级 2-255（建议 3-7）
 
@@ -110,7 +110,7 @@
 > 来源：TypeSafe 官方发布博客、[tonybai 拆解](https://tonybai.com/2026/09/20/jev-typesafe-system-one-model-intro/)、[LiteLLM 文档](https://docs.litellm.ai/docs/decisions)（百炼官方文档明示协议名 "TypeSafe System One" 并推荐 typesafe-sdk）
 
 - 硅谷 AI 实验室 **TypeSafe AI** 于 2026-09-20 发布首个 "System One 模型" **Jev**（创始人 Diogo Almeida，前 OpenAI，ChatGPT 指令对齐技术奠基人之一），开创"**非自回归决策模型**"新类别：不生成文本、同一 state 下所有 questions 并行独立评估、一次前向输出全部概率分布；训练方法为 **RLCD**（面向校准决策的强化学习，优化目标 = 概率与真实结果匹配），区别于 LLM 的 RLHF/RLVR；Jev 定价输入 $0.042/M token、输出免费、70-500ms
-- **时间线**：TypeSafe Jev（09-20，开创）→ **百炼 decision-model-preview（09-24，接入 System One 协议 + TypeSafe SDK 生态，限时免费）** → [OpenAI Decisions API（09-29/30 DevDay，GPT-6 Luna，limited preview）](../../knowledge/openai/gpt-6-series.md)——三大玩家 10 天内完成品类卡位；LiteLLM 已同时支持 /v1/systemone 与 /v1/decisions
+- **时间线**：TypeSafe Jev（09-20，开创）→ **百炼 decision-model-preview（09-24，接入 System One 协议 + TypeSafe SDK 生态）** → [OpenAI Decisions API（09-29/30 DevDay，GPT-6 Luna，limited preview）](../../knowledge/openai/gpt-6-series.md)——三大玩家 10 天内完成品类卡位；LiteLLM 已同时支持 /v1/systemone 与 /v1/decisions
 - **是否基于 LLM 改的**：不是"chat LLM + 配置"，而是新模型类别（共享 tokenizer/transformer 底层特征：token 计量、65536 输入上限、TPM 限流；但去掉自回归解码循环，输出为类型化概率而非文本，训练目标为校准）。百炼未披露底座是否与 Qwen 同源及参数规模；与 TypeSafe 的合作/授权关系亦未披露，仅确认协议与 SDK 接入
 - **与三种易混方案的本质差异**：① response_format 结构化输出：仍走 chat 协议 + 自回归生成，只保证格式合法，不改变延迟/成本结构；② BERT 类微调分类器：固定线性分类头，标签变更需重训；System One 标签在请求时动态定义，零样本即改即生效；③ 小模型+prompt+JSON 解析：延迟/稳定性/概率校准均不可比（实测 25× 延迟差）
 - **生态已跟进**：LangChain TypeSafeClassifier / ModelRouterMiddleware / AutoModeMiddleware（工具风险拦截）、Vercel AI SDK experimental_evaluate——多供应商路径存在，客户无强 lock-in 顾虑
@@ -131,7 +131,7 @@
 | 玩家 | 产品 | 时间 | 状态 |
 |------|------|------|------|
 | TypeSafe AI | Jev（首个 System One 模型，RLCD） | 2026-09-20 | GA（输入 $0.042/M，输出免费，70-500ms） |
-| 阿里云百炼 | decision-model-preview | 2026-09-24 | **API 全量开放 + 限时免费**，早 OpenAI 约一周且开放度更高 |
+| 阿里云百炼 | decision-model-preview | 2026-09-24 | **API 全量开放**，早 OpenAI 约一周且开放度更高 |
 | OpenAI | Decisions API（基于 GPT-6 Luna） | 2026-09-29/30 DevDay | limited preview，未公布定价 |
 
 两大厂商同一周内各自产品化"LLM 判别器"形态，是行业共识信号：**高频结构化决策正从 chat API 的附属用法升级为独立产品形态**。
@@ -152,4 +152,5 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-03 | 校验修复（knowledge-verification-2026-11-03）：营销口径收敛——「限时免费」为当前官方事实，仅在定价表与风险说明保留；删除 SUMMARY、主推表、限流行、架构时间线、竞品表及 index.md 中的宣传式重复，改为客观能力描述 |
 | 2026-10-09 | 新建文档，提炼自 inbox 素材（含 2026-10-09 实测）：基本信息与限流（限时免费/1200 RPM/200 万 TPM）、端点实测（仅 workspace 域名、标准端点 404）、性能实测（P50 51ms ≈ qwen3.7-plus 1/25）、三个行为坑（other 吸分类/主观维度 one-hot/误用不报错）、架构溯源（TypeSafe System One + RLCD + 三方时间线）、logit trick 三层机制拆解、竞品对照 |

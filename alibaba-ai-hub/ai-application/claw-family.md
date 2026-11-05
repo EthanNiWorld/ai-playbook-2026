@@ -1,6 +1,6 @@
 # 阿里云"龙虾家族" AI Agent 产品全景
 
-> 最后更新: 2026-05-27
+> 最后更新: 2026-11-05
 > 所属厂商: 阿里云
 > 产品类别: AI App
 > 状态: Published
@@ -10,10 +10,10 @@
 **适用**: 企业级 AI Agent 构建、多 Agent 协作、数据库 AI 操作、Agent 云端执行环境
 **不适用**: 纯模型推理（无 Agent 编排需求）、对 OpenClaw 无依赖的自研 Agent 框架
 **竞品**: Claude Managed Agents（Anthropic）、Copilot Studio（Microsoft）
-**常搭配**: 百炼大模型（qwen3.7-plus / DeepSeek-V4）、无影 AgentBay、钉钉/飞书
+**常搭配**: 百炼大模型（qwen3.8-max / qwen3.8-27b / qwen3.8-flash / DeepSeek-V4.1-Flash-1017）、无影 AgentBay、钉钉/飞书
 <!-- SUMMARY_END -->
 
-> ⚠️ 素材截止：2026-05-27，含 3 项未填充项，使用前请验证。
+> ⚠️ 产品矩阵素材截止：2026-05-27；**底座模型信息已于 2026-11-05 统一换代更新**（Qwen3.8 代 + DeepSeek V4.1 代）。产品矩阵部分使用前仍需验证。
 
 ## 产品清单
 
@@ -123,42 +123,60 @@
 
 ## 底座模型选型建议
 
-龙虾家族默认搭配百炼 qwen3.7-plus，但在**多 Agent 协作 / 复杂 Agentic Coding** 场景下，DeepSeek-V4 是值得评估的另一个选项。
+龙虾家族默认搭配百炼 Qwen 系列；在**多 Agent 协作 / 复杂 Agentic Coding** 场景下，DeepSeek V4 代（V4.1-Flash-1017 / V4-Pro GA）是值得评估的另一个选项。
+
+> 本节模型信息已于 2026-11-05 统一换代（Qwen3.8 代 + DeepSeek V4.1 代）；定价口径为百炼国际站新加坡节点 USD 列表价，详见 [qwen.md](../maas/qwen.md) 与 [deepseek-v-series.md](../../knowledge/deepseek/deepseek-v-series.md)。
+
+### 当前可选底座（2026-11 在售）
+
+| 底座模型 | 定位 | 上下文 | 新加坡 USD（输入/输出） | 龙虾场景适配 |
+|------|------|:---:|------|------|
+| **Qwen3.8-Max** | 旗舰（文本+图像），2.4T MoE | 1M | $2 / $6（缓存命中 $0.25） | 默认首选：复杂推理 + 重度编码 + 长程 Agent；TB 2.1 86.6、SWE-Pro 67.7 |
+| **Qwen3.8-27B** | 开源 Dense 视觉语言（GUI/视觉场景） | 262K | $0.5 / $3（北京 $0.424/$1.696） | GUI/CLI 操作 + 视觉编码首选：27B Dense 原生视觉，混合思考可关闭（实测） |
+| **Qwen3.8-Flash** | 轻量快速（Next 新架构） | 1M | $0.15 / $0.47 | 高并发轻量 Agent：TPM 5M，OpenAI + Anthropic 双协议（可直接接 Claude Code） |
+| **DeepSeek-V4.1-Flash-1017** | 开源 Agent 专精，552B MoE（Prefill 8B / Decode 16B 激活） | 1M | 闲时 $0.15 / $0.6，峰时 $0.3 / $1.2 | 多 Agent 协作主力：DeepSWE 77.0、reasoning_effort 连续 1~100、并发额度 2500 |
+| **DeepSeek-V4-Pro GA** | 全能旗舰，1.6T MoE（49B 激活） | 1M | 闲时 $0.66 / $1.98，峰时 $1.32 / $3.96 | 质量优先的生产 Agent：TB 2.1 87.9（厂商自报）、HLE w/ tools 60.0 |
+
+> Qwen3.7-Plus（2026-11-05 已退出主推，GUI/视觉改选 3.8-27B）/ Qwen3.7-Max / Qwen3.7-Flash / DeepSeek-V4-Flash（0731 快照）/ DeepSeek-V3.2 均为已换代、已下线或已退出主推的模型，不列入底座候选。
 
 ### DeepSeek V4 作为底座的依据
 
-DeepSeek 官方发布页明确点名 OpenClaw 集成：
+DeepSeek V4 官方发布页明确点名 OpenClaw 集成：
 
 > *"DeepSeek-V4 is seamlessly integrated with leading AI agents like Claude Code, **OpenClaw** & OpenCode."*  
 > — https://api-docs.deepseek.com/news/news260424
 
-这意味着 V4 在设计阶段就以 OpenClaw 为集成目标，并非事后适配。
+这意味着 V4 在设计阶段就以 OpenClaw 为集成目标，并非事后适配。该口径产生于 V4 代发布时；V4.1 代（2026-09-10 起的 CED 新架构）官方公告未再逐一点名第三方 Agent 网关，但 MIT 开源 + OpenAI 兼容协议保持不变，接入路径不受影响。
 
-### V4 vs V3.2：龙虾场景下的关键差异
+### V4.1-Flash vs V4-Pro：龙虾场景下的关键差异
 
-| 能力项 | V3.2 | V4-Pro | 对龙虾场景的意义 |
+| 能力项 | V4.1-Flash-1017 | V4-Pro GA | 对龙虾场景的意义 |
 |------|:---:|:---:|------|
-| 跨 user turn 推理保留 | ✘ 新 user message 清空 | ✔ 含工具调用场景保留 | HiClaw Manager-Worker 多轮调度不丢失状态 |
-| 工具调用格式 | JSON-in-string | `\|DSML\|` + XML schema | OpenClaw Skills function call 解析错误率下降 |
-| 1M 上下文 FLOPs | 100% 基准 | 27% | 长 Agent 链路推理成本下降 |
-| KV Cache | 100% 基准 | 10% | 多 Agent 并发记忆压力减小 |
-| Agentic Coding（SWE Verified）| 未专项标注 | 80.6（近 Opus 4.6-Max 80.8）| PolarClaw SQL 生成 / 代码调优任务准确率提升 |
+| 模型结构 | CED 非对称 MoE（552B，输入 8B / 输出 16B 激活） | 1.6T MoE（49B 激活） | Flash 以更低单 token 成本承载高频 worker 调用 |
+| 跨 user turn 推理保留 | ✔（继承 V4 代） | ✔ 含工具调用场景保留 | HiClaw Manager-Worker 多轮调度不丢失状态 |
+| 工具调用格式 | `\|DSML\|` + XML schema（沿用 V4 代） | `\|DSML\|` + XML schema | OpenClaw Skills function call 需适配层 |
+| 思考控制 | reasoning_effort 连续 1~100（low=50 / high=75 / max=100） | 三级 low / high / max | Flash 可停在 60~80 档，省近一半 token 预算 |
+| 原生视觉 | ✔ 单模型直吃图 | 未标注（视觉需独立 vision 版） | 端侧 Agent 免接视觉子模型 |
+| 最大输出 | 384K | 384K | 长报告 / 长代码输出无截断 |
+| 关键基准 | TB 4.0 42.3、DeepSWE 77.0、HLE 42.6 | TB 2.1 87.9、DeepSWE 62.7、HLE w/ tools 60.0 | ⚠️ TB 4.0 与 TB 2.1 为不同 harness 版本，分数不可直接比较 |
+| 并发额度 | 2500 | 500 | 多 Agent 扇出时 Flash 并发上限是 Pro 的 5 倍 |
+| 许可 | MIT 开源 | 未明示 | Flash 可私有化部署，适配企业内网 Agent |
 
 ### 各产品底座选型建议
 
 | 龙虾产品 | 场景特征 | 底座选型建议 |
 |------|------|------|
-| **HiClaw**（Manager-Worker 多 Agent）| 多轮任务拆解 + 跨并发 worker 调度，跨 turn 推理要求高 | 优先 V4；V3.2 仅适合单轮任务 |
-| **百炼龙虾**（OpenClaw 原版托管）| 官方金标准集成路径 | V4 官方点名 OpenClaw，默认选 V4 |
-| **PolarClaw**（数据库 + 通用 AI 助理）| SQL 生成 / 调优是 Agentic Coding 子集 | V4-Pro（SWE Verified 80.6，内部 R&D Coding 67% > Sonnet 4.5 的 47%）|
-| **QwenPaw**（150MB 超轻量）| 个人设备低资源场景 | 与底座模型解耦，调用远端 API；V4-Flash 更经济 |
+| **HiClaw**（Manager-Worker 多 Agent）| 多轮任务拆解 + 跨并发 worker 调度 | 分层切换：Manager 用 Qwen3.8-Max 或 V4-Pro GA（决策质量优先）；Worker 用 V4.1-Flash-1017 或 Qwen3.8-Flash（并发额度 2500 + 成本可控） |
+| **百炼龙虾**（OpenClaw 原版托管）| 官方金标准集成路径 | 默认 Qwen3.8-Max；OpenClaw 生态深度用户可评估 V4.1-Flash-1017（V4 代官方点名 OpenClaw 集成，MIT 开源） |
+| **PolarClaw**（数据库 + 通用 AI 助理）| SQL 生成 / 调优是 Agentic Coding 子集 | Qwen3.8-Max（SWE-Pro 67.7）或 V4-Pro GA（GA 版 DeepSWE 62.7；早期 SWE Verified 80.6 为 Preview 口径）|
+| **QwenPaw**（150MB 超轻量）| 个人设备低资源场景 | 与底座模型解耦，调用远端 API；Qwen3.8-Flash 或 V4.1-Flash-1017（闲时 $0.15/$0.6，最经济） |
 | **无影 AgentBay**（基础设施层）| 仅提供运行环境 | 与底座模型选型无关 |
 
-### 未解决问题
+### 已解决与待验证
 
-- **百炼上架状态**：DeepSeek-V4 是否已在百炼平台上架、可否作为龙虾家族底座切换 — 待查 [⚠️ 待验证]
-- **Function call 格式兼容性**：OpenClaw Skills 默认 JSON 格式与 V4 DSML XML 格式的适配层实现 — 待查 [⚠️ 待验证]
-- **许可与计费路径**：V4 在龙虾产品中是合同内额度调用还是需要额外计费 — 待查 [⚠️ 待验证]
+- ✅ **百炼上架状态**（原待验证）：DeepSeek-V4.1-Flash 与 V4-Pro 均已在百炼上架可调——V4.1-Flash 覆盖北京/新加坡/US-Virginia 多节点（Responses API 仅北京+新加坡），V4-Pro 走百炼 US/新加坡节点 — 2026-11-05 关闭
+- **Function call 格式兼容性**：OpenClaw Skills 默认 JSON 格式与 V4 代 DSML XML 格式的适配层实现 — 待查 [⚠️ 待验证]
+- **许可与计费路径**：V4.1-Flash 为 MIT 开源、百炼按峰谷分段 token 计费；在龙虾产品中走合同内额度还是独立计费仍为商务口径 — 待查 [⚠️ 待验证]
 
 ## 参考资料
 
@@ -172,6 +190,11 @@ DeepSeek 官方发布页明确点名 OpenClaw 集成：
 - [无影 AgentBay 安全白皮书](https://help.aliyun.com/zh/agentbay/agentbay-security-white-paper)
 - [DeepSeek-V4 官方发布页](https://api-docs.deepseek.com/news/news260424) — V4 与 OpenClaw 集成说明
 - [HuggingFace DeepSeek-V4 技术分析](https://huggingface.co/blog/deepseekv4) — V3.2 跨 turn 推理缺陷与 V4 修复
+- [DeepSeek V4.1-Flash-1017 发布公告](https://api-docs.deepseek.com/zh-cn/news/news261017) — 2026-10-17 最新快照，reasoning_effort 连续 1~100
+- [DeepSeek V4.1-Flash 发布公告](https://api-docs.deepseek.com/zh-cn/news/news260910) — CED 非对称 MoE、原生视觉、KV Cache 压缩
+- [百炼 DeepSeek 模型文档](https://www.alibabacloud.com/help/en/model-studio/deepseek-api) — 在售节点、reasoning_effort 映射、峰谷定价
+- [Qwen3.8-Max / 3.8-Flash 主推与定价](../maas/qwen.md) — 百炼 Qwen 当前主推模型口径
+- [DeepSeek V 系列文档](../../knowledge/deepseek/deepseek-v-series.md) — V4 代内部对比与完整基准
 
 ## Changelog
 | 日期 | 变更内容 |
@@ -179,3 +202,4 @@ DeepSeek 官方发布页明确点名 OpenClaw 集成：
 | 2026-04-23 | 初始创建，基于 龙虾家族产品分析对话记录（2026-04-23） |
 | 2026-05-27 | 合并 ai-native-expert 沉淀：新增「底座模型选型建议」章节，含 DeepSeek V4 vs V3.2 在龙虾场景下的关键差异与各产品选型推荐 |
 | 2026-06-09 | 修正：常搭配底座模型从 qwen3.6-plus 更新为 qwen3.7-plus |
+| 2026-11-05 | 底座模型信息统一换代：Qwen3.7 系列 → Qwen3.8 代（Max/27B/Flash，**Qwen3.7-Plus 同日退出主推**，仅存量在售）；DeepSeek-V4 → V4.1-Flash-1017 / V4-Pro GA；新增「当前可选底座」表（新加坡 USD 定价）、V4.1-Flash vs V4-Pro 对比表（替换原 V3.2 vs V4-Pro）、各产品选型表按 Manager/Worker 分层重写；「百炼上架状态」待验证项关闭（V4.1-Flash / V4-Pro 均已在售）；SUMMARY 常搭配与素材截止说明同步 |

@@ -1,13 +1,13 @@
-# MiMo-V2.6 系列（小米）
+# MiMo 系列（小米）
 
-> 最后更新: 2026-10-19
+> 最后更新: 2026-11-03
 > 所属厂商: 小米（Xiaomi MiMo）
 > 产品类别: MaaS
 > 状态: Published
 
 <!-- SUMMARY_START -->
 **定位**: 小米原生全模态开源 MoE 系列，以「规模化强化学习 + 极致 token 效率 + MIT 开源」为差异化，官方叙事为"Scaling RL Towards Self-Improvement"
-**当前主推**: MiMo-V2.6-Pro（旗舰，1.02T/42B）/ MiMo-V2.6-Flash（走量高效，309B/15B，1M 上下文，$0.14/$0.28）
+**当前主推**: MiMo-V2.6-Pro（旗舰，1.02T/42B，$0.435/$0.87）/ MiMo-V2.6-Flash（走量高效，309B/15B，1M 上下文，$0.14/$0.28）；强实时场景另有 Pro-UltraSpeed（20× 速度 / 10× 价格）
 **适用**: agentic 工作流（可重试、成功标准宽松）、多模态长文档/长视频理解、私有化部署（172.9GB FP8）、高并发批处理
 **不适用**: 知识问答与事实核查（AA-Omniscience −13）、低延迟交互（TTFT 5.19s / 50 tok/s）、高价值安全任务（弱于 Pro 约 3 倍）
 <!-- SUMMARY_END -->
@@ -18,7 +18,7 @@
 |------|------|--------|------|----------|
 | **MiMo-V2.6-Pro** 🚩 | 旗舰、能力上限 | 1M | 1.02T 总参 / 42B 激活、70 层（60 SWA + 10 全局）、384 路由专家 top-8、5 层 MTP（一次前向预测 7 token） | 2026-09-21/22 |
 | **MiMo-V2.6-Flash** | 走量、高效推理 | 1M | 309B 总参 / 15B 激活、48 层（39 SWA + 9 全局）、256 路由专家 top-8、原生全模态 | 2026-09-21/22 |
-| MiMo-V2.6-Pro-Ultraspeed | [⚠️ 待补充] | [⚠️ 待补充] | 具体规格与定价 [⚠️ 待补充] | 2026-09 |
+| MiMo-V2.6-Pro-UltraSpeed | 高速档、强实时交互 | 1M | 保留 Pro 旗舰性能，输出速度最高 20×；定价为 Pro 的 10×（$4.35/$8.7）；RPM/TPM 预置配额（扩容需联系官方） | 2026-09 |
 
 > 📌 **发布口径**：权重 2026-09-21 上线 Hugging Face（与 Pro 相隔 18 秒），官方博客 09-22 发布；本表取官方发布日。
 > 📌 **历史模型**：MiMo V2.5 全系仍被 Token Plan 覆盖，具体型号与规格本素材未提供，[⚠️ 待补充]。
@@ -48,7 +48,9 @@
 - **上下文 / 输出**：1M / 128K tokens
 - **多模态**：原生全模态
 - **开源**：MIT
-- **定价**：[⚠️ 待补充]
+- **定价**：¥3 输入 / ¥6 输出 / ¥0.025 缓存命中；$0.435 / $0.87 / $0.0036（每百万 tokens，2026-11-03 官方模型页核实）
+- **限额**：RPM 100 / TPM 10M（与 Flash 相同）
+- **官方口径**：AA 综合智能指数 46.32，官方称“当前全球最强开源模型”（官方模型页，2026-11-03）
 - **定位**：错误代价高、部分答案无价值的任务——漏洞利用开发、安全审查、多步状态终端会话
 
 ## 核心能力与限制
@@ -100,10 +102,13 @@
 |------|---------|---------|---------|------|
 | **MiMo-V2.6-Flash**（国内） | ¥1 / 1M | ¥2 / 1M | ¥0.02 / 1M | 按量计费；另有 Token Plan 订阅 |
 | **MiMo-V2.6-Flash**（海外） | $0.14 / 1M | $0.28 / 1M | $0.0028 / 1M | 约为 Pro 的 1/3.1 |
-| **MiMo-V2.6-Pro** | [⚠️ 待补充] | [⚠️ 待补充] | [⚠️ 待补充] | — |
-| MiMo-V2.6-Pro-Ultraspeed | [⚠️ 待补充] | [⚠️ 待补充] | [⚠️ 待补充] | — |
+| **MiMo-V2.6-Pro**（国内） | ¥3 / 1M | ¥6 / 1M | ¥0.025 / 1M | 按量计费；Token Plan 覆盖 |
+| **MiMo-V2.6-Pro**（海外） | $0.435 / 1M | $0.87 / 1M | $0.0036 / 1M | 输入/输出均为 Flash 的约 3.1× |
+| MiMo-V2.6-Pro-UltraSpeed（国内） | ¥30 / 1M | ¥60 / 1M | ¥0.25 / 1M | 为 Pro 的 10×，最高 20× 输出速度 |
+| MiMo-V2.6-Pro-UltraSpeed（海外） | $4.35 / 1M | $8.7 / 1M | $0.036 / 1M | 为 Pro 的 10×；RPM/TPM 预置配额（扩容需联系官方） |
 
-> 定价来源：[官方模型页](https://mimo.mi.com/models/zh-CN/mimo-v2.6-flash)，核实日期 2026-10-19。Token Plan 覆盖 Pro / Flash 及 V2.5 全系。
+> 定价来源：[Flash 官方模型页](https://mimo.mi.com/models/zh-CN/mimo-v2.6-flash)（2026-10-19 核实）、[Pro 官方模型页](https://mimo.mi.com/models/zh-CN/mimo-v2.6-pro)、[UltraSpeed 官方模型页](https://mimo.mi.com/models/zh-CN/mimo-v2.6-pro-ultraspeed)（后两者 2026-11-03 核实）。Token Plan 覆盖 Pro / Flash 及 V2.5 全系。
+> ⚠️ **倍率口径**：V2.6 UltraSpeed 当前官方口径为「最高 20× 输出速度、定价为 Pro 的 10×」；早期 V2.5-Pro-UltraSpeed（2026-06）及百炼第三方页面流传的「10× 提速 / 3× 定价」为历史口径，勿混用。
 
 ## 适用场景
 
@@ -116,6 +121,7 @@
 | 私有化部署 / 数据不出域 | Flash | MIT + 172.9GB FP8，单机 8 卡级 |
 | 高并发批处理 | Flash | RPM 100 / TPM 10M；Token Plan 覆盖高用量 |
 | 漏洞利用开发 / 安全审查 / 多步终端 | Pro | 高价值安全任务与 Flash 差 3 倍（ExploitGym 17.8 vs 6.0） |
+| 强实时交互（量化交易 / 实时风控 / 实时编程辅助） | Pro-UltraSpeed | 官方推荐场景；最高 20× 输出速度，定价为 Pro 的 10× |
 | 成本敏感的模型 × Harness 一体化 | Flash | 与 MiMo Desktop / MiMo Claw 协同调优 |
 
 ### ❌ 不适用
@@ -139,6 +145,8 @@
 ## 参考资料
 
 - [MiMo-V2.6-Flash 官方模型页](https://mimo.mi.com/models/zh-CN/mimo-v2.6-flash)（规格、定价、限额、接入方式）
+- [MiMo-V2.6-Pro 官方模型页](https://mimo.mi.com/models/zh-CN/mimo-v2.6-pro)（定价与配额，2026-11-03 核实）
+- [MiMo-V2.6-Pro-UltraSpeed 官方模型页](https://mimo.mi.com/models/zh-CN/mimo-v2.6-pro-ultraspeed)（20× 速度 / 10× 定价，2026-11-03 核实）
 - [小米 MiMo-V2.6 官方博客](https://mimo.xiaomi.com/mimo-v2-6)（系列发布）
 - [MiMo 官方新闻 / 模型列表](https://mimo.mi.com/docs/zh-CN/news)（训练成本与通过率提升）
 - [arXiv:2610.11959 — MiMo-V2.6: Scaling RL Towards Self-Improvement](https://arxiv.org/abs/2610.11959)（2026-10-08）
@@ -150,4 +158,6 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-03 | 文档名与标题泛化为 MiMo 系列（mimo-series.md），保留 V2.6 当前主推与 V2.5 历史模型口径 |
+| 2026-11-03 | 校验修复（knowledge-verification-2026-11-03）：Pro 定价与配额回填、UltraSpeed 规格回填（20× 速度 / 10× 价格，数值见正文），区分 V2.5/百炼「10× 提速」历史口径；补 Pro 官方 AA 指数 46.32（官方称）；适用场景新增强实时交互行；均官方模型页核实 |
 | 2026-10-19 | 新建文档：从小米 MiMo-V2.6 素材提炼系列知识。覆盖 Pro / Flash / Pro-Ultraspeed 定位、Flash 全量规格（309B/15B、48 层、1M、原生全模态、MIT、$0.14/$0.28）、AA v4.3.2 独立评测（Index 38、$0.06/task、AA-Omniscience −13）、与 GPT-6 Luna / Step 5 的横向对比、RL 方法论（You Only RL Once / GRS / GAR / MOPD2 / 异步 GRPO）与训练成本（Flash 85 万美元 / Pro 262 万美元、6 天、75 万条轨迹）。Pro 定价与 Ultraspeed 规格标注待补充 |

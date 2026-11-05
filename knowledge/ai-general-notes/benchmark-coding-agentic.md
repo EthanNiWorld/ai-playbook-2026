@@ -1,6 +1,6 @@
 # AI Agent Benchmark 三维度评估框架
 
-> 最后更新: 2026-09-17
+> 最后更新: 2026-11-03
 > 领域: AI Engineering / AI Coding
 > 状态: Published
 
@@ -19,7 +19,7 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 | 层级 | Benchmark | 交互方式 | 核心能力 | 典型场景 |
 |------|-----------|----------|----------|----------|
 | 代码层 | SWE-bench Pro | 纯 CLI（读 repo → 生成 patch） | 跨文件代码修改 | AI Coding 工具 |
-| 终端层 | Terminal-Bench 2.1 | CLI 终端（多步命令执行） | 系统操作能力 | DevOps/SRE |
+| 终端层 | Terminal-Bench（当前 4.0） | CLI 终端（多步命令执行） | 系统操作能力 | DevOps/SRE |
 | 图形层 | OSWorld-Verified | GUI 桌面（鼠标/键盘/屏幕理解） | 图形界面操作 | RPA/Computer Use |
 
 三层共享底层能力（长上下文理解 + 工具调用 + 多步规划），交互界面逐层升级。
@@ -59,13 +59,13 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 
 效果：前沿模型 Verified >70%，Pro Public 最高 ~23.3%，Commercial ~17.8%。
 
-### 2. Terminal-Bench 2.1
+### 2. Terminal-Bench
 
 - 提出方：斯坦福大学 CRFM + Laude Institute
 - 核心人物：John Yang 等（SWE-bench 核心贡献者）
 - 定位：评估 AI Agent 在真实终端环境中的操作能力（系统管理、安全、ML 训练等）
 - 内置 canary GUID 检测数据泄漏
-- 当前版本 2.1（基于 2.0 Verified 改进）；3.0 已发布（官网标记 shipped，host 迁移至 frontierbench.ai），2.0/2.1 仍为 active [来源: tbench.ai，2026-08-14 核实]
+- 当前版本 **4.0**（官网首页直接展示，2026-11-03 核实）；历史沿革：2.1 基于 2.0 Verified 改进，3.0 曾标记 shipped 并将 host 迁移至 frontierbench.ai [来源: tbench.ai]
 
 ### 3. OSWorld-Verified
 
@@ -135,6 +135,51 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 
 **操作执行力**：
 
+| 模型 | Terminal-Bench 4.0 | OSWorld 2.1（offline） |
+|------|:---:|:---:|
+| **Gemini 4 Carbon** | **65.2%**（AA）/ 63.13%（Vals Mini-SWE-agent） | 81.5% |
+| **Kimi K3.1 Pro** | 65.7%（Claude Code; max，官方） | 79.6%（官方 max） |
+| **Claude Opus 5.5** | 59.6%（AA）/ **66.4%**（Claude Code harness） | **87.2%** |
+| **GPT-6 Astra** | 59.1%（AA） | 80.9% |
+| **Gemini 4 Argon** | 57.1%（AA） | 74.7% |
+| **Claude Fable 5.1** | 52.0%（AA） | 76.8% |
+| MiMo-V2.6-Flash | 23%（AA） | [⚠️ 待补充] |
+
+> 注（2026-11-03 重刷口径）：① Carbon / Argon / Astra / Opus 5.5 / Fable 5.1 的 AA 与 OSWorld 数值来自 Google 2026-10-28 发布对比表（DataLearner 转述原始口径）；② K3.1 Pro 来自 Moonshot 官方发布（Claude Code harness），Opus 5.5 66.4% 来自 Claude 系发布口径（同 harness 可比）；③ **SWE-bench Pro 列已移除**——Scale Leaderboard 持续 403 无法复核，上代分数见下方存档；④ OSWorld 2.1 offline 为离线子集（Carbon 取三次最佳，Google 口径），与旧 OSWorld-Verified 不直接可比。
+
+**学术推理力**：
+
+| 模型 | HLE |
+|------|:---:|
+| **Kimi K3.1 Pro** | **70.0%**（w/ tools; max，官方发布口径） |
+| **Gemini 3.8 Flash** | 54.9%（HLE-Verified，官方） |
+| Claude Opus 5.5 / Gemini 4 Carbon / GPT-6 Astra | [⚠️ 待补充——AA v5 已切换 HLE-Diamond 子集] |
+
+> 注：HLE 分数受测试条件影响（是否带工具、harness 配置、Full / Verified / Diamond 子集）。AA Intelligence Index v5.0 已纳入 HLE-Diamond；上代 HLE 分数（Opus 4.8 57.9% 等）见下方存档，不与本表混排。
+
+**知识工作力**：
+
+| 模型 | GDPval-AA (Elo) |
+|------|:---:|
+| Claude Opus 4.8 | **1,890** |
+| GPT-5.5 (xhigh) | 1,769 |
+| **Kimi K3.1 Pro** | **1,846**（v2.1，2026-10 AA；95% 区间 1820–1872） |
+| MiniMax M3 | 1,668 (open-weight highest) |
+| Gemini 3.5 Flash (high) | 1,656 |
+| DeepSeek-V4-Pro (reasoning, high) | 1,558 |
+| Qwen3.7-Max | 1,541 |
+| GLM-5.1 (reasoning) | 1,535 |
+| Qwen3.7-Plus | 1,517 |
+| Gemini 3.1 Pro | [⚠️ 待补充] |
+
+> Source: [AA GDPval-AA Leaderboard](https://artificialanalysis.ai/evaluations/gdpval-aa) (queried 2026-06-14；K3.1 Pro 为 2026-10 v2.1 口径，DataLearner 转述)。⚠️ v2 与 v2.1 为同系列不同期口径，跨期比较需谨慎；GDPval-AA 当前官方标注版本仍为 v2.1（2026-11-03 核实）。
+> Detailed product analysis: see vendor-specific documents
+
+<details>
+<summary>📦 上代模型三维度分数存档（TB 2.1 / OSWorld-Verified / 旧版 AA，2026-06~09 口径，勿与 4.0/v5 混排）</summary>
+
+**操作执行力（旧口径）**：
+
 | 模型 | SWE-bench Pro | Terminal-Bench 2.1 | OSWorld-Verified |
 |------|:---:|:---:|:---:|
 | Claude Opus 4.8 | **69.2%** | 74.6% | **83.4%** |
@@ -147,9 +192,7 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 | DeepSeek-V4-Pro | 52.1% | 87.9%（厂商自报 GA 0813，非 AA 统一 harness） | [⚠️ 待补充] |
 | Qwen3.7-Plus | 57.6% | 47.0% [⚠️ AA TB-Hard] | 73.3% |
 
-> 注：Terminal-Bench 列默认为 v2.1；标注“AA harness”表示来自 Artificial Analysis 统一 harness 评测；标注 [⚠️ AA TB-Hard] 的表示来自 AA 独立评测的 Terminal-Bench Hard 子集（统一 harness，与厂商自报分数不完全可比）。
-
-**学术推理力**：
+**学术推理力（旧口径）**：
 
 | 模型 | HLE |
 |------|:---:|
@@ -159,28 +202,10 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 | Qwen3.7-Max | 41.4% |
 | Gemini 3.5 Flash | 40.2% |
 | Qwen3.7-Plus | 34.7% |
-| DeepSeek-V4-Pro | [⚠️ 待补充] |
-| GLM-5.1 | [⚠️ 待补充] |
-| MiniMax M3 | [⚠️ 待补充] |
 
-> 注：HLE 分数受测试条件影响（是否带工具、harness 配置）。Claude Opus 4.8 的 57.9% 来自 Anthropic 自报（带工具），AA 独立评测（纯文本）为 45.7%。
+> 旧注：Terminal-Bench 列默认为 v2.1；“AA harness”表示来自 Artificial Analysis 统一 harness 评测；[⚠️ AA TB-Hard] 表示 AA 独立评测的 Terminal-Bench Hard 子集。Claude Opus 4.8 的 HLE 57.9% 来自 Anthropic 自报（带工具），AA 独立评测（纯文本）为 45.7%。
 
-**知识工作力**：
-
-| 模型 | GDPval-AA (Elo) |
-|------|:---:|
-| Claude Opus 4.8 | **1,890** |
-| GPT-5.5 (xhigh) | 1,769 |
-| MiniMax M3 | 1,668 (open-weight highest) |
-| Gemini 3.5 Flash (high) | 1,656 |
-| DeepSeek-V4-Pro (reasoning, high) | 1,558 |
-| Qwen3.7-Max | 1,541 |
-| GLM-5.1 (reasoning) | 1,535 |
-| Qwen3.7-Plus | 1,517 |
-| Gemini 3.1 Pro | [⚠️ 待补充] |
-
-> Source: [AA GDPval-AA Leaderboard](https://artificialanalysis.ai/evaluations/gdpval-aa) (queried 2026-06-14)
-> Detailed product analysis: see vendor-specific documents
+</details>
 
 ## 最佳实践
 
@@ -191,7 +216,7 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 │
 ├── 操作执行力（Agent 干活）
 │   ├── 纯代码修改（读 repo → 生成 patch）→ 看 SWE-bench Pro
-│   ├── 终端命令执行（DevOps/ML 训练）    → 看 Terminal-Bench 2.1
+│   ├── 终端命令执行（DevOps/ML 训练）    → 看 Terminal-Bench
 │   └── GUI 桌面操作（登录/填表/RPA）      → 看 OSWorld-Verified
 │
 ├── 学术推理力（Agent 解学术题）
@@ -239,6 +264,8 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-03 | 重刷（knowledge-verification-2026-11-03 B 组）：三维度表按 TB 4.0 / 新官方口径统一重刷为当前世代模型（数值见正文）；SWE-bench Pro 列移除（Scale 403）；GDPval 表新增 K3.1 Pro 1846（v2.1）；上代表整体移入 <details> 存档不混排 |
+| 2026-11-03 | 校验修复（knowledge-verification-2026-11-03）：TB 当前版本改为 4.0（官网首页口径），补 AA Intelligence Index v5.0 切换（2026-10-27，纳入 TB 4.0 / FrontierCode 2.0 / HLE-Diamond 等 9 项；GDPval-AA 当前 v2.1）；三维度分数表保留 TB 2.1 / 旧版 AA 口径并加「待统一重刷、勿混排」提醒，未擅自重刷分数 |
 | 2026-09-17 | 校验修复（knowledge-verification-2026-09-17）：DeepSeek-V4-Pro Terminal-Bench 2.1 待确认项回填 87.9%（厂商自报 GA 0813 口径，非 AA 统一 harness，与表内 AA harness 分数不完全可比） |
 | 2026-07-20 | 校验修复：Qwen3.7-Max TB 69.7[v2.0] → 74.5（AA harness v2.1）；GLM-5.1 TB 63.5[v2.0] → 58.7（Claude Code harness v2.1）；DeepSeek-V4-Pro 移除 v2.0 数值待确认 v2.1 |
 | 2026-06-14 | 初始创建：SWE-bench 三代演进 + Terminal-Bench 2.1 + OSWorld-Verified 三层能力光谱；含用户口述 OSWorld-Verified 发布时间与 GUI 登录场景判断 [ 来源: 用户口述] |

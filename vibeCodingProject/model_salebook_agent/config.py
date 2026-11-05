@@ -8,11 +8,12 @@ from pathlib import Path
 
 # 可选底层 LLM （SA/BD 可在 main/web 启动时选择）
 MODEL_OPTIONS = [
-    "qwen3.7-max",       # 默认：能力天花板
-    "qwen3.7-plus",      # 性价比
-    "deepseek-v4-pro",   # 备选
+    "qwen3.8-max",          # 默认：能力天花板
+    "qwen3.8-27b",          # 视觉/性价比（原生视觉语言，可关思考）
+    "qwen3.8-flash",        # 走量轻量
+    "deepseek-v4.1-flash",  # 备选：思考型 Agent
 ]
-DEFAULT_MODEL = "qwen3.7-max"
+DEFAULT_MODEL = "qwen3.8-max"
 
 # 运行时模型覆盖（优先级高于环境变量 SALEBOOK_MODEL）
 _RUNTIME_MODEL_OVERRIDE: str | None = None

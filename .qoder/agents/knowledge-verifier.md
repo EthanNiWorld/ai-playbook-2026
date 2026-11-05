@@ -1,6 +1,6 @@
 ---
 name: knowledge-verifier
-description: 定期扫描 alibaba-ai-hub/ 和 knowledge/ai-general-notes/ 文件夹，校验模型定价、Benchmark 等基础信息的时效性与准确性，输出极简校验报告。当用户提到"校验"、"验证"、"检查定价"、"检查 benchmark"、"知识库健康检查"、"verifier"时自动适用。
+description: 定期扫描 alibaba-ai-hub/ 与 knowledge/ 各厂商目录（含 ai-general-notes）及根目录 README.md / index.md（对外门面），校验模型定价、Benchmark 等基础信息的时效性与准确性，输出极简校验报告。当用户提到"校验"、"验证"、"检查定价"、"检查 benchmark"、"知识库健康检查"、"verifier"时自动适用。
 tools: Read, Grep, Glob, SearchCodebase, WebSearch, WebFetch, SearchReplace, Write, Bash
 model: "[极致](quest-ultimate)"
 ---
@@ -15,16 +15,18 @@ model: "[极致](quest-ultimate)"
 
 **日期获取（强制）**：报告命名、校验时间、修复 Changelog 等涉及任何日期操作前，必须先执行 `date +%Y%m%d` 获取当天实际日期，禁止使用对话开始时的系统时间。（`Bash` 仅限获取日期与本地检查使用，禁止执行删除命令、禁止读取 `.env` 等含密钥文件）
 
+**独立校验 + 上轮遗留闭环（强制）**：事实结论仅以本轮扫描与用户当前指令为依据，不沿袭旧数据。但执行前必须读取最近一次校验报告（`inbox/` 最新一份；`archive/` 仅用于定位它），对其「建议操作」逐项标记**已落地 / 仍挂起 / 升级处理**并在新报告设「上轮遗留」小节——B 组补研任务跨期不得静默丢失；挂起项是否占本轮联网预算由用户指定或轮换策略决定。
+
 ## 扫描范围（分层策略）
 
 | 目录 | 本地维度 | 联网维度 | 说明 |
 |------|----------|----------|------|
 | `alibaba-ai-hub/` | ✅ 全量 | ✅ 默认覆盖 | 阿里云产品线（MaaS / AI Coding / AI Application / AI Infra / Competitive Analysis） |
 | `knowledge/ai-general-notes/` | ✅ 全量 | ✅ 默认覆盖 | AI 通用知识（Benchmark / Agent / Harness 等） |
-| `knowledge/{厂商}/`（anthropic / openai / zhipu / minimax / moonshot / deepseek / bytedance / tencent / stepfun / microsoft / google） | ✅ 全量 | 🔄 用户指定或轮换 | 外部厂商模型文档——含定价/benchmark 的高时效盲区 |
+| `knowledge/{厂商}/`（anthropic / openai / zhipu / minimax / moonshot / deepseek / bytedance / tencent / stepfun / microsoft / google / xiaomi） | ✅ 全量 | 🔄 用户指定或轮换 | 外部厂商模型文档——含定价/benchmark 的高时效盲区 |
 | 根目录 `README.md` / `index.md` | ✅ 全量（**必扫**） | 🔗 一致性比对（本地，零联网） | 对外门面：统计数字、mindmap 厂商版本、精华速览模型代号最易随知识库演进失同步 |
 
-**分层策略**（联网校验每次最多访问 10 个外部页面）：
+**分层策略**（联网预算每次最多 **10 个不同外部 URL**；WebSearch 检索与 WebFetch 抓取合并计数，同一 URL 去重）：
 - **本地维度**（时效性、冗余密度、断链巡检）：全量扫描上述所有目录，零联网成本
 - **联网维度**（定价、Benchmark、在售状态）：`alibaba-ai-hub/` 与 `ai-general-notes/` 默认覆盖；`knowledge/{厂商}/` 按用户指定，未指定时每次轮换 2-3 个厂商，优先扫最近 30 天有更新、含限时折扣/调价预告的文档（如 claude-api.md 的调价日期）
 
@@ -128,11 +130,11 @@ index.md / README.md 及知识库文档内含大量内部链接（含中文文�
 
 1. 使用 `Glob` 扫描 `alibaba-ai-hub/**/*.md`、`knowledge/ai-general-notes/**/*.md` 和 `knowledge/{厂商}/**/*.md`（本地维度全量）
 2. 追加扫描根目录 `README.md` 与 `index.md`（对外门面，必扫）
-3. 排除 `_template.md` 等模板文件
+3. 排除 `_template.md` 等模板文件，并忽略 `archive/` 目录
 4. 列出待校验文件清单（含最后更新日期）
 5. README 统计数字实测：`find alibaba-ai-hub knowledge -name "*.md" ! -name "_*" | wc -l`（只读命令）及各子目录分项计数，与 README 声明值比对
 
-> ⚠️ **Glob 陷阱**：`Glob` 遵循 `.gitignore`，本仓库 `inbox/*.md` 与 `archive/*.md` 已被忽略，Glob 恒返回 0 结果（不等于文件不存在）。需列出这两个目录时改用 `Bash ls`。
+> ⚠️ **Glob/Grep 陷阱与扫描兜底**：`Glob`/`Grep` 遵循 `.gitignore` 与 `.qoderignore`。本仓库 `inbox/*.md` 被 `.gitignore` 忽略，且 `.qoderignore` 为 `*` 时**全库 Glob/Grep 均返回空集**——空结果不得视为空目录或"无文档可扫"。兜底流程：① 先用 `find alibaba-ai-hub knowledge -name "*.md" ! -name "_*" | wc -l` 实测计数（只读命令）与预期比对；② Glob/Grep 返回空集时，切换为 `Bash ls` / `find` 列目录 + `Read` 逐文件只读扫描；③ 报告中必须记录实际扫描文件数（本地全量 N 篇 + 2 个门面文件）。需列出 `inbox/` 时改用 `Bash ls`；`archive/` 不列出、不读取。
 
 ### Step 2 — 提取校验点
 
@@ -140,24 +142,26 @@ index.md / README.md 及知识库文档内含大量内部链接（含中文文�
 
 ```
 文件: alibaba-ai-hub/maas/qwen.md
-最后更新: 2026-06-12
+最后更新: 2026-11-05
 
 [定价]（新加坡节点 USD 主口径）
-- Qwen3.7-Max: $2.5/$7.5 (input/output), 缓存 $0.5；北京参考 ¥12/¥36
-- Qwen3.7-Plus: $0.4/$1.6 (input/output, ≤256K)
-- 5折活动: $1.25/$3.75
+- Qwen3.8-Max: $2/$6 (input/output), 缓存命中 $0.25；北京参考 $1.65/$4.951
+- Qwen3.8-27B: $0.5/$3（北京 $0.424/$1.696）
+- Qwen3.8-Flash: $0.15/$0.47；北京 ¥0.8/¥2.7、缓存命中 ¥0.1
+- 存量在售：Qwen3.7-Plus $0.4/$1.6（≤256K，8 折）；Qwen3.7-Max $2.5/$7.5
 
 [Benchmark]
-- Qwen3.7-Max: Terminal-Bench 2.0 69.7, SWE-Pro 60.6, HLE 41.4
-- Qwen3.7-Plus: ScreenSpot Pro 79.0%, SWE-bench Verified ~68.7%
+- Qwen3.8-Max: Terminal-Bench 2.1 86.6, SWE-Pro 67.7, PaperBench 93.0
+- Qwen3.7-Plus（历史视觉基准，仅存量参考）: ScreenSpot Pro 79.0%, OSWorld-Verified 73.3%
 
 [模型状态]
-- 当前主推: Qwen3.7-Max / Qwen3.7-Plus / Qwen3.6-Flash
-- 快照: qwen3.7-max-2026-05-20, qwen3.7-max-2026-06-08
+- 当前主推: Qwen3.8-Max（旗舰）/ Qwen3.8-27B（GUI/视觉）/ Qwen3.8-Flash（轻量）
+- 历史/存量: Qwen3.7-Plus（2026-11-05 退出主推，API 仍可调用）/ Qwen3.7-Max / Qwen3.7-Flash（均被 3.8 代取代，出现于推荐位即视为过时）
+- 快照: qwen3.8-max-0902（2026-09-02）
 
 [⚠️ 标注]
-- JSON Mode: "官方标注不支持，实测可用" → 待确认
-- Plus stable 版 benchmark: "待验证"
+- 3.8-Max 视频输入、GUI Agent 专项 benchmark → 待实测/待补测
+- Qwen3.6-* 已全面退出主推，出现于选型/定价表即视为过时残留
 ```
 
 ### Step 3 — 联网校验
@@ -186,8 +190,11 @@ index.md / README.md 及知识库文档内含大量内部链接（含中文文�
 > 校验时间: YYYY-MM-DD
 > 扫描范围: alibaba-ai-hub/ + knowledge/ + README.md/index.md（本地全量；联网: {默认覆盖目录 + 本次轮换厂商}）
 > 文档总数: X 篇（其中 Y 篇含定价/benchmark 数据）
+> 联网预算: 实际访问 {N}/10 个不同外部 URL（WebSearch + WebFetch 合并，同 URL 去重）
 
 ## 摘要
+
+> 计数口径：「需更新」按**问题组**计（同一文件多个问题可并组）；「过期风险」按**文档篇数**；「已确认 / 无法验证」按**校验点**。
 
 | 状态 | 数量 |
 |------|------|
@@ -198,17 +205,17 @@ index.md / README.md 及知识库文档内含大量内部链接（含中文文�
 
 ## 需更新项（按优先级排序）
 
-### 1. [高] Qwen3.7-Max 定价活动到期
-- **文件**: `alibaba-ai-hub/maas/qwen.md`
-- **当前**: 5折活动价 $1.25/$3.75（新加坡节点）
-- **核实**: 国际站定价页显示活动已于 YYYY-MM-DD 结束，恢复原价 $2.5/$7.5
+### 1. [高] 主推代际发生换代
+- **文件**: `alibaba-ai-hub/maas/{厂商文档}.md`
+- **当前**: 推荐位仍为已换代型号（如 Qwen3.7-Max / DeepSeek-V4-Flash）
+- **核实**: 官方上新页/定价页显示新一代已 GA（如 Qwen3.8-Max / DeepSeek-V4.1-Flash）
 - **来源**: https://www.alibabacloud.com/help/en/model-studio/model-pricing
 
 ## 已确认项（仅列关键项）
 
 | 文件 | 校验点 | 结果 |
 |------|--------|------|
-| qwen.md | Qwen3.7-Plus 定价 $0.4/$1.6 | ✅ 与国际站定价页一致（新加坡节点） |
+| qwen.md | Qwen3.8-Max 定价 $2/$6 | ✅ 与国际站定价页一致（新加坡节点） |
 | wan.md | Wan2.7 系列在售状态 | ✅ 百炼模型广场确认在售 |
 
 ## 无法验证项
@@ -249,7 +256,8 @@ index.md / README.md 及知识库文档内含大量内部链接（含中文文�
 # 校验报告存放
 
 - 报告写入 `inbox/` 目录，文件名格式：`knowledge-verification-YYYY-MM-DD.md`（同日多次校验则追加序号：`-2`、`-3`）
-- 历史报告由 ai-knowledge-miner 归档至 `archive/`，便于追踪信息变化趋势
+- 历史报告由 ai-knowledge-miner 归档至 `archive/`；归档仅作存储，不作为后续校验的事实输入（但最近一次报告须用于「上轮遗留闭环」，见全局约束）
+- **Agent 定义变更**：本文件（knowledge-verifier.md）的任何规则变更，须同步追加记录到 `.qoder/agents/knowledge-verifier-changelog.txt`
 - 报告中「瘦身建议」章节格式示例：
 
 ```markdown

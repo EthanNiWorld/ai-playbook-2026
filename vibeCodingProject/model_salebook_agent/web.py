@@ -25,6 +25,7 @@ from config import MODEL_OPTIONS, DEFAULT_MODEL, set_runtime_model, get_log_path
 # 常见模型名识别 regex（首条消息拆解 target_model）
 MODEL_NAME_RE = re.compile(
     r"(qwen[\d.]+-(?:max|plus|flash)(?:-preview)?"
+    r"|qwen[\d.]+-\d+(?:\.\d+)?[bt](?:-[\w.]+)?"
     r"|wan[\d.]+"
     r"|deepseek-v[\d.]+(?:-pro|-flash)?"
     r"|claude-(?:opus|sonnet|haiku)-?[\d.]*"
@@ -40,9 +41,9 @@ def parse_first_message(text: str) -> tuple[str, str]:
     """从首条消息拆出 target_model + user_brief。
 
     例：
-        "Qwen3.7-Plus 德勤推 max 还是 plus" → ("Qwen3.7-Plus", "德勤推 max 还是 plus")
+        "Qwen3.8-27B 德勤推 max 还是 27b" → ("Qwen3.8-27B", "德勤推 max 还是 27b")
         "Wan2.7" → ("Wan2.7", "")
-        "德勤推 qwen3.7-max 好吗" → ("qwen3.7-max", "德勤推  好吗")
+        "德勤推 qwen3.8-max 好吗" → ("qwen3.8-max", "德勤推  好吗")
     """
     text = text.strip()
     m = MODEL_NAME_RE.search(text)
@@ -354,7 +355,7 @@ with gr.Blocks(title="Model Salebook Agent") as demo:
 <div id="hero-banner">
     <h1>🎯 Model Salebook Agent</h1>
     <p>一句话说明目标模型 + 客户背景，5 秒出一份可调整的销售策略简报 · 定制 HTML Salebook</p>
-    <p style="margin-top:6px;font-size:12px;">示例：<code>Qwen3.7-Plus 德勤考虑从 3.6-Plus 升级，纠结是上 Max 还是 Plus</code></p>
+    <p style="margin-top:6px;font-size:12px;">示例：<code>Qwen3.8-27B 德勤考虑从 3.7-Plus 升级，纠结是上 Max 还是 27B</code></p>
 </div>
     """)
 
@@ -374,7 +375,7 @@ with gr.Blocks(title="Model Salebook Agent") as demo:
                     container=False,
                 )
                 gr.Markdown(
-                    "默认 **qwen3.7-max**（能力顶到）。策略推断质量与模型能力成正比。",
+                    "默认 **qwen3.8-max**（能力顶到）。策略推断质量与模型能力成正比。",
                     elem_classes=["markdown-text"],
                 )
 
@@ -409,7 +410,7 @@ with gr.Blocks(title="Model Salebook Agent") as demo:
                         "<h3 style='margin:0 0 8px 0;color:#4B5563;'>一句话描述你的场景</h3>"
                         "<p style='font-size:13px;margin:0;'>例如：<br>"
                         "<code style='background:#FFF7F0;padding:4px 10px;border-radius:6px;color:#7C2D12;'>"
-                        "Qwen3.7-Plus 德勤从 3.6-Plus 升级，纠结上 Max 还是 Plus</code></p>"
+                        "Qwen3.8-27B 德勤从 3.7-Plus 升级，纠结上 Max 还是 27B</code></p>"
                         "</div>"
                     ),
                 ),
@@ -418,10 +419,10 @@ with gr.Blocks(title="Model Salebook Agent") as demo:
                     lines=1,
                 ),
                 examples=[
-                    ["Qwen3.7-Max 德勤 AI Coding 场景，从 Claude Opus 抢回"],
-                    ["Qwen3.7-Plus 德勤从 3.6-Plus 升级，纠结上 Max 还是 Plus"],
+                    ["Qwen3.8-Max 德勤 AI Coding 场景，从 Claude Opus 抢回"],
+                    ["Qwen3.8-27B 德勤从 3.7-Plus 升级，纠结上 Max 还是 27B"],
                     ["Wan2.7 短剧制作公司选型"],
-                    ["DeepSeek-V4-Pro 金融客户 RAG 场景，预算极敏感"],
+                    ["DeepSeek-V4.1-Flash 金融客户 RAG 场景，预算极敏感"],
                 ],
             )
 

@@ -2,14 +2,14 @@
 
 ## Context
 
-BD/SA 在推广百炼平台模型（Qwen3.7-Max/Plus、Wan2.7、DeepSeek 等）时，需要针对不同客户场景制定差异化销售策略。本 Agent 用第一性原理思维引导用户梳理客户情况，自动判断应走「技术碾压」「性价比」还是「田忌赛马」路线，最终输出定制化 HTML Salebook。
+BD/SA 在推广百炼平台模型（Qwen3.8-Max/27B/Flash、Wan2.7、DeepSeek-V4.1 等）时，需要针对不同客户场景制定差异化销售策略。本 Agent 用第一性原理思维引导用户梳理客户情况，自动判断应走「技术碾压」「性价比」还是「田忌赛马」路线，最终输出定制化 HTML Salebook。
 
 ## 技术栈
 
 | 层 | 选型 | 理由 |
 |----|------|------|
 | Agent 框架 | **LangGraph** | 结构化流水线 + HITL interrupt 原生支持 |
-| LLM | Qwen3.7-Plus (DashScope) | 1M 上下文、成本低、OpenAI 兼容协议 |
+| LLM | Qwen3.8-Max (DashScope) | 1M 上下文、Agentic 能力天花板、OpenAI 兼容协议 |
 | 本地知识 | 直读 knowledge/ markdown | 文件量小无需 RAG |
 | 联网搜索 | DuckDuckGo（免费兜底） | 本地缺口自动补全 |
 | Web UI | Gradio ChatInterface | 多轮 Chat + 文件下载 |
@@ -29,7 +29,7 @@ START → intake → interview ⇄ (多轮对话,不限轮次) → strategy → 
 
 ```python
 class SalebookState(TypedDict, total=False):
-    target_model: str               # 目标模型名（如 "Qwen3.7-Max", "Wan2.7"）
+    target_model: str               # 目标模型名（如 "Qwen3.8-Max", "Wan2.7"）
     # 对话收集
     customer_current_model: str     # 客户当前用的模型
     deal_type: str                  # "upsell" | "winback" | "new"
@@ -145,7 +145,7 @@ model_salebook_agent/
 |------|------|--------|------|
 | `DASHSCOPE_API_KEY_INTL` | 是 | — | DashScope 国际站 API Key |
 | `DASHSCOPE_BASE_URL` | 否 | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` | API 端点 |
-| `SALEBOOK_MODEL` | 否 | `qwen3.7-plus` | 底层 LLM |
+| `SALEBOOK_MODEL` | 否 | `qwen3.8-max` | 底层 LLM |
 | `TAVILY_API_KEY` | 否 | — | 高质量搜索（不配则用 DuckDuckGo） |
 | `KNOWLEDGE_BASE_PATH` | 否 | 自动推导 | knowledge/ 目录路径 |
 
@@ -157,7 +157,7 @@ source .venv/bin/activate
 export DASHSCOPE_API_KEY_INTL="sk-xxx"
 
 # 终端模式
-python main.py --model "Qwen3.7-Plus"
+python main.py --model "Qwen3.8-Max"
 
 # Web 模式
 python web.py   # → http://localhost:7860
@@ -166,7 +166,7 @@ python web.py   # → http://localhost:7860
 ## 支持的模型
 
 本地有知识文档的（直接读取）：
-- Qwen3.7-Max / Qwen3.7-Plus / Qwen3.6-Flash
+- Qwen3.8-Max / Qwen3.8-27B / Qwen3.8-Flash
 - Wan2.7（视频生成）
 - HappyHorse
 
@@ -175,7 +175,7 @@ python web.py   # → http://localhost:7860
 
 ## HTML 设计系统
 
-复用 `alibaba-ai-hub/maas/sales-tools/qwen3.7-max-salebook.html` 的视觉规范：
+以下为本 Agent 输出模板的固定设计 token（历史参照：`output/qwen37-max_salebook_*.html`；产物文件仅作样式溯源，不作为规范锚点）：
 - 背景: `#0F1419`
 - 卡片: `#1A1F2E`，圆角 16px
 - 强调: 橙色渐变 `#FF6A00 → #EE0979`

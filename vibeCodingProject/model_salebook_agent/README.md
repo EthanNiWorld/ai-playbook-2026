@@ -16,9 +16,9 @@
 ## 支持的模型
 
 可为百炼平台上任何模型生成 Salebook：
-- Qwen3.7-Max / Qwen3.7-Plus / Qwen3.6-Flash
+- Qwen3.8-Max / Qwen3.8-27B / Qwen3.8-Flash
 - Wan2.7（视频生成）
-- DeepSeek-V4-Flash/Pro
+- DeepSeek-V4.1-Flash / DeepSeek-V4-Pro
 - 其他（本地无数据时自动联网搜索补全）
 
 ## 快速开始
@@ -37,7 +37,7 @@ pip install -r requirements.txt
 export DASHSCOPE_API_KEY_INTL="sk-xxx"
 
 # 4a. 终端模式
-python main.py --model "Qwen3.7-Plus"
+python main.py --model "Qwen3.8-Max"
 
 # 4b. Web 模式
 python web.py
@@ -54,7 +54,7 @@ python web.py
 |------|------|--------|------|
 | `DASHSCOPE_API_KEY_INTL` | 是 | — | DashScope 国际站 API Key |
 | `DASHSCOPE_BASE_URL` | 否 | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` | API 端点 |
-| `SALEBOOK_MODEL` | 否 | `qwen3.7-plus` | 底层 LLM 模型 |
+| `SALEBOOK_MODEL` | 否 | `qwen3.8-max` | 底层 LLM 模型 |
 | `TAVILY_API_KEY` | 否 | — | 联网搜索（不配则用 DuckDuckGo 免费方案） |
 
 ## 项目结构
@@ -76,7 +76,7 @@ model_salebook_agent/
 ## 技术栈
 
 - **Agent 框架**: LangGraph（状态图 + interrupt HITL）
-- **LLM**: Qwen3.7-Plus via DashScope（OpenAI 兼容协议）
+- **LLM**: Qwen3.8-Max via DashScope（OpenAI 兼容协议，可切 3.8-27B / 3.8-Flash / DeepSeek-V4.1-Flash）
 - **知识来源**: 本地 knowledge/ 优先 + DuckDuckGo 联网兜底
 - **Web UI**: Gradio ChatInterface
 - **HTML 输出**: 两阶段（LLM→JSON→Python 渲染）
