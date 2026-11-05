@@ -67,11 +67,12 @@ docker compose cp alibaba-presale-agent:/app/data/qa.db ./qa-backup.db   # 备�
 
 ```bash
 # 方式一：在 .env 中打开镜像源，再 build
+# 注意 pip 必须用清华源：阿里云 PyPI 镜像缺 pydantic==2.14.3，会解析失败
 echo 'APT_MIRROR=mirrors.aliyun.com' >> .env
-echo 'PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/' >> .env
+echo 'PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple' >> .env
 docker compose up -d --build
 
-# 方式二：改用 venv 直跑（见 deploy/deploy-ecs.sh，无需 Docker）
+# 方式二：ECS 上一键部署（Docker + nginx 限流，镜像源已内置默认值）
 sudo bash deploy/deploy-ecs.sh
 ```
 
@@ -100,7 +101,8 @@ python run.py                     # http://127.0.0.1:8000
 | `ADMIN_TOKEN` | 否 | 空 | 设置后 `/api/admin/*` 需带 `X-Admin-Token` 请求头 |
 | `TAVILY_API_KEY` | 否 | 空 | 高质量搜索；不配自动降级 DuckDuckGo |
 | `KNOWLEDGE_REPO_URL` | 否 | `EthanNiWorld/ai-playbook-2026` | 知识库仓库（须含 `alibaba-ai-hub/`） |
-| `KB_SYNC_INTERVAL_HOURS` | 否 | `24` | 克隆模式下自动 `git pull` 间隔 |
+| `KB_SYNC_INTERVAL_HOURS` | 否 | `24` | 自动同步间隔：定时检查远端提交，有更新才拉取并重建索引 |
+| `KB_AUTO_SYNC` | 否 | `1` | 置 `0` 关闭知识库定时自动同步 |
 | `PRICE_PAGE_TTL_HOURS` | 否 | `6` | 官方定价页缓存有效期 |
 | `LOCAL_KNOWLEDGE_PATH` | 否 | 自动探测 | 直读本地知识库根目录（容器内不要设置） |
 
@@ -135,7 +137,7 @@ Alibaba_presale_agent/
 ├── static/                 # 聊天页 + 后台分析页（零构建，vendored marked.min.js）
 ├── tests/                  # 离线单测 + 联调脚本（详见 tests/README.md）
 ├── deploy/
-│   ├── deploy-ecs.sh       # ECS 一键部署（systemd + venv，Docker 不可用时的备选）
+│   ├── deploy-ecs.sh       # ECS 一键部署（Docker + nginx 限流，幂等可重跑）
 │   └── nginx.conf.example  # 反代示例（SSE 不缓冲）
 ├── docs/
 │   ├── design.md           # 设计规格与决策依据
@@ -149,7 +151,7 @@ Alibaba_presale_agent/
 | 方式 | 适用 | 入口 |
 |---|---|---|
 | **Docker Compose** | 首选；任意有 Docker 的机器 | 本文「快速开始」 |
-| ECS 一键脚本 | 国内网络无法 build 镜像时（systemd + venv + nginx 限流） | `deploy/deploy-ecs.sh` + [docs/DEPLOY-ECS.md](docs/DEPLOY-ECS.md) |
+| ECS 一键脚本 | 阿里云 ECS 从零到上线（建镜像 + 数据卷 + nginx 限流） | `deploy/deploy-ecs.sh` + [docs/DEPLOY-ECS.md](docs/DEPLOY-ECS.md) |
 | 手动逐步 | 需要理解每一步或定制 | [docs/DEPLOY-ECS.md](docs/DEPLOY-ECS.md) §1 起 |
 
 ## 测试

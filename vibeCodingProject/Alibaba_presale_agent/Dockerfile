@@ -3,8 +3,9 @@
 # 基础镜像与软件源可用 build-arg 覆盖（国内网络环境必备）：
 #   docker build \
 #     --build-arg APT_MIRROR=mirrors.aliyun.com \
-#     --build-arg PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/ \
+#     --build-arg PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple \
 #     -t alibaba-presale-agent .
+# 注意 pip 别用阿里云镜像：其 PyPI 镜像缺 pydantic 2.14.3，依赖解析会失败。
 ARG BASE_IMAGE=python:3.12-slim
 FROM ${BASE_IMAGE}
 
