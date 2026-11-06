@@ -233,7 +233,7 @@
 
 ### 腾讯混元（Tencent Hunyuan）
 
-- 模型: [混元系列](knowledge/tencent/hunyuan.md) — 🚩 **Hy4 preview（770B/49B，1M 上下文，coding/终端强、纯文本、正式版未发）** / Hy3（295B/21B，¥1/¥4，开源可自部署，价格碾压）
+- 模型: [混元系列](knowledge/tencent/hunyuan.md) — 🚩 **Hy4（2026-11-04 正式版，首次视觉理解 + Computer Use，¥6/¥18，权重未放出）** / Hy3（295B/21B，¥1/¥4，开源可自部署，价格碾压）/ Hy4 preview（历史，Apache 2.0 可自部署）
 
 ### 小米 MiMo（Xiaomi MiMo）
 

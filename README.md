@@ -184,7 +184,7 @@ mindmap
       字节跳动
         Doubao-Seed-2.1 Pro 0915 · Seedance 2.5
       腾讯混元
-        Hy4 preview / Hy3
+        Hy4 正式版 / Hy3
       小米 MiMo
         V2.6 Flash / Pro
       阶跃星辰
@@ -254,7 +254,7 @@ flowchart LR
 │   ├── bytedance/          ← 🟣 字节跳动（2 篇：Doubao-Seed-2.1 / Seedance 系列）
 │   ├── zhipu/              ← 🟣 智谱 AI（2 篇：公司分析 / GLM系列）
 │   ├── stepfun/            ← 🟣 阶跃星辰（2 篇：公司分析 / Step 系列）
-│   ├── tencent/            ← 🟣 腾讯混元（1 篇：混元系列 Hy3/Hy4）
+│   ├── tencent/            ← 🟣 腾讯混元（1 篇：混元系列 Hy4 / Hy3）
 │   └── xiaomi/             ← 🟣 小米 MiMo（1 篇：MiMo 系列）
 ├── vibeCodingProject/  ← 🧪 实验代码（Demo 脚本、CHM 查看器）
 ├── index.md            ← 📋 全局索引导航
