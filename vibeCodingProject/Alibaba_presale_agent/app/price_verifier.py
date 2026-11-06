@@ -63,7 +63,7 @@ MODEL_NAME_RE = re.compile(
 
 # 触发价格校验的问题特征
 PRICE_KEYWORDS_RE = re.compile(
-    r"价格|定价|多少钱|多钱|计费|收费|费率|费用|成本|单价|免费额度|额度|优惠|折扣|一亿|百万"
+    r"价格|定价|多少钱|多钱|报价|报个价|计费|收费|费率|费用|成本|单价|免费额度|额度|优惠|折扣|一亿|百万"
     r"|pricing|price|cost|quota|discount|usd|美元|\$",
     re.IGNORECASE,
 )
@@ -122,6 +122,38 @@ def is_price_question(question: str, history: list | None = None) -> bool:
             ):
                 return True
     return False
+
+
+# 列举式问法（"都有哪些模型，价格多少"）要的是清单，反问型号只会变相刁难
+_CLARIFY_LISTING_RE = re.compile(
+    r"哪些|哪几|都有|全部|所有|清单|列表|对比|比较|区别|推荐|哪个好|哪个便宜|多少种|一览"
+)
+
+
+def needs_model_clarify(question: str, history: list | None = None) -> bool:
+    """价格意图明确、但根本没说问哪个型号时，应该反问而不是直接拒答。
+
+    背景（后台点踩案例）：用户问「新加坡节点模型价格是多少」，旧逻辑把它当成
+    「无 official 证据 → 输出固定拒答话术」，思考 1000+ 字、耗时 44 秒，最后只
+    回一句"暂未能联网核实"——信息量为零。真实诉求是让助手反问一句型号。
+
+    只有下面五类"能自己答"的情况才跳过反问：
+      1) 句中已含型号（含追问里的型号）；2) 家族词（qwen 多少钱 → 厂商级概览）；
+      3) 产品订阅价（Qoder 等，交知识库）；4) 列举式问法；5) 历史里问过型号（追问）。
+    """
+    if not question or not PRICE_KEYWORDS_RE.search(question):
+        return False
+    if extract_model_names(question):
+        return False
+    if _FAMILY_HINT_RE.search(question) or _PRODUCT_NAME_RE.search(question):
+        return False
+    if _CLARIFY_LISTING_RE.search(question):
+        return False
+    # 追问：「它/这个多少钱」应沿用上一轮型号，反问反而打断
+    for h in (history or [])[-6:]:
+        if h.get("role") == "user" and extract_model_names(str(h.get("content", ""))):
+            return False
+    return True
 
 
 def _slug_candidates(model: str) -> list[str]:

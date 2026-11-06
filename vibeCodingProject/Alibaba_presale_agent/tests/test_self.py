@@ -329,6 +329,59 @@ def test_guide_lookup():
         gd.knowledge.resolve_source_root = orig
 
 
+def test_model_clarify():
+    """缺型号时必须反问，不能算“无证据”直接拒答（后台点踩 id=210）。"""
+    from app import price_verifier as pv, prompts
+
+    check("澄清: 只问价格没给型号 → 需要反问", pv.needs_model_clarify("新加坡节点模型价格是多少"))
+    check("澄清: “给我报个价”无型号 → 需要反问", pv.needs_model_clarify("给我报个价"))
+    check("澄清: 已给型号 → 不反问", not pv.needs_model_clarify("qwen3.8-max 多少钱"))
+    check("澄清: 视频型号 → 不反问", not pv.needs_model_clarify("wan3.0 video 每秒多少钱"))
+    check("澄清: 家族词概览 → 不反问", not pv.needs_model_clarify("qwen 多少钱"))
+    check("澄清: 产品订阅价 → 不反问（交知识库）", not pv.needs_model_clarify("Qoder 多少钱"))
+    check("澄清: 列举式问法 → 不反问", not pv.needs_model_clarify("百炼都有哪些模型，价格多少"))
+    check(
+        "澄清: 追问沿用历史型号 → 不反问",
+        not pv.needs_model_clarify("这个多少钱", [{"role": "user", "content": "qwen3.8-max 多少钱"}]),
+    )
+    check("澄清: 非价格问题 → 不反问", not pv.needs_model_clarify("百炼支持多 Agent 协作吗"))
+    check(
+        "澄清话术: 不含拒答话术且给出型号格式示例",
+        "暂未能联网核实" not in prompts.MODEL_CLARIFY_TEXT and "多少钱" in prompts.MODEL_CLARIFY_TEXT,
+    )
+
+
+def test_fx():
+    """实时汇率：解析、意图识别、用户自报优先（踩记录 id=225~230）。"""
+    from app import fx
+
+    sina = 'var hq_str_USDCNY="17:49:00,6.6711,6.6713,6.6722,40,6.6700,6.6720,6.6680,6.6713,人民币,2026-11-06";'
+    fxrate = 'var hq_str_fx_susdcny="17:49:00,6.6711,6.6713,6.6680,40.0,6.6700,6.6720";'
+    check("汇率解析: 新浪 USDCNY 取买卖中间价", abs((fx.parse_sina(sina) or 0) - 6.6712) < 1e-6, str(fx.parse_sina(sina)))
+    check("汇率解析: 新浪 fx_susdcny 同格式", abs((fx.parse_sina(fxrate) or 0) - 6.6712) < 1e-6)
+    check("汇率解析: 非报价响应返回 None", fx.parse_sina('v_pv_none_match="1";') is None)
+    check("汇率解析: 超区间值被丢弃", fx.parse_sina('var hq_str_USDCNY="1,240,240,1";') is None)
+    check(
+        "汇率兜底源: exchangerate-api JSON",
+        abs((fx.parse_exchangerate_api({"rates": {"CNY": 7.0712}}) or 0) - 7.0712) < 1e-6,
+    )
+    check("汇率意图: 查询实时汇率命中", fx.is_fx_question("查询下实时汇率"))
+    check("汇率意图: 兑人民币命中", fx.is_fx_question("1.65 美金兑人民币多少"))
+    check("汇率意图: 普通价格题不误触", not fx.is_fx_question("qwen3.8-max 多少钱"))
+    check(
+        "汇率意图: 币种共现但无“汇率”字样也要触发",
+        fx.is_fx_question("北京的1.65美金相当于12RMB*0.45的几折？"),
+    )
+    check("汇率意图: 只提美元不算汇率题", not fx.is_fx_question("qwen3.8-max 的美元价格"))
+    check("纯查汇率: 能走直接回答", fx.is_pure_rate_query("查询下实时汇率"))
+    check("纯查汇率: 带计算不定为纯查询", not fx.is_pure_rate_query("1.65 美金按汇率是多少人民币 12 元打几折"))
+    check("用户自报汇率: 识别 6.6704", abs((fx.user_given_rate("实时汇率是6.6704") or 0) - 6.6704) < 1e-6)
+    check("用户自报汇率: 型号价格题不误抽", fx.user_given_rate("qwen3.8-max 多少钱") is None)
+    ev = fx.evidence_md({"rate": 6.6712, "source": "新浪财经", "at": "2026-11-06T17:49:00+08:00"})
+    check("汇率证据: 含汇率与换算规则", "6.6712" in ev and "换算规则" in ev)
+    check("汇率直接回答: 给出汇率与来源", "6.6712" in fx.direct_answer({"rate": 6.6712, "source": "新浪财经", "at": "2026-11-06T17:49:00+08:00"}))
+
+
 def main():
     print("=" * 56)
     print("阿里小可爱AI问答助手 — 离线自测套件")
@@ -339,6 +392,8 @@ def main():
     test_knowledge_retrieval()
     test_store()
     test_guide_lookup()
+    test_model_clarify()
+    test_fx()
     print("-" * 56)
     print(f"结果: {PASS} 通过 / {FAIL} 失败")
     sys.exit(1 if FAIL else 0)

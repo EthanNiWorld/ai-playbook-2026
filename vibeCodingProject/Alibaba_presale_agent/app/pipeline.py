@@ -5,12 +5,13 @@
 import asyncio
 import logging
 import time
+from datetime import datetime
 
-from . import prompts, store
+from . import fx, prompts, store
 from .config import REPO_BROWSE_URL, get_llm_config
 from .knowledge import get_index
 from .llm import stream_chat
-from .price_verifier import is_price_question, verify_prices
+from .price_verifier import is_price_question, needs_model_clarify, verify_prices
 
 log = logging.getLogger("pipeline")
 
@@ -71,7 +72,14 @@ async def stream_answer(
 
     # ── 2. 价格联网校验（问题涉及价格才触发；追问场景靠历史回退识别）──
     price_ev = None
-    if is_price_question(question, history):
+    direct_text = ""
+    price_q = is_price_question(question, history)
+    if price_q and needs_model_clarify(question, history):
+        # 问了价格却没说是哪个型号：反问一句，不猜型号、不联网、不报价。
+        # 确定性分支（不调 LLM），既不会编数字，也不会先想一千多字再甩拒答话术。
+        direct_text = prompts.MODEL_CLARIFY_TEXT
+        price_status = "clarify"
+    elif price_q:
         yield {"type": "status", "stage": "verifying_price", "message": "💰 联网核实官方定价..."}
         try:
             price_ev = await verify_prices(question, history)
@@ -89,41 +97,43 @@ async def stream_answer(
             log.exception("价格校验失败")
             price_status = "error"
 
+    # ── 2.2 实时汇率（换算/折扣/成本测算类问题必须有当日汇率）──
+    # 旧版本只能回「无法查询实时汇率」，用户只能自己报一个数（踩记录 id=225~230）。
+    fx_info = None
+    if not direct_text and fx.is_fx_question(question):
+        given = fx.user_given_rate(question)
+        if given:
+            # 用户自报汇率优先：他可能在按某个成交价核算，拿实时价覆盖反而制造分歧
+            fx_info = {
+                "rate": given,
+                "source": "用户提供",
+                "at": datetime.now().astimezone().isoformat(timespec="seconds"),
+                "stale": False,
+            }
+        else:
+            yield {"type": "status", "stage": "verifying_fx", "message": "💱 获取实时汇率..."}
+            fx_info = await fx.usd_cny()
+            if fx_info:
+                sources.append(
+                    {
+                        "title": f"实时汇率 1 USD = {fx_info['rate']} CNY · {fx_info['source']}",
+                        "url": "https://finance.sina.com.cn/money/forex/hq/USDCNY.shtml",
+                        "kind": "web",
+                    }
+                )
+                if fx.is_pure_rate_query(question):
+                    # 只问汇率数字：直接回，不调 LLM（秒回且不会把 6.67 说成 7 点几）
+                    direct_text = fx.direct_answer(fx_info)
+            elif fx.is_pure_rate_query(question):
+                direct_text = fx.no_source_answer()
+
     # 前端 sources 事件：知识库文件引用（GitHub 路径）仅落库供后台分析，不展示给客户；
     # 只推官方定价页/搜索来源
     visible_sources = [s for s in sources if s["kind"] != "knowledge"]
     yield {"type": "sources", "sources": visible_sources[:8]}
 
-    # ── 3. 组装 prompt ──
-    user_content = (
-        "## 知识库片段（按相关度排序）\n" + _format_kb(chunks) + "\n\n"
-    )
-    if price_ev and price_ev.get("evidence_md"):
-        user_content += (
-            f"## 联网价格证据（实时核实 · 核实时间 {price_ev['checked_at']} · 状态 {price_status}）\n"
-            f"{price_ev['evidence_md']}\n\n"
-        )
-    elif price_status:
-        user_content += (
-            "## 联网价格证据\n"
-            "（本次未能联网核实到价格证据。若被问及具体价格，请明确说明暂无法核实，"
-            f"并引导用户访问官方定价页：{prompts.OFFICIAL_PRICING_URL}）\n\n"
-        )
-    user_content += f"## 用户问题\n{question}"
-
-    messages = [{"role": "system", "content": prompts.ANSWER_SYSTEM_PROMPT}]
-    for h in history[-MAX_HISTORY:]:
-        role = h.get("role")
-        content = str(h.get("content", ""))[:4000]
-        if role in ("user", "assistant") and content:
-            messages.append({"role": role, "content": content})
-    messages.append({"role": "user", "content": user_content})
-
-    # ── 4. 流式生成（思考过程实时推送，等待期可见进展）──
-    yield {"type": "status", "stage": "answering", "message": "✍️ 生成回答..."}
     parts: list[str] = []
     think_parts: list[str] = []
-    thinking = False
     cfg = get_llm_config()
 
     def persist(interrupted: bool) -> int:
@@ -140,6 +150,51 @@ async def stream_answer(
             user_agent=user_agent,
             interrupted=interrupted,
         )
+
+    # ── 2.5 确定性直答（缺型号反问 / 纯汇率查询 / 汇率不可用）──
+    if direct_text:
+        stage_msg = "🤔 先确认是哪个模型..." if price_status == "clarify" else "💱 实时汇率已就绪..."
+        yield {"type": "status", "stage": "direct", "message": stage_msg}
+        parts.append(direct_text)
+        yield {"type": "delta", "text": direct_text}
+        answer_id = persist(False)
+        yield {
+            "type": "done",
+            "answer_id": answer_id,
+            "price_status": price_status,
+            "latency_ms": int((time.time() - t0) * 1000),
+        }
+        return
+
+    # ── 3. 组装 prompt ──
+    user_content = (
+        "## 知识库片段（按相关度排序）\n" + _format_kb(chunks) + "\n\n"
+    )
+    if price_ev and price_ev.get("evidence_md"):
+        user_content += (
+            f"## 联网价格证据（实时核实 · 核实时间 {price_ev['checked_at']} · 状态 {price_status}）\n"
+            f"{price_ev['evidence_md']}\n\n"
+        )
+    elif price_status:
+        user_content += (
+            "## 联网价格证据\n"
+            "（本次未能联网核实到价格证据。若被问及具体价格，请明确说明暂无法核实，"
+            f"并引导用户访问官方定价页：{prompts.OFFICIAL_PRICING_URL}）\n\n"
+        )
+    if fx_info:
+        user_content += f"## 实时汇率（USD/CNY，本次唯一可信汇率）\n{fx.evidence_md(fx_info)}\n\n"
+    user_content += f"## 用户问题\n{question}"
+    messages = [{"role": "system", "content": prompts.ANSWER_SYSTEM_PROMPT}]
+    for h in history[-MAX_HISTORY:]:
+        role = h.get("role")
+        content = str(h.get("content", ""))[:4000]
+        if role in ("user", "assistant") and content:
+            messages.append({"role": role, "content": content})
+    messages.append({"role": "user", "content": user_content})
+
+    # ── 4. 流式生成（思考过程实时推送，等待期可见进展）──
+    yield {"type": "status", "stage": "answering", "message": "✍️ 生成回答..."}
+    thinking = False
 
     try:
         async for kind, text in stream_chat(messages):
