@@ -117,7 +117,8 @@ async def stream_answer(
                 sources.append(
                     {
                         "title": f"实时汇率 1 USD = {fx_info['rate']} CNY · {fx_info['source']}",
-                        "url": "https://finance.sina.com.cn/money/forex/hq/USDCNY.shtml",
+                        "url": fx_info.get("page")
+                        or "https://finance.sina.com.cn/money/forex/hq/USDCNY.shtml",
                         "kind": "web",
                     }
                 )

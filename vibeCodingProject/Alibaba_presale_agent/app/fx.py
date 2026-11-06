@@ -5,10 +5,11 @@ USD/CNY 实时汇率 —— 带 TTL 缓存与多源回退
 （id=225~230）里用户直接问「查询下实时汇率」，旧版本只能回"我无法查询"，
 把活推回给用户，随后整段折扣换算是靠用户手动报的汇率算的。
 
-数据源（2026-11-06 境内网络实测）：
-  1. 新浪财经 hq.sinajs.cn/list=USDCNY   实时报价，无需 key（须带 Referer）
-  2. 新浪外汇 fx_susdcny                 同源备用代码，字段布局一致
-  3. exchangerate-api v4                 日频兜底（境外，个别网络会被网关拦）
+数据源（2026-11-06 双端实测：本地 macOS 与北京 ECS 各试一遍）：
+  1. 腾讯财经 qt.gtimg.cn/q=whUSDCNY      市场即时价，带成交时间戳，双端均可用
+  2. 新浪财经 hq.sinajs.cn/list=USDCNY    市场即时价（本地可用，但 ECS 出口 IP 被 403）
+  3. exchangerate-api v4                  日频兜底
+  4. CFETS 中国货币网                       官方中间价（非市场价，仅前三个全挂时用）
 全部走 HTTPS + 6 秒超时；任一源成功即返回，取值做区间校验防解析错位。
 """
 
@@ -94,6 +95,30 @@ def user_given_rate(question: str) -> float | None:
     return v if _RATE_MIN <= v <= _RATE_MAX else None
 
 
+def parse_qq(text: str) -> float | None:
+    """解析 qt.gtimg.cn 外汇报价：第 4 段是当前价（如 …~USDCNY~6.6710~…）。"""
+    m = re.search(r'"([^"]*)"', text or "")
+    if not m:
+        return None
+    parts = m.group(1).split("~")
+    if len(parts) < 4:
+        return None
+    try:
+        v = float(parts[3])
+    except ValueError:
+        return None
+    return v if _RATE_MIN <= v <= _RATE_MAX else None
+
+
+def parse_chinamoney(data: dict) -> float | None:
+    """CFETS 官方中间价（日频）：records[0].values[0]。注意它不是市场即时价。"""
+    try:
+        v = float(data["records"][0]["values"][0])
+    except (KeyError, IndexError, TypeError, ValueError):
+        return None
+    return v if _RATE_MIN <= v <= _RATE_MAX else None
+
+
 def parse_sina(text: str) -> float | None:
     """解析 hq.sinajs.cn 的 USDCNY / fx_susdcny 报价，取买卖中间价。"""
     m = re.search(r'"([^"]*)"', text or "")
@@ -116,6 +141,35 @@ def parse_exchangerate_api(data: dict) -> float | None:
     except (KeyError, TypeError, ValueError):
         return None
     return v if _RATE_MIN <= v <= _RATE_MAX else None
+
+
+async def _from_qq(client: httpx.AsyncClient) -> float | None:
+    r = await client.get(
+        "https://qt.gtimg.cn/q=whUSDCNY",
+        headers={"Referer": "https://finance.qq.com", "User-Agent": _SINA_UA},
+    )
+    r.raise_for_status()
+    return parse_qq(r.text)
+
+
+async def _from_chinamoney(client: httpx.AsyncClient) -> float | None:
+    from datetime import date, timedelta
+
+    end = date.today()
+    start = end - timedelta(days=4)  # 隧道日内也能拿到最近一个工作日
+    r = await client.get(
+        "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-ccpr/CcprHisNew",
+        params={
+            "startDate": start.isoformat(),
+            "endDate": end.isoformat(),
+            "currency": "USD/CNY",
+            "pageNum": 1,
+            "pageSize": 3,
+        },
+        headers={"User-Agent": _SINA_UA},
+    )
+    r.raise_for_status()
+    return parse_chinamoney(r.json())
 
 
 async def _from_sina(client: httpx.AsyncClient, code: str) -> float | None:
@@ -142,16 +196,23 @@ async def usd_cny(force: bool = False) -> dict | None:
         if not force and _cache["data"] and time.time() - _cache["at"] < RATE_TTL_S:
             return {**_cache["data"], "stale": False}
         sources = (
-            ("新浪财经 USD/CNY 实时", "https://hq.sinajs.cn/list=USDCNY", "USDCNY"),
-            ("新浪财经 USD/CNY 实时", "https://hq.sinajs.cn/list=fx_susdcny", "fx_susdcny"),
+            ("腾讯财经 USD/CNY 即时", "https://qt.gtimg.cn/q=whUSDCNY", "qq"),
+            ("新浪财经 USD/CNY 即时", "https://hq.sinajs.cn/list=USDCNY", "USDCNY"),
+            ("新浪财经 USD/CNY 即时", "https://hq.sinajs.cn/list=fx_susdcny", "fx_susdcny"),
         )
         try:
             async with httpx.AsyncClient(timeout=_TIMEOUT_S, follow_redirects=True) as client:
                 for label, url, code in sources:
                     try:
-                        rate = await _from_sina(client, code)
+                        rate = (
+                            await _from_qq(client) if code == "qq" else await _from_sina(client, code)
+                        )
                         if rate:
-                            return _remember(rate, label, url)
+                            return _remember(
+                                rate, label, url,
+                                page="https://finance.qq.com/" if code == "qq"
+                                else "https://finance.sina.com.cn/money/forex/hq/USDCNY.shtml",
+                            )
                     except Exception as e:
                         log.warning("汇率源失败 %s: %s", code, e)
                 try:
@@ -160,9 +221,20 @@ async def usd_cny(force: bool = False) -> dict | None:
                         return _remember(
                             rate, "exchangerate-api（日频兜底）",
                             "https://api.exchangerate-api.com/v4/latest/USD",
+                            page="https://www.exchangerate-api.com/",
                         )
                 except Exception as e:
                     log.warning("汇率兜底源失败: %s", e)
+                try:
+                    rate = await _from_chinamoney(client)
+                    if rate:
+                        return _remember(
+                            rate, "CFETS 中间价（非市场即时价）",
+                            "https://www.chinamoney.com.cn/chinese/bkccpr/",
+                            page="https://www.chinamoney.com.cn/chinese/bkccpr/",
+                        )
+                except Exception as e:
+                    log.warning("CFETS 源失败: %s", e)
         except Exception:
             log.exception("汇率抓取异常")
     # 本轮全失败：退回上次成功值（若在 1 小时内），并标 stale
@@ -171,11 +243,12 @@ async def usd_cny(force: bool = False) -> dict | None:
     return None
 
 
-def _remember(rate: float, source: str, url: str) -> dict:
+def _remember(rate: float, source: str, url: str, page: str = "") -> dict:
     data = {
         "rate": round(rate, 4),
         "source": source,
         "url": url,
+        "page": page or url,
         "at": datetime.now().astimezone().isoformat(timespec="seconds"),
     }
     _cache["data"] = data

@@ -360,6 +360,13 @@ def test_fx():
     check("汇率解析: 新浪 USDCNY 取买卖中间价", abs((fx.parse_sina(sina) or 0) - 6.6712) < 1e-6, str(fx.parse_sina(sina)))
     check("汇率解析: 新浪 fx_susdcny 同格式", abs((fx.parse_sina(fxrate) or 0) - 6.6712) < 1e-6)
     check("汇率解析: 非报价响应返回 None", fx.parse_sina('v_pv_none_match="1";') is None)
+    qq = 'v_whUSDCNY="310~人民币~USDCNY~6.6710~0~20261106210926~6.6680~6.6700";'
+    check("汇率解析: 腾讯 whUSDCNY 取当前价", abs((fx.parse_qq(qq) or 0) - 6.671) < 1e-6, str(fx.parse_qq(qq)))
+    check("汇率解析: 腾讯非报价响应返回 None", fx.parse_qq('v_pv_none_match="1";') is None)
+    check(
+        "汇率解析: CFETS 中间价取 records[0]",
+        abs((fx.parse_chinamoney({"records": [{"date": "2026-11-06", "values": ["6.7168"]}]}) or 0) - 6.7168) < 1e-6,
+    )
     check("汇率解析: 超区间值被丢弃", fx.parse_sina('var hq_str_USDCNY="1,240,240,1";') is None)
     check(
         "汇率兜底源: exchangerate-api JSON",
