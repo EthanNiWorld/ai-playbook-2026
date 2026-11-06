@@ -97,6 +97,21 @@ button:disabled { cursor: not-allowed; }
 .btn.ghost:disabled, .topbar-new:disabled { opacity: .4; cursor: not-allowed; }
 .btn .icon { width: 15px; height: 15px; flex-shrink: 0; }
 
+/* 售前指南入口：指向 /guide（知识库里版本日期最新的那份 HTML） */
+.guide-link {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 8px; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 10px;
+  background: #fff; color: var(--text); text-decoration: none;
+}
+.guide-link:hover { background: var(--hover); }
+.guide-link .icon { width: 15px; height: 15px; flex-shrink: 0; color: var(--text-2); }
+.guide-link-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.35; }
+.guide-link-title { font-size: 13.5px; }
+.guide-link-hint { font-size: 11px; color: var(--muted); }
+.guide-link-arrow { width: 13px; height: 13px; flex-shrink: 0; margin-left: auto; color: var(--muted); }
+.guide-link:hover .guide-link-arrow { color: var(--text-2); }
+
 .tips { max-width: var(--content-width); margin: 26px auto 0; }
 .tips-title { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
 .suggestion-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -148,6 +163,9 @@ button:disabled { cursor: not-allowed; }
   gap: 12px; padding: 12px 28px;
 }
 .topbar-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.topbar-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+/* 窄屏侧栏整体隐藏，指南入口改由顶栏图标承接 */
+.topbar-guide { display: none; }
 .topbar-title { font-size: 14px; font-weight: 500; white-space: nowrap; }
 .topbar-sub { margin-left: 10px; padding-left: 10px; border-left: 1px solid var(--line); font-size: 12px; font-weight: 400; color: var(--muted); }
 .icon-btn {
@@ -581,6 +599,7 @@ button:disabled { cursor: not-allowed; }
   .sidebar, #sidebarToggle { display: none; }
   .topbar { min-height: 60px; padding: 8px 16px; padding-top: max(8px, env(safe-area-inset-top)); }
   .topbar-new { display: inline-flex; min-height: 44px; }
+  .topbar-guide { display: flex; width: 44px; height: 44px; }
   .topbar-title { font-size: 15px; }
   .topbar-sub { display: none; }
   .chat { padding: 20px 16px 8px; gap: 22px; }

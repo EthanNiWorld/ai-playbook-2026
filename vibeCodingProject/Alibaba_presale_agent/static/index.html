@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#fcfbf9"/>
 <title>阿里小可爱 EthanNi的小助手</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230d0d0d'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ff6a00'/%3E%3C/svg%3E"/>
-<link rel="stylesheet" href="/static/style.css?v=20261106e"/>
+<link rel="stylesheet" href="/static/style.css?v=20261106f"/>
 </head>
 <body>
 <div class="layout">
@@ -23,6 +23,20 @@
       </svg>
       新会话
     </button>
+
+    <a class="guide-link" href="/guide" target="_blank" rel="noopener">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v18H6.5A2.5 2.5 0 0 1 4 18.5z"/>
+        <path d="M8 7.5h8M8 11.5h6"/>
+      </svg>
+      <span class="guide-link-text">
+        <span class="guide-link-title">售前指南</span>
+        <span class="guide-link-hint">API 销售快速指南</span>
+      </span>
+      <svg class="guide-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 17 17 7M9 7h8v8"/>
+      </svg>
+    </a>
 
     <div class="sidebar-note">
       <span class="sidebar-note-title">从一个问题开始</span>
@@ -43,10 +57,18 @@
         </button>
         <span class="topbar-title">阿里小可爱<span class="topbar-sub">万能、7*24小时的任劳任怨的AI架构师</span></span>
       </div>
-      <button id="newSessionTop" class="btn topbar-new" disabled>
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-        新会话
-      </button>
+      <div class="topbar-actions">
+        <a class="icon-btn topbar-guide" href="/guide" target="_blank" rel="noopener" title="售前指南" aria-label="售前指南">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:18px;height:18px">
+            <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v18H6.5A2.5 2.5 0 0 1 4 18.5z"/>
+            <path d="M8 7.5h8M8 11.5h6"/>
+          </svg>
+        </a>
+        <button id="newSessionTop" class="btn topbar-new" disabled>
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          新会话
+        </button>
+      </div>
     </header>
     <div id="workspace" class="workspace is-empty">
       <div id="chat" class="chat" role="region" aria-label="对话内容"></div>
@@ -102,6 +124,6 @@
   </main>
 </div>
 <script src="/static/vendor/marked.min.js"></script>
-<script src="/static/app.js?v=20261106e"></script>
+<script src="/static/app.js?v=20261106f"></script>
 </body>
 </html>

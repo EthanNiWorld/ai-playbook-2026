@@ -289,6 +289,46 @@ def test_store():
             store.get_db_path = orig
 
 
+def test_guide_lookup():
+    """售前指南定位：文件名日期会滚动，必须取最新一版而非硬编码。"""
+    from app import guide as gd
+
+    hit = gd.latest_guide()
+    check("售前指南: 能在知识库中找到指南 HTML", hit is not None, str(gd.guide_dir()))
+    if hit:
+        check(
+            "售前指南: 命中标准命名 ModelStudio-api-sales-guide-<YYYYMMDD>.html",
+            hit.name.startswith("ModelStudio-api-sales-guide-") and hit.suffix == ".html",
+            hit.name,
+        )
+
+    # 用临时目录模拟新旧版本共存 + 非 HTML 干扰项，验证取的是日期最新那个
+    tmp = Path(tempfile.mkdtemp())
+    d = tmp / gd.GUIDE_DIR
+    d.mkdir(parents=True)
+    for n in (
+        "ModelStudio-api-sales-guide-20260101.html",
+        "ModelStudio-api-sales-guide-20261230.html",
+        "ModelStudio-api-sales-guide-20261230.png",
+    ):
+        (d / n).write_text("x", encoding="utf-8")
+    orig = gd.knowledge.resolve_source_root
+    gd.knowledge.resolve_source_root = lambda: ("local", tmp)
+    try:
+        pick = gd.latest_guide()
+        check(
+            "售前指南: 多版本共存时取文件名日期最新的",
+            pick is not None and pick.name.endswith("20261230.html"),
+            pick.name if pick else "None",
+        )
+        # 空目录 → 返回 None（路由层会退成友好提示页）
+        for p in d.glob("*"):
+            p.unlink()
+        check("售前指南: 目录为空时返回 None 而不是报错", gd.latest_guide() is None)
+    finally:
+        gd.knowledge.resolve_source_root = orig
+
+
 def main():
     print("=" * 56)
     print("阿里小可爱AI问答助手 — 离线自测套件")
@@ -298,6 +338,7 @@ def main():
     test_price_parsing_offline()
     test_knowledge_retrieval()
     test_store()
+    test_guide_lookup()
     print("-" * 56)
     print(f"结果: {PASS} 通过 / {FAIL} 失败")
     sys.exit(1 if FAIL else 0)

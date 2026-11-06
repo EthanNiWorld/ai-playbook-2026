@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import knowledge, pipeline, store
+from . import guide, knowledge, pipeline, store
 from .config import KB_SYNC_INTERVAL_HOURS, PROJECT_ROOT, get_admin_token, get_llm_config
 
 logging.basicConfig(
@@ -126,6 +126,37 @@ async def index():
 @app.get("/admin", include_in_schema=False)
 async def admin_page():
     return FileResponse(STATIC_DIR / "admin.html", headers=_NO_CACHE)
+
+
+# 知识库未就绪时的兜底页：说明原因并给回首页的入口，而不是抛裸 404
+_GUIDE_MISSING = """<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>售前指南暂不可用</title><style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#fcfbf9;color:#0d0d0d;
+font-family:-apple-system,'PingFang SC',sans-serif;padding:24px}
+div{max-width:520px;line-height:1.8}h1{font-size:18px;margin:0 0 12px}
+p{color:#666;font-size:14px;margin:0 0 18px}
+a{color:#ff6a00;font-size:14px}
+</style></head><body><div>
+<h1>售前指南暂不可用</h1>
+<p>知识库尚未克隆完成，或 <code>alibaba-ai-hub/maas/sales-tools/</code>
+下还没有 <code>ModelStudio-api-sales-guide-*.html</code>。等首次索引建好后刷新本页即可。</p>
+<a href="/">← 返回问答首页</a>
+</div></body></html>"""
+
+
+@app.get("/guide", include_in_schema=False)
+async def guide_page():
+    """售前指南：始终指向知识库里版本日期最新的那份 HTML。"""
+    page = guide.latest_guide()
+    if page is None:
+        return Response(_GUIDE_MISSING, status_code=404, media_type="text/html; charset=utf-8")
+    # X-Guide-File 便于线上核对当前到底在放哪一版（文件名日期会滚动）
+    return FileResponse(
+        page,
+        media_type="text/html; charset=utf-8",
+        headers={**_NO_CACHE, "X-Guide-File": page.name},
+    )
 
 
 @app.get("/api/health")
