@@ -2,15 +2,17 @@
 
 > **AI 解决方案售前知识库** — 模型选型 · 竞品对比 · 行业方案 · 技术通识，一站式参考
 >
-> 最后更新：2026-11-03
+> 最后更新：2026-11-08
 
 <p align="center">
   <img src="https://img.shields.io/badge/覆盖厂商-13-blue?style=for-the-badge" alt="覆盖厂商 13 家：阿里云 + 12 家外部厂商">
   <img src="https://img.shields.io/badge/结构化文档-101-orange?style=for-the-badge" alt="结构化文档 101 篇">
   <img src="https://img.shields.io/badge/知识维度-4-green?style=for-the-badge" alt="知识维度 4 类：通识 · 产品 · 对比 · 方案">
   <img src="https://img.shields.io/badge/核心阵地-阿里云-purple?style=for-the-badge" alt="核心阵地：阿里云 MaaS · Coding · App · Infra">
-  <img src="https://img.shields.io/badge/最后更新-2026--11--03-lightgrey?style=for-the-badge" alt="最后更新 2026-10-30">
+  <img src="https://img.shields.io/badge/最后更新-2026--11--08-lightgrey?style=for-the-badge" alt="最后更新 2026-11-08">
 </p>
+
+<!-- 统计口径（2026-11-08 实测）：结构化文档 = alibaba-ai-hub/ 与 knowledge/ 下 *.md（排除 _ 开头模板）= 41 + 60 = 101 篇；HTML/PNG 交付件不计入。修改门面数字前请用 find 重测，勿凭报告/印象自增 -->
 
 <p align="center">
   <a href="index.md"><img src="https://img.shields.io/badge/📋-全局索引-blue?style=for-the-badge" alt="全局索引"></a>
@@ -30,7 +32,7 @@
 **☁️ 阿里云 AI 全栈**
 > 41 篇 · MaaS / Coding / App / Infra / 行业方案 全链路
 
-[百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [决策模型](alibaba-ai-hub/maas/decision-model.md) · [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work-retired-product.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun-retired-product.md) · [GPU](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [全部 41 篇 → index.md](index.md)
+[百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [决策模型](alibaba-ai-hub/maas/decision-model.md) · [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [GPU](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [全部 41 篇 → index.md](index.md)
 
 </td>
 <td width="50%" valign="top">
@@ -64,9 +66,9 @@
 <td width="50%" valign="top">
 
 **⌨️ AI Coding & App**
-> IDE 插件 · 桌面 Agent · 云端编排
+> IDE 插件 · Agent 办公 · 桌面协作
 
-[Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [Claude Code](knowledge/anthropic/claude-code.md) · [Codex](knowledge/openai/codex.md) · [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work-retired-product.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun-retired-product.md) · [Claude Cowork](knowledge/anthropic/claude-cowork.md)
+[Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [Claude Code](knowledge/anthropic/claude-code.md) · [Codex](knowledge/openai/codex.md) · [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [Claude Cowork](knowledge/anthropic/claude-cowork.md)
 
 </td>
 <td width="50%" valign="top">
@@ -124,7 +126,7 @@
 | [MiniMax Agent Team](knowledge/minimax/agent-team.md) | Leader–Worker–Verifier 对抗制衡、多 Agent runtime 设计哲学 |
 | [DeepSeek V 系列](knowledge/deepseek/deepseek-v-series.md) | V4.1 Flash CED 非对称架构（输入 8B / 输出 16B 激活）、原生视觉、峰谷分时定价 |
 | [GLM 系列](knowledge/zhipu/glm-series.md) | GLM-5.3 / 5.3-Flash 开源 SOTA，Terminal-Bench 3.0 28.3 开源第一，1M 上下文 |
-| [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) | K3.1 Pro（10-24 后训练旗舰，$2/$10）/ K3 2.8T / 1M 上下文，K3 已开源 |
+| [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) | K3.1 Pro（10-24 后训练旗舰，$2/$10，权重已按期开放）/ K3 2.8T / 1M 上下文，K3 系已全部开源 |
 | [Claude API](knowledge/anthropic/claude-api.md) | Claude 5.5 家族（Opus 5.5 $4/$20 / Sonnet 5.5 / Haiku 5.5 分层定价 $0.10/$0.50），护栏从领域级下沉到任务阶段级 |
 | [GPT-6 系列](knowledge/openai/gpt-6-series.md) | Astra（🌟 前代模型监督训练 + 首个 Critical 级 cyber）/ Sol / 6.1 Terra（性价比档）/ Luna（272K 分段 $0.10/$0.50），1.05M 上下文 |
 
@@ -138,7 +140,7 @@
 |------|---------|---------|
 | 🧠 **MaaS 模型即服务** | 百炼 · Qwen3.8 · 向量与重排序 · Wan3.0 · HappyHorse · Fun-Music | [百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [向量与重排序](alibaba-ai-hub/maas/qwen-embedding-rerank.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) · [Fun-Music](alibaba-ai-hub/maas/fun-music.md) · [售前工具](alibaba-ai-hub/maas/sales-tools/) |
 | ⌨️ **AI Coding** | Qoder（企业级 AI Coding） | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [Qoder 架构分析](alibaba-ai-hub/ai-coding/qoder_survey_20260622.md) · [vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) |
-| 🤖 **AI 应用平台** | QwenWork · QoderWork · MuleRun · Claw · JVS Crew | [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work-retired-product.md) · [MuleRun](alibaba-ai-hub/ai-application/mulerun-retired-product.md) · [Claw](alibaba-ai-hub/ai-application/claw-family.md) · [JVS Crew](alibaba-ai-hub/ai-application/jvs-crew.md) |
+| 🤖 **AI 应用平台** | QwenWork · Claw · JVS Crew | [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [Claw](alibaba-ai-hub/ai-application/claw-family.md) · [JVS Crew](alibaba-ai-hub/ai-application/jvs-crew.md) |
 | ⚡ **AI Infra（存储 / 算力）** | GPU 选型 · AgenticFS | [GPU 选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [AgenticFS](alibaba-ai-hub/ai-infra/agenticfs.md) |
 | 🥊 **竞品对比** | vs Trae · vs Hy3 · vs Doubao · Haiku vs Luna | [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) · [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) |
 
@@ -163,7 +165,7 @@ mindmap
       阿里云 ☁️ 41 篇
         MaaS: Qwen3.8 / Wan3.0 / HappyHorse
         AI Coding: Qoder
-        AI App: QwenWork / QoderWork / MuleRun / Claw
+        AI App: QwenWork / Claw
         AI Infra: GPU 选型 / AgenticFS
       Anthropic
         Opus 5.5 / Sonnet 5.5 / Haiku 5.5 · Claude Code
@@ -236,7 +238,7 @@ flowchart LR
 ├── alibaba-ai-hub/     ← 🟧 阿里云 AI 全栈（核心阵地·主推，41 篇）
 │   ├── maas/                  ← MaaS 模型服务（百炼 / Qwen / Qwen Embedding & Rerank / Wan / CosyVoice / FunASR / Qwen-Audio TTS / Qwen-Audio ASR / Qwen-Audio Realtime / HappyHorse / Fun-Music / sales-tools）
 │   ├── ai-coding/             ← Qoder（企业级 AI Coding IDE）
-│   ├── ai-application/        ← QwenWork / QoderWork / MuleRun / Claw / JVS Crew / 万镜一刻
+│   ├── ai-application/        ← QwenWork / Claw / JVS Crew / 万镜一刻
 │   ├── ai-infra/              ← GPU 选型 / AgenticFS（Agent 原生文件存储）
 │   ├── competitive-analysis/  ← 竞品对比（vs Trae / vs Hy3 / vs Doubao / Haiku 5.5 vs GPT-6 Luna）
 │   └── ai-industry-solutions/ ← 🟩 行业方案（企业AI平台 / 短剧出海 / IPC / 商业地产）

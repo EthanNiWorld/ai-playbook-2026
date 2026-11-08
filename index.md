@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-11-03
+> 最后更新：2026-11-08
 
 ## 目录
 
@@ -40,9 +40,7 @@
 | Qoder / AI 编程 / IDE 插件 | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) |
 | Qoder 架构 / Harness 逆向 / 执行日志分析 | [Qoder IDE 架构逆向分析](alibaba-ai-hub/ai-coding/qoder_survey_20260622.md) |
 | QwenWork / 千问办公 / Agent 办公平台 | [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) |
-| QoderWork / 桌面助手 / 本地 Agent（已下架，由 QwenWork 承接） | [QoderWork](alibaba-ai-hub/ai-application/qoder-work-retired-product.md) |
 | 万镜一刻 / WonderClip / AI视频创作 / 短剧 | [万镜一刻](alibaba-ai-hub/ai-application/wonderclip万镜一刻.md) |
-| MuleRun / 骡子快跑 / 云端 Agent / vs QoderWork | [MuleRun](alibaba-ai-hub/ai-application/mulerun-retired-product.md) |
 | GPU 选型 / A100 / H100 / H20 | [GPU 选型决策树](alibaba-ai-hub/ai-infra/gpu-product-line.md) ⭐ |
 | 灵骏 / 智算集群 / EFLOPS | 待补充 |
 | Agent 定义 / Harness / 治理层 | [Agent](knowledge/ai-general-notes/agent-def.md) ⭐ · [Harness](knowledge/ai-general-notes/harness.md) ⭐ |
@@ -79,9 +77,7 @@
 | GRPO / PPO / critic / RL 算法选型 / Agentic RL | [RL 算法选型](knowledge/ai-general-notes/rl-algorithm-selection-grpo-vs-ppo.md) |
 | 视频模型数据策略 / 不蒸馏 / 数据质量密度 | [视频模型数据策略](knowledge/ai-general-notes/video-model-data-strategy.md) |
 | API 定价 / 开源套利 / 架构降本 / Flash 低价可持续性 | [开源定价套利与架构降本](knowledge/ai-general-notes/open-weights-api-pricing-floor.md) |
-| 矿山安全 / AI 监控 / 矿山 Demo | [矿山安全 AI 监控 Demo](alibaba-ai-hub/ai-industry-solutions/mining-safety-ai-demo.html) |
 | 企业自建推理 / Higress / AI 网关 | [企业自建 AI 推理平台](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) ⭐ |
-| 数据出境 / 数据主权 / CN 版 | [MuleRun](alibaba-ai-hub/ai-application/mulerun-retired-product.md#mulerun全球版与骡子快跑中国版的关系) · [QoderWork](alibaba-ai-hub/ai-application/qoder-work-retired-product.md) |
 | 算子 / Kernel / 算子优化 / 兑换率 / 算法 vs 算子 / 开源利润池 | [算子经济学](knowledge/ai-general-notes/operator-kernel-economics.md) ⭐ |
 | Agent 存储 / AgenticFS / AgenticSpace / Agent 工作区 / 多租户隔离 / OSS vs NAS | [Agent Native 存储](knowledge/ai-general-notes/agent-native-storage.md) ⭐ · [AgenticFS](alibaba-ai-hub/ai-infra/agenticfs.md) |
 
@@ -122,7 +118,7 @@
 
 > 分组顺序：**云厂商**（阿里云 / Google）→ **海外模型厂商** → **中国模型厂商**。
 
-### 🟧 阿里云（核心阵地，33 篇深度文档）
+### 🟧 阿里云（核心阵地，41 篇深度文档）
 
 > **从底层算力到上层应用，覆盖 MaaS / AI Coding / AI App / AI Infra / 竞品对比全链路。**
 
@@ -148,6 +144,7 @@
 - [阿里云 AI 解决方案专家提示词](alibaba-ai-hub/maas/sales-tools/ModelStudio-solution-expert-prompt-20261105.md) — 数字分身 System Prompt（模型矩阵/价格口径/ROI 测算信源，已对齐 1130 版销售指南）
 - [DeepSeek-V4 TPM ROI 计算器](alibaba-ai-hub/maas/sales-tools/deepseek-v4-tpm-vs-modelstudio-roi.html) · [GLM-5.2 TPM ROI 计算器](alibaba-ai-hub/maas/sales-tools/glm5.2-tpm-vs-modelstudio-roi.html)
 - [DeepSeek-V4 Flash 折扣报告](alibaba-ai-hub/maas/sales-tools/deepseek-v4-flash-0731-discount-report-20260818.html) · [DeepSeek-V4 Pro 折扣报告](alibaba-ai-hub/maas/sales-tools/deepseek-v4-pro-0813-discount-report-20260818.html)（HTML/PNG，20260818）
+- [DeepSeek-V4.1 Flash 折扣报告](alibaba-ai-hub/maas/sales-tools/deepseek-v4.1-flash-discount-report-20260914.html) · [DeepSeek-V4.1 Flash 工作日折扣报告](alibaba-ai-hub/maas/sales-tools/deepseek-v4.1-flash-workday-discount-report-20260914.html)（HTML，20260914）
 
 **AI Coding**
 - [Qoder](alibaba-ai-hub/ai-coding/qoder.md) — 企业级 AI Coding IDE 插件
@@ -157,8 +154,6 @@
 **AI App**
 - [万镜一刻](alibaba-ai-hub/ai-application/wonderclip万镜一刻.md) — 全链路AI视频创作平台，短漫剧+营销，HappyHorse+Wan，$18–$12,000/月
 - [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) — 千问办公，一站式 Agent 办公平台（整合 QoderWork / 悟空 / MuleRun）
-- [QoderWork](alibaba-ai-hub/ai-application/qoder-work-retired-product.md) — 桌面 Agent、本地（已下架，由 QwenWork 承接）
-- [MuleRun](alibaba-ai-hub/ai-application/mulerun-retired-product.md) — 云端 Agent、Always-On
 - [龙虾家族](alibaba-ai-hub/ai-application/claw-family.md)
 - [JVS Crew](alibaba-ai-hub/ai-application/jvs-crew.md)
 
@@ -261,7 +256,6 @@
 - [短剧出海](alibaba-ai-hub/ai-industry-solutions/vertical-short-drama/overview.md) — Qwen3.8-27B 原生 VL 视频理解 + 16 语言内容生成 + OpenSearch SEO，30 天 156 万条
 - [商业地产](alibaba-ai-hub/ai-industry-solutions/commercial-real-estate/overview.md) — AI 质检、合同审查、知识库、智能客服、Qoder 提效
 - [企业自建 AI 推理平台](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) ⭐ — Higress AI 网关 + 灵骏 GPU + 百炼 Fallback；含 AWS 迁移案例
-- [矿山安全 AI 监控 Demo](alibaba-ai-hub/ai-industry-solutions/mining-safety-ai-demo.html) — 矿山安全场景 HTML 动态 Demo（含 MP4 录屏）
 
 ---
 

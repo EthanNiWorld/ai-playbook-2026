@@ -1,6 +1,6 @@
 # AI Agent Benchmark 三维度评估框架
 
-> 最后更新: 2026-11-03
+> 最后更新: 2026-11-08
 > 领域: AI Engineering / AI Coding
 > 状态: Published
 
@@ -145,7 +145,13 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 | **Claude Fable 5.1** | 52.0%（AA） | 76.8% |
 | MiMo-V2.6-Flash | 23%（AA） | [⚠️ 待补充] |
 
-> 注（2026-11-03 重刷口径）：① Carbon / Argon / Astra / Opus 5.5 / Fable 5.1 的 AA 与 OSWorld 数值来自 Google 2026-10-28 发布对比表（DataLearner 转述原始口径）；② K3.1 Pro 来自 Moonshot 官方发布（Claude Code harness），Opus 5.5 66.4% 来自 Claude 系发布口径（同 harness 可比）；③ **SWE-bench Pro 列已移除**——Scale Leaderboard 持续 403 无法复核，上代分数见下方存档；④ OSWorld 2.1 offline 为离线子集（Carbon 取三次最佳，Google 口径），与旧 OSWorld-Verified 不直接可比。
+> 注（2026-11-03 重刷口径）：① Carbon / Argon / Astra / Opus 5.5 / Fable 5.1 的 AA 与 OSWorld 数值来自 Google 2026-10-28 发布对比表（DataLearner 转述原始口径）；② K3.1 Pro 来自 Moonshot 官方发布（Claude Code harness），Opus 5.5 66.4% 来自 Claude 系发布口径（同 harness 可比）；③ **SWE-bench Pro 列已移除**——Scale Leaderboard 持续 403 无法复核，上代分数见下方存档；④ OSWorld 2.1 offline 为离线子集（Carbon 取三次最佳，Google 口径），与旧 OSWorld-Verified 不直接可比；⑤ **tbench.ai 榜单当前值（最优提交口径，2026-11-08 查询）**：Opus 5.5 64.8% / Sonnet 5.5 61.8% / GPT-6 Astra 58.2%——与表中官方发布口径（66.4% / 70.6% / 59.1%）数值不同，两套口径不可混比，对外引用须注明 harness 与查询日期。
+
+> 📐 **Terminal-Bench 版本口径规则（2026-11-08 确立）**
+> ① **统一对比口径 = TB 4.0**：跨模型横向对比只用 TB 4.0 分数，不与 2.0 / 2.1 / 3.0 混排（不同版本难度天差地别，同表并列会得出反向结论）。
+> ② **适用范围 = TB 4.0 时代发布的前沿模型**（2026-09 起）：Gemini 4 Argon / Carbon、GPT-6 Astra、Claude Opus·Sonnet·Haiku 5.5、Kimi K3.1 Pro、MiMo-V2.6-Flash、Hunyuan Hy4、DeepSeek-V4.1-Flash-1017 等。
+> ③ **TB 4.0 之前发布的模型不追溯更新**：Qwen3.8-Max（TB 2.1）、Kimi K3 / K2.6（TB 2.1 / 2.0）、DeepSeek-V4-Pro GA（TB 2.1）、GLM-5.3（TB 3.0）、Hunyuan Hy3（TB 2.1）、GPT-5.5（TB 2.0）、Claude Opus 4.7/4.8（TB 2.1）、Gemini 3.8 Flash（TB 2.1）等保持其发布时的版本分数，**不换算、不补算、不填入 4.0 对比表**。
+> ④ **同为 4.0 仍可能 harness 不同**（AA / tbench.ai 最优提交 / 厂商自报 Claude Code）：并列标注，跨厂商对比优先取同一 harness 的榜单值；对外引用必须注明 harness 与查询日期。
 
 **学术推理力**：
 
@@ -156,6 +162,8 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 | Claude Opus 5.5 / Gemini 4 Carbon / GPT-6 Astra | [⚠️ 待补充——AA v5 已切换 HLE-Diamond 子集] |
 
 > 注：HLE 分数受测试条件影响（是否带工具、harness 配置、Full / Verified / Diamond 子集）。AA Intelligence Index v5.0 已纳入 HLE-Diamond；上代 HLE 分数（Opus 4.8 57.9% 等）见下方存档，不与本表混排。
+>
+> **AA Intelligence Index v5.0 当前座次（2026-11-08 首页 live，全库统一引用口径）**：Gemini 4 Carbon **60** / Claude Opus 5.5 **59** / GPT-6 Astra **57** / GPT-6.1 Sol **55** / Kimi K3.1 Pro **46** / Qwen3.8 Max **45**。AA 指数随新模型发布重校准（发布时口径与 live 值常差 1–4 分），各模型文档引用时必须注明查询日期。
 
 **知识工作力**：
 
@@ -264,6 +272,7 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-08 | 校验修复（knowledge-verification-2026-11-08）：**确立 TB 4.0 统一对比口径规则**（适用范围 2026-09 起前沿模型；TB 4.0 之前的模型不追溯更新）；TB 表补 tbench.ai 榜单值并明确 harness 并列原则；新增 AA Intelligence Index v5 live 座次行（6 模型，全库统一引用口径）；Changelog 最早 2 条折叠 |
 | 2026-11-03 | 重刷（knowledge-verification-2026-11-03 B 组）：三维度表按 TB 4.0 / 新官方口径统一重刷为当前世代模型（数值见正文）；SWE-bench Pro 列移除（Scale 403）；GDPval 表新增 K3.1 Pro 1846（v2.1）；上代表整体移入 <details> 存档不混排 |
 | 2026-11-03 | 校验修复（knowledge-verification-2026-11-03）：TB 当前版本改为 4.0（官网首页口径），补 AA Intelligence Index v5.0 切换（2026-10-27，纳入 TB 4.0 / FrontierCode 2.0 / HLE-Diamond 等 9 项；GDPval-AA 当前 v2.1）；三维度分数表保留 TB 2.1 / 旧版 AA 口径并加「待统一重刷、勿混排」提醒，未擅自重刷分数 |
 | 2026-09-17 | 校验修复（knowledge-verification-2026-09-17）：DeepSeek-V4-Pro Terminal-Bench 2.1 待确认项回填 87.9%（厂商自报 GA 0813 口径，非 AA 统一 harness，与表内 AA harness 分数不完全可比） |
@@ -273,5 +282,13 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 | 2026-06-14 | 架构重构：“四层光谱”→“双维度评估框架”（操作执行力 + 学术推理力），因 HLE 与前三层不在同一维度，正交而非递进 |
 | 2026-06-14 | 修正 HLE 定位：“深度推理力”→“学术推理力”，HLE 测博士级学科知识推理而非通用思考能力，不会 HLE ≠ 不会思考 |
 | 2026-06-14 | 新增维度三知识工作力（GDPval-AA）：三维度评估框架完整化；补充 GDPval-AA 基本信息、各模型 Elo 得分、与 HLE 的区别 [来源: 用户口述] |
+
+<details>
+<summary>历史早期记录（2026-06-14 建档阶段）</summary>
+
+| 日期 | 变更内容 |
+|------|----------|
 | 2026-06-14 | GDPval-AA 分数修正与补充（AA 独立评测交叉验证）：MiniMax M3 从 1,495 修正为 1,668（原误用 M2.7 分数）；新增 DeepSeek-V4-Pro 1,558 / Qwen3.7-Max 1,541 / GLM-5.1 1,535 / Qwen3.7-Plus 1,517（均来自 artificialanalysis.ai） |
 | 2026-06-14 | 三维度对照表补全 9 模型：操作执行力新增 GPT-5.5 / Gemini 3.1 Pro / MiniMax M3 / GLM-5.1 / DeepSeek-V4-Pro；学术推理力新增 Gemini 3.1 Pro，补充 AA text-only HLE 对比；知识工作力统一按 AA 独立评测 Elo 排序 |
+
+</details>

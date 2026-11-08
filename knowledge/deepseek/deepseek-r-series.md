@@ -5,7 +5,7 @@
 > 产品类别: MaaS
 > 状态: Published
 
-> ⚠️ 素材截止：2026-06-29，含 5 项未填充项（112 天未更新，达僵尸文档阈值），使用前请验证。归档至 archive/ 需用户单独确认。
+> ⚠️ 素材截止：2026-06-29，含 5 项未填充项；在售状态已于 2026-11-05 补记（全系 2026-10-10 下架），但正文其他事实未按新素材重刷，使用前请验证。归档至 archive/ 需用户单独确认。
 >
 > 🔴 **在售状态（2026-11-05 补记）**：按百炼上线公告，**deepseek-v3 / r1 全系列已于 2026-10-10 下架**（来源：[百炼 DeepSeek 文档](https://www.alibabacloud.com/help/en/model-studio/deepseek-api)，同口径已录入 [deepseek-v-series.md](deepseek-v-series.md)）。R 系列新项目不可再选，仅开源权重（MIT）自托管可用；商用推理请改选 [V4.1-Flash-1017 / V4-Pro GA](deepseek-v-series.md)。以控制台模型列表为准（未实测复核下架执行情况）。
 

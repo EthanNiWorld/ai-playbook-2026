@@ -1,6 +1,6 @@
 # OpenAI GPT-6 系列模型
 
-> 最后更新: 2026-11-03
+> 最后更新: 2026-11-08
 > 所属厂商: OpenAI
 > 产品类别: MaaS
 > 状态: Published
@@ -21,7 +21,7 @@
 | **GPT-6.1 Terra** | 性价比档（Terra 回归） | 1.05M（媒体口径） | 官方称中等推理比 5.6 Terra +15pp、成本约 1/3；单价为 Sol 50% / Astra 10%；速度比 Astra/Sol 快约 3× | 2026.10.26 |
 | **GPT-6 Luna** | 轻量/高并发 | 1.05M | 272K 分段定价 $0.10/$0.50；低延迟路由；ChatGPT Free/Go 桌面端可用 | 2026.09.22 |
 
-> 📌 **快速点更新**：**GPT-6.1 Sol**（2026.09.29 DevDay，Sol 后一周、Astra 后 26 天）——$2/$10 同价，cached input 降至 $0.10/M（比 Sol cached 再 -50%），coding-deception 降至 2.1%，AA 指数 52；详见下文章节。
+> 📌 **快速点更新**：**GPT-6.1 Sol**（2026.09.29 DevDay，Sol 后一周、Astra 后 26 天）——$2/$10 同价，cached input 降至 $0.10/M（比 Sol cached 再 -50%），coding-deception 降至 2.1%，AA 指数 55（v5，2026-11-08 查询）；详见下文章节。
 
 > 📌 **历史模型**（GPT-6 世代前）：**GPT-5.6 Sol/Terra/Luna**（2026.06.26 有限预览，Sol 已于 08-21 降价至 $4/$20 促销价）/ GPT-5.5（2026.04.23 GA）及更早——已被 GPT-6 世代取代（Terra 档在 GPT-6 首发未复现，2026-10-26 已由 6.1 Terra 补位），详见 [GPT-5 系列](gpt-5-series.md)。
 
@@ -50,7 +50,7 @@
 
 - **存量变强**：AutomationBench 41.4（Sol 18.1 的 2.3×；Fable 5.1 31.4、Opus 5 26.9）；BenchCAD 95.9%；ScreenSpot-Pro 92.7%；Terminal-Bench 4.0 57.7%（Fable 5.1 55.8）；Agents' Last Exam 59.3
 - **增量解锁**：①生产级 computer use（表单/CRM/前端 QA/KiCad PCB/Blender 跨软件）②Critical 级攻防能力（经 Daybreak 门控向防御者开放）③1M 级长上下文 agent 记忆（Codex 跨窗口笔记）
-- ⚠️ **制衡点（第三方口径，售前引用必备）**：AA Intelligence Index v4.1.1（发布时口径）**61.2，落后 Fable 5.1 65.7 / Opus 5 63.1 / Fable 5 62.1**；HLE with tools 57.2% 落后 Fable 5.1 65.0%（官方正文未提该行）；DeepSWE v1.1 74.1% 落后 Meta Muse Spark 1.3 75.4% 与 Gemini 4 Argon 77.9%；FrontierCode 1.1 Main/Extended 均落后 Claude 系——**"世界最智能"是 OpenAI 自家表格口径，独立指数不支持**。2026-10 最新 AA 口径下 Astra 为 53（与 Argon/Fable 5.1 并列，低于 Opus 5.5 58）；AA 指数随新模型发布重新校准，跨时间引用需注明口径
+- ⚠️ **制衡点（第三方口径，售前引用必备）**：AA Intelligence Index v4.1.1（发布时口径）**61.2，落后 Fable 5.1 65.7 / Opus 5 63.1 / Fable 5 62.1**；HLE with tools 57.2% 落后 Fable 5.1 65.0%（官方正文未提该行）；DeepSWE v1.1 74.1% 落后 Meta Muse Spark 1.3 75.4% 与 Gemini 4 Argon 77.9%；FrontierCode 1.1 Main/Extended 均落后 Claude 系——**"世界最智能"是 OpenAI 自家表格口径，独立指数不支持**。2026-11 最新 AA v5 口径（2026-11-08 查询）下 Astra 为 **57**（低于 Gemini 4 Carbon 60 / Claude Opus 5.5 59，与 K3.1 Pro 46 / Qwen3.8 Max 45 相比仍居前列）；AA 指数随新模型发布重新校准，跨时间引用需注明口径
 - ⚠️ **交付形态注意**：默认生产版有 cyber 安全检查（直接阻断而非暂停复核）；Mia Glaese 提示发布初期会有与安全无关的误伤性 slowdowns/pauses/blocks
 
 #### 成本归因
@@ -88,7 +88,7 @@
 
 ### GPT-6.1 Sol（2026-09-29 DevDay 点更新）
 
-- $2/$10 同价；**cached input 降至 $0.10/M**（比 Sol cached 再 -50%）；coding-deception 降至 2.1%；AA 指数 52
+- $2/$10 同价；**cached input 降至 $0.10/M**（比 Sol cached 再 -50%）；coding-deception 降至 2.1%；AA 指数 55（v5，2026-11-08 查询）
 - max effort 平均 **$5.47/task**（对比：Opus 5.5 $23.21、Astra $23.80——GPT-6.1 Sol 口径）；市场口径"近前沿智力价格砍 80%"
 - 点更新节奏同 OpenAI 5.x 时代 5.5→5.6 的快速迭代模式
 
@@ -170,6 +170,7 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-08 | 校验修复（knowledge-verification-2026-11-08）：AA v5 指数刷新（Astra 10 月口径 53→57、GPT-6.1 Sol 52→55，标查询日期）；头部/点更新行同步；官方定价页仍 403，Terra 折算 $1/$5 待核实维持不变 |
 | 2026-11-03 | 校验修复+补研（knowledge-verification-2026-11-03）：新增 GPT-6.1 Terra 小节并入主表（2026-10-26 性价比档回归；折算约 $1/$5 待官方页核实）；「Terra 未复现」改为带截止日历史表述；定价表/场景/参考资料同步 |
 | 2026-10-19 | 合并：补强 GPT-6 Luna 的 AA v4.3.2 独立数据（Intelligence Index 38、每任务成本 $0.07、输出 129 tok/s、AA-Briefcase 1335、GDPval-AA 1432、AA-Omniscience +1、AA-LCR 83%、HLE 39%、GDP.pdf 23%），并标注与 MiMo-V2.6-Flash “同分不同命”的选型差异；核实 GPT-6.1 Luna 仍为传闻（官方仅发 6.1 Sol） |
 | 2026-10-09 | 新建文档，首次提炼 GPT-6 系列（Astra 09-02/03 / Sol·Luna 09-22 / 6.1 Sol 09-29）：🌟 Astra 三项首创（前代模型监督训练、首个 Critical 级、monitorability 前置）+ Daybreak 门控；Sol/Luna 缓存解耦与 272K 分段永久价；Luna coding-deception 28.7% 对齐披露；AA 指数双口径标注（v4.1.1 发布时 61.2 / 10 月口径 53）；GPT-5 世代归档指向 gpt-5-series.md |

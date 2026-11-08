@@ -1,19 +1,19 @@
 # Gemini
 
-> 最后更新: 2026-11-03
+> 最后更新: 2026-11-08
 > 所属厂商: GCP
 > 产品类别: MaaS
 
 **定位**: Google 自研多模态大模型系列，原生支持文本+图像+音频+视频多模态输入输出
 **适用**: 多模态理解与生成、企业知识管理、Agent 基础模型、代码生成、计算机操控
 **不适用**: 需要私有化部署的场景（Gemini 仅通过 API / GCP 平台提供）
-**当前主推**: **Gemini 4 Carbon（2026.10.28，AA Intelligence Index v5.0 = 59 新榜首；Fairwind 受限开放，公开 API 未发布，售前不可承诺获取）**；Gemini 4 Argon（09.30，🌟 输出上限 1M tokens 行业首个，仍 Fairwind 受限）；公开可得旗舰仍为 Gemini 3.1 Pro（2026.02.19，推理与知识密度最强）；Flash 线当前 workhorse 为 **Gemini 3.8 Flash / 3.8 Flash Cyber**（2026.09.02，入门价 $0.75/$3.75 至 2026-12-31；HLE-Verified 54.9%），3.7 Flash 仍官方支持（效率优先负载）；3.5 Flash-Lite（350 tok/s 高吞吐）在售。**Gemini 3.5 Pro 官方确认搁置（2026.09.24）**，重心转 Flash 线 + Gemini 4
+**当前主推**: **Gemini 4 Carbon（2026.10.28，AA Intelligence Index v5.0 = 60 新榜首；Fairwind 受限开放，公开 API 未发布，售前不可承诺获取）**；Gemini 4 Argon（09.30，🌟 输出上限 1M tokens 行业首个，仍 Fairwind 受限）；公开可得旗舰仍为 Gemini 3.1 Pro（2026.02.19，推理与知识密度最强）；Flash 线当前 workhorse 为 **Gemini 3.8 Flash / 3.8 Flash Cyber**（2026.09.02，入门价 $0.75/$3.75 至 2026-12-31；HLE-Verified 54.9%），3.7 Flash 仍官方支持（效率优先负载）；3.5 Flash-Lite（350 tok/s 高吞吐）在售。**Gemini 3.5 Pro 官方确认搁置（2026.09.24）**，重心转 Flash 线 + Gemini 4
 
 ## 当前主推模型
 
 | 模型 | 定位 | 核心特点 | 推出/更新时间 |
 |------|------|------|------|
-| **Gemini 4 Carbon** 🚩 | 新世代旗舰（**受限访问**） | **AA Intelligence Index v5.0 = 59（#1）**；TB 4.0 (AA) 65.2%；SEC-bench Pro 88.2%；Fairwind 受限，公开 API 未发布；推广价 $2/$10（标准 $4/$20） | 2026.10.28 |
+| **Gemini 4 Carbon** 🚩 | 新世代旗舰（**受限访问**） | **AA Intelligence Index v5.0 = 60（#1）**；TB 4.0 (AA) 65.2%；SEC-bench Pro 88.2%；Fairwind 受限，公开 API 未发布；推广价 $2/$10（标准 $4/$20） | 2026.10.28 |
 | **Gemini 4 Argon** | 世代首发旗舰（**受限访问**） | 🌟 输出上限 1M tokens（行业首个）；DeepSWE 77.9% SOTA、AA 幻觉率 15% 最低；仅 Fairwind Program；标准价 $4/$20（入门 $2/$10 为 50% 限时促销） | 2026.09.30 |
 | **Gemini 3.8 Flash** | 主力（workhorse，coding/agents） | HLE-Verified 54.9%、DeepSWE 73.7%（第三方）；入门价 $0.75/$3.75（至 2026-12-31，标准价 $1.50/$7.50）；`thinking_level` 三档 | 2026.09.02 |
 | **Gemini 3.1 Pro** | 公开可得旗舰（推理/知识密度最强） | 当前 Pro 级旗舰，学术推理与密集长上下文仍领先 | 2026.02.19 |
@@ -58,7 +58,7 @@
 **定价（Google 公布的未来 API 价）**：推广期 $2 输入 / $10 输出 / 缓存 $0.10（=输入价 5%）；推广期后标准价 $4/$20（缓存 $0.20），推广结束日期未公布。生产预算按标准价测算。
 
 **独立评测与榜首**：
-- **AA Intelligence Index v5.0 = 59，#1/76**（2026-10-28 AA 首页宣布新榜首）：Claude Opus 5.5 58、GPT-6 Astra 57、Gemini 4 Argon 50、Claude Fable 5.1 49
+- **AA Intelligence Index v5.0 = 60，#1/76**（2026-11-08 首页 live 值；10-28 宣布新榜首时为 59）：Claude Opus 5.5 59、GPT-6 Astra 57、Gemini 4 Argon 50、Claude Fable 5.1 49。⚠️ AA 指数随新模型发布重校准，下方 Google 发布对比表保留 10-28 原始口径（59/58/57），跨时间引用需注明查询日期
 - AA Coding Agent Index v2.0 = 59（Antigravity CLI）、AA-Briefcase 1609 Elo、AA-Omniscience v1.1 = 54（正确率 58%、幻觉率 11%）
 - 标准价下 AA 实测 **$7.76/task**（比 Opus 5.5 max $10.04 低约 23%）、约 123K output tokens/task
 - Vals Index v2.2 = 70.36%（#2/28）
@@ -78,7 +78,7 @@
 
 **安全能力（最大亮点）**：SEC-bench Pro 88.2%、CWE-bench v1 71.0%、ExploitGym 54.8%（10h 预算；安全评测无护栏运行）；Gray Swan 间接提示注入攻击成功率 **0.0%**（Argon 为 0.7%）；内部安全代码生成成功率超 Argon 两倍（Google 内部口径，非独立排名）。
 
-**与 Argon 的关系**：世代内旗舰接棒——AA v5 指数 Carbon 59 vs Argon 50；Argon 的 🌟 1M 输出上限与 AA 最低幻觉率（15%）仍是差异化规格，两者均处 Fairwind 受限阶段。
+**与 Argon 的关系**：世代内旗舰接棒——AA v5 指数 Carbon 60 vs Argon 50；Argon 的 🌟 1M 输出上限与 AA 最低幻觉率（15%）仍是差异化规格，两者均处 Fairwind 受限阶段。
 
 ## Gemini 4 Argon（2026-09-30，Gemini 4 世代首发旗舰）🌟
 
@@ -105,7 +105,7 @@
 
 **增量解锁**：①1M 输出 → 全库级迁移/超长文书"一口气"完成（Google 内部实证：Fuchsia Zircon 内核 800K+ 行 C/C++→Rust、libgav1 32K 行 SIMD 重写后 2.7× 提速、数据中心内存优化释放 300 TiB（预计 500 TiB–1 PiB）、量子算法超已发表 baseline 40%）②最低幻觉率 → 高可信知识工作（法律/金融）③防御性 cyber 生产工具（Wiz Scan for Good 实战发现全球医院医疗软件严重漏洞——前代前沿模型均未发现）。
 
-**⚠️ 落后项（Bloomberg 报道内部质疑部分印证）**：Terminal-Bench 4.0 57.4% vs Opus 5.5 **66.4%**；FrontierSWE v2 55.0% vs Astra **65.5%**；Code Arena: WebDev 仅 #8（前端弱）；AA Intelligence Index 53 = Astra = Fable 5.1，低于 Opus 5.5 58 / Sonnet 5.5 56。
+**⚠️ 落后项（Bloomberg 报道内部质疑部分印证）**：Terminal-Bench 4.0 57.4% vs Opus 5.5 **66.4%**；FrontierSWE v2 55.0% vs Astra **65.5%**；Code Arena: WebDev 仅 #8（前端弱）；AA Intelligence Index 53 = Astra = Fable 5.1，低于 Opus 5.5 58 / Sonnet 5.5 56（均为 2026-09-30 Argon 发布时口径）。
 
 **AA 成本实测**：入门价 $1.99/task（Astra $3.26 的 60%、Opus 5.5 $5.98）；标准价 $3.98/task；**62K output tokens/task（Astra 27K）——低价靠单价而非省 token**，入门价下仍为 GPT-6.1 Sol 的 2.7×/task。
 
@@ -227,7 +227,7 @@
 | 复杂推理/学术难题 | 3.1 Pro | 对标 Claude Opus / GPT-5.x，HLE/ARC-AGI-2 仍领先 Flash 线 |
 | 实时音视频交互 | Omni Flash | 原生端到端音频/视频理解 |
 | 代码辅助 | 3.8 Flash | DeepSWE 73.7%（第三方口径），HLE-Verified 54.9% |
-| 前沿旗舰（受限） | 4 Carbon / 4 Argon | AA v5 59 榜首（Carbon）；均 Fairwind 受限，售前不可承诺获取 |
+| 前沿旗舰（受限） | 4 Carbon / 4 Argon | AA v5 60 榜首（Carbon，2026-11-08 查询）；均 Fairwind 受限，售前不可承诺获取 |
 | Google Workspace AI | 3.1 Flash / 3.1 Pro | 内嵌于 Gmail/Docs/Sheets 的 AI 能力 |
 
 ## 平台交付方式
@@ -288,6 +288,7 @@ Gemini 通过 **Gemini Enterprise Agent Platform** 统一交付（见 [`vertex-a
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-08 | 校验修复（knowledge-verification-2026-11-08）：AA Intelligence Index v5 刷新 Carbon 59→60（标查询日期；发布对比表保留 10-28 原始口径 59）；与 Argon 关系对比、头部/主推表同步，Argon 落后项行补口径日期 |
 | 2026-11-03 | 校验修复+补研（knowledge-verification-2026-11-03）：新增 Gemini 4 Carbon 专章并切为 🚩（AA v5 = 59 新榜首，Fairwind 受限）与 3.8 Flash / Cyber 专章（官方一手）；workhorse 统一为 3.8，3.7 转为官方支持的效率优先选项（非简单取代）；头部主推/历史关系/场景同步，解除 3.7/3.8 内部不一致 |
 | 2026-10-19 | 校验修复（knowledge-verification-2026-10-19）：3.8 Flash 待补充处回填定价——入门价 $0.75/$3.75 至 2026-12-31（Google 官方云定价页 snippet 核实）；详细规格待 miner 补研 |
 | 2026-10-09 | 合并四模型调研素材：**新增 Gemini 4 Argon 专章**（09-30 发布，🌟 1M 输出上限行业首个 + Long Decode Continuation、Fairwind 受限访问、DeepSWE 77.9% SOTA、AA 幻觉率 15% 最低、领先/落后项与成本归因全量）；主推表加 Argon（受限标注）并调整 3.1 Pro 为"公开可得旗舰"；**补记 3.8 Flash / 3.8 Flash Cyber 已存在**（[⚠️ 详情待补充]）；3.5 Pro 从"跳票预期"改为"官方确认搁置（09-24）"；头部当前主推重写 |
