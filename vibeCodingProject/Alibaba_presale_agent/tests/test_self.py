@@ -582,6 +582,42 @@ def test_source_visibility():
           [s["kind"] for s in out2] == ["official", "mystery"], str(out2))
 
 
+def test_domain_gate():
+    """2026-11-10 实测事故：出界题（爱情/股票）BM25 靠高频单字召出 5~6 条无关片段
+    并展示为参考来源（"伊斯坦布尔有爱情么"→ 我/的/爱/斯/坦/尔 匹配 Memory-ReAct.md
+    score 51，与业务题 45~103 区间重叠，分数阈值无法区分）。修法：域门控。"""
+    print("[7] 出界题不检索（域门控）")
+    from app import pipeline
+
+    out_of_domain = [
+        "我说的是，伊斯坦布尔有爱情么",
+        "我喜欢上一个人但不敢表白，怎么办？",
+        "现在A股哪些股票值得买？",
+        "帮我分析下贵州茅台现在能不能抄底",
+        "巴菲特的DCF估值怎么算？",
+        "你好",
+        "测试",
+    ]
+    for q in out_of_domain:
+        check(f"出界不检索: {q[:16]}", not pipeline.is_domain_question(q))
+    in_domain = [
+        "qwen3.8-max 的价格是多少",
+        "wan3.0-video 支持哪些分辨率",
+        "百炼平台上怎么搭建一个多 Agent 协作的应用？",
+        "qoder是怎么计费的",
+        "帮我算下 100 美元是多少人民币",
+        "并发能扛多少",
+    ]
+    for q in in_domain:
+        check(f"业务题仍检索: {q[:16]}", pipeline.is_domain_question(q))
+    h_price = [{"role": "user", "content": "qwen3.8-max 的价格是多少"}]
+    check("追问无领域词但历史有业务题 → 检索",
+          pipeline.is_domain_question("它支持视觉吗", h_price))
+    h_love = [{"role": "user", "content": "我喜欢上一个人但不敢表白"}]
+    check("爱情历史不误判为业务 → 不检索",
+          not pipeline.is_domain_question("那工作呢", h_love))
+
+
 def test_pipeline_wiring():
     """端到端（mock LLM/工具/检索）：工具循环两轮接线、审计与落库一致。
 
@@ -801,6 +837,7 @@ def main():
     test_price_audit()
     test_followup_anchor_and_competitor()
     test_source_visibility()
+    test_domain_gate()
     test_pipeline_wiring()
     test_store_price_audit()
     test_fx()

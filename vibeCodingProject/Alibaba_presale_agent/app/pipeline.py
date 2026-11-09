@@ -16,6 +16,7 @@ function calling 自主决策。旧版每个路由开关都是手写正则，漏
 
 import asyncio
 import logging
+import re
 import time
 
 from . import fx, prompts, store, tools
@@ -30,6 +31,41 @@ from .price_verifier import (
 )
 
 log = logging.getLogger("pipeline")
+
+# 领域关键词：命中任一即认为问题在业务范围内，需要检索资料。
+# 背景（2026-11-10 实测）：爱情/股票等出界问题 BM25 仍会靠高频单字（"我说的是，伊
+# 斯坦布尔有爱情么" → 我/的/爱/斯/坦/尔）召出 5~6 条无关片段并展示为参考来源；
+# 而出界题与业务题的分数区间重叠（51 vs 45~103），分数阈值无法区分，只能域门控。
+_DOMAIN_HINT_RE = re.compile(
+    r"百炼|模型|智能体|agent|大模型|llm|api|token|上下文|推理|训练|微调|部署|"
+    r"选型|benchmark|多模态|语音|tts|asr|视频|图像|生图|缓存|限流|并发|吞吐|"
+    r"gpu|ecs|服务器|裸金属|网关|编排|框架|rag|embedding|工作流|计费|收费|"
+    r"价格|多少钱|额度|配额|开源|权重|幻觉|私有|合规|备案|鉴权|密钥|阿里云|阿里",
+    re.IGNORECASE,
+)
+
+
+def is_domain_question(question: str, history: list | None = None) -> bool:
+    """问题是否在百炼/阿里云 AI 业务范围内（决定是否检索资料）。"""
+
+    def _hit(text: str) -> bool:
+        return bool(
+            text
+            and (
+                extract_model_names(text)
+                or is_price_question(text)
+                or fx.is_fx_question(text)
+                or _DOMAIN_HINT_RE.search(text)
+            )
+        )
+
+    if _hit(question):
+        return True
+    # 省略式追问（"它支持视觉吗"）本身无领域词，但历史里问过业务问题
+    for h in (history or [])[-6:]:
+        if h.get("role") == "user" and _hit(str(h.get("content", ""))[:300]):
+            return True
+    return False
 
 MAX_CHUNKS = 6          # 注入知识库片段数
 CHUNK_CHARS = 1500       # 每个片段截断长度
@@ -144,11 +180,14 @@ async def stream_answer(
             seen_urls.add(s["url"])
             sources.append(s)
 
-    # ── 1. 本地知识检索（永远预注入：便宜、稳定，能力/选型题主信源）──
+    # ── 1. 本地知识检索（仅业务范围内问题：出界题（爱情/股票/寒暄）不注入
+    # 无关片段，参考来源区也因此不再展示凭单字噪声匹配出来的假链接）──
     yield {"type": "status", "stage": "retrieving", "message": "🔍 检索资料..."}
-    chunks = search_with_models(
-        question, extract_model_names(question), top_k=MAX_CHUNKS
-    )
+    chunks = []
+    if is_domain_question(question, history):
+        chunks = search_with_models(
+            question, extract_model_names(question), top_k=MAX_CHUNKS
+        )
     for c in chunks:
         add_source(
             {
