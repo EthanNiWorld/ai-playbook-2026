@@ -40,14 +40,14 @@ table { width: 100%; border-collapse: collapse; background: #fff; border-radius:
   box-shadow: 0 2px 8px rgba(0,0,0,.04); font-size: 13px; }
 th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #F0F1F3; vertical-align: top; }
 th { background: #F9FAFB; font-weight: 600; color: #4B5563; }
-td.q { max-width: 260px; }
+td.q { max-width: 300px; min-width: 180px; }
 .tag { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
 .tag.up { background: #F0FDF4; color: #166534; }
 .tag.down { background: #FEF2F2; color: #B91C1C; }
 .tag.none { background: #F3F4F6; color: #6B7280; }
 .tag.stop { background: #FFFBEB; color: #92400E; }
 .price-tag { font-size: 12px; color: #166534; }
-.answer-cell { max-width: 420px; max-height: 90px; overflow: hidden; white-space: pre-wrap; }
+.answer-cell { max-width: 380px; max-height: 90px; overflow: hidden; white-space: pre-wrap; }
 .think-cell { max-width: 260px; color: #6B7280; }
 .think-cell .think-preview { max-height: 60px; overflow: hidden; white-space: pre-wrap; font-size: 12px; }
 .ip-cell { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; white-space: nowrap; }
@@ -57,6 +57,13 @@ details summary { cursor: pointer; color: #FF6A00; font-weight: 600; }
 .error { color: #DC2626; font-size: 13px; margin: 8px 0; white-space: pre-line; line-height: 1.75; }
 .error .hint { display: block; color: #6B7280; font-size: 12.5px; margin-top: 2px; }
 input.invalid { border-color: #DC2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, .12); }
+td.sess-cell { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; color: #6B7280; white-space: nowrap; }
+tr.grp-alt td { background: #FAFBFC; }
+tr.in-grp td { background: #FFF7F0; }
+tr.in-grp td:first-child { border-left: 3px solid #FF6A00; }
+tr.in-grp td.sess-cell { color: #C2410C; font-weight: 600; }
+td.time-cell { white-space: nowrap; font-variant-numeric: tabular-nums; color: #4B5563; }
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 </style>
 </head>
 <body>
@@ -79,22 +86,25 @@ input.invalid { border-color: #DC2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, .
 <div id="error" class="error" hidden></div>
 
 <div class="cards" id="stats"></div>
+<div class="table-wrap">
 <table>
   <thead>
     <tr>
-      <th style="width:60px">ID</th>
-      <th>问题</th>
-      <th>思考过程</th>
-      <th>回答摘要</th>
-      <th style="width:120px">提问者 IP</th>
-      <th style="width:70px">反馈</th>
-      <th style="width:190px">点踩原因</th>
-      <th style="width:90px">价格核实</th>
-      <th style="width:150px">时间</th>
+      <th style="width:56px">ID</th>
+      <th style="width:88px" title="同一次对话（追问）共享同一个会话 ID，左侧橙色竖线表示它们属于同一组">会话</th>
+      <th style="width:240px">问题</th>
+      <th style="width:200px">思考过程</th>
+      <th style="width:320px">回答摘要</th>
+      <th style="width:130px">提问者 IP</th>
+      <th style="width:66px">反馈</th>
+      <th style="width:130px">点踩原因</th>
+      <th style="width:86px">价格核实</th>
+      <th style="width:110px">时间</th>
     </tr>
   </thead>
   <tbody id="rows"></tbody>
 </table>
+</div>
 
 <script>
 "use strict";
@@ -156,7 +166,23 @@ function showError(msg) {
 
 function setRowsPlaceholder(msg) {
   document.getElementById("rows").innerHTML =
-    '<tr><td colspan="9" class="empty">' + msg + "</td></tr>";
+    '<tr><td colspan="10" class="empty">' + msg + "</td></tr>";
+}
+
+// ISO 时间（2026-11-10T01:48:08+08:00）转人读格式：今天/昨天/HH:MM，悬停仍可看原值
+function fmtTime(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return escapeHtml(iso);
+  const p2 = (n) => String(n).padStart(2, "0");
+  const hm = p2(d.getHours()) + ":" + p2(d.getMinutes());
+  const now = new Date();
+  const yst = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  const day = (x) => [x.getFullYear(), x.getMonth(), x.getDate()].join("-");
+  if (day(d) === day(now)) return "今天 " + hm;
+  if (day(d) === day(yst)) return "昨天 " + hm;
+  if (d.getFullYear() === now.getFullYear()) return (d.getMonth() + 1) + "-" + p2(d.getDate()) + " " + hm;
+  return d.getFullYear() + "-" + p2(d.getMonth() + 1) + "-" + p2(d.getDate()) + " " + hm;
 }
 
 async function refresh() {
@@ -207,7 +233,23 @@ async function loadRows() {
       setRowsPlaceholder("暂无记录");
       return;
     }
-    tbody.innerHTML = rows.map((it) => {
+    // 会话分组：相邻且 session_id 相同的行视为同一组，组内画左侧竖线，一眼看出追问归属
+    const meta = [];
+    let grpIdx = -1, prevSess = null;
+    for (let i = 0; i < rows.length; i++) {
+      const sid = rows[i].session_id || "";
+      if (sid !== prevSess) grpIdx += 1;
+      meta.push({ sid: sid, grp: grpIdx });
+      prevSess = sid;
+    }
+    const grpSize = meta.reduce((m, x) => { m[x.grp] = (m[x.grp] || 0) + 1; return m; }, {});
+
+    tbody.innerHTML = rows.map((it, i) => {
+      const sess = meta[i].sid;
+      const cls = [];
+      if (grpSize[meta[i].grp] > 1) cls.push("in-grp");
+      if (meta[i].grp % 2 === 1) cls.push("grp-alt");
+      const rowCls = cls.length ? ' class="' + cls.join(" ") + '"' : "";
       const fb = it.interrupted
         ? '<span class="tag stop">⏹ 已中断</span>'
         : it.feedback === "up"
@@ -238,8 +280,10 @@ async function loadRows() {
             ? '<span class="ua" title="' + escapeHtml(it.user_agent) + '">' + escapeHtml(it.user_agent) + "</span>"
             : "")
         : '<span style="color:#9CA3AF">—</span>';
-      return "<tr>" +
+      return "<tr" + rowCls + ">" +
         "<td>" + it.id + "</td>" +
+        '<td class="sess-cell" title="会话 ID：' + escapeHtml(sess) + '">' +
+          (sess ? escapeHtml(sess.slice(0, 8)) : "—") + "</td>" +
         '<td class="q">' + escapeHtml(it.question).slice(0, 200) + "</td>" +
         '<td class="think-cell">' + thinkHtml + "</td>" +
         '<td class="answer-cell">' + excerpt +
@@ -249,7 +293,7 @@ async function loadRows() {
         "<td>" + fb + "</td>" +
         "<td>" + reason + "</td>" +
         "<td>" + price + auditTag + "</td>" +
-        "<td>" + it.created_at + "</td>" +
+        '<td class="time-cell" title="' + escapeHtml(it.created_at) + '">' + fmtTime(it.created_at) + "</td>" +
         "</tr>";
     }).join("");
   } catch (e) {
