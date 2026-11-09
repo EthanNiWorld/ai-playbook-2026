@@ -105,6 +105,9 @@ def ensure_knowledge(force: bool = False) -> Path:
         _touch_sync_meta()
     elif force or _kb_stale():
         log.info("知识库过期/强制同步，git pull 中...")
+        # 先重申 sparse 范围（幂等）：已有克隆不会自动继承新 SPARSE_DIRS，
+        # 不重跑 set 的话扩目录（如新增 knowledge/ 厂商文档）永远不生效。
+        _run_git(["sparse-checkout", "set", *SPARSE_DIRS], cwd=root)
         r = _run_git(["pull", "--ff-only"], cwd=root)
         if r.returncode == 0:
             _touch_sync_meta()
