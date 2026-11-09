@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-11-08
+> 最后更新：2026-11-10
 
 ## 目录
 
@@ -67,8 +67,8 @@
 | Hy3 / Hy4 / 腾讯混元 / Hunyuan | [混元系列](knowledge/tencent/hunyuan.md) |
 | MiMo / 小米 / V2.6 / 全模态 | [MiMo 系列](knowledge/xiaomi/mimo-series.md) |
 | StepFun / 阶跃星辰 / Step 5 Preview / Step 3.7 Flash / AI+终端 | [StepFun](knowledge/stepfun/general_intro.md) · [Step 系列](knowledge/stepfun/step-series.md) |
-| Qwen vs Hy3 / 混元竞争分析 | [Qwen3.7 vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) |
-| Qwen vs Doubao / 豆包竞争分析 | [Qwen3.7-Max vs Doubao-Seed-2.1 Pro](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
+| Qwen vs Hy4 / 混元竞争分析 | [Qwen3.8-Max / 27B vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) |
+| Qwen vs Doubao / 豆包竞争分析 | [Qwen3.8-Max vs Doubao-Seed-2.1 Pro](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
 | Haiku 5.5 vs GPT-6 Luna / 小模型档 / Flash 档竞争 / 分段定价 / 前沿模型横向对比 | [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) |
 | MiniMax / M3 / M3.1-Flash / M3 Pro / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
 | Kimi / 月之暗面 / Moonshot / K3 / K3.1 Pro | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
@@ -166,8 +166,8 @@
 
 **竞品对比（阿里云视角）**
 - [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) — 企业级 vs 个人开发者定位差异
-- [Qwen3.7 vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) — 1M上下文+深度编码+多模态 vs 性价比+开源部署
-- [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先 + 1M 上下文优势
+- [Qwen3.8-Max / 27B vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) — 旗舰+开源双档 vs 1M视觉+Computer Use
+- [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先（对 260628 版）+ Batch 输出成本优势 vs Agent/GUI 公开数据；双方当前版均 1M
 - [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) — 前沿小模型档竞争 + 2026-09/10 前沿模型横向对比 + Qwen Flash 档启示
 
 ### Google
@@ -244,8 +244,8 @@
 ## 线：对比分析（阿里云视角）
 
 - [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) ⭐ — 企业级 vs 个人开发者定位差异
-- [Qwen3.7 vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) — 1M上下文+深度编码+多模态 vs 性价比+开源部署，SA 打法建议
-- [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先（TB 2.1 +3.5, SWE-Pro +3.1）+ 1M 上下文 vs Agent 规划更强，SA 打法建议
+- [Qwen3.8-Max / 27B vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) — 旗舰+开源双档 vs 1M视觉+Computer Use，SA 打法建议
+- [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先（TB 2.1 +15.6、SWE-Pro +10.2，对 260628 版）+ Batch 输出成本优势 vs Agent/GUI 公开数据；双方当前版均 1M
 - [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) — 2026-09/10 前沿模型横向对比 + 小型档竞争（≤100K 同价更聪明 vs >100K Luna 无对手）+ Qwen Flash 档五点启示
 
 ---

@@ -1,6 +1,6 @@
 # 通义千问 (Qwen)
 
-> 最后更新: 2026-11-08
+> 最后更新: 2026-11-10
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 
@@ -29,8 +29,7 @@
 - **上下文**：**1M tokens**，最大输出 **128K tokens** [来源: 百炼控制台模型页，2026-08-03 用户截图]
 - **输入模态**：文本 + 图像（2026-08-03 API 实测确认，图片描述准确）[来源: alibaba-ai-hub/maas/maas-solution-and-api-sample/test_qwen38_max.py]；视频支持待确认
 - **模式**：思考与非思考模式均支持
-- **定价**（新加坡节点 USD，2026-08-03 控制台截图核实）：输入 $2 / 输出 $6 / 输入（缓存命中）$0.25（per 1M tokens）[来源: 百炼控制台模型页截图]；中文定价页参考：新加坡 ¥14.988/¥44.965、北京/全球 ¥12/¥36，北京 Batch 半价 [来源: help.aliyun.com/zh/model-studio/model-pricing]
-  - 缓存命中 $0.25，仅为 Qwen3.7-Max（$0.5）的一半；折扣率 12.5%（输入价占比）
+- **定价**：见下方「定价（API）」章节。
 - **限流**：RPM 15,000 / TPM 2,000,000（200 万）[来源: 百炼控制台模型页截图]
 - **开源**：Qwen3.8 系列开源版 **qwen3.8-2.4t-a95b** 已于 2026-08-12 上线百炼国际站（2.4T 总参 / 激活 95B，**原生 262K 上下文、可扩展约 1M**；GPQA Diamond 92.6 / PaperBench 93.0 / OSWorld 86.1，CodeArena 全球 #4）[来源: help.aliyun.com 上新页，2026-08-14 核实]；架构详见下方「Qwen3.8-2.4T-A95B 开源版」小节；qwen3.8-max 本体是否开放权重官方未明确
 - **场景**：代码工程（全栈开发、代码重构、漏洞批量修复）、专业办公（Office 工作流、文档免转换直读、数据分析）、复杂推理、长程 Agent、多语言创作
@@ -62,7 +61,7 @@
 
 - **模型**：qwen3.8-max-0902（别名 qwen3.8-max-2026-09-02），Qwen3.8-Max 的最新能力快照
 - **上线**：2026-09-02，国际站/全球节点均已上线 [来源: help.aliyun.com 上新页，2026-09-17 核实]
-- **定价**：新加坡 $2/$6（与稳定版一致，支持 context caching discount，1M 上下文）[来源: 国际站定价页，2026-09-17 核实]
+- **定价**：与稳定版一致，统一见下方「定价（API）」章节。
 - **能力三维升级**（官方口径）：
   1. **编码深度突破**：工程级项目理解与长程自主开发能力增强
   2. **协作智能体**：多工具调度与协作能力增强
@@ -142,51 +141,18 @@
 - **边界与注意**：① "超越 Opus 4.6" 为 SWE-bench Pro 等 agent 编码分项，非全面领先（新京报同文亦有"性能与 Qwen3.7-Plus 接近"表述）；② OSWorld 2.0 binary 仅 19.4，GUI 执行类场景勿过度承诺；③ "6B 激活"≠部署小——125B 权重 + 51B n-gram 表 + 视觉组件均占内存，全精度 agentic 实验用 GB300 NVL72 整柜；④ 开源权重为架构预览，Qwen4 正式版结构可能微调
 - **定价**：见下方「定价（API）」章节
 
-### Qwen3.7-Max（历史模型，已被 Qwen3.8-Max 取代）
+### Qwen3.7 系列（历史/存量，已退出主推）
 
-> 仍可调用，不建议新项目选用。关键基准对照已保留在上方 Qwen3.8-Max Benchmark 表的 Qwen3.7-Max 列。
+> API 仍可调用，仅供存量项目核对；定价不再展开，实际账单以百炼控制台和官方定价页为准。新项目迁移路径：**旗舰/通用多模态 → Qwen3.8-Max；GUI/视觉 → Qwen3.8-27B；低成本快速 → Qwen3.8-Flash**。
 
-- **时间**：2026 年 5 月 19 日（阿里云峰会上线）；尺寸未公开（MoE）
-- **上下文**：1M tokens，最大输出 65,536 tokens
-- **定位**：“The Agent Frontier”——长时自主执行旗舰（长 Agent / Agentic Coding / 数学推理）；标志性验证：35 小时自主编码运行（1,158 次工具调用，GPU 内核优化 10× 加速）
-- **关键基准**（vendor-published，vs Claude Opus 4.6）：TB 2.1 **74.5**（AA）/ 2.0 69.7（vendor）、SWE-Pro **60.6**、SWE-Verified 80.4（平 Opus 4.6 80.8）、HLE **41.4**、GPQA Diamond **92.4**、HMMT 2026 **97.1%**、IMOAnswerBench **90.0%**、Apex **44.5**
-- **定价**（新加坡，2026-07-30 核实；2026-09-02 复核 5 折标签已消失，恢复列表价）：$2.5 / $7.5 per 1M；缓存命中 $0.5（输入价 20%）；北京参考 ¥12/¥36 —— 详见下方「定价（API）」表
-- **开源**：否，API only（百炼 / DashScope，兼容 OpenAI + Anthropic 协议）
-- **快照演进**：`2026-05-20` 纯文本、仅思考模式 → `2026-06-08`（06-10 上线）新增文本/图像/视频输入，最大输出 64K、图片 2048 / 视频 64、支持 Function Calling 与内置工具；JSON Mode 官方页标 "--"（实测可用 ⚠️ 待官方文档更新）
+| 模型 | 原定位与关键规格 | 当前状态 |
+|------|------------------|----------|
+| **Qwen3.7-Max** | 上代旗舰；1M 上下文、最大输出 64K；面向长时 Agent、Agentic Coding 与数学推理 | 已由 Qwen3.8-Max 取代；关键对照数据保留在上方 Benchmark 表 |
+| **Qwen3.7-Plus** | 多模态智能体；1M 上下文，支持文本、图像、视频与屏幕截图；面向 GUI/CLI 和视觉编码 | 已退出主推；GUI/视觉改选 Qwen3.8-27B，通用多模态改选 Qwen3.8-Max |
+| **Qwen3.7-Flash** | 原生视觉语言快速档；面向 IPC、审校与大批量打标 | 已由 Qwen3.8-Flash 取代 |
 
-### Qwen3.7-Plus（存量在售，已退出主推）
-
-> 2026-11-05 起不再列入主推：GUI/视觉场景主推档由 **Qwen3.8-27B** 承接，通用多模态由 **Qwen3.8-Max** 承接。本节保留规格与 benchmark，供存量项目核对与视觉专项数据参考；API 仍可调用。
-
-- **模型**：Qwen3.7-Plus
-- **公司**：阿里云
-- **时间**：Preview 版 2026-05-19/20（阿里云峰会）；stable 快照 `qwen3.7-plus-2026-05-26`，2026-06-02 全量上线 [来源: https://qwen.ai/blog?id=qwen3.7-plus]
-- **尺寸**：约 35B 密集架构（preview 阶段 CSDN/网易转述，stable 版官方未公布）[⚠️ 待补充]
-- **上下文**：**1M tokens**（阶梯计价 0-256K / 256K-1M）[来源: https://help.aliyun.com/zh/model-studio/model-pricing]
-- **输入模态**：文本 + 单图/多图/视频 + 屏幕截图 [来源: https://qwen.ai/blog?id=qwen3.7-plus]
-- **场景**：多模态智能体（GUI + CLI 闭环）、视觉编码（图→SVG/网页/前端）、视觉推理、真实世界感知
-- **特点**：
-  - 多模态智能体：GUI/CLI 操作 + 视觉编码 + 跨框架部署（Claude Code / OpenClaw / Qwen Code）
-  - `preserve_thinking` 多轮思维保留
-  - 纯文本能力官方称"整体接近 Max 级别"
-  - **多模态/GUI 操作为 Qwen3.7 系列最强**
-- **定价**（新加坡节点，2026-07-30 核实）：$0.4/$1.6 per 1M input/output tokens（≤256K）；$1.2/$4.8（256K-1M）；思考与非思考同价；限时 8 折 [来源: alibabacloud.com 官方定价页]；北京节点参考 ¥2/¥8（≤256K）、¥6/¥24（256K-1M）
-  - Batch 调用 5 折；输入支持上下文缓存折扣（与 Batch 不可叠加）
-  - 推理后付费限时 8 折（截止日期以百炼控制台为准）
-- **开源**：否，API 商用闭源（仅通过百炼提供）[来源: https://www.aihub.cn/ai-model/qwen3-7-plus/]
-- **Benchmark**（来源: qubrid.com 六模型对比表 + benchlm.ai）：
-  - GUI Agent: ScreenSpot Pro 79.0% / AndroidWorld 81.0% / OSWorld-Verified 73.3%（BenchLM Computer Use 全球 #4，75.6 分）
-  - Visual Coding: QwenVision2Code 1,772 / QwenSVG 1,588
-  - 文档理解: OmniDocBench 1.5 91.4%（最高）/ OCR-Bench-V2 70.7%
-  - 纯文本 Agent: Deep-Planning 62.3%（最高）/ MCP-Mark 58.7%（最高）/ MRCR-v2 128K 91.7%（最高）
-  - SWE-bench Verified ~68.7%；Arena 综合 1156（preview 阶段第三方数据）[⚠️ stable 版待验证]
-
-> ⚠️ stable 版 benchmark 与精确参数官方尚未公布，建议关注 artificialanalysis.ai / LMSYS Arena 后续复测。
-
-**系列定位与竞争力（3.7 代已全部退出主推，仅存量在售）**：
-- **3.7-Plus**（存量在售）= 多模态智能体（视觉 + 语言 + GUI/CLI + 视觉编码，VLA 训练范式，曾是视觉场景首选）；新项目 GUI/视觉改选 **3.8-27B**（Dense 原生视觉语言），通用多模态改选 **3.8-Max**
-- **3.7-Max**（历史）= 上代旗舰；vs Plus：256K 内输入成本仅 1/6、输出约 1/4.5，Max 仅 SWE/复杂长链路 Agentic Coding 明显占优
-- **3.7-Flash**（历史）= 上代低成本快速档（原生视觉语言 Flash，IPC/审校等在线成本敏感场景、大批量打标）[来源: help.aliyun.com 上新页]，已被 3.8-Flash 取代
+- **Qwen3.7-Plus 历史专项数据**（第三方口径，仅供存量对照）：ScreenSpot Pro 79.0%、AndroidWorld 81.0%、OSWorld-Verified 73.3%；OmniDocBench 1.5 91.4%、OCR-Bench-V2 70.7%；Deep-Planning 62.3%、MCP-Mark 58.7%。stable 版未独立复测。
+- **Qwen3.7-Max 其他历史记录**：35 小时自主编码（1,158 次工具调用）；HLE 41.4、HMMT 2026 97.1%、IMOAnswerBench 90.0%。TB / SWE / GPQA 对照统一见上方 Qwen3.8-Max Benchmark 表。
 
 ## 核心能力与限制
 
@@ -194,22 +160,22 @@
 
 | 能力 | 说明 |
 |------|------|
-| **深度推理（Max）** | AA Intelligence Index 56.6–57（旧版口径，国产 #1；v4.1 = 46），数学/科学推理全球领先 |
-| **Agentic Coding** | Terminal-Bench 2.1 74.5（AA）/ 2.0 69.7（vendor），SWE-Pro 60.6；35小时自主编码运行 |
-| **超长上下文** | 1M tokens 上下文窗口，处理大型代码仓库和长文档 |
-| **多模态智能体** | Qwen3.8-27B（Dense 原生视觉语言，GUI/视觉主推档）与 Qwen3.8-Max（旗舰，文本+图像已实测）承接；Qwen3.7-Plus 仍在售但已退出主推，仅供存量项目核对 |
-| **数学能力** | HMMT 2026 97.1%、IMOAnswerBench 90.0%，竞赛数学断层领先 |
-| **多语言** | WMT24++ 85.8%，覆盖 55 种语言，多语言能力领先 |
-| **开源生态** | 多尺寸开源，社区活跃（3.7-Max 除外，为 API only） |
+| **深度推理（Max）** | Qwen3.8-Max 支持思考与非思考模式；AA 与定量 Benchmark 统一见模型小节 |
+| **Agentic Coding** | 面向工程级项目理解、长程自主开发与多工具协作；定量数据见 Qwen3.8-Max Benchmark |
+| **超长上下文** | Qwen3.8-Max / Flash API 默认 1M tokens，适合大型代码仓库和长文档 |
+| **多模态智能体** | Qwen3.8-27B 承接 GUI/视觉场景，Qwen3.8-Max 承接通用多模态；Qwen3.8-Flash 支持文本、图像与视频输入 |
+| **数学与复杂推理** | 当前主推 Qwen3.8-Max；上代竞赛数学纪录收敛至 Qwen3.7 历史小节 |
+| **多语言** | 覆盖 55 种语言，支持多语言创作与翻译 |
+| **开源生态** | Qwen3.8-2.4T-A95B、Qwen3.8-27B 与 Qwen3.8-Flash-Next 覆盖旗舰、Dense 视觉与轻量架构预览 |
 
 ### 核心限制
 
 | 限制项 | 具体值 | 说明 |
 |--------|--------|------|
-| 3.7-Max 开源 | 不开放 | API only，无法私有化部署或微调 |
-| 3.7-Max 多模态（0520 快照） | 仅文本 | 0520 快照不支持图像输入；0608 快照已新增视觉能力 |
-| 3.7-Max 输出冗长 | 97M vs 中位 24M | 实际输出成本可达同类模型的 2-4× |
-| 并发限制 | 按账户等级 | 企业版更高 |
+| Qwen3.8-Max 视频输入 | 待确认 | 文本与图像输入已实测，不应承诺视频能力 |
+| qwen3.8-2.4t-a95b 视觉输入 | 不支持 | 开源版与 API 版 Qwen3.8-Max 的模态能力不同 |
+| qwen3.8-2.4t-a95b 百炼思考模式 | 仅思考 | 百炼端点不可关闭思考；自部署不受此限 |
+| 并发限制 | 按账户与模型 | 以百炼控制台限额为准 |
 
 ## 适用场景
 
@@ -222,26 +188,6 @@
 | IPC / 审校 / 大批量打标等成本敏感场景 | **3.8-Flash** | 在线低延迟低成本，2026-08-26 新架构发布（取代 3.7-Flash） |
 | 高并发轻量调用 | **3.8-Flash** | 低延迟低成本，TPM 5M，缓存命中价仅输入价 12.5% |
 
-### Plus vs Max 场景选型（3.7 代结论，Max 已换代 3.8）
-
-> ⚠️ 以下为 3.7-Plus vs 3.7-Max（历史旗舰）选型结论，供存量项目参考；**Qwen3.7-Plus 亦已于 2026-11-05 退出主推**（GUI/视觉改选 3.8-27B），本节仅作视觉专项 benchmark 数据来源。3.8-Max 已接管旗舰位（文本+图像输入已实测，GUI/视觉专项 benchmark 尚待补测）。
-
-**Plus 有 benchmark 验证的视觉专项场景**（多模态首选，3.8-Max 该维度尚无公开数据）：
-
-| 场景 | 3.7-Plus Benchmark |
-|------|--------------------|
-| GUI Agent / Computer Use | ScreenSpot Pro 79.0%（> GPT-5.4 67.4%）/ AndroidWorld 81.0% / OSWorld-Verified 73.3%（BenchLM #4，75.6 分） |
-| Visual Coding（截图→代码） | QwenVision2Code 1,772 / QwenSVG 1,588 |
-| 图文混合文档理解 | OmniDocBench 1.5 91.4%（全场最高）/ OCR-Bench-V2 70.7%（> GPT-5.4 59.1%） |
-| 视频理解 / 物理感知 / 多模态检索 | 原生视频输入；BabyVision 70.4% / HiPhO 84.1% / SimpleVQA 81.7% |
-| 纯文本 Agent | Deep-Planning 62.3% / MCP-Mark 58.7% / MRCR-v2 128K 91.7% / TB 2.0-Terminus 70.3%（均为最高） |
-
-**3.7-Max 明确占优**（该定位已由 3.8-Max 继承）：极端数学推理（Apex 44.5% vs 22.7%、HMMT 97.1%、HLE 41.4%）与重度 SWE 编码（SWE-Pro 60.6% vs 57.6%）；生成吞吐约 Plus 的 4.7×（AA p50 47.0 vs 10.0 tok/s [来源: 用户口述] ⚠️ 待官方验证），考虑价格差后"吞吐量/元"两者接近（Max 1.3 vs Plus 1.25 tok/s/¥）。
-
-> 💡 **Why**：VLA（视觉-语言-动作）联合训练让 Plus 对空间结构、UI 层级、流程规划有更好内隐理解；Agent loop "看→想→写→做→验" 闭环训练目标强化了持续工具调用场景。
-
-**选型一句话**：视觉 / GUI → **3.8-27B**；极端数学推理与重度编码 → **3.8-Max**；绝大多数生产场景默认 **3.8-Max**，成本敏感走 **3.8-Flash**。（3.7-Plus 已退出主推，仅存量项目继续调用）
-
 ## 接入方式
 
 | 方式 | 说明 | 适用场景 |
@@ -251,46 +197,38 @@
 
 ## 定价（API）
 
-> 定价标准：阿里云国际站新加坡节点（USD），2026-09-17 核实；限时折扣截止日期以控制台为准（Qwen3.7-Max 5 折已结束恢复列表价；Qwen3.7-Plus 8 折标签仍在；Qwen3.7-Flash USD 定价已于 2026-09-17 核实公布，见表）
+> 定价标准：阿里云国际站新加坡节点 USD 列表价，2026-09-17 核实；仅列当前 Qwen3.8 代模型。北京价格与国内计费项仅作参考，实际折扣与账单以控制台为准。
 
-| 模型 | 输入（$/1M tokens） | 输出（$/1M tokens） | 限时折扣 | 缓存命中 |
-|------|---------------------|---------------------|----------|----------|
-| **Qwen3.8-Max** | $2 | $6 | — | $0.25（缓存命中） |
-| **qwen3.8-max-0902**（最新快照，2026-09-02） | $2 | $6 | — | 支持缓存折扣（同稳定版） |
-| **qwen3.8-2.4t-a95b**（开源版） | $2 | $6 | — | 支持缓存折扣（单价未公开）；北京 $1.65/$4.951 |
-| **qwen3.8-27b**（开源 Dense 版） | $0.5 | $3 | — | 支持缓存折扣（单价未公开）；北京 $0.424/$1.696 |
-| **Qwen3.7-Max** | $2.5 | $7.5 | —（5 折已结束） | $0.5 |
-| **Qwen3.7-Plus**（≤256K） | $0.4 | $1.6 | 8 折 | 支持缓存折扣 |
-| **Qwen3.7-Plus**（256K-1M） | $1.2 | $4.8 | 8 折 | 支持缓存折扣 |
-| **Qwen3.7-Flash** | $0.030（≤32K）/ $0.100（32K-256K）/ $0.200（256K-1M） | $0.130 / $0.400 / $0.800（同三档） | Batch 5 折 | 支持缓存折扣；北京 ≤32K $0.028/$0.110 [来源: 国际站定价页，2026-09-17 核实] |
-| **Qwen3.8-Flash** | $0.15 | $0.47 | — | 国内口径：¥0.8/¥2.7、缓存命中 ¥0.1（输入价 12.5%）、显式缓存创建 ¥1.25、Batch ¥0.4/¥1.35 [来源: alibabacloud.com 新加坡定价页 + qianwenai.com，2026-09-02] |
-
-> Qwen3.7-Max 实际成本需关注输出冗长问题：评估中生成量是中位数的 4×，建议 prompt 中显式约束输出长度。
+| 模型 | 输入（$/1M tokens） | 输出（$/1M tokens） | 缓存与其他说明 |
+|------|---------------------|---------------------|----------------|
+| **Qwen3.8-Max**（含 `qwen3.8-max-0902` 快照） | $2 | $6 | 缓存命中 $0.25；稳定版与 0902 快照同价 |
+| **qwen3.8-2.4t-a95b**（开源版） | $2 | $6 | 支持缓存折扣（单价未公开）；北京 $1.65/$4.951 |
+| **qwen3.8-27b**（开源 Dense 版） | $0.5 | $3 | 支持缓存折扣（单价未公开）；北京 $0.424/$1.696 |
+| **Qwen3.8-Flash** | $0.15 | $0.47 | 国内参考：¥0.8/¥2.7、缓存命中 ¥0.1、显式缓存创建 ¥1.25、Batch ¥0.4/¥1.35 [来源: alibabacloud.com 新加坡定价页 + qianwenai.com，2026-09-02] |
 
 ## 竞品定价对比（参考）
 
-| 模型 | 输入（¥/M tokens） | 输出（¥/M tokens） | 缓存 | 来源 |
-|------|-------------------|-------------------|------|------|
-| **Qwen3.7-Max**（新加坡） | $2.5（≈¥18） | $7.5（≈¥54） | $0.5 | alibabacloud.com |
+| 模型 | 输入（每 1M tokens） | 输出（每 1M tokens） | 缓存 | 来源 |
+|------|----------------------|----------------------|------|------|
+| **Qwen3.8-Max**（新加坡） | $2 | $6 | $0.25 | alibabacloud.com |
 | DeepSeek-V4-Pro（非峰） | $0.66（≈¥4.8） | $1.98（≈¥14.4） | $0.022 | api-docs.deepseek.com（2026-08-16 起峰谷定价：峰时×2，详见 [deepseek-v-series.md](../../knowledge/deepseek/deepseek-v-series.md)） |
 | GLM-5.1（智谱） | ¥6（32K以内）/ ¥8 | ¥24 | ~¥3.4（$0.475） | open.bigmodel.cn |
 | GPT-5.5 | $5（≈¥36） | $30（≈¥216） | $0.50 | apidog.com (AA) |
 | Claude Opus 4.7 | $6.25（≈¥45） | $25（≈¥180） | $0.50 | apidog.com (AA) |
 
-> Qwen3.7-Max 单价高于 DeepSeek-V4-Pro（4×）和 GLM-5.1（2×），但 Agent 场景（Terminal-Bench 2.1 74.5 vs GLM-5.1 58.7）、1M 上下文（vs GLM-5.1 128K）、35h 长时执行是核心差异点。
+> Qwen3.8-Max 单价高于 DeepSeek-V4-Pro 与 GLM-5.1，核心差异点为 Terminal-Bench 2.1 86.6（GLM-5.1 58.7）、1M 上下文（GLM-5.1 128K）以及代码工程和专业办公能力。跨厂商比较仍需统一上下文、缓存、峰谷与汇率口径。
 
 ## 参考资料
 
-- https://apidog.com/blog/qwen-3-7-vs-gpt-5-5-vs-opus-4-7/ （Qwen3.7-Max vs GPT-5.5 vs Opus 4.7 三方对比，AA Index 57 / #1）
-- https://developer.aliyun.com/article/1738425 （百炼 Qwen3.7-Max RMB 定价详解）
-- https://www.datalearner.com/ai-models/compare/qwen3-7-max-preview/vs/glm-5-1 （Qwen3.7 vs GLM-5.1 Benchmark 对比）
-- https://hub.baai.ac.cn/view/53628 （智源社区评测文章）
-- agentic LLM参考: https://artificialanalysis.ai/models?intelligence=coding-index
-- https://www.qubrid.com/blog/qwen37-plus-is-now-available-on-qubrid-ai （Qwen3.7-Plus 完整 Benchmark 六模型对比表）
-- https://benchlm.ai/best/computer-use （Computer Use AI 全球排名，Plus #4 75.6 分）
-- https://www.qbitai.com/2026/06/427730.html （量子位报道，11 小时自主开发 demo）
-- https://help.aliyun.com/zh/model-studio/newly-released-models （模型上下架与更新，2026-06-10 qwen3.7-max-2026-06-08 条目）
-- https://help.aliyun.com/zh/model-studio/vision-model/ （视觉理解模型列表，含 Max-0608 参数表）
+- [Qwen3.8 官方博客](https://qwen.ai/blog?id=qwen3.8)
+- [Qwen3.8-Flash-Next 官方博客](https://qwen.ai/blog?id=qwen3.8-flash-next)
+- [阿里云国际站模型定价](https://www.alibabacloud.com/help/en/model-studio/model-pricing)
+- [百炼模型定价](https://help.aliyun.com/zh/model-studio/model-pricing)
+- [百炼模型上下架与更新](https://help.aliyun.com/zh/model-studio/newly-released-models)
+- [Qwen3.7-Plus 官方博客](https://qwen.ai/blog?id=qwen3.7-plus)（历史模型）
+- [Qwen3.7-Plus 第三方 Benchmark 汇总](https://www.qubrid.com/blog/qwen37-plus-is-now-available-on-qubrid-ai)（历史模型）
+- [Computer Use AI 全球排名](https://benchlm.ai/best/computer-use)
+- [Agentic LLM 参考](https://artificialanalysis.ai/models?intelligence=coding-index)
 - [通义千问官网](https://tongyi.aliyun.com)
 - [百炼平台](https://bailian.console.aliyun.com)
 - [Qwen GitHub](https://github.com/QwenLM)
@@ -298,6 +236,7 @@
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-10 | 定价与历史内容精简：API 定价仅保留 Qwen3.8 代，竞品对照改用 Qwen3.8-Max；合并 Qwen3.7 系列为历史存量小节，删除重复的 Plus vs Max 选型详解，保留迁移路径与关键历史数据 |
 | 2026-11-08 | 校验修复（knowledge-verification-2026-11-08）：解除 Qwen3.8-Max「AA 尚未复测」过期表述——AA 已收录 v5 = 45（低于 Carbon/Opus 5.5/Astra/GPT-6.1 Sol/K3.1 Pro），官方「仅次于 Fable 5」自评加座次对照与口径提醒 |
 | 2026-11-05 | 主推口径修正（用户明确）：**Qwen3.7-Plus 退出主推**（3.8 代无 Plus 继任者，官方销售指南 0930 起已以 Qwen3.8-27B 替代）；主推表置换为 Qwen3.8-Max / Qwen3.8-27B / Qwen3.8-Flash，Plus 小节改「存量在售，已退出主推」，系列定位/核心能力/适用场景/选型一句话同步改写；定价与 benchmark 数据保留供存量项目核对 |
 | 2026-09-17 | 校验修复（knowledge-verification-2026-09-17）+ 合并：新增「Qwen3.8-Max-0902 快照」小节（2026-09-02 上线国际站/全球，编码深度/协作智能体/视觉理解三维升级，$2/$6 同稳定版）+ 主推表/定价表同步；Qwen3.7-Flash 国际站 USD 定价公布——三档阶梯 $0.030/$0.130（≤32K）、$0.100/$0.400（≤256K）、$0.200/$0.800（≤1M）+ Batch 5 折，解除"未公布"口径；a95b/27b 缓存列改"支持缓存折扣（单价未公开）"并补北京价 $1.65/$4.951、$0.424/$1.696；删除 3.8-Flash 行"免费额度 1M tokens"营销残留；修复 deepseek-v-series.md 断链（../../../ → ../../）；Changelog 主表最早 2 条（2026-08-03）移入折叠区 |

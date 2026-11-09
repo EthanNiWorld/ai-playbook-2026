@@ -40,7 +40,7 @@
 **🔀 竞品对比**
 > SA 打法建议 + 差异化分析
 
-[Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) · [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md)
+[Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) · [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md)
 
 </td>
 </tr>
@@ -142,7 +142,7 @@
 | ⌨️ **AI Coding** | Qoder（企业级 AI Coding） | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [Qoder 架构分析](alibaba-ai-hub/ai-coding/qoder_survey_20260622.md) · [vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) |
 | 🤖 **AI 应用平台** | QwenWork · Claw · JVS Crew | [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [Claw](alibaba-ai-hub/ai-application/claw-family.md) · [JVS Crew](alibaba-ai-hub/ai-application/jvs-crew.md) |
 | ⚡ **AI Infra（存储 / 算力）** | GPU 选型 · AgenticFS | [GPU 选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [AgenticFS](alibaba-ai-hub/ai-infra/agenticfs.md) |
-| 🥊 **竞品对比** | vs Trae · vs Hy3 · vs Doubao · Haiku vs Luna | [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy3](alibaba-ai-hub/competitive-analysis/qwen-vs-hy3/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) · [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) |
+| 🥊 **竞品对比** | vs Trae · vs Hy4 · vs Doubao · Haiku vs Luna | [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) · [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) |
 
 > 💡 **重点推荐**：[企业自建 AI 平台方案](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) — Higress AI 网关 + 灵骏 GPU + 百炼 Fallback 全栈方案
 
@@ -193,7 +193,7 @@ mindmap
         Step 5 Preview / Step 3.7 Flash / AI+终端
     线:竞品对比
       Qoder vs Trae
-      Qwen vs Hy3 / Doubao
+      Qwen vs Hy4 / Doubao
       Haiku 5.5 vs GPT-6 Luna
     体:行业方案
       企业自建 AI 平台

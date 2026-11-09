@@ -1,6 +1,6 @@
 # Doubao-Seed-2.1
 
-> 最后更新: 2026-09-17
+> 最后更新: 2026-11-10
 > 所属厂商: 字节跳动 / ByteDance Seed
 > 产品类别: MaaS
 > 状态: Published
@@ -8,8 +8,8 @@
 <!-- SUMMARY_START -->
 **定位**: 面向 Coding 和 Agent 时代的生产级大模型系列，2026-06-23 火山引擎 FORCE 大会发布
 **适用**: Agentic Coding、长链路 Agent 自主执行、多模态理解、GUI Agent
-**不适用**: 需要超长上下文（>256K）的 monorepo 分析场景
-**竞品**: Qwen3.7-Max、GPT-5.5、Claude Opus 4.7、Gemini 3.1 Pro
+**不适用**: 需要超长上下文（>1M）的场景（260628 旧版为 >256K）
+**竞品**: Qwen3.8-Max、GPT-5.5、Claude Opus 4.7、Gemini 3.1 Pro
 **常搭配**: TRAE IDE、豆包办公模式、火山方舟 API
 <!-- SUMMARY_END -->
 
@@ -24,13 +24,13 @@ Doubao-Seed-2.1 是字节跳动面向 Coding + Agent 场景打造的新一代大
 - **MoE 架构**（参数规模未公开），在有限窗口内做深——优化 Agent 长时间迭代、多步工具调用
 - **原生多模态**：文本 + 图像 + 视频输入，支持视觉理解驱动的 Agent 任务
 - **深度思考模型**：支持 `reasoning_effort` 参数（minimal/low/medium/high），控制推理深度
-- **设计取舍**：选择 256K 上下文 + 深度 Agent 能力，而非 1M 上下文 + 广度覆盖
+- **设计取舍**：首发版选择 256K 上下文 + 深度 Agent 能力；0915 新版起升级 1M，转向深度与广度兼顾
 
 ### 核心限制
 
 | 限制项 | 具体值 | 说明 |
 |--------|--------|------|
-| 上下文窗口 | 256K tokens | 行业主流已达 1M+，大型 monorepo 无法一次性加载 |
+| 上下文窗口 | 260628：256K；0915 / Evolving：**1M** | 0915 起不再是限制；仅 260628 旧版无法一次性加载大型 monorepo |
 | 架构参数 | 未公开 | MoE 架构，具体总参数量和激活参数量未知 |
 | 生态绑定 | 火山方舟 | API 仅在火山方舟上线，第三方集成便利性待观察 |
 
@@ -38,12 +38,16 @@ Doubao-Seed-2.1 是字节跳动面向 Coding + Agent 场景打造的新一代大
 
 | 模型 | 定位 | 上下文 | 输入价 | 输出价 | 特点 |
 |------|------|--------|--------|--------|------|
-| 🚩 **Doubao-Seed-2.1 Pro** | 旗舰 | 256K | ¥6/M | ¥30/M | Coding+Agent 全能力，原生多模态，reasoning_effort 控制 |
+| 🚩 **Doubao-Seed-2.1 Pro（0915）** | 旗舰·当前主推 | **1M** | ¥6/M | ¥30/M | 2026-09-15 全量：Agent 可靠性 / 多模态 Coding / 3D 理解增强 |
+| **Doubao-Seed-2.1 Pro（260628）** | 旗舰·首发版 | 256K | ¥6/M | ¥30/M | 本文 benchmark 口径版本 |
+| **Doubao-Seed-Evolving** | 快速迭代（官方"Seed 最新 Coding&Agent 模型"） | 1M | ¥6/M | ¥30/M | 持续更新，聚焦 Coding & Agent |
 | **Doubao-Seed-2.1 Turbo** | 轻量 | 256K | ¥3/M | ¥15/M | 低成本低延迟，效果比肩 Pro |
 
 > 来源：[火山引擎定价](https://www.volcengine.com/product/doubao)；[火山方舟模型文档](https://www.volcengine.com/docs/82379/2549861)
 
 ### 关键基准（vendor-published）
+
+> ⚠️ 以下 benchmark 均为 **260628 首发版**口径；0915 新版与 Evolving 官方未发布完整 benchmark。
 
 **Coding**：
 
@@ -83,16 +87,19 @@ Doubao-Seed-2.1 是字节跳动面向 Coding + Agent 场景打造的新一代大
   2. **多模态 Coding**（"看图写代码"）
   3. **3D 理解**
 - **效率**：Token 效率优化，**图像推理成本降约三成**
+- **上下文**：**256K → 1M**（最大输入 1024K、最大回答/思维链 256K）✅ 火山方舟官方模型列表确证（2026-11-10 核实）
 - **定价**：Pro ¥6/¥30、Turbo ¥3/¥15 未变（火山引擎产品页口径一致）
-- **来源**：ℹ️ 第三方媒体多源一致（21世纪经济报道 / 财联社 / 我的钢铁网，2026-09-16）+ 火山引擎产品页 snippet；火山方舟官方文档页 JS 阻断未取得一手确证 ⚠️ 待官方文档确认；0915 版完整 benchmark 官方未发布 [⚠️ 待补充]
+- **来源**：功能升级为 ℹ️ 第三方媒体多源一致（21世纪经济报道 / 财联社 / 我的钢铁网，2026-09-16）；上下文规格 ✅ [火山方舟模型列表](https://www.volcengine.com/docs/ark/model-list) 一手确证；0915 版完整 benchmark 官方未发布，本文 Coding/Agent 分数仍为 260628 口径 [⚠️ 待补充]
 
 ### Doubao-Seed-Evolving（2026-06-23 上线）
 
-- **模型**：Doubao-Seed-Evolving，火山引擎产品页收录
+- **模型**：doubao-seed-evolving，火山方舟官方标注"**Seed 最新 Coding&Agent 模型**"（快速迭代通道，持续更新）
 - **时间**：2026-06-23 上线（与 2.1 系列同批 FORCE 大会时间窗）
-- **定位**：Coding / Agent 场景
+- **定位**：Coding / Agent 场景；能力标签与 0915 Pro 一致（深度思考 / 多模态理解 / GUI 任务处理 / 工具调用 / 结构化输出）
+- **上下文**：**1M**（最大输入 1024K、最大回答/思维链 256K）
+- **限流**：RPM 500 / TPM 1,000,000（与 Pro 相同）
 - **定价**：¥6/¥30（输入/输出，每百万 tokens）
-- **来源**：火山引擎产品页 snippet（2026-09-17 核实）；架构、上下文、benchmark 等详情官方文档页 JS 阻断未获取 [⚠️ 待补充]
+- **来源**：✅ [火山方舟模型列表](https://www.volcengine.com/docs/ark/model-list)（2026-11-10 核实，一手确证）；架构、benchmark 官方未发布 [⚠️ 待补充]
 
 ## 适用边界分析
 
@@ -110,16 +117,15 @@ Doubao-Seed-2.1 是字节跳动面向 Coding + Agent 场景打造的新一代大
 
 | 场景 | 不适用原因 | 替代方案 |
 |------|-----------|----------|
-| 大型 monorepo 代码分析 | 256K 上下文不足以加载完整仓库 | Qwen3.7-Max（1M）/ GPT-5.5 |
-| 重度 Bug 修复（SWE-Pro 类） | SWE-Pro 57.5，落后 Claude Opus 4.7 约 7 分 | Claude Opus 4.7 / Qwen3.7-Max |
-| 超长文档处理（>256K tokens） | 上下文窗口限制 | Gemini 3.1 Pro（2M）/ Qwen3.7-Max（1M） |
+| 重度 Bug 修复（SWE-Pro 类） | SWE-Pro 57.5（260628 口径），落后 Claude Opus 4.7 约 7 分 | Claude Opus 4.7 / Qwen3.8-Max |
+| 超长文档处理（>1M tokens） | 0915 / Evolving 上限 1M；260628 旧版仅 256K | Gemini 3.1 Pro（2M） |
 
 ### ⚠️ 常见误解
 
 | 误解 | 事实 |
 |------|------|
 | SWE-Pro 低 = Coding 能力弱 | SWE-Pro 只测"修复已有代码 Bug"，Doubao 在端到端工程交付（NL2Repo）和 Agent 规划（GDPval）上更强 |
-| 256K 上下文 = 落后 | 字节有意选择"做深不做宽"，MoE 架构下优化长时 Agent 迭代而非单次超长输入 |
+| 上下文仍是 256K | 仅 260628 首发版为 256K；0915 新版与 Evolving 已升级 1M（火山方舟官方模型列表确证） |
 | 价格低 = 能力差 | 价格约为 Claude Opus 4.7 的 1/18，但在 Agent 端到端交付上与 Claude 接近 |
 
 ## 关键配置与最佳实践
@@ -141,24 +147,27 @@ Doubao-Seed-2.1 是字节跳动面向 Coding + Agent 场景打造的新一代大
 
 ## 竞品快速对照
 
-| 维度 | Doubao-Seed-2.1 Pro | Qwen3.7-Max | Claude Opus 4.7 |
+| 维度 | Doubao-Seed-2.1 Pro（260628） | Qwen3.8-Max | Claude Opus 4.7 |
 |------|:---:|:---:|:---:|
-| TB 2.1 | 71.0 | 74.5 | 71.7 |
-| SWE-Pro | 57.5 | 60.6 | 64.3 |
-| 上下文 | 256K | **1M** | 200K |
+| TB 2.1 | 71.0 | **86.6** | 71.7 |
+| SWE-Pro | 57.5 | **67.7** | 64.3 |
+| 上下文 | 256K（0915 起 1M） | 1M | 200K |
 | 输入价 | ¥6/M | ¥12/M | ~¥45/M |
 | 输出价 | ¥30/M | ¥36/M | ~¥180/M |
-| 视觉输入 | ✅ 原生 | ✅ (0608) | ✅ |
+| 视觉输入 | ✅ 原生 | ✅ 文本+图像（实测） | ✅ |
 | Agent 规划 | GDPval 最高分 | — | — |
 
 ## 参考资料
 
 - [ByteDance Seed 官方博客 - Seed2.1 正式发布](https://seed.bytedance.com/zh/blog/seed2-1-officially-released-advancing-ai-productivity)
 - [火山方舟模型文档](https://www.volcengine.com/docs/82379/2549861)
+- [火山方舟模型列表](https://www.volcengine.com/docs/ark/model-list)
 - [火山引擎产品定价](https://www.volcengine.com/product/doubao)
 - [IT之家报道](https://www.ithome.com/0/967/314.htm)
 
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-10 | 竞品口径升级：竞品快速对照表、SUMMARY 竞品行与不适用场景替代方案中的 Qwen3.7-Max 替换为 Qwen3.8-Max（TB 2.1 86.6 / SWE-Pro 67.7，Qwen 官方博客；定价 ¥12/¥36 与 3.7 同价经百炼定价页 2026-11-10 核实；视觉为 API 实测口径）；Claude Opus 4.7 列保留未核实 |
+| 2026-11-10 | 时效修复：0915 新版与 Evolving 上下文升级 1M 获火山方舟官方模型列表一手确证（最大输入 1024K、思维链 256K）；Evolving 补"Seed 最新 Coding&Agent 模型"官方定位与限流规格；主推模型表拆分 Pro 260628/0915 双版本并收录 Evolving；benchmark 统一标注 260628 口径；删除 256K 限制衍生的不适用场景与误解条目 |
 | 2026-09-17 | 合并：knowledge-verification-2026-09-17 报告 — 新增「Doubao-Seed-2.1-Pro 0915 新版」小节（2026-09-15/16 火山方舟全量上线：多模态 Coding 看图写代码 / 3D 理解 / Agent 可靠性 / 图像推理成本降约三成，ℹ️ 第三方媒体多源口径待官方文档确证）+「Doubao-Seed-Evolving」条目（¥6/¥30，2026-06-23 上线，火山产品页收录）；定价 ¥6/¥30、¥3/¥15 未变复核一致 |
