@@ -20,9 +20,14 @@ import time
 
 from . import fx, prompts, store, tools
 from .config import REPO_BROWSE_URL, get_llm_config
-from .knowledge import get_index
+from .knowledge import get_index, search_with_models
 from .llm import stream_chat
-from .price_verifier import audit_answer_prices, is_price_question, needs_model_clarify
+from .price_verifier import (
+    audit_answer_prices,
+    extract_model_names,
+    is_price_question,
+    needs_model_clarify,
+)
 
 log = logging.getLogger("pipeline")
 
@@ -45,11 +50,11 @@ def _format_kb(chunks: list[dict]) -> str:
     """知识片段注入 prompt。不给模型文件路径（relpath），保持正文简洁；
     来源引用由系统以可点击的 GitHub 链接（sources 事件）统一展示给客户自查。"""
     if not chunks:
-        return "（未检索到相关知识库片段）"
+        return "（未检索到相关资料片段）"
     parts = []
     for i, c in enumerate(chunks, 1):
         parts.append(
-            f"### 片段[{i}]（内部知识库资料）· {c['title']}\n{c['text'][:CHUNK_CHARS]}"
+            f"### 片段[{i}]（已整理的内部资料）· {c['title']}\n{c['text'][:CHUNK_CHARS]}"
         )
     return "\n\n".join(parts)
 
@@ -140,8 +145,10 @@ async def stream_answer(
             sources.append(s)
 
     # ── 1. 本地知识检索（永远预注入：便宜、稳定，能力/选型题主信源）──
-    yield {"type": "status", "stage": "retrieving", "message": "🔍 检索知识库..."}
-    chunks = get_index().search(question, top_k=MAX_CHUNKS)
+    yield {"type": "status", "stage": "retrieving", "message": "🔍 检索资料..."}
+    chunks = search_with_models(
+        question, extract_model_names(question), top_k=MAX_CHUNKS
+    )
     for c in chunks:
         add_source(
             {
@@ -234,7 +241,7 @@ async def stream_answer(
         {
             "role": "user",
             "content": _mm_user_content(
-                "## 知识库片段（按相关度排序）\n"
+                "## 资料片段（按相关度排序）\n"
                 + _format_kb(chunks)
                 + f"\n\n## 用户问题\n{question}",
                 images,

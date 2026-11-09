@@ -28,7 +28,12 @@ def get_repo_url() -> str:
     return REPO_URL
 
 REPO_BROWSE_URL = REPO_URL.replace(".git", "").rstrip("/")
-SPARSE_DIRS = ("alibaba-ai-hub", "knowledge/ai-general-notes")
+SPARSE_DIRS = (
+    "alibaba-ai-hub",
+    "knowledge",  # 含 ai-general-notes 与各厂商权威文档（deepseek/moonshot/…），
+    # 选型/对比题需要它们；曾只收 ai-general-notes 导致 deepseek-v-series.md
+    # 从未入库，模型只能凭记忆写规格（2026-11-10 实测事故）。
+)
 # 克隆模式下距上次同步超过该小时数才自动 git pull（手动同步不受限）
 KB_SYNC_INTERVAL_HOURS = float(os.getenv("KB_SYNC_INTERVAL_HOURS") or "24")
 

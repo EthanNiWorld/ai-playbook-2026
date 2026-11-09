@@ -263,6 +263,49 @@ def get_index() -> KnowledgeIndex:
     return _index
 
 
+def search_with_models(
+    question: str,
+    models: list[str] | None,
+    top_k: int = 6,
+    per_model: int = 2,
+    max_total: int = 9,
+) -> list[dict]:
+    """整题检索 + 按题中型号补充检索。
+
+    对比/选型题的整题 BM25 容易被单一品牌的权威文档占满（qwen.md 享受文件名
+    boost×3，deepseek 的 chunk 挤不进 top-k，2026-11-10 实测 top8 全是 qwen.md）。
+    对题中出现的每个型号，若其家族文档未出现在整题结果里，则单独按型号补检
+    per_model 条，去重后合并，上限 max_total。
+    """
+    chunks = _index.search(question, top_k=top_k)
+    if not models:
+        return chunks
+    seen = {(c["relpath"], c["title"]) for c in chunks}
+    # 家族主词取型号开头纯字母段：qwen3.8-max → qwen（qwen/wan 无连字符，
+    # 若用 split("-") 会得到 "qwen3"，导致已覆盖的家族被重复补检）
+    families = {}
+    for m in models:
+        if len(m) < 5:
+            continue
+        fm = re.match(r"[a-z]+", m.lower())
+        if fm:
+            families.setdefault(fm.group(0), m)
+    for fam, model in families.items():
+        covered = any(
+            fam in Path(c["relpath"]).stem.lower() or f"/{fam}" in c["relpath"].lower()
+            for c in chunks
+        )
+        if covered:
+            continue
+        for c in _index.search(f"{model} 规格 上下文 能力", top_k=per_model):
+            key = (c["relpath"], c["title"])
+            if key in seen:
+                continue
+            seen.add(key)
+            chunks.append(c)
+    return chunks[:max_total]
+
+
 def build_default_index() -> int:
     """启动时调用：确保知识就绪并构建索引"""
     root = ensure_knowledge()

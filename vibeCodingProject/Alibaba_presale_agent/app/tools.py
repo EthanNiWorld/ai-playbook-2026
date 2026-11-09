@@ -102,7 +102,7 @@ TOOLS = [
             "name": "search_web",
             "description": (
                 "联网搜索时效性信息（如竞品最新定价、新发布产品）。"
-                "仅当知识库片段与 verify_price 证据都不够时使用。"
+                "仅当资料片段与 verify_price 证据都不够时使用。"
                 "query 用简短英文更容易命中海外定价页。"
             ),
             "parameters": {

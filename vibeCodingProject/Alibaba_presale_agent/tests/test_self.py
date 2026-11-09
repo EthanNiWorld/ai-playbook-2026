@@ -277,6 +277,28 @@ def test_knowledge_retrieval():
     check("空查询不抛异常", isinstance(knowledge.get_index().search("", top_k=3), list))
     check("乱码查询不抛异常", isinstance(knowledge.get_index().search("?!@#$", top_k=3), list))
 
+    # 2026-11-10 事故：对比题整题 BM25 被单一品牌权威文档占满（top8 全是 qwen.md），
+    # 另一型号的权威文档挤不进 top-k，模型只能凭记忆写规格（把 1M 上下文答成
+    # “官方未明确披露”、CED 串成 V3.2 时代的 DSA）。修复：SPARSE_DIRS 收录 knowledge/
+    # 全目录 + search_with_models 按型号补检。
+    check("索引含 deepseek 权威文档（knowledge/deepseek/）",
+          any("knowledge/deepseek/" in c["relpath"] for c in knowledge.get_index().chunks))
+    cmp_q = "qwen3.8-max 和 deepseek-v4.1-flash 哪个更适合长文本 RAG 场景？"
+    base = [c["relpath"] for c in knowledge.get_index().search(cmp_q, top_k=6)]
+    check("事故复现：整题检索确实被单品牌占满", all("qwen" in r for r in base), str(base[:3]))
+    out = knowledge.search_with_models(cmp_q, ["deepseek-v4.1-flash", "qwen3.8-max"], top_k=6)
+    check("补检后覆盖两个家族文档",
+          any("deepseek" in c["relpath"] for c in out) and any("qwen" in c["relpath"] for c in out))
+    check("补检条数受控（≤9）", len(out) <= 9)
+    check("单型号题不重复补检（仍 6 条）",
+          len(knowledge.search_with_models("qwen3.8-max 多少钱", ["qwen3.8-max"], top_k=6)) == 6)
+    check("无型号题不补检",
+          len(knowledge.search_with_models("你好", [], top_k=6)) <= 6)
+    kimi_q = "kimi-k3.1-pro 和 qwen3.8-max 哪个适合写代码？"
+    kimi_out = knowledge.search_with_models(kimi_q, ["kimi-k3.1-pro", "qwen3.8-max"], top_k=6)
+    check("kimi 对比题补检命中 kimi-k-series",
+          any("kimi-k-series" in c["relpath"] for c in kimi_out))
+
 
 def test_store():
     """存储层：独立临时库，落库/反馈覆盖/统计/过滤/导出"""
