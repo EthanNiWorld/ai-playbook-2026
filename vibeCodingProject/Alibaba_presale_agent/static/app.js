@@ -180,12 +180,18 @@ function hideStatus() {
 
 /* ── 来源与价格徽章 ── */
 
-function renderSources(el, sources, priceStatus) {
+function renderSources(el, sources, priceStatus, priceAudit) {
   el.innerHTML = "";
   if (priceStatus === "official") {
     const badge = document.createElement("span");
-    badge.className = "price-badge";
-    badge.textContent = "✅ 价格已联网核实（官方定价页）";
+    if (priceAudit && priceAudit.indexOf("mismatch") === 0) {
+      // 输出侧审计发现回答表格价格与官方证据不符：撤掉「已核实」绿标，改警示。
+      badge.className = "price-badge price-badge-warn";
+      badge.textContent = "⚠️ 价格未通过自动核对，请以官方定价页为准";
+    } else {
+      badge.className = "price-badge";
+      badge.textContent = "✅ 价格已联网核实（官方定价页）";
+    }
     el.appendChild(badge);
   }
   for (const s of sources || []) {
@@ -322,6 +328,7 @@ async function ask(question) {
   let answerText = "";
   let answerId = null;
   let priceStatus = "";
+  let priceAudit = "";
   let thinkText = "";
   let thinkT0 = 0;
   let thinkCollapsed = false;
@@ -390,6 +397,7 @@ async function ask(question) {
         } else if (ev.type === "done") {
           answerId = ev.answer_id;
           priceStatus = ev.price_status;
+          priceAudit = ev.price_audit || "";
         } else if (ev.type === "error") {
           answerText += (answerText ? "\n\n" : "") +
             "❌ " + (ev.message || "生成失败，请重试。");
@@ -401,7 +409,7 @@ async function ask(question) {
     if (priceStatus) {
       // done 事件到达后再补价格徽章（需保留已有来源 chips）
       const tmp = document.createElement("div");
-      renderSources(tmp, [], priceStatus);
+      renderSources(tmp, [], priceStatus, priceAudit);
       if (tmp.firstChild && ui.sources.hidden) ui.sources.hidden = false;
       if (tmp.firstChild) ui.sources.insertBefore(tmp.firstChild, ui.sources.firstChild);
     }

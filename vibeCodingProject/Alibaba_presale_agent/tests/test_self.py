@@ -351,6 +351,216 @@ def test_model_clarify():
     )
 
 
+def test_price_audit():
+    """输出侧价格审计：回答表格里的 $ 金额必须都来自官方证据（防抄错/臆造）。"""
+    print("[5] 输出侧价格审计")
+    from app import price_verifier as pv
+
+    official = (
+        "#### qwen3.8-max · 模型详情页定价（每 1M tokens USD · 权威）\n"
+        "| Region | 输入价格 (Input) | 缓存输入价格 (Cache Input) | 输出价格 (Output) | 显式缓存创建 (Cache Write) | 备注 |\n"
+        "|---|---|---|---|---|---|\n"
+        "| Singapore | $2 | $0.25 | $6 | $2.5 | — |\n"
+        "| China (Beijing) | $1.65 | $0.2 | $4.951 | — | — |\n"
+    )
+
+    # 数字归一
+    check("金额归一: 0.040→0.04", pv._norm_amount("0.040") == "0.04")
+    check("金额归一: 2.00→2", pv._norm_amount("2.00") == "2")
+    check("金额归一: 整数 100 不被削尾零", pv._norm_amount("100") == "100")
+    check("金额归一: 1.650→1.65", pv._norm_amount("1.650") == "1.65")
+
+    # 逐字照抄官方表 → 通过
+    ok = pv.audit_answer_prices("价格如下：\n" + official, official)
+    check("审计: 逐字照抄官方表 → checked 且无 mismatch",
+          ok["checked"] and ok["mismatched"] == [], str(ok))
+
+    # 抄错一个数字（$6 写成 $82）→ mismatch
+    bad = official.replace("| $6 |", "| $82 |")
+    r = pv.audit_answer_prices(bad, official)
+    check("审计: 抄错的价格被揪出", r["checked"] and "82" in r["mismatched"], str(r))
+    check("审计: 合法价格不误报", "2" not in r["mismatched"] and "6" not in r["mismatched"], str(r))
+
+    # 归一后相等不算 mismatch（$2 vs $2.00）
+    r2 = pv.audit_answer_prices(official.replace("| $2 |", "| $2.00 |"), official)
+    check("审计: 尾零差异不误报", r2["checked"] and r2["mismatched"] == [], str(r2))
+
+    # 没有表格价格 → 无从比对（拒答/纯文字场景）
+    r3 = pv.audit_answer_prices("该价格暂未能联网核实，请以官方定价页为准。", official)
+    check("审计: 回答无表格价格 → 未审计", not r3["checked"], str(r3))
+
+    # 正文里的成本测算/人民币换算不是表格单价，不应误报
+    prose = (
+        "按官方单价测算：\n" + official +
+        "\n\n若调用 100 万次输入，约 $2 × 100 = $200；折合 ¥1334.24（汇率 6.6712）。"
+    )
+    r4 = pv.audit_answer_prices(prose, official)
+    check("审计: 正文成本测算($200)与人民币(¥)不误报",
+          r4["checked"] and r4["mismatched"] == [], str(r4))
+
+    # web 旁证价不作数：只喂官方证据，回答里的 web 价应被揪出
+    r5 = pv.audit_answer_prices("| Singapore | $9.99 | — | — | — | — |", official)
+    check("审计: 官方证据外的价格(疑似 web/臆造)被揪出",
+          r5["checked"] and "9.99" in r5["mismatched"], str(r5))
+
+    # 媒体按秒计费表同样受审
+    media_off = (
+        "| 模型 (Model ID) | Region | 分辨率 | 单价 | 备注 |\n"
+        "|---|---|---|---|---|\n"
+        "| wan3.0-video | Singapore | 1080P | $0.28/秒 | — |\n"
+    )
+    rm = pv.audit_answer_prices(media_off, media_off)
+    check("审计: 视频按秒价照抄 → 通过", rm["checked"] and rm["mismatched"] == [], str(rm))
+    rm2 = pv.audit_answer_prices(media_off.replace("$0.28", "$0.82"), media_off)
+    check("审计: 视频价抄错被揪出", rm2["checked"] and "0.82" in rm2["mismatched"], str(rm2))
+
+
+def test_source_visibility():
+    """知识库仓库公开可核对：KB 引用也对客户展示，按可信度排序。"""
+    print("[6] 来源可见性与排序")
+    from app import pipeline
+
+    sources = [
+        {"title": "kb", "url": "https://github.com/x/blob/main/maas/qwen.md", "kind": "knowledge"},
+        {"title": "off", "url": "https://www.alibabacloud.com/help/en/model-studio/model-pricing", "kind": "official"},
+        {"title": "web", "url": "https://example.com/a", "kind": "web"},
+    ]
+    out = pipeline.order_sources(sources)
+    kinds = [s["kind"] for s in out]
+    check("来源: 知识库引用不再被过滤（对客户可见）", "knowledge" in kinds, str(kinds))
+    check("来源: 排序 官方 > 搜索 > 知识库",
+          kinds == ["official", "web", "knowledge"], str(kinds))
+    check("来源: 空列表安全", pipeline.order_sources([]) == [])
+    check("来源: limit 截断", len(pipeline.order_sources(sources, limit=2)) == 2)
+    # 未知 kind 排最后且不丢弃
+    out2 = pipeline.order_sources([{"kind": "mystery", "url": "u"}, {"kind": "official", "url": "u2"}])
+    check("来源: 未知 kind 兜底排末尾",
+          [s["kind"] for s in out2] == ["official", "mystery"], str(out2))
+
+
+def test_pipeline_wiring():
+    """端到端（mock LLM/校验/检索）：done 事件携带 price_audit，KB 来源对客户可见。"""
+    print("[8] 管线端到端接线（mock）")
+    import types
+    from app import pipeline
+
+    official = (
+        "| Region | 输入价格 (Input) | 缓存输入价格 (Cache Input) | 输出价格 (Output) | 显式缓存创建 (Cache Write) | 备注 |\n"
+        "|---|---|---|---|---|---|\n"
+        "| Singapore | $2 | $0.25 | $6 | $2.5 | — |\n"
+    )
+
+    class FakeIdx:
+        def search(self, q, top_k=6):
+            return [{"text": "x", "title": "qwen", "relpath": "maas/qwen.md"}]
+
+    async def fake_verify(q, h=None):
+        return {
+            "status": "official", "evidence_md": official, "official_md": official,
+            "sources": [{"title": "off", "url": "https://www.alibabacloud.com/x", "kind": "official"}],
+            "checked_at": "now", "models": ["qwen3.8-max"],
+        }
+
+    captured = {}
+
+    def fake_insert(**kw):
+        captured.clear()
+        captured.update(kw)
+        return 1
+
+    async def drive(answer_text):
+        async def fake_stream(messages):
+            yield ("text", answer_text)
+        pipeline.stream_chat = fake_stream
+        evs = []
+        async for ev in pipeline.stream_answer("qwen3.8-max 价格", [], "s1"):
+            evs.append(ev)
+        return evs
+
+    saved = {k: getattr(pipeline, k) for k in
+             ("get_index", "verify_prices", "stream_chat", "is_price_question",
+              "needs_model_clarify", "store", "fx")}
+    pipeline.get_index = lambda: FakeIdx()
+    pipeline.verify_prices = fake_verify
+    pipeline.is_price_question = lambda q, h=None: True
+    pipeline.needs_model_clarify = lambda q, h=None: False
+    pipeline.store = types.SimpleNamespace(insert_answer=fake_insert)
+    pipeline.fx = types.SimpleNamespace(is_fx_question=lambda q: False)
+    try:
+        # 照抄官方表 → done.price_audit == ok，落库一致
+        evs = asyncio.run(drive("价格如下：\n" + official))
+        done = next(e for e in evs if e["type"] == "done")
+        src = next(e for e in evs if e["type"] == "sources")
+        check("接线: 照抄 → done.price_audit=ok", done.get("price_audit") == "ok", str(done))
+        check("接线: 落库 price_audit 与 done 一致", captured.get("price_audit") == "ok")
+        check("接线: sources 事件含知识库引用",
+              any(s["kind"] == "knowledge" for s in src["sources"]), str(src))
+        check("接线: sources 事件含官方来源",
+              any(s["kind"] == "official" for s in src["sources"]))
+
+        # 抄错价格 → done.price_audit=mismatch:82
+        evs2 = asyncio.run(drive(official.replace("| $6 |", "| $82 |")))
+        done2 = next(e for e in evs2 if e["type"] == "done")
+        check("接线: 抄错 → done.price_audit=mismatch",
+              done2.get("price_audit") == "mismatch:82", str(done2))
+        check("接线: mismatch 落库一致", captured.get("price_audit") == "mismatch:82")
+    finally:
+        for k, v in saved.items():
+            setattr(pipeline, k, v)
+
+
+def test_store_price_audit():
+    """price_audit 列：新库写入、老库自动迁移、统计/导出。"""
+    print("[7] price_audit 存储与迁移")
+    import sqlite3
+    from app import store
+
+    with tempfile.TemporaryDirectory() as td:
+        orig = store.get_db_path
+        store.get_db_path = lambda: Path(td) / "t.db"
+        try:
+            store.init_db()
+            a1 = store.insert_answer("s1", "Q1", "A1", [], "official", "m", 100,
+                                     price_audit="mismatch:0.82")
+            store.insert_answer("s2", "Q2", "A2", [], "official", "m", 100,
+                                price_audit="ok")
+            store.insert_answer("s3", "Q3", "A3", [], "", "m", 100)
+            s = store.stats()
+            check("price_audit: 统计 mismatch 计数=1", s.get("price_audit_mismatch") == 1, str(s))
+            items = {it["id"]: it for it in store.list_answers()}
+            check("price_audit: 落库值可回读", items[a1]["price_audit"] == "mismatch:0.82")
+            check("price_audit: 未审计默认空串", items[a1 + 2]["price_audit"] == "")
+            csv_text = store.export_csv()
+            check("price_audit: CSV 含表头与值",
+                  "price_audit" in csv_text and "mismatch:0.82" in csv_text)
+        finally:
+            store.get_db_path = orig
+
+    # 老库（无 price_audit 列）→ init_db 自动 ALTER TABLE 补列
+    with tempfile.TemporaryDirectory() as td:
+        dbp = Path(td) / "old.db"
+        conn = sqlite3.connect(dbp)
+        conn.execute(
+            "CREATE TABLE answers (id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            " session_id TEXT, question TEXT, answer TEXT, sources_json TEXT,"
+            " price_status TEXT, llm_model TEXT, latency_ms INTEGER, created_at TEXT,"
+            " feedback TEXT, feedback_reason TEXT, feedback_at TEXT)"
+        )
+        conn.commit()
+        conn.close()
+        orig = store.get_db_path
+        store.get_db_path = lambda: dbp
+        try:
+            store.init_db()  # 应补 price_audit / thinking / client_ip 等列
+            aid = store.insert_answer("s", "Q", "A", [], "official", "m", 1,
+                                      price_audit="mismatch:1.23")
+            row = store.list_answers()[0]
+            check("price_audit: 老库迁移后可写可读",
+                  row["id"] == aid and row["price_audit"] == "mismatch:1.23", str(row))
+        finally:
+            store.get_db_path = orig
+
+
 def test_fx():
     """实时汇率：解析、意图识别、用户自报优先（踩记录 id=225~230）。"""
     from app import fx
@@ -400,6 +610,10 @@ def main():
     test_store()
     test_guide_lookup()
     test_model_clarify()
+    test_price_audit()
+    test_source_visibility()
+    test_pipeline_wiring()
+    test_store_price_audit()
     test_fx()
     print("-" * 56)
     print(f"结果: {PASS} 通过 / {FAIL} 失败")

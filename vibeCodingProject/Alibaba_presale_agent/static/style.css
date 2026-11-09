@@ -404,6 +404,11 @@ button:disabled { cursor: not-allowed; }
   font-weight: 500;
 }
 
+.price-badge-warn {
+  background: #fdf3e7;
+  color: #9a5b12;
+}
+
 /* ── 反馈区 ── */
 .feedback {
   display: flex;

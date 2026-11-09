@@ -11,7 +11,12 @@ from . import fx, prompts, store
 from .config import REPO_BROWSE_URL, get_llm_config
 from .knowledge import get_index
 from .llm import stream_chat
-from .price_verifier import is_price_question, needs_model_clarify, verify_prices
+from .price_verifier import (
+    audit_answer_prices,
+    is_price_question,
+    needs_model_clarify,
+    verify_prices,
+)
 
 log = logging.getLogger("pipeline")
 
@@ -19,10 +24,19 @@ MAX_CHUNKS = 6          # 注入知识库片段数
 CHUNK_CHARS = 1500       # 每个片段截断长度
 MAX_HISTORY = 8          # 注入对话历史轮数（user+assistant 条数）
 
+# 来源展示优先级：官方定价页 > 搜索旁证 > 知识库引用。
+# 知识库仓库公开可核对，故 KB 引用也对客户展示（可点击 GitHub 链接自查）。
+_KIND_ORDER = {"official": 0, "web": 1, "knowledge": 2}
+
+
+def order_sources(sources: list[dict], limit: int = 10) -> list[dict]:
+    """按可信度排序后截断，供前端展示（含知识库引用）。"""
+    return sorted(sources, key=lambda s: _KIND_ORDER.get(s.get("kind"), 3))[:limit]
+
 
 def _format_kb(chunks: list[dict]) -> str:
-    """知识片段注入 prompt。不暴露文件路径（relpath）：模型看不到路径就不会在回答里复述，
-    GitHub 文件引用仅随 sources 落库供后台追溯。"""
+    """知识片段注入 prompt。不给模型文件路径（relpath），保持正文简洁；
+    来源引用由系统以可点击的 GitHub 链接（sources 事件）统一展示给客户自查。"""
     if not chunks:
         return "（未检索到相关知识库片段）"
     parts = []
@@ -53,6 +67,7 @@ async def stream_answer(
     sources: list[dict] = []
     seen_urls: set[str] = set()
     price_status = ""
+    price_audit = ""
 
     # ── 1. 本地知识检索 ──
     yield {"type": "status", "stage": "retrieving", "message": "🔍 检索知识库..."}
@@ -128,10 +143,9 @@ async def stream_answer(
             elif fx.is_pure_rate_query(question):
                 direct_text = fx.no_source_answer()
 
-    # 前端 sources 事件：知识库文件引用（GitHub 路径）仅落库供后台分析，不展示给客户；
-    # 只推官方定价页/搜索来源
-    visible_sources = [s for s in sources if s["kind"] != "knowledge"]
-    yield {"type": "sources", "sources": visible_sources[:8]}
+    # 知识库仓库公开可核对：知识库引用也随来源展示给客户（可点击 GitHub 自查），
+    # 与官方定价页/搜索来源一起按可信度排序。
+    yield {"type": "sources", "sources": order_sources(sources)}
 
     parts: list[str] = []
     think_parts: list[str] = []
@@ -144,6 +158,7 @@ async def stream_answer(
             answer="".join(parts),
             sources=sources,
             price_status=price_status,
+            price_audit=price_audit,
             llm_model=cfg["model"],
             latency_ms=int((time.time() - t0) * 1000),
             thinking="".join(think_parts),
@@ -163,6 +178,7 @@ async def stream_answer(
             "type": "done",
             "answer_id": answer_id,
             "price_status": price_status,
+            "price_audit": price_audit,
             "latency_ms": int((time.time() - t0) * 1000),
         }
         return
@@ -224,11 +240,27 @@ async def stream_answer(
         yield {"type": "error", "message": f"生成失败：{e}"}
         return
 
-    # ── 5. 交付记录入库（供后台分析与迭代）──
+    # ── 5. 输出侧价格审计 + 交付记录入库 ──
+    # 价格题：核对回答表格里的 $ 金额是否都来自官方证据，抄错/臆造则标记 mismatch。
+    if price_q:
+        official_md = price_ev.get("official_md", "") if price_ev else ""
+        result = audit_answer_prices("".join(parts), official_md)
+        if result["checked"]:
+            price_audit = (
+                "mismatch:" + "|".join(result["mismatched"])
+                if result["mismatched"]
+                else "ok"
+            )
+            if result["mismatched"]:
+                log.warning(
+                    "价格审计 mismatch：回答表格出现官方证据外的价格 %s",
+                    result["mismatched"],
+                )
     answer_id = persist(False)
     yield {
         "type": "done",
         "answer_id": answer_id,
         "price_status": price_status,
+        "price_audit": price_audit,
         "latency_ms": int((time.time() - t0) * 1000),
     }

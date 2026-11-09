@@ -131,6 +131,7 @@ async function loadStats() {
       ["👎 点踩", s.down, "red"],
       ["点踩率", s.down_rate + "%", s.down_rate >= 10 ? "red" : "orange"],
       ["价格已官方核实", s.price_official_verified, "green"],
+      ["价格审计不符", s.price_audit_mismatch || 0, (s.price_audit_mismatch || 0) > 0 ? "red" : ""],
       ["平均耗时", (s.avg_latency_ms / 1000).toFixed(1) + "s", ""],
       ["用户中断", s.interrupted || 0, (s.interrupted || 0) > 0 ? "orange" : ""],
       ["近 7 天回复", s.recent_7d, ""],
@@ -170,6 +171,9 @@ async function loadRows() {
       const price = it.price_status === "official"
         ? '<span class="price-tag">✅ 官方</span>'
         : it.price_status ? (it.price_status === "error" ? "⚠️ 失败" : it.price_status) : "—";
+      const auditTag = it.price_audit && it.price_audit.indexOf("mismatch") === 0
+        ? '<div><span class="tag down" title="' + escapeHtml(it.price_audit) + '">⚠️ 价格审计不符</span></div>'
+        : "";
       const reason = it.feedback_reason
         ? escapeHtml(it.feedback_reason).slice(0, 180)
         : "";
@@ -197,7 +201,7 @@ async function loadRows() {
         '<td class="ip-cell">' + ipText + "</td>" +
         "<td>" + fb + "</td>" +
         "<td>" + reason + "</td>" +
-        "<td>" + price + "</td>" +
+        "<td>" + price + auditTag + "</td>" +
         "<td>" + it.created_at + "</td>" +
         "</tr>";
     }).join("");

@@ -26,7 +26,7 @@ BD/SA 在客户现场需要快速回答百炼模型价格、模型选型、AI Ag
 
 ```
 stream_answer(question, history, session_id)
-  ├─ 1. BM25 检索 top-6 片段（GitHub 文件引用仅落库供后台分析，不展示给客户；前端只展示官方定价页/搜索来源）
+  ├─ 1. BM25 检索 top-6 片段（GitHub 引用公开可核对，随 sources 一并展示给客户自查）
   ├─ 2. is_price_question(question) 命中？
   │     └─ verify_prices:
   │         ├─ 提取模型名（regex 归一 'qwen3.8 max' → 'qwen3.8-max'）
@@ -34,10 +34,11 @@ stream_answer(question, history, session_id)
   │         └─ 每模型 1 条搜索并发 → web 旁证块（不得作报价依据）
   ├─ 3. 组装 prompt：system（价格硬约束）+ 历史尾 8 条 + 知识片段 + 证据块 + 问题
   ├─ 4. LLM 流式生成 → SSE delta 事件
-  └─ 5. 落库 answers 表 → done 事件携带 answer_id
+  ├─ 5. 价格题：输出侧审计（回答表格内 $ 金额须 ⊆ 官方证据，否则 price_audit=mismatch）
+  └─ 6. 落库 answers 表 → done 事件携带 answer_id / price_status / price_audit
 ```
 
-SSE 事件类型：`status`（检索中/核实中/生成中）→ `sources` → `delta`\* → `done{answer_id, price_status, latency_ms}` / `error`。
+SSE 事件类型：`status`（检索中/核实中/生成中）→ `sources`（含 official/web/knowledge，按可信度排序）→ `delta`\* → `done{answer_id, price_status, price_audit, latency_ms}` / `error`。
 
 ## 前端交互：停止与排队
 
@@ -50,12 +51,13 @@ SSE 事件类型：`status`（检索中/核实中/生成中）→ `sources` → 
 - 证据缺失 → 固定话术「暂未能联网核实，请以官方定价页为准：<链接>」
 - 口径：国际站新加坡 USD；仅内地上架模型须显式标注
 - 折扣/免费额度证据未提及时不臆测
+- **输出侧审计（代码兜底，非仅 prompt 约定）**：`audit_answer_prices` 抽取回答表格内每个 `$` 金额，与官方证据（`official_md`，不含 web 旁证）比对；出现证据外价格则 `price_audit=mismatch:<金额>`，落库并在前端撤掉「已核实」绿标改警示、后台计入「价格审计不符」。只审计表格行、只比对 USD，避开正文成本测算与人民币换算等合法计算值。
 
 ## 数据表 answers
 
 ```
 id, session_id, question, answer, thinking, sources_json,
-price_status(''|official|web|none|error), llm_model, latency_ms,
+price_status(''|official|web|none|error), price_audit(''|ok|mismatch:<金额|金额>), llm_model, latency_ms,
 client_ip, user_agent, interrupted, created_at,
 feedback('up'|'down'|NULL), feedback_reason, feedback_at
 ```
@@ -64,9 +66,11 @@ feedback('up'|'down'|NULL), feedback_reason, feedback_at
 `client_ip` 为提问者真实 IP（优先取 nginx 写入的 X-Real-IP，其次 X-Forwarded-For 首跳，
 最后才是直连对端地址），`user_agent` 用于辅助区分提问人/终端。`interrupted=1` 表示用户主动停止，
 此时 `answer` 为已生成部分，用于统计「哪些问题客户等不下去」。老库在启动时由
-`init_db()` 的 `_MIGRATIONS` 自动 `ALTER TABLE` 补列，无需手工迁移。
+`init_db()` 的 `_MIGRATIONS` 自动 `ALTER TABLE` 补列（含 `price_audit`），无需手工迁移。
 
-`price_status` 让后台可直接分析「价格类回答的核实成功率」；点踩原因聚类定位知识库缺口。
+`price_status` 让后台可直接分析「价格类回答的核实成功率」；`price_audit` 记录输出侧审计结果
+（回答表格价格是否都来自官方证据），后台「价格审计不符」卡片直接暴露疑似抄错/臆造的坏 case；
+点踩原因聚类定位知识库缺口。
 
 ## 环境变量
 

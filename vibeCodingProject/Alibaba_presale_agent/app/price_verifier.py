@@ -1044,6 +1044,56 @@ async def verify_prices(question: str, history: list | None = None) -> dict:
         "status": status,
         "models": models,
         "evidence_md": evidence_md,
+        # 仅官方证据（不含 web 旁证）：输出侧价格审计的合法数字白名单。
+        # web 旁证按口径不得作报价依据，故不进白名单。
+        "official_md": "\n".join(official_blocks),
         "sources": sources,
         "checked_at": checked_at,
     }
+
+
+# ──────────────────── 输出侧价格审计 ────────────────────
+# 输入侧再严，模型仍可能把证据表里的 $0.28 抄成 $0.82。前端「已联网核实」徽章
+# 只看 price_status=official，会给抄错的答案背书。这里在落库前做确定性比对：
+# 回答「表格内」的每个 $ 金额都必须能在官方证据里找到，否则标记 mismatch。
+#
+# 只审计表格行（以 | 开头）里的 $ 金额，原因：
+#   1) prompt 硬约束「价格表逐字原样输出」，表格是 unit price 的唯一合法载体；
+#   2) 避开正文里的成本测算（$1.65×100=$165）与人民币换算（¥11.01）——那些是
+#      合法计算产物，不是 hallucinated 单价，不应误报。
+# 仅比对 $（USD）金额：官方证据统一以 $ 渲染，人民币是计算值不在证据内。
+_ANSWER_PRICE_RE = re.compile(r"\$\s*([\d]+(?:\.\d+)?)")
+
+
+def _norm_amount(s: str) -> str:
+    """归一价格数字用于比对：'0.040'→'0.04'、'2.00'→'2'、'100'→'100'。
+    只有含小数点时才削尾零，避免把整数 100 误削成 1。"""
+    if "." in s:
+        s = s.rstrip("0").rstrip(".")
+    return s
+
+
+def _table_usd_amounts(md: str) -> set[str]:
+    """抽取 markdown 表格行（以 | 开头）里的全部 $ 金额，归一后去重。"""
+    out: set[str] = set()
+    for line in md.splitlines():
+        if not line.lstrip().startswith("|"):
+            continue
+        for m in _ANSWER_PRICE_RE.finditer(line):
+            out.add(_norm_amount(m.group(1)))
+    return out
+
+
+def audit_answer_prices(answer: str, official_md: str) -> dict:
+    """比对回答表格里的 USD 价格是否都来自官方证据。
+
+    返回 {"checked": bool, "mismatched": [金额...]}：
+      checked=False 表示回答表格里没有 $ 金额（无从比对，不算通过也不算失败）；
+      mismatched 非空表示回答里出现了官方证据中不存在的价格（疑似抄错/臆造）。
+    """
+    answer_prices = _table_usd_amounts(answer)
+    if not answer_prices:
+        return {"checked": False, "mismatched": []}
+    allowed = _table_usd_amounts(official_md)
+    mismatched = sorted(answer_prices - allowed)
+    return {"checked": True, "mismatched": mismatched}
