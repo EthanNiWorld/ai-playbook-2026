@@ -94,7 +94,8 @@
   <h1><span class="badge ds">DeepSeek 官网</span> vs <span class="badge ali">阿里云百炼</span><br>DeepSeek-V4.1-Flash 折扣分析报告</h1>
   <div class="sub">
     口径：<b>90:1 输入输出比</b> · 缓存命中率 <b>80% / 85% / 90%</b> · 双边官方列表 USD（官网 / 控制台截图）统一 × <b>6.8</b> 折算人民币展示 · 场景：<b>夜间闲时（22:00–08:00）</b>与<b>全天运行（周 168h 流量均匀加权，DS 高峰仅周一至周五）</b><br>
-    计量单位：每 91M tokens（输入 90M + 输出 1M）· 报告生成：2026-09-14
+    计量单位：每 91M tokens（输入 90M + 输出 1M）· 报告生成：2026-09-14<br>
+    附加口径：<b>价格对齐假设</b>（百炼目录价 = DS 官网价，仅闲忙时段划分不同）——一周 / 工作日的纯时段差异测算见<b>第六节</b>
   </div>
 </header>
 
@@ -129,6 +130,21 @@
     <div class="k">全天周加权 · 90% 命中</div>
     <div class="v">5.6<small> 折</small></div>
     <div class="d">DS ¥18.02 vs 百炼 ¥32.00 / 91M<br>百炼打 <b class="num">5.6 折</b>可打平 DS 官网价</div>
+  </div>
+  <div class="card">
+    <div class="k">价格对齐假设 · 一周 168h</div>
+    <div class="v">7.6<small> 折</small><span class="save">同价下百炼仍贵 31.0%</span></div>
+    <div class="d">DS ¥23.45 vs 百炼 ¥30.73 / 91M（85% 命中）<br>差异 100% 来自闲忙时段划分</div>
+  </div>
+  <div class="card">
+    <div class="k">价格对齐假设 · 工作日 120h</div>
+    <div class="v">8.2<small> 折</small><span class="save">同价下百炼仍贵 22.6%</span></div>
+    <div class="d">DS ¥25.07 vs 百炼 ¥30.73 / 91M（85% 命中）<br>1.5 亿 TPM 跑满周多花约 ¥6.7 万</div>
+  </div>
+  <div class="card">
+    <div class="k">价格对齐假设 · 工作日白天 09–18</div>
+    <div class="v">8.9<small> 折</small><span class="save">同价下百炼仍贵 12.5%</span></div>
+    <div class="d">DS ¥34.51 vs 百炼 ¥38.82 / 91M（85% 命中）<br>每天仅 12–14 两小时落入错位窗</div>
   </div>
 </div>
 
@@ -307,12 +323,96 @@
   </div>
 </section>
 
+<!-- ===== 敏感性：价格对齐假设 ===== -->
+<section>
+  <h2>六、敏感性：目录价与 DS 官网对齐后，价差还剩多少 <span class="tag-date">假设推演 · 基于 2026-09-14 价格快照</span></h2>
+  <div class="desc">
+    思路：把「价格结构差异」归零——假设百炼目录价<b>与 DS 官网完全一致</b>（忙时 $0.3 / $0.006 / $1.2，闲时 $0.15 / $0.003 / $0.6），则两边单价与「忙时 = 闲时 ×2」的折扣倍率全部相同，<b>唯一剩下的变量只有闲忙时段划分</b>。此口径单独回答「时段划分本身值多少钱」：跑满一周差多少、只跑工作日差多少；其结果与 6.5 的<b>价格结构因子相乘</b>，即可还原真实价差。
+  </div>
+
+  <h3>6.1 · 时段覆盖分解（同一档位下按所在窗口计费）</h3>
+  <table>
+    <thead>
+      <tr><th>档位组合</th><th>对应窗口</th><th>一周 168h</th><th>占比</th><th>工作日 120h</th><th>占比</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>双边闲时（同为半价）</td><td>每天 22:00–08:00</td><td class="num">70h</td><td class="num">41.7%</td><td class="num">50h</td><td class="num">41.7%</td></tr>
+      <tr><td>双边忙时（同为全价）</td><td>工作日 09:00–12:00、14:00–18:00</td><td class="num">35h</td><td class="num">20.8%</td><td class="num">35h</td><td class="num">29.2%</td></tr>
+      <tr class="hl"><td>DS 半价 / 百炼全价（错位）</td><td>工作日 08–09、12–14、18–22；周末 08–22</td><td class="num">63h</td><td class="num">37.5%</td><td class="num">35h</td><td class="num">29.2%</td></tr>
+      <tr><td>DS 全价 / 百炼半价</td><td>无（DS 高峰 ⊂ 百炼忙时）</td><td class="num">0h</td><td class="num">0%</td><td class="num">0h</td><td class="num">0%</td></tr>
+      <tr class="total"><td>合计</td><td>—</td><td class="num">168h</td><td class="num">100%</td><td class="num">120h</td><td class="num">100%</td></tr>
+    </tbody>
+  </table>
+  <div class="formula">
+    百炼的实际全价占比恒为 <b>58.3%</b>（忙 14h / 闲 10h，每天比例固定，工作日与整周一致）；DS 为 <b>20.8%</b>（整周，周末全半价）／<b>29.2%</b>（仅工作日）。<b>差额完全由「DS 半价、百炼全价」的错位小时数决定</b>：一周 63h、仅工作日 35h。
+  </div>
+
+  <h3>6.2 · 加权包价（每 91M tokens）</h3>
+  <table>
+    <thead><tr><th>命中率</th><th>场景</th><th>DS 加权包价</th><th>百炼加权包价</th><th>DS 相当于百炼</th><th>百炼溢价</th></tr></thead>
+    <tbody>
+      <tr><td><b>80%</b></td><td>一周 168h</td><td class="num">¥28.8898</td><td class="num">¥37.8556</td><td class="num pos">76.3% ≈ 7.6 折</td><td class="num neg">+31.0%</td></tr>
+      <tr><td><b>85%</b></td><td>一周 168h</td><td class="num">¥23.4545</td><td class="num">¥30.7335</td><td class="num pos">76.3% ≈ 7.6 折</td><td class="num neg">+31.0%</td></tr>
+      <tr><td><b>90%</b></td><td>一周 168h</td><td class="num">¥18.0192</td><td class="num">¥23.6113</td><td class="num pos">76.3% ≈ 7.6 折</td><td class="num neg">+31.0%</td></tr>
+      <tr class="hl"><td><b>80%</b></td><td>工作日 120h（周一–周五）</td><td class="num">¥30.8822</td><td class="num">¥37.8556</td><td class="num pos">81.6% ≈ 8.2 折</td><td class="num neg">+22.6%</td></tr>
+      <tr class="hl"><td><b>85%</b></td><td>工作日 120h（周一–周五）</td><td class="num">¥25.0720</td><td class="num">¥30.7335</td><td class="num pos">81.6% ≈ 8.2 折</td><td class="num neg">+22.6%</td></tr>
+      <tr class="hl"><td><b>90%</b></td><td>工作日 120h（周一–周五）</td><td class="num">¥19.2619</td><td class="num">¥23.6113</td><td class="num pos">81.6% ≈ 8.2 折</td><td class="num neg">+22.6%</td></tr>
+    </tbody>
+  </table>
+  <div class="formula">
+    <span class="mono">一周：DS = (35h × 全价 + 133h × 半价) ÷ 168h = 1.2083 × 半价；百炼 = (98h × 全价 + 70h × 半价) ÷ 168h = 1.5833 × 半价 → 1.5833 ÷ 1.2083 = 1.3103</span><br>
+    <span class="mono">工作日：DS = (35h × 全价 + 85h × 半价) ÷ 120h = 1.2917 × 半价；百炼 = (70h × 全价 + 50h × 半价) ÷ 120h = 1.5833 × 半价 → 1.5833 ÷ 1.2917 = 1.2258</span><br>
+    因两边「忙时 = 闲时 ×2」结构完全一致，<b>折扣比例与命中率无关</b>（一周恒为 7.6 折、工作日恒为 8.2 折），命中率只决定绝对金额；百炼加权价恒定 1.5833 × 半价，根源是它每天忙闲比固定 14 : 10。
+  </div>
+
+  <h3>6.3 · 绝对金额（1.5 亿 TPM 跑满，单位：万元）</h3>
+  <table>
+    <thead><tr><th>命中率</th><th>一周 · DS</th><th>一周 · 百炼</th><th>周差额</th><th>工作日 · DS</th><th>工作日 · 百炼</th><th>工作日差额</th></tr></thead>
+    <tbody>
+      <tr><td><b>80%</b></td><td class="num">48.0</td><td class="num">62.9</td><td class="num neg">+14.9</td><td class="num">36.7</td><td class="num">44.9</td><td class="num neg">+8.3</td></tr>
+      <tr><td><b>85%</b></td><td class="num">39.0</td><td class="num">51.1</td><td class="num neg">+12.1</td><td class="num">29.8</td><td class="num">36.5</td><td class="num neg">+6.7</td></tr>
+      <tr><td><b>90%</b></td><td class="num">29.9</td><td class="num">39.2</td><td class="num neg">+9.3</td><td class="num">22.9</td><td class="num">28.0</td><td class="num neg">+5.2</td></tr>
+    </tbody>
+  </table>
+  <div class="formula">
+    换算：1.5 亿 TPM × 60 ÷ 91M = <b>98.9 个 91M 包/小时</b>；一周 168h 跑满约 <b>1.51 万亿 tokens</b>（工作日 120h 约 1.08 万亿）。简算式：<span class="mono">差额 = 错位小时数 × 半价小时成本</span>——85% 档半价小时成本 ¥1,919，一周 63h × 1,919 ≈ <b>¥12.1 万</b>，工作日 35h × 1,919 ≈ <b>¥6.7 万</b>；按 4.345 周/月折算，一周口径月增约 <b>¥52 万</b>。本节百炼按「与 DS 同价」的假设计（纯时段差异），与第七节「实际目录价 + 6.8 折敏感性」互不叠加。
+  </div>
+
+  <h3>6.4 · 分窗口速查：不同跑法差多少</h3>
+  <table>
+    <thead><tr><th>运行窗口</th><th>周时长</th><th>错位小时</th><th>DS 相当于百炼</th><th>百炼溢价</th></tr></thead>
+    <tbody>
+      <tr><td>夜间 22:00–08:00（每天）</td><td class="num">70h</td><td class="num">0h</td><td class="num pos">10.0 折</td><td class="num">0%</td></tr>
+      <tr><td>DS 高峰窗（工作日 09–12、14–18）</td><td class="num">35h</td><td class="num">0h</td><td class="num pos">10.0 折</td><td class="num">0%</td></tr>
+      <tr><td>工作日白天 09:00–18:00</td><td class="num">45h</td><td class="num">10h</td><td class="num pos">8.9 折</td><td class="num neg">+12.5%</td></tr>
+      <tr class="hl"><td>工作日全天 24h（周一–周五）</td><td class="num">120h</td><td class="num">35h</td><td class="num pos">8.2 折</td><td class="num neg">+22.6%</td></tr>
+      <tr class="hl"><td>全天 24h × 7 天（含周末）</td><td class="num">168h</td><td class="num">63h</td><td class="num pos">7.6 折</td><td class="num neg">+31.0%</td></tr>
+    </tbody>
+  </table>
+  <div class="formula">
+    两个<b>零差异窗口</b>：① 百炼闲时 22:00–08:00 与 DS 空闲完全重合，两边同半价；② DS 高峰窗（工作日 09–12、14–18）落在百炼忙时内，两边同全价。<b>只在这两类窗口内跑批，无任何价差</b>。跑得越宽，越会踩进「DS 半价 / 百炼全价」的错位区间：工作日白天 09–18 只吃 12–14（2h/天 × 5，共 10h），8.9 折；扩到工作日全天，08–09 与 18–22 再吃 25h，降至 8.2 折；再含周末，周末 14h/天（共 28h）全部错位，降至 7.6 折。
+  </div>
+
+  <h3>6.5 · 价差归因分解（85% 命中档，真实目录价 vs 价格对齐）</h3>
+  <table>
+    <thead><tr><th>口径</th><th>DS 加权包价</th><th>百炼真实目录价</th><th>百炼溢价</th><th>时段划分因子</th><th>价格结构因子</th></tr></thead>
+    <tbody>
+      <tr><td>夜间 22:00–08:00</td><td class="num">¥19.4106</td><td class="num">¥24.0686</td><td class="num neg">+24.0%</td><td class="num">×1.000</td><td class="num neg">×1.240</td></tr>
+      <tr><td>工作日 24h</td><td class="num">¥25.0720</td><td class="num">¥38.1661</td><td class="num neg">+52.2%</td><td class="num neg">×1.226</td><td class="num neg">×1.242</td></tr>
+      <tr><td>全天 24h × 7</td><td class="num">¥23.4545</td><td class="num">¥38.1661</td><td class="num neg">+62.7%</td><td class="num neg">×1.310</td><td class="num neg">×1.242</td></tr>
+    </tbody>
+  </table>
+  <div class="formula">
+    两因子为乘法关系：<span class="mono">一周 1.310 × 1.242 = 1.627（+62.7%）；工作日 1.226 × 1.242 = 1.523（+52.2%）；夜间 1.000 × 1.240 = 1.240（+24.0%）</span>。按对数贡献拆分，<b>一周口径下时段划分约占价差 56%、缓存命中价结构约占 44%</b>；<b>夜间口径下时段差异完全消失，价差 100% 来自命中价结构</b>（百炼命中价 = 未命中的 1/10，DS = 1/50）。这解释了为何「只在夜间跑」折扣稳定在 7.4–8.6 折，而「全天跑」会恶化到 5.6–6.5 折——后者一半的额外价差来自时段，而非单价。
+  </div>
+</section>
+
 <!-- ===== 费用测算 ===== -->
 <section>
-  <h2>六、费用测算：1.5 亿 TPM 跑满（百炼列表价与 6.8 折敏感性 vs DS 官网）</h2>
+  <h2>七、费用测算：1.5 亿 TPM 跑满（百炼列表价与 6.8 折敏感性 vs DS 官网）</h2>
   <div class="desc">假设：吞吐 1.5 亿 TPM 跑满；夜间窗 22:00–08:00（10h）日量 = 1.5 亿 × 600 分钟 = <b>900 亿 tokens</b>；全天日量 = 1.5 亿 × 1440 分钟 = <b>2160 亿 tokens</b>（周均匀）；90:1 输入输出比；百炼列表价 = 控制台 USD×6.8；<b>6.8 折为敏感性口径</b>（沿用 V4-Flash 时代 DeepSeek 系列限时折扣），实际以控制台为准。</div>
 
-  <h3>6.1 · 夜间闲时 10h 跑满（900 亿 tokens/天）</h3>
+  <h3>7.1 · 夜间闲时 10h 跑满（900 亿 tokens/天）</h3>
   <table>
     <thead><tr><th>命中率</th><th>百炼列表价</th><th>百炼按 6.8 折</th><th>DS 官网同量</th><th>6.8 折 vs DS</th><th>列表价 vs DS</th></tr></thead>
     <tbody>
@@ -322,7 +422,7 @@
     </tbody>
   </table>
 
-  <h3>6.2 · 全天 24h 跑满（2160 亿 tokens/天，周均匀）</h3>
+  <h3>7.2 · 全天 24h 跑满（2160 亿 tokens/天，周均匀）</h3>
   <table>
     <thead><tr><th>命中率</th><th>百炼列表价</th><th>百炼按 6.8 折</th><th>DS 官网同量</th><th>6.8 折 vs DS</th><th>列表价 vs DS</th></tr></thead>
     <tbody>
@@ -336,11 +436,12 @@
 
 <!-- ===== 结论 ===== -->
 <section>
-  <h2>七、结论</h2>
+  <h2>八、结论</h2>
   <ul class="concl">
     <li><b>夜间闲时跑批（22:00–08:00）</b>：DS 官网相当于百炼 <b>7.4 折</b>（90% 命中）/ <b>8.1 折</b>（85% 命中）/ <b>8.6 折</b>（80% 命中）——两边同步半价，折扣稳定；命中率越高 DS 优势越大（百炼列表价贵出 16.9%–35.3%）。</li>
     <li><b>全天运行（周加权）</b>：因每周 63h"DS 半价 / 百炼全价"错位窗口（工作日 7h/天 + 周末 14h/天），DS 优势放大至 <b>5.6 折</b>（90% 命中）/ <b>6.1 折</b>（85% 命中）/ <b>6.5 折</b>（80% 命中），百炼全天口径贵出 53.5%–77.6%。</li>
     <li><b>价差根源</b>：① 命中价结构（DS = 未命中的 1/50，百炼 = 未命中的 1/10，绝对值约为 DS 的 4.7 倍）；② 半价窗口宽度（DS 133h/周 vs 百炼 70h/周）；③ 未命中 / 输出价百炼反低约 6%，低命中场景优势在百炼。</li>
+    <li><b>价差归因量化（85% 命中）</b>：若百炼目录价与 DS 官网<b>完全一致</b>、仅闲忙时段划分不同，一周口径百炼仍贵 <b>31.0%</b>（7.6 折）、只跑工作日贵 <b>22.6%</b>（8.2 折）、工作日白天 09–18 跑贵 <b>12.5%</b>（8.9 折），而夜间 22–08 与 DS 高峰窗跑<b>完全同价</b>（10 折）——即真实价差中，时段划分约放大约 1.31×（一周）/ 1.23×（工作日），命中价结构约放大 1.24×。绝对金额（1.5 亿 TPM 跑满）：一周多花 <b>约 12.1 万元</b>、仅工作日多花 <b>约 6.7 万元</b>（85% 档）。</li>
     <li><b>命中率是分水岭</b>：低于约 <b>47%</b> 命中时百炼列表价反而更便宜（0% 命中时最多约 6.0%）；85% 高命中、90:1 高输入比的 agent/长上下文场景下 DS 显著占优。对比 V4-Flash 时代（命中 = 未命中 1/30、分水岭约 40%），V4.1-Flash 官网命中价进一步下调、分水岭上移至约 47%，百炼追平压力加大。</li>
     <li><b>百炼侧对策参考</b>：打平折扣夜间 7.4–8.6 折 / 全天 5.6–6.5 折；6.8 折敏感性下夜间全档可省、全天全档偏贵；该模型百炼侧当前不支持批量推理，离线半价路径不可用；控制台限时优惠、TPM 预留（闲时档）可缩小差距，以上均未计入本报告。</li>
   </ul>
@@ -349,7 +450,8 @@
 <footer>
   信源与时效：① <a href="https://api-docs.deepseek.com/zh-cn/quick_start/pricing/">DeepSeek 官网 · 模型与价格</a>（2026-09-14 抓取：模型名 deepseek-flash 即 DeepSeek-V4.1-Flash，旧名 deepseek-v4-flash 等已下线并路由至该模型；中文页 CNY 价闲时 ¥1/¥0.02/¥4、高峰 ¥2/¥0.04/¥8；英文页 USD 价即用户截图 闲时 $0.15/$0.003/$0.6、高峰 $0.3/$0.006/$1.2，本报告采用 USD×6.8 口径，较 CNY 口径高约 2%，按 CNY 口径各折扣档约深 0.1–0.2 折；脚注 3：空闲 = 高峰半价，高峰 = 北京时间周一至周五 9:00–12:00、14:00–18:00）；
   ② <a class="ali" href="https://modelstudio.console.alibabacloud.com/cn-beijing/model/market/detail/deepseek-v4.1-flash#price">百炼控制台模型广场详情页</a>（用户提供截图，国际站 USD 价）：忙时 $0.283/$0.028/$1.131、闲时 $0.141/$0.014/$0.565；闲时 = 东八区 22:00–次日 08:00（页面提示语）；支持 function calling / 结构化输出 / 联网搜索 / cache 缓存，不支持批量推理 / 模型调优；
-  ③ 汇率 1 USD = 6.8 CNY（仅展示口径，折扣比例不受汇率影响）。价格核验日期 2026-09-14，如官方调价请以最新页面为准。
+  ③ 汇率 1 USD = 6.8 CNY（仅展示口径，折扣比例不受汇率影响）。价格核验日期 2026-09-14，如官方调价请以最新页面为准；
+  ④ <b>第六节为假设推演口径</b>：将百炼目录价假设为 DS 官网价（忙时 $0.3 / $0.006 / $1.2、闲时 $0.15 / $0.003 / $0.6），仅保留闲忙时段划分差异，<b>非百炼实际报价，不可用于对外报价</b>。
 </footer>
 
 </div>
