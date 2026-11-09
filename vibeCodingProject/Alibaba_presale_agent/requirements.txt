@@ -6,3 +6,4 @@ openai==3.46.0
 httpx==0.28.1
 ddgs==9.16.1          # DuckDuckGo 搜索（duckduckgo-search 已改名）
 python-dotenv==1.2.4
+oss2==2.19.1             # 价格分享卡片：私有 Bucket 上传 + 签名 URL

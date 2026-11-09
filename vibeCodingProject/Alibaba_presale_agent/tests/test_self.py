@@ -120,6 +120,22 @@ def test_price_verifier_units():
           pv.extract_model_names("qwen 3.8 max 价格") == ["qwen3.8-max"])
     check("模型名提取: 规范 ID 不受归一化二次改写",
           pv.extract_model_names("kimi-k3.1-pro 价格") == ["kimi-k3.1-pro"])
+    # 2026-11-09 事故：用户问 "deepseek4.1呢？" 抽不出型号 → 家族词守卫禁止挪用历史
+    # → 无证据只能甩"暂未能联网核实"。省略 v 前缀/连字符的写法必须补齐。
+    check("模型名提取: 'deepseek4.1呢？' 省略 v 与连字符",
+          pv.extract_model_names("deepseek4.1呢？") == ["deepseek-v4.1"])
+    check("模型名提取: 'deepseek 4.1' 空格写法",
+          pv.extract_model_names("deepseek 4.1") == ["deepseek-v4.1"])
+    check("模型名提取: 'deepseekv4.1' 连写",
+          pv.extract_model_names("deepseekv4.1") == ["deepseek-v4.1"])
+    check("模型名提取: 'deepseek4.1 flash呢' 带档位",
+          pv.extract_model_names("deepseek4.1 flash呢") == ["deepseek-v4.1-flash"])
+    check("模型名提取: deepseek 规范 ID 不被二次改写",
+          pv.extract_model_names("deepseek-v4.1-flash 价格") == ["deepseek-v4.1-flash"])
+    check("模型名提取: 'glm4.6' 省略连字符",
+          pv.extract_model_names("glm4.6多少钱") == ["glm-4.6"])
+    check("官方 ID 剥标记: 折扣/缓存后缀不进模型名",
+          pv._official_id("qwen3.8-max 50% batch inference discount context caching discount") == "qwen3.8-max")
     # 产品（非百炼模型）定价题不走百炼校验（Qoder 事故：百炼回落证据会误导 LLM 把
     # model-pricing 链接安到产品头上）；产品定价交给知识库检索回答
     check("产品定价题不触发模型校验: qoder", not pv.is_price_question("qoder是怎么计费的"))
@@ -171,15 +187,13 @@ def test_table_render_and_followup():
         {"role": "user", "content": "deepseek-v4.1-flash 的价格是多少？"},
         {"role": "assistant", "content": "价格如下..."},
     ]
-    check("追问'呢？'触发（历史有价格话题）", pv.is_price_question("qwen3.8 flash呢？", hist))
+    # v3 工具循环：“是否查价/追问锚定”由 LLM 决策，is_price_question 仅服务
+    # 缺型号反问快路径；追问里含型号 → 不反问（交工具循环重查同一型号）
+    check("追问含型号 → 不反问（交工具循环）",
+          not pv.needs_model_clarify("qwen3.8 flash呢？"))
+    check("追问'呢？'含型号仍命中价格意图（反问快路径可用）",
+          pv.is_price_question("qwen3.8 flash呢？", hist))
     check("追问'呢？'无历史不触发", not pv.is_price_question("qwen3.8 flash呢？"))
-    check("'价格。'回退历史模型名", pv._models_with_history("价格。", hist) == ["deepseek-v4.1-flash"])
-    check("当前句模型名优先于历史", pv._models_with_history("kimi-k3.1-pro呢？", hist) == ["kimi-k3.1-pro"])
-    # 当前句提了家族却抽不出型号时，不得挪用历史模型（防拿错模型证据误导回答）
-    check("含家族词无型号不挪用历史模型",
-          pv._models_with_history("kimi 最新款价格", hist) == [])
-    check("口语 'kimi k3.1 pro' 不再回退历史 deepseek",
-          pv._models_with_history("kimi k3.1 pro的价格呢？", hist) == ["kimi-k3.1-pro"])
     check("选型对比（无价格历史）不触发", not pv.is_price_question("qwen3.8-max 和 deepseek 哪个强"))
 
 
@@ -224,6 +238,18 @@ def test_price_parsing_offline():
         check("qwen3.8-flash BJ 多行分档保留",
               sum(1 for l in q_tb.splitlines() if l.startswith("| China (Beijing)")) >= 2)
         check("qwen3.8-flash batch 折扣行整行忽略", "Batch" not in q_tb, q_tb[:300])
+
+        # 2026-11-09 事故：口语 token 作证据标题 → LLM 照抄并断言"模型 ID 是 kimi-k3.1"。
+        # 标题与备注必须落到主表官方 ID 上。
+        alias_tb = pv._model_evidence(rows, "kimi-k3.1")[0]
+        check("口语型号证据标题用官方 ID（kimi-k3.1 → kimi-k3.1-pro）",
+              "kimi-k3.1-pro · 官方定价页" in alias_tb, alias_tb[:120])
+        check("口语型号附官方 ID 备注", "官方模型 ID：`kimi-k3.1-pro`" in alias_tb)
+        ds_alias = pv._model_evidence(rows, "deepseek-v4.1")[0]
+        check("裸版本号落到在售型号（deepseek-v4.1 → -flash）",
+              "deepseek-v4.1-flash · 官方定价页" in ds_alias, ds_alias[:120])
+        exact_tb = pv._model_evidence(rows, "qwen3.8-max")[0]
+        check("精确型号不多余附加 ID 备注", "官方模型 ID" not in exact_tb)
 
     asyncio.run(run())
 
@@ -415,6 +441,72 @@ def test_price_audit():
     check("审计: 视频价抄错被揪出", rm2["checked"] and "0.82" in rm2["mismatched"], str(rm2))
 
 
+def test_followup_anchor_and_competitor():
+    """工具循环版：竞品证据抽取/打标纯函数回归（is_table_followup/competitor_of
+    已随正则路由退役，追问与竞品点名由 LLM 调 verify_price 工具时显式传参）。
+    """
+    print("[9] 竞品证据抽取与打标（工具循环版）")
+    from app import price_verifier as pv
+
+    # verify_price_for 归一：工具入参是模型原话，归一失败时原词直接当 token
+    check("工具入参归一: 口语 'kimi k3.1 pro'",
+          pv.extract_model_names("kimi k3.1 pro") == ["kimi-k3.1-pro"])
+    check("工具入参归一: 非模型词原词入参不炸",
+          isinstance(pv.extract_model_names("百炼"), list))
+
+    check(
+        "竞品国际站定价页已登记（腾讯云 TokenHub USD 文档）",
+        any(
+            "tencentcloud.com" in u
+            for u in pv._COMPETITOR_OFFICIAL_PAGES.get("腾讯云混元", ())
+        ),
+        str(pv._COMPETITOR_OFFICIAL_PAGES),
+    )
+    check(
+        "竞品英文检索名映射完整（工具搜索回退用）",
+        set(pv._COMPETITOR_EN) == {"腾讯云混元", "火山引擎豆包", "百度智能云文心",
+                                    "AWS Bedrock", "OpenAI", "Anthropic Claude",
+                                    "Google Gemini", "DeepSeek 官方"},
+        str(sorted(pv._COMPETITOR_EN)),
+    )
+
+    # 竞品定价表混着「对方自研」与「对方平台上架的第三方模型」，必须分账标清
+    html = (
+        "<table><tr><td>Model Name</td><td>Input (USD / million tokens)</td></tr>"
+        "<tr><td>Hy3</td><td>$0.132</td></tr>"
+        "<tr><td>DeepSeek-V4.1-Flash</td><td>$0.14</td></tr>"
+        "<tr><td>GLM-5.2</td><td>$1.4</td></tr></table>"
+    )
+    same, other = pv._tag_and_split_rows(html, "腾讯云混元", ["deepseek-v4.1-flash"])
+    check("竞品表格: 同款模型（腾讯也卖 DS）进同款组", len(same) == 1 and "同款" in same[0], str(same))
+    check(
+        "竞品表格: 同款行仍标明“第三方模型·对方平台价”",
+        "[第三方模型·对方平台价]" in same[0],
+        str(same),
+    )
+    check("竞品表格: 对方自研行标 [自研]", any("[自研]" in r for r in other), str(other))
+    check(
+        "竞品表格: 他人家模型不误标自研",
+        any("GLM" in r and "[第三方模型·对方平台价]" in r for r in other),
+        str(other),
+    )
+    same2, _ = pv._tag_and_split_rows(html, "腾讯云混元", ["qwen3.8-max"])
+    check("竞品表格: 非同款→不进同款组", same2 == [], str(same2))
+
+    # 竞品价写进回答表格，不应被判为“抄错价”
+    official = "| Singapore | $2 | $0.25 | $6 | — | — |"
+    competitor = "| 腾讯云混元 | $0.5 | — | $2 | — | — |"
+    r_ok = pv.audit_answer_prices(competitor, official, competitor)
+    check("审计: 竞品价在白名单内不误报", r_ok["checked"] and r_ok["mismatched"] == [], str(r_ok))
+    r_bad = pv.audit_answer_prices(competitor, official)
+    check("审计: 不传竞品白名单时竞品价被揪出", "0.5" in r_bad["mismatched"], str(r_bad))
+
+    # 腾讯云风格的纯数字价（单位在表头），回答补 $ 后不应被判 mismatch
+    tc_md = "| [第三方模型·对方平台价][同款] | DeepSeek-V4.1-Flash | - | OFF-PEAK | 0.15 | 0.6 | 0.003 | - | - |"
+    r_dec = pv.audit_answer_prices("| 腾讯云 | $0.003 |", "", tc_md)
+    check("审计: 竞品纯数字价补 $ 后不误报", r_dec["checked"] and r_dec["mismatched"] == [], str(r_dec))
+
+
 def test_source_visibility():
     """知识库仓库公开可核对：KB 引用也对客户展示，按可信度排序。"""
     print("[6] 来源可见性与排序")
@@ -439,10 +531,15 @@ def test_source_visibility():
 
 
 def test_pipeline_wiring():
-    """端到端（mock LLM/校验/检索）：done 事件携带 price_audit，KB 来源对客户可见。"""
-    print("[8] 管线端到端接线（mock）")
+    """端到端（mock LLM/工具/检索）：工具循环两轮接线、审计与落库一致。
+
+    v3：mock stream_chat 第一轮产出 verify_price 工具调用，第二轮产出正文；
+    mock tools.execute_tool 返回官方证据。验证：工具被执行、消息正确回填、
+    done.price_audit 与落库一致、sources 同时含 knowledge 与 official。
+    """
+    print("[8] 管线端到端接线（mock 工具循环）")
     import types
-    from app import pipeline
+    from app import pipeline, tools
 
     official = (
         "| Region | 输入价格 (Input) | 缓存输入价格 (Cache Input) | 输出价格 (Output) | 显式缓存创建 (Cache Write) | 备注 |\n"
@@ -454,11 +551,16 @@ def test_pipeline_wiring():
         def search(self, q, top_k=6):
             return [{"text": "x", "title": "qwen", "relpath": "maas/qwen.md"}]
 
-    async def fake_verify(q, h=None):
+    tool_calls_seen: list[dict] = []
+
+    async def fake_execute_tool(name, arguments):
+        tool_calls_seen.append({"name": name, "arguments": arguments})
         return {
-            "status": "official", "evidence_md": official, "official_md": official,
+            "content": "### 官方定价页证据（权威）\n" + official,
             "sources": [{"title": "off", "url": "https://www.alibabacloud.com/x", "kind": "official"}],
-            "checked_at": "now", "models": ["qwen3.8-max"],
+            "price_status": "official",
+            "official_md": official,
+            "competitor_md": "",
         }
 
     captured = {}
@@ -469,37 +571,68 @@ def test_pipeline_wiring():
         return 1
 
     async def drive(answer_text):
-        async def fake_stream(messages):
-            yield ("text", answer_text)
+        """首轮（带工具）产出 tool_calls；拿证据后的轮次产出正文。"""
+        call_args_seen: list[list[dict]] = []
+
+        async def fake_stream(messages, tools=None, **kw):
+            call_args_seen.append([dict(m) for m in messages])
+            if tools and len(call_args_seen) == 1:
+                yield ("think", "需要查价")
+                yield (
+                    "tool_calls",
+                    [{"id": "call_0", "name": "verify_price",
+                      "arguments": '{"model": "qwen3.8-max"}'}],
+                )
+            else:
+                yield ("text", answer_text)
+
         pipeline.stream_chat = fake_stream
         evs = []
         async for ev in pipeline.stream_answer("qwen3.8-max 价格", [], "s1"):
             evs.append(ev)
-        return evs
+        return evs, call_args_seen
 
     saved = {k: getattr(pipeline, k) for k in
-             ("get_index", "verify_prices", "stream_chat", "is_price_question",
+             ("get_index", "stream_chat", "is_price_question",
               "needs_model_clarify", "store", "fx")}
+    saved_tool = tools.execute_tool
     pipeline.get_index = lambda: FakeIdx()
-    pipeline.verify_prices = fake_verify
     pipeline.is_price_question = lambda q, h=None: True
     pipeline.needs_model_clarify = lambda q, h=None: False
     pipeline.store = types.SimpleNamespace(insert_answer=fake_insert)
-    pipeline.fx = types.SimpleNamespace(is_fx_question=lambda q: False)
+    pipeline.fx = types.SimpleNamespace(
+        is_fx_question=lambda q: False, is_pure_rate_query=lambda q: False
+    )
+    tools.execute_tool = fake_execute_tool
     try:
-        # 照抄官方表 → done.price_audit == ok，落库一致
-        evs = asyncio.run(drive("价格如下：\n" + official))
+        # 照抄官方表 → 工具被调、审计 ok、落库一致
+        evs, call_args = asyncio.run(drive("价格如下：\n" + official))
         done = next(e for e in evs if e["type"] == "done")
-        src = next(e for e in evs if e["type"] == "sources")
+        srcs = [e for e in evs if e["type"] == "sources"]
+        check("接线: verify_price 工具被调用",
+              tool_calls_seen and tool_calls_seen[0]["name"] == "verify_price",
+              str(tool_calls_seen))
+        check("接线: 共两轮 LLM 调用（工具轮+收尾轮）", len(call_args) == 2, str(len(call_args)))
+        check("接线: 第二轮消息含 assistant(tool_calls) 与 role:tool 回填",
+              any(m.get("role") == "tool" for m in call_args[1])
+              and any(m.get("tool_calls") for m in call_args[1]),
+              str([m.get("role") for m in call_args[1]]))
+        check("接线: 最后一轮不带 tools（强制收尾，tools=None）",
+              len(call_args) == 2, "fake_stream 靠 tools 分流，若第三轮仍带工具会再发起调用")
         check("接线: 照抄 → done.price_audit=ok", done.get("price_audit") == "ok", str(done))
+        check("接线: done.price_status=official", done.get("price_status") == "official", str(done))
         check("接线: 落库 price_audit 与 done 一致", captured.get("price_audit") == "ok")
+        all_src = [s for e in srcs for s in e["sources"]]
         check("接线: sources 事件含知识库引用",
-              any(s["kind"] == "knowledge" for s in src["sources"]), str(src))
-        check("接线: sources 事件含官方来源",
-              any(s["kind"] == "official" for s in src["sources"]))
+              any(s["kind"] == "knowledge" for s in all_src))
+        check("接线: 工具来源随第二次 sources 事件下发",
+              any(s["kind"] == "official" for s in all_src))
+        tool_status = [e for e in evs if e.get("stage") == "tool"]
+        check("接线: 工具执行推送 status 事件", len(tool_status) == 1, str(tool_status))
 
         # 抄错价格 → done.price_audit=mismatch:82
-        evs2 = asyncio.run(drive(official.replace("| $6 |", "| $82 |")))
+        tool_calls_seen.clear()
+        evs2, _ = asyncio.run(drive(official.replace("| $6 |", "| $82 |")))
         done2 = next(e for e in evs2 if e["type"] == "done")
         check("接线: 抄错 → done.price_audit=mismatch",
               done2.get("price_audit") == "mismatch:82", str(done2))
@@ -507,6 +640,7 @@ def test_pipeline_wiring():
     finally:
         for k, v in saved.items():
             setattr(pipeline, k, v)
+        tools.execute_tool = saved_tool
 
 
 def test_store_price_audit():
@@ -592,8 +726,10 @@ def test_fx():
     check("汇率意图: 只提美元不算汇率题", not fx.is_fx_question("qwen3.8-max 的美元价格"))
     check("纯查汇率: 能走直接回答", fx.is_pure_rate_query("查询下实时汇率"))
     check("纯查汇率: 带计算不定为纯查询", not fx.is_pure_rate_query("1.65 美金按汇率是多少人民币 12 元打几折"))
-    check("用户自报汇率: 识别 6.6704", abs((fx.user_given_rate("实时汇率是6.6704") or 0) - 6.6704) < 1e-6)
-    check("用户自报汇率: 型号价格题不误抽", fx.user_given_rate("qwen3.8-max 多少钱") is None)
+    # v3：用户自报汇率交工具循环处理（模型按 prompt 规则以用户为准），
+    # user_given_rate 已删；这里验证快路径不会把带计算的问法当成纯查询直答
+    check("纯查汇率: 自报汇率+计算不走快路径",
+          not fx.is_pure_rate_query("实时汇率是6.6704，1.65美元是多少人民币"))
     ev = fx.evidence_md({"rate": 6.6712, "source": "新浪财经", "at": "2026-11-06T17:49:00+08:00"})
     check("汇率证据: 含汇率与换算规则", "6.6712" in ev and "换算规则" in ev)
     check("汇率直接回答: 给出汇率与来源", "6.6712" in fx.direct_answer({"rate": 6.6712, "source": "新浪财经", "at": "2026-11-06T17:49:00+08:00"}))
@@ -611,6 +747,7 @@ def main():
     test_guide_lookup()
     test_model_clarify()
     test_price_audit()
+    test_followup_anchor_and_competitor()
     test_source_visibility()
     test_pipeline_wiring()
     test_store_price_audit()

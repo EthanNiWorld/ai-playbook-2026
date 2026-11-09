@@ -71,7 +71,16 @@ app = FastAPI(title="阿里小可爱 EthanNi的小助手", lifespan=lifespan)
 class ChatRequest(BaseModel):
     question: str
     session_id: str = ""
-    history: list = Field(default_factory=list)  # [{"role": "user"|"assistant", "content": str}]
+    history: list = Field(default_factory=list)  # [{"role": "user"|"assistant", "content": str|list}]
+    # 截图/图片输入（多模态）：data URL（data:image/png;base64,...）数组。
+    # 前端限制单次最多 4 张、每张 ≤5MB；服务端仅做上限与格式校验。
+    images: list[str] = Field(default_factory=list)
+
+
+# 图片 data URL 校验：前缀白名单 + 大小上限（base64 后 ≤ 5MB×1.4）
+_IMAGE_PREFIXES = ("data:image/png;base64,", "data:image/jpeg;base64,", "data:image/webp;base64,")
+_MAX_IMAGE_B64 = 7 * 1024 * 1024
+_MAX_IMAGES = 4
 
 
 class FeedbackRequest(BaseModel):
@@ -174,12 +183,24 @@ async def health():
 @app.post("/api/chat")
 async def chat(req: ChatRequest, request: Request):
     question = req.question.strip()
-    if not question:
+    # 截图问答：允许无文本纯图提问（“[图片]”占位后仍可走检索），但图数超限直接拒
+    if not question and not req.images:
         raise HTTPException(status_code=400, detail="question is empty")
+    images = [img for img in req.images if isinstance(img, str)][:_MAX_IMAGES]
+    for img in images:
+        if not img.startswith(_IMAGE_PREFIXES):
+            raise HTTPException(status_code=400, detail="unsupported image format")
+        if len(img) > _MAX_IMAGE_B64:
+            raise HTTPException(status_code=400, detail="image too large (max 5MB)")
     session_id = (req.session_id or "anonymous")[:64]
     client_ip = client_ip_of(request)
     user_agent = request.headers.get("user-agent", "")[:300]
-    log.info("chat session=%s ip=%s", session_id, client_ip)
+    log.info(
+        "chat session=%s ip=%s images=%d",
+        session_id,
+        client_ip,
+        len(images),
+    )
 
     async def event_gen():
         try:
@@ -189,6 +210,7 @@ async def chat(req: ChatRequest, request: Request):
                 session_id,
                 client_ip=client_ip,
                 user_agent=user_agent,
+                images=images,
             ):
                 yield f"data: {json.dumps(ev, ensure_ascii=False)}\n\n"
         except Exception as e:

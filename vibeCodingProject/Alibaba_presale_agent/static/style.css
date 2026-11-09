@@ -482,7 +482,25 @@ button:disabled { cursor: not-allowed; }
 .fb-submit:hover { opacity: .85; }
 
 /* ── 输入区 ── */
-.composer-wrap { flex-shrink: 0; padding: 14px 24px max(14px, env(safe-area-inset-bottom)); background: var(--bg); }
+.composer-wrap { flex-shrink: 0; position: relative; padding: 14px 24px max(14px, env(safe-area-inset-bottom)); background: var(--bg); }
+
+/* 上翻阅读时的回到底部入口（流式输出不再强拽滚动条） */
+.jump-latest {
+  position: absolute;
+  top: -46px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  border: 1px solid #e2dccd;
+  background: #fff;
+  color: #6b5a3e;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(60, 50, 30, 0.12);
+}
+.jump-latest:hover { background: #faf6ee; }
 
 .status-bar {
   display: flex;
@@ -637,4 +655,68 @@ button:disabled { cursor: not-allowed; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ── 截图上传（qwen3.8-max 视觉输入）── */
+.attach-btn {
+  width: 40px; height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dcd8ce;
+  border-radius: 13px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color .12s, border-color .12s, background .12s;
+}
+.attach-btn svg { width: 18px; height: 18px; }
+.attach-btn:hover { color: var(--accent-ink); border-color: #cf8c59; background: rgba(255, 106, 0, .05); }
+
+.attach-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  max-width: var(--content-width);
+  margin: 0 auto 8px;
+  padding: 8px 14px;
+  background: #fff;
+  border: 1px dashed #dcd8ce;
+  border-radius: 16px;
+}
+.attach-item { position: relative; width: 64px; height: 64px; }
+.attach-item img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #dcd8ce;
+}
+.attach-remove {
+  position: absolute;
+  top: -6px; right: -6px;
+  width: 18px; height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .55);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+.attach-remove:hover { background: rgba(0, 0, 0, .8); }
+
+.msg-images {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.msg-images img {
+  max-width: 180px;
+  max-height: 140px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, .08);
+  cursor: zoom-in;
 }

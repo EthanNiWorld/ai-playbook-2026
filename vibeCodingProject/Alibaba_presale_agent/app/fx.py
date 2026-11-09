@@ -50,16 +50,19 @@ _PURE_RATE_RE = re.compile(
     r"(?:的)?\s*(?:美元|美金|USD)?\s*(?:对|兑|换|汇率|牌价|汇率是多少|汇率多少)[^0-9]{0,8}$",
     re.IGNORECASE,
 )
-# 用户自己报的汇率（"实时汇率是6.6704"）——测算时以用户为准
-_USER_RATE_RE = re.compile(r"(?:汇率|rate)\s*(?:是|为|=|:|：)?\s*(\d(?:\.\d{1,4})?)", re.IGNORECASE)
+# 用户自报汇率场景（"实时汇率是6.6704，帮我算…"）已交 LLM 工具循环处理：
+# 模型看到消息里的数字，按 prompt 规则"用户自报汇率以用户为准"直接算，
+# 不再调用 get_fx_rate，也就无需代码侧提取（v3 工具循环，2026-11-09）。
 
 
 def is_fx_question(question: str) -> bool:
-    """是否需要实时汇率。
+    """是否需要实时汇率（仅服务于纯汇率查询快路径）。
 
     除了显式提到“汇率”，还得盖住实际踩过的问法：
     「北京的 1.65 美金相当于 12RMB*0.45 的几折？」——一个字没提汇率，
-    但同时出现美元与人民币，实际必须先把币种统一才能算，否则模型只能死推。
+    但同时出现美元与人民币，实际必须先把币种统一才能算。
+    v3 工具循环后，换算类问题由 LLM 自主调 get_fx_rate，本函数
+    只用于纯汇率查询的确定性秒回路径。
     """
     if not question:
         return False
@@ -81,18 +84,6 @@ def is_pure_rate_query(question: str) -> bool:
     if re.search(r"\d|几折|折扣|相当于|等于|乘|除以", q):
         return False
     return bool(_PURE_RATE_RE.search(q) or re.search(r"汇率|牌价", q))
-
-
-def user_given_rate(question: str) -> float | None:
-    """用户自报汇率优先（他们可能在按某个成交价核算）。"""
-    m = _USER_RATE_RE.search(question or "")
-    if not m:
-        return None
-    try:
-        v = float(m.group(1))
-    except ValueError:
-        return None
-    return v if _RATE_MIN <= v <= _RATE_MAX else None
 
 
 def parse_qq(text: str) -> float | None:

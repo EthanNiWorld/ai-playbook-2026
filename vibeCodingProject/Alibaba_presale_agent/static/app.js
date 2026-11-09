@@ -6,6 +6,12 @@ const statusBar = document.getElementById("statusBar");
 const inputEl = document.getElementById("input");
 const sendBtn = document.getElementById("send");
 const stopBtn = document.getElementById("stop");
+const attachBtn = document.getElementById("attach");
+const fileInput = document.getElementById("fileInput");
+const attachBar = document.createElement("div");
+attachBar.id = "attachBar";
+attachBar.className = "attach-bar";
+attachBar.hidden = true;
 const inputHint = document.getElementById("inputHint");
 const queueBar = document.getElementById("queueBar");
 const newBtn = document.getElementById("newSession");
@@ -17,11 +23,84 @@ const layoutEl = document.querySelector(".layout");
 const desktopQuery = window.matchMedia("(min-width: 821px)");
 
 let busy = false;
-let history = []; // [{role, content}] 供多轮上下文
+let history = []; // [{role, content}] 供多轮上下文（content 可为 str 或多模态 blocks 数组）
 let queue = []; // 待发送问题（串行：当前回答结束后依次自动发送）
 let controller = null; // 当前流的 AbortController，供「停止」中断
 const MAX_QUEUE = 3; // 排队上限，避免无限堆叠
 const REASONS = ["价格不对/过期", "内容过时", "答非所问", "来源不可信", "其他"];
+
+/* ── 截图/图片附件（qwen3.8-max 视觉输入）── */
+const MAX_IMAGES = 4;
+const MAX_IMAGE_MB = 5;
+let pendingImages = []; // [{dataUrl, name, size}]
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => resolve(fr.result);
+    fr.onerror = reject;
+    fr.readAsDataURL(file);
+  });
+}
+
+function isImageFile(file) {
+  return /^(image\/png|image\/jpeg|image\/webp)$/.test(file.type || "");
+}
+
+async function addImageFiles(files) {
+  const list = Array.from(files || []).filter(isImageFile);
+  for (const f of list) {
+    if (pendingImages.length >= MAX_IMAGES) {
+      showStatus("最多附 " + MAX_IMAGES + " 张截图，多余的已忽略");
+      break;
+    }
+    if (f.size > MAX_IMAGE_MB * 1024 * 1024) {
+      showStatus("图片超过 " + MAX_IMAGE_MB + "MB，已忽略：「" + f.name + "」");
+      continue;
+    }
+    try {
+      const dataUrl = await fileToDataUrl(f);
+      pendingImages.push({ dataUrl: dataUrl, name: f.name, size: f.size });
+    } catch (e) {
+      console.error("read file failed", e);
+    }
+  }
+  renderAttachBar();
+  syncButtons();
+}
+
+function removePendingImage(i) {
+  pendingImages.splice(i, 1);
+  renderAttachBar();
+  syncButtons();
+}
+
+function renderAttachBar() {
+  attachBar.innerHTML = "";
+  if (!pendingImages.length) {
+    attachBar.hidden = true;
+    return;
+  }
+  pendingImages.forEach((img, i) => {
+    const item = document.createElement("div");
+    item.className = "attach-item";
+    const thumb = document.createElement("img");
+    thumb.src = img.dataUrl;
+    thumb.alt = img.name || "截图";
+    thumb.title = img.name || "截图";
+    item.appendChild(thumb);
+    const rm = document.createElement("button");
+    rm.type = "button";
+    rm.className = "attach-remove";
+    rm.textContent = "×";
+    rm.title = "移除「" + (img.name || "截图") + "」";
+    rm.setAttribute("aria-label", rm.title);
+    rm.addEventListener("click", () => removePendingImage(i));
+    item.appendChild(rm);
+    attachBar.appendChild(item);
+  });
+  attachBar.hidden = false;
+}
 
 /* ── 工具函数 ── */
 
@@ -49,9 +128,43 @@ function renderMd(text) {
   return div.innerHTML.replace(/\n/g, "<br>");
 }
 
-function scrollBottom() {
-  chatEl.scrollTop = chatEl.scrollHeight;
+const jumpLatestBtn = document.getElementById("jumpLatest");
+// 用户是否停留在对话底部：上翻历史/输入时不被流式输出强行拽回最新
+let stickBottom = true;
+let lastTop = 0; // 上一次记录的滚动位置，用于识别「用户上翻」
+
+function nearBottom(el, px = 90) {
+  return el.scrollHeight - el.scrollTop - el.clientHeight < px;
 }
+
+function syncStick() {
+  const top = chatEl.scrollTop;
+  // 位置变小 = 用户上翻（追加内容只会让 scrollHeight 变大，不会让 scrollTop 变小），
+  // 直接比较位置而不只依赖 scroll 事件，避免流式 delta 抢在事件前把页面拽回底部。
+  if (top < lastTop - 4) stickBottom = false;
+  else if (nearBottom(chatEl)) stickBottom = true;
+  lastTop = top;
+  if (stickBottom) jumpLatestBtn.hidden = true;
+}
+
+function scrollBottom(force = false) {
+  if (!force) {
+    syncStick();
+    if (!stickBottom) {
+      // 用户正在上翻阅读：只给「回到最新」入口，不打断当前阅读位置
+      jumpLatestBtn.hidden = false;
+      return;
+    }
+  }
+  chatEl.scrollTop = chatEl.scrollHeight;
+  stickBottom = true;
+  lastTop = chatEl.scrollTop;
+  jumpLatestBtn.hidden = true;
+}
+
+chatEl.addEventListener("scroll", syncStick, { passive: true });
+
+jumpLatestBtn.addEventListener("click", () => scrollBottom(true));
 
 /* ── 布局与按钮状态 ── */
 
@@ -67,7 +180,7 @@ function syncButtons() {
   newTopBtn.disabled = !canReset;
   // 生成中：发送按钮换成「停止」，输入框仍可用（回车入队）
   sendBtn.hidden = busy;
-  sendBtn.disabled = busy || !inputEl.value.trim();
+  sendBtn.disabled = busy || (!inputEl.value.trim() && !pendingImages.length);
   stopBtn.hidden = !busy;
   inputHint.innerHTML = busy
     ? "Enter 加入排队<span> · 当前回答结束后依次发送</span>"
@@ -83,10 +196,13 @@ function renderQueue() {
     queueBar.hidden = true;
     return;
   }
-  const head = queue[0].length > 30 ? queue[0].slice(0, 30) + "…" : queue[0];
+  const head =
+    queue[0].text.length > 30 ? queue[0].text.slice(0, 30) + "…" : queue[0].text;
   const text = document.createElement("span");
   text.className = "queue-text";
-  text.textContent = "⏳ 已排队 " + queue.length + " 条 · 下一条：" + head;
+  text.textContent =
+    "⏳ 已排队 " + queue.length + " 条 · 下一条：" +
+    (head || "[截图]");
   const clearBtn = document.createElement("button");
   clearBtn.type = "button";
   clearBtn.className = "queue-clear";
@@ -106,7 +222,7 @@ function drainQueue() {
   if (busy || !queue.length) return;
   const next = queue.shift();
   renderQueue();
-  ask(next);
+  ask(next.text, next.images || []);
 }
 
 function syncSidebar() {
@@ -118,15 +234,34 @@ function syncSidebar() {
 
 /* ── 消息渲染 ── */
 
-function addUserMsg(text) {
+function addUserMsg(text, images) {
   const div = document.createElement("div");
   div.className = "msg user";
   div.innerHTML =
     '<div class="avatar">👤</div>' +
     '<div class="bubble-wrap"><div class="bubble"></div></div>';
-  div.querySelector(".bubble").textContent = text;
+  const bubble = div.querySelector(".bubble");
+  if (images && images.length) {
+    const strip = document.createElement("div");
+    strip.className = "msg-images";
+    images.forEach((src) => {
+      const im = document.createElement("img");
+      im.src = src;
+      im.alt = "截图";
+      im.addEventListener("click", () => {
+        window.open(src, "_blank", "noopener");
+      });
+      strip.appendChild(im);
+    });
+    bubble.appendChild(strip);
+  }
+  if (text) {
+    const line = document.createElement("div");
+    line.textContent = text;
+    bubble.appendChild(line);
+  }
   chatEl.appendChild(div);
-  scrollBottom();
+  scrollBottom(true); // 自己发消息时总是回到最新
 }
 
 function addBotMsg() {
@@ -288,11 +423,12 @@ async function sendFeedback(answerId, rating, reason) {
 
 /* ── 发送、停止与排队 ── */
 
-// 生成中再发送 = 入队；空闲时立刻开新一轮
+// 生成中再发送 = 入队；空闲时立刻开新一轮（截图仅随输入框提交携带）
 function submit(text) {
   const fromInput = text == null;
   const q = (fromInput ? inputEl.value : text).trim();
-  if (!q) return;
+  const imgs = fromInput ? pendingImages : [];
+  if (!q && !imgs.length) return;
   if (fromInput) {
     inputEl.value = "";
     inputEl.style.height = "auto";
@@ -302,15 +438,24 @@ function submit(text) {
       showStatus("排队已满（最多 " + MAX_QUEUE + " 条），等当前回答结束再问");
       return;
     }
-    queue.push(q);
+    queue.push({ text: q, images: imgs });
+    if (imgs.length) {
+      pendingImages = [];
+      renderAttachBar();
+    }
     renderQueue();
     syncButtons();
     return;
   }
-  ask(q);
+  if (imgs.length) {
+    pendingImages = [];
+    renderAttachBar();
+  }
+  ask(q, imgs);
 }
 
-async function ask(question) {
+async function ask(question, images) {
+  images = images || [];
   busy = true;
   controller = new AbortController();
   syncButtons();
@@ -322,7 +467,10 @@ async function ask(question) {
     setEmptyState(false);
   }
 
-  addUserMsg(question);
+  addUserMsg(
+    question,
+    images.map((x) => x.dataUrl)
+  );
   // 流式生成期间两个新会话入口都保持禁用，避免旧回答写入新会话。
   const ui = addBotMsg();
   let answerText = "";
@@ -342,6 +490,7 @@ async function ask(question) {
         question: question,
         session_id: sessionId(),
         history: history.slice(-8),
+        images: images.map((x) => x.dataUrl),
       }),
     });
     if (!resp.ok || !resp.body) {
@@ -380,7 +529,10 @@ async function ask(question) {
           }
           thinkText += ev.text;
           ui.thinkBody.textContent = thinkText;
-          ui.thinkBody.scrollTop = ui.thinkBody.scrollHeight;
+          // 思考面板内部同样遵循「只在底部才跟随」，上翻读思考时不被拽回
+          if (nearBottom(ui.thinkBody, 60)) {
+            ui.thinkBody.scrollTop = ui.thinkBody.scrollHeight;
+          }
           scrollBottom();
         } else if (ev.type === "delta") {
           if (thinkText && !thinkCollapsed) {
@@ -415,7 +567,17 @@ async function ask(question) {
     }
     if (answerId != null) {
       setupFeedback(ui.feedback, ui.fbPanel, answerId);
-      history.push({ role: "user", content: question });
+      // 截图轮的 user 消息以多模态 blocks 入历史（后续轮重发给模型，追问可见）
+      if (images.length) {
+        history.push({
+          role: "user",
+          content: images
+            .map((x) => ({ type: "image_url", image_url: { url: x.dataUrl } }))
+            .concat([{ type: "text", text: question }]),
+        });
+      } else {
+        history.push({ role: "user", content: question });
+      }
       history.push({ role: "assistant", content: answerText });
     }
   } catch (e) {
@@ -451,6 +613,32 @@ async function ask(question) {
 
 sendBtn.addEventListener("click", () => submit());
 
+// 截图上传三入口：按钮选择 / 剪贴板粘贴 / 拖拽到输入区
+const composerEl = document.querySelector(".composer");
+composerEl.parentNode.insertBefore(attachBar, composerEl);
+attachBtn.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", () => {
+  addImageFiles(fileInput.files);
+  fileInput.value = "";
+});
+inputEl.addEventListener("paste", (e) => {
+  const files = Array.from(
+    (e.clipboardData && e.clipboardData.files) || []
+  ).filter(isImageFile);
+  if (files.length) {
+    e.preventDefault(); // 有图时不把文件名/乱码播进输入框
+    addImageFiles(files);
+  }
+});
+const composerWrapEl = document.querySelector(".composer-wrap");
+composerWrapEl.addEventListener("dragover", (e) => e.preventDefault());
+composerWrapEl.addEventListener("drop", (e) => {
+  e.preventDefault();
+  if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+    addImageFiles(e.dataTransfer.files);
+  }
+});
+
 stopBtn.addEventListener("click", () => {
   if (!busy || !controller) return;
   controller.abort(); // 断开 SSE，服务端取消上游 LLM 调用
@@ -474,6 +662,8 @@ function resetSession() {
   localStorage.removeItem("apa_session");
   history = [];
   queue = [];
+  pendingImages = [];
+  renderAttachBar();
   renderQueue();
   chatEl.innerHTML = "";
   inputEl.value = "";

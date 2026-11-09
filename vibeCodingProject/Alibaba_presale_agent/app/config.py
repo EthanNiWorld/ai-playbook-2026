@@ -70,6 +70,22 @@ def get_tavily_api_key() -> str:
     return os.getenv("TAVILY_API_KEY", "")
 
 
+# ── 价格分享卡片（OSS 私有 Bucket + 24h 签名链接）──
+# 变量名沿用工作区 .env 既有约定（与 cosyvoice_demo 共用同一对受限 RAM key）
+OSS_SHARE_PREFIX = "presale-agent/price-cards/"
+
+
+def get_oss_config() -> dict:
+    """OSS 配置（key 为空表示未配置，分享卡片工具返回 error 由 LLM 说明）"""
+    return {
+        "key_id": os.getenv("oss_AccessKey_ID", ""),
+        "key_secret": os.getenv("oss_AccessKey_key", ""),
+        "bucket": os.getenv("OSS_BUCKET_NAME") or "Bucket_for_ai_project",
+        "endpoint": os.getenv("OSS_ENDPOINT") or "https://oss-cn-beijing.aliyuncs.com",
+        "prefix": OSS_SHARE_PREFIX,
+    }
+
+
 def get_admin_token() -> str:
     """后台保护令牌（空表示不启用鉴权，仅建议内网/测试环境留空）"""
     return os.getenv("ADMIN_TOKEN", "")

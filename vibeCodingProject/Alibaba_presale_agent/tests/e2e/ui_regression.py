@@ -470,6 +470,70 @@ def main():
             if width == 390:
                 cdp.shot("/tmp/apa-reg-5-mobile-empty.png")
         if args.mock:
+            # ── [4.5] 截图附件（多模态入口，mock）──
+            print("\n[4.5] 截图附件：入口 / 附件条 / 请求体（mock）")
+            cdp.send("Emulation.clearDeviceMetricsOverride")
+            time.sleep(0.5)
+            shot_b64 = base64.b64encode(
+                (Path(__file__).parent / "assets" / "apa_screenshot_sample.png").read_bytes()
+            ).decode()
+            cdp.ev(f"""(() => {{
+              const bin = atob('{shot_b64}');
+              const arr = new Uint8Array(bin.length);
+              for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+              const file = new File([arr], 'shot.png', {{type: 'image/png'}});
+              const dt = new DataTransfer();
+              dt.items.add(file);
+              const input = document.querySelector('#fileInput');
+              input.files = dt.files;
+              input.dispatchEvent(new Event('change', {{bubbles: true}}));
+            }})()""")
+            time.sleep(0.6)  # FileReader 异步
+            check("📎 按钮存在且附件条渲染缩略图",
+                  cdp.ev("""(() => {
+                    const bar = document.querySelector('#attachBar');
+                    return bar && !bar.hidden && bar.querySelectorAll('.attach-item img').length === 1
+                      && !!document.querySelector('#attach');
+                  })()"""))
+            check("仅有附件无文本时发送按钮可点", cdp.ev("!document.querySelector('#send').disabled"))
+            cdp.ev("""(() => {
+              const input = document.querySelector('#input');
+              input.value = '这张截图里的模型多少钱';
+              input.dispatchEvent(new Event('input'));
+              input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}));
+            })()""")
+            time.sleep(2.2)  # mock SSE 全部事件约 1.2s，加上首帧
+            check("请求体携带 images（data URL）",
+                  cdp.ev("""(() => {
+                    const req = window.__uiRequests.at(-1);
+                    return req && req.images && req.images.length === 1
+                      && req.images[0].startsWith('data:image/png;base64,');
+                  })()"""))
+            check("用户气泡展示截图缩略图",
+                  cdp.ev("document.querySelectorAll('.msg.user .msg-images img').length === 1"))
+            check("附件发送后附件条清空", cdp.ev("document.querySelector('#attachBar').hidden"))
+            cdp.ev(f"""(() => {{
+              // 追加第二张 → 验证移除按钮与纯图提交路径
+              const bin = atob('{shot_b64}');
+              const arr = new Uint8Array(bin.length);
+              for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+              const dt = new DataTransfer();
+              dt.items.add(new File([arr], 'shot2.png', {{type: 'image/png'}}));
+              const input = document.querySelector('#fileInput');
+              input.files = dt.files;
+              input.dispatchEvent(new Event('change', {{bubbles: true}}));
+            }})()""")
+            time.sleep(0.6)
+            cdp.ev("document.querySelector('.attach-remove').click()")
+            time.sleep(0.2)
+            check("移除按钮工作，附件条隐藏",
+                  cdp.ev("document.querySelector('#attachBar').hidden"),
+                  "移除后应隐藏")
+            cdp.ev("document.querySelector('#newSession').click()")
+            time.sleep(0.2)
+            check("新会话同时清空待发附件",
+                  cdp.ev("document.querySelector('#attachBar').hidden && document.querySelectorAll('.attach-item').length === 0"))
+
             cdp.ev("""(() => {
               window.__uiFailNext = true;
               const input = document.querySelector('#input');

@@ -19,7 +19,7 @@ PASS, FAIL = 0, 0
 def check(name, cond, detail=""):
     global PASS, FAIL
     print(("  OK  " if cond else "  FAIL ") + name + ("" if cond else f"   {detail}"))
-    PASS, FAIL = PASS + (1 if cond else 0), FAIL + (0 if cond else 0)
+    PASS, FAIL = PASS + (1 if cond else 0), FAIL + (0 if cond else 1)
 
 
 def ask(q):
