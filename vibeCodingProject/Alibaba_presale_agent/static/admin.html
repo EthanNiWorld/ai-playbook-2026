@@ -54,7 +54,9 @@ td.q { max-width: 260px; }
 .ip-cell .ua { display: block; color: #9CA3AF; font-size: 11px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
 details summary { cursor: pointer; color: #FF6A00; font-weight: 600; }
 .empty { text-align: center; color: #9CA3AF; padding: 40px; }
-.error { color: #DC2626; font-size: 13px; margin: 8px 0; }
+.error { color: #DC2626; font-size: 13px; margin: 8px 0; white-space: pre-line; line-height: 1.75; }
+.error .hint { display: block; color: #6B7280; font-size: 12.5px; margin-top: 2px; }
+input.invalid { border-color: #DC2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, .12); }
 </style>
 </head>
 <body>
@@ -62,7 +64,10 @@ details summary { cursor: pointer; color: #FF6A00; font-weight: 600; }
 <div class="sub">交付记录与反馈分析 — 含提问者 IP / UA 与模型思考过程，点踩记录用于定位坏 case、迭代知识库与 prompt</div>
 
 <div class="token-row">
-  <input type="password" id="token" placeholder="Admin Token（未配置则留空）" style="width:240px" />
+  <input type="password" id="token" placeholder="Admin Token（服务端未配置则留空）"
+         title="若服务端设置了 ADMIN_TOKEN，此处必须填写同一个口令"
+         style="width:240px" autocomplete="off"
+         onkeydown="if(event.key==='Enter')refresh()" />
   <button class="btn-primary" onclick="refresh()">刷新数据</button>
   <button class="btn-ghost" onclick="setFilter('')">全部</button>
   <button class="btn-ghost" onclick="setFilter('down')">仅点踩</button>
@@ -95,13 +100,48 @@ details summary { cursor: pointer; color: #FF6A00; font-weight: 600; }
 "use strict";
 let currentRating = "";
 
+const TOKEN_INPUT = document.getElementById("token");
+
+// 口令不写死在页面里（本文件会提交到公开仓库），由使用者在输入框填一次并存入 localStorage。
+const TOKEN_HINT = "需要 Admin Token：服务端已启用后台口令，当前请求未通过鉴权。\n"
+  + "请在上方 Token 输入框填入 ADMIN_TOKEN 后点「刷新数据」。";
+const TOKEN_HINT_HOW = "口令获取：在服务器执行 grep '^ADMIN_TOKEN=' /opt/alibaba-presale-agent/.env；"
+  + "若已遗失，改 .env 中的 ADMIN_TOKEN 后重建容器即可。";
+
 function token() { return localStorage.getItem("apa_admin_token") || ""; }
-document.getElementById("token").value = token();
-document.getElementById("token").addEventListener("change", (e) => {
+TOKEN_INPUT.value = token();
+TOKEN_INPUT.addEventListener("change", (e) => {
   localStorage.setItem("apa_admin_token", e.target.value.trim());
 });
+TOKEN_INPUT.addEventListener("input", () => TOKEN_INPUT.classList.remove("invalid"));
 
 function headers() { return { "X-Admin-Token": token() }; }
+
+// 鉴权失败专用错误：由各接口统一识别 401 后抛出，避免把裸状态码直接抛给用户
+class AuthError extends Error {
+  constructor(path) { super("unauthorized: " + path); this.name = "AuthError"; }
+}
+
+async function adminFetch(path, options) {
+  const r = await fetch(path, Object.assign({}, options || {}, { headers: headers() }));
+  if (r.status === 401) throw new AuthError(path);
+  if (!r.ok) throw new Error(path.replace("/api/admin/", "") + " " + r.status);
+  return r;
+}
+
+function showAuthError() {
+  const el = document.getElementById("error");
+  el.hidden = false;
+  el.innerHTML = "";
+  el.append(document.createTextNode(TOKEN_HINT));
+  const hint = document.createElement("span");
+  hint.className = "hint";
+  hint.textContent = TOKEN_HINT_HOW;
+  el.append(hint);
+  TOKEN_INPUT.classList.add("invalid");
+  TOKEN_INPUT.focus();
+  TOKEN_INPUT.select();
+}
 
 function setFilter(rating) {
   currentRating = rating;
@@ -114,16 +154,23 @@ function showError(msg) {
   el.textContent = msg || "";
 }
 
+function setRowsPlaceholder(msg) {
+  document.getElementById("rows").innerHTML =
+    '<tr><td colspan="9" class="empty">' + msg + "</td></tr>";
+}
+
 async function refresh() {
   showError("");
-  await loadStats();
+  TOKEN_INPUT.classList.remove("invalid");
+  const authed = await loadStats();
+  // 401 已由 showAuthError 给出完整引导，不再重复报一次
+  if (authed === false) { setRowsPlaceholder("未通过鉴权 — 请在上方填写 Admin Token"); return; }
   await loadRows();
 }
 
 async function loadStats() {
   try {
-    const r = await fetch("/api/admin/stats", { headers: headers() });
-    if (!r.ok) throw new Error("stats " + r.status);
+    const r = await adminFetch("/api/admin/stats");
     const s = await r.json();
     const cards = [
       ["总回复数", s.total, ""],
@@ -141,7 +188,8 @@ async function loadStats() {
         '<div class="card"><div class="label">' + label + '</div><div class="value ' + cls + '">' + value + "</div></div>"
     ).join("");
   } catch (e) {
-    showError("统计加载失败：" + e.message + "（如已设置 ADMIN_TOKEN，请先在上方填写）");
+    if (e.name === "AuthError") { showAuthError(); return false; }
+    showError("统计加载失败：" + e.message);
   }
 }
 
@@ -151,13 +199,12 @@ async function loadRows() {
   if (currentRating) params.set("rating", currentRating);
   if (kw) params.set("q", kw);
   try {
-    const r = await fetch("/api/admin/answers?" + params, { headers: headers() });
-    if (!r.ok) throw new Error("answers " + r.status);
+    const r = await adminFetch("/api/admin/answers?" + params);
     const data = await r.json();
     const rows = data.items || [];
     const tbody = document.getElementById("rows");
     if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="9" class="empty">暂无记录</td></tr>';
+      setRowsPlaceholder("暂无记录");
       return;
     }
     tbody.innerHTML = rows.map((it) => {
@@ -206,14 +253,18 @@ async function loadRows() {
         "</tr>";
     }).join("");
   } catch (e) {
+    if (e.name === "AuthError") {
+      setRowsPlaceholder("未通过鉴权 — 请填写 Admin Token");
+      showAuthError();
+      return;
+    }
     showError("记录加载失败：" + e.message);
   }
 }
 
 async function exportCsv() {
   try {
-    const r = await fetch("/api/admin/export.csv", { headers: headers() });
-    if (!r.ok) throw new Error("export " + r.status);
+    const r = await adminFetch("/api/admin/export.csv");
     const blob = await r.blob();
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -221,6 +272,7 @@ async function exportCsv() {
     a.click();
     URL.revokeObjectURL(a.href);
   } catch (e) {
+    if (e.name === "AuthError") { showAuthError(); return; }
     showError("导出失败：" + e.message);
   }
 }
@@ -229,11 +281,11 @@ async function syncKb() {
   showError("");
   if (!confirm("从 GitHub 拉取最新知识库并重建索引？")) return;
   try {
-    const r = await fetch("/api/admin/kb/sync", { method: "POST", headers: headers() });
-    if (!r.ok) throw new Error("sync " + r.status);
+    const r = await adminFetch("/api/admin/kb/sync", { method: "POST" });
     const d = await r.json();
     alert("同步完成，索引片段数：" + d.chunks);
   } catch (e) {
+    if (e.name === "AuthError") { showAuthError(); return; }
     showError("知识库同步失败：" + e.message);
   }
 }
