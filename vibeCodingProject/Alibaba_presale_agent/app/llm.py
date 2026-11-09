@@ -25,7 +25,10 @@ async def stream_chat(
     messages: list[dict],
     tools: list[dict] | None = None,
     temperature: float = 0.3,
-    max_tokens: int = 4096,
+    # 实测该端点 max_tokens 只约束正文不约束思考；近 7 天正文峰值 2306 字≈4000 token
+    # 已贴近 4096 上限，长回答尾部存在静默截断风险（pipeline 不读 finish_reason
+    # 无法感知），放宽到 8192。max_tokens 是上限非目标，短回答零成本。
+    max_tokens: int = 8192,
     enable_thinking: bool = True,
 ):
     """流式生成，逐段 yield (kind, text)。
