@@ -458,6 +458,36 @@ def test_price_audit():
         "| wan3.0-video | Singapore | 1080P | $0.28/秒 | — |\n"
     )
     rm = pv.audit_answer_prices(media_off, media_off)
+
+    # 2026-11-10 id 72 事故：①多模型问题连调 verify_price 时 official_md 被
+    # 覆盖只剩末次证据（修复在 pipeline 累加，这里断审计函数本身对累加后的
+    # 多模型证据能一次通过）；②用户要求算 5.5 折时派生值被误判 mismatch。
+    check("折扣率抽取: 5.5折/55%/6折", pv._discount_rates("5.5折 55% 6折") == {0.55, 0.6})
+    check("折扣率抽取: 120% 越界不收", 1.2 not in pv._discount_rates("120%"))
+    multi_off = (
+        "| qwen-image-3.0-pro | Singapore | 1K | $0.04/张 | 输入图 $0.003/张 |\n"
+        "| qwen-image-3.0-pro | China (Beijing) | 2K | $0.068761/张 | 输入图 $0.00275/张 |\n"
+        "| qwen-image-2.1-pro | Singapore | 1K | $0.045/张 | — |\n"
+        "| qwen-image-2.1-pro | China (Beijing) | 2K | $0.064242/张 | — |\n"
+    )
+    q72 = "qwen-image-3.0-pro-北京/新加坡-5.5折 qwen-image-2.1-pro 5.5折"
+    a72 = (
+        "| qwen-image-3.0-pro | Singapore | 1K | $0.04/张 | 输入图 $0.003/张 |\n"
+        "| qwen-image-3.0-pro | Singapore | 1K | 5.5折 $0.024754/张 | — |\n"
+        "| qwen-image-3.0-pro | China (Beijing) | 2K | $0.068761/张 | 输入图 $0.00275/张 |\n"
+        "| qwen-image-2.1-pro | Beijing | 5.5折 $0.035333/张 | — |\n"
+    )
+    r72 = pv.audit_answer_prices(a72, multi_off, "", q72)
+    check("审计: 多模型证据+折扣派生值不再误报（id 72）",
+          r72["checked"] and r72["mismatched"] == [], str(r72))
+    r72b = pv.audit_answer_prices(
+        a72.replace("5.5折 ", ""), multi_off, "", "qwen-image 价格")
+    check("审计: 问答均无折扣标记时派生值仍报 mismatch（保守）",
+          r72b["checked"] and "0.024754" in r72b["mismatched"], str(r72b))
+    r72c = pv.audit_answer_prices(
+        "| m | Singapore | 5.5折 $9.9/张 |", multi_off, "", "算下5.5折")
+    check("审计: 折扣场景下真错价仍被揪出",
+          r72c["checked"] and "9.9" in r72c["mismatched"], str(r72c))
     check("审计: 视频按秒价照抄 → 通过", rm["checked"] and rm["mismatched"] == [], str(rm))
     rm2 = pv.audit_answer_prices(media_off.replace("$0.28", "$0.82"), media_off)
     check("审计: 视频价抄错被揪出", rm2["checked"] and "0.82" in rm2["mismatched"], str(rm2))

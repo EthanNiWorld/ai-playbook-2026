@@ -1358,11 +1358,30 @@ def _extra_decimal_amounts(md: str) -> set[str]:
     return out
 
 
-def audit_answer_prices(answer: str, official_md: str, extra_md: str = "") -> dict:
+# 折扣率抽取：'5.5折'→0.55、'55%'→0.55。只认显式折/%标记，
+# 不裸认小数（0.55 会与价格数字混淆）。
+_RATE_RE = re.compile(r"(?<![\d.])(\d+(?:\.\d+)?)\s*折|(\d+(?:\.\d+)?)\s*%")
+
+
+def _discount_rates(text: str) -> set[float]:
+    """从文本抽折扣率，返回 (0,1) 开区间内的合法值。"""
+    rates: set[float] = set()
+    for m in _RATE_RE.finditer(text or ""):
+        r = float(m.group(1)) / 10 if m.group(1) else float(m.group(2)) / 100
+        if 0 < r < 1:
+            rates.add(r)
+    return rates
+
+
+def audit_answer_prices(
+    answer: str, official_md: str, extra_md: str = "", question: str = ""
+) -> dict:
     """比对回答表格里的 USD 价格是否都来自官方证据（+ 可选额外白名单）。
 
     extra_md 用于竞品对比场景：竞品价来自第三方搜索，不在 official_md 里，
     但写进表格是允许的，不能因此判为“抄错价/臆造”。
+    question/answer 里出现显式折扣（如「5.5折」「55%」）时，官方价 × 折扣率的
+    派生值视为合法（id 72 事故：用户要求算 5.5 折，计算结果被误判 mismatch）。
 
     返回 {"checked": bool, "mismatched": [金额...]}：
       checked=False 表示回答表格里没有 $ 金额（无从比对，不算通过也不算失败）；
@@ -1376,5 +1395,18 @@ def audit_answer_prices(answer: str, official_md: str, extra_md: str = "") -> di
         | _table_usd_amounts(extra_md)
         | _extra_decimal_amounts(extra_md)
     )
-    mismatched = sorted(answer_prices - allowed)
+    rates = _discount_rates(question) | _discount_rates(answer)
+    allowed_f = {float(a) for a in allowed}
+
+    def _derived(a: float) -> bool:
+        # 允许舍入误差：两位小数价 × 折扣后保留 4~6 位
+        for base in allowed_f:
+            for r in rates:
+                if abs(a - base * r) <= max(1e-5, 1e-4 * base * r):
+                    return True
+        return False
+
+    mismatched = sorted(
+        p for p in answer_prices if p not in allowed and not _derived(float(p))
+    )
     return {"checked": True, "mismatched": mismatched}

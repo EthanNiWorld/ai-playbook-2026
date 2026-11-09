@@ -309,8 +309,21 @@ async def stream_answer(
                     result = {"content": f"工具执行失败：{e}"}
                 if "price_status" in result:
                     price_status = result["price_status"]
-                    official_md = result.get("official_md", "")
-                    competitor_md = result.get("competitor_md", "")
+                    # 多模型问题会连调多次 verify_price（如 4 个型号各一次）：
+                    # 证据必须累加，若用赋值覆盖，白名单只剩最后一次的证据，
+                    # 其余型号的官方价会被审计误判 mismatch（id 72 实测事故）。
+                    if result.get("official_md"):
+                        official_md = (
+                            official_md + "\n\n" + result["official_md"]
+                            if official_md
+                            else result["official_md"]
+                        )
+                    if result.get("competitor_md"):
+                        competitor_md = (
+                            competitor_md + "\n\n" + result["competitor_md"]
+                            if competitor_md
+                            else result["competitor_md"]
+                        )
                     price_checked = True
                 for s in result.get("sources", []):
                     add_source(s)
@@ -347,7 +360,9 @@ async def stream_answer(
     # 调过 verify_price 才审计：核对回答表格里的 $ 金额是否都来自官方证据，
     # 抄错/臆造则标记 mismatch（前端「已联网核实」徽章只看 official，不能为抄错背书）。
     if price_checked:
-        result = audit_answer_prices("".join(parts), official_md, competitor_md)
+        result = audit_answer_prices(
+            "".join(parts), official_md, competitor_md, question
+        )
         if result["checked"]:
             price_audit = (
                 "mismatch:" + "|".join(result["mismatched"])
