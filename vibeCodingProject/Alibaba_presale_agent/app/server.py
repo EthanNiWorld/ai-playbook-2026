@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import guide, knowledge, pipeline, store
+from . import asr, guide, knowledge, pipeline, store
 from .config import KB_SYNC_INTERVAL_HOURS, PROJECT_ROOT, get_admin_token, get_llm_config
 
 logging.basicConfig(
@@ -87,6 +87,16 @@ class FeedbackRequest(BaseModel):
     answer_id: int
     rating: str  # "up" | "down"
     reason: str = ""
+
+
+class AsrRequest(BaseModel):
+    # 语音识别：data:audio/wav;base64,... 或裸 base64（前端限制录音 ≤60s）。
+    # context：实时分段识别时传上一段已识别文本（qwen-audio 上下文增强，≤400 字）
+    audio: str
+    context: str = ""
+
+
+_MAX_AUDIO_B64 = 14 * 1024 * 1024  # base64 后 ≈10MB 音频上限
 
 
 # ──────────────────────────── 鉴权 ────────────────────────────
@@ -236,6 +246,20 @@ async def feedback(req: FeedbackRequest):
     if not ok:
         raise HTTPException(status_code=404, detail="answer not found or invalid rating")
     return {"ok": True}
+
+
+@app.post("/api/asr")
+async def speech_to_text(req: AsrRequest):
+    """语音识别：qwen-audio-3.1-asr-flash（3.0 兜底），wav base64 → 文本。"""
+    audio = (req.audio or "").strip()
+    if not audio:
+        raise HTTPException(status_code=400, detail="audio is empty")
+    if len(audio) > _MAX_AUDIO_B64:
+        raise HTTPException(status_code=400, detail="audio too large (max ~10MB)")
+    result = await asr.transcribe(audio, (req.context or "")[:400])
+    if result.get("error"):
+        return {"ok": False, "error": result["error"]}
+    return {"ok": True, "text": result.get("text", ""), "model": result.get("model", "")}
 
 
 # ──────────────────────────── 后台分析 ────────────────────────────

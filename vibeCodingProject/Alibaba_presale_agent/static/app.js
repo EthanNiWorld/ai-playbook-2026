@@ -609,6 +609,211 @@ async function ask(question, images) {
   }
 }
 
+/* ── 语音输入（qwen-audio-3.1-asr-flash，实时分段识别）── */
+const micBtn = document.getElementById("mic");
+const MIC_MAX_S = 60;
+const MIC_SEGMENT_S = 4;      // 分段窗口：边说边出字，说完一句 ≈4s 后文字上屏
+let micRecording = false;
+let micBusy = false;
+let micStream = null;
+let micCtx = null;
+let micProc = null;
+let micTimer = null;
+let micAll = null;            // Float32 累积采样
+let micAllLen = 0;
+let micSegOffset = 0;         // 已送识别的采样偏移
+let micReqBusy = false;       // 段识别请求串行闸
+let micDraft = "";            // 已识别拼接文本（实时上屏）
+let micBase = "";             // 录音开始时输入框已有内容
+
+function micSetNote(text, rec) {
+  let note = micBtn.parentElement.querySelector(".mic-note");
+  if (!text) {
+    if (note) note.remove();
+    return;
+  }
+  if (!note) {
+    note = document.createElement("span");
+    note.className = "mic-note";
+    micBtn.parentElement.insertBefore(note, micBtn);
+  }
+  note.textContent = text;
+  note.classList.toggle("rec", !!rec);
+}
+
+function micUpdateInput() {
+  inputEl.value = micBase + micDraft;
+  inputEl.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+// 降采样到目标采样率（线性插值，录音质量对 ASR 足够）
+function downsample(buf, from, to) {
+  if (to >= from) return buf;
+  const ratio = from / to;
+  const n = Math.floor(buf.length / ratio);
+  const out = new Float32Array(n);
+  for (let i = 0; i < n; i++) {
+    const pos = i * ratio;
+    const i0 = Math.floor(pos);
+    const frac = pos - i0;
+    out[i] = buf[i0] * (1 - frac) + buf[i0 + 1] * frac;
+  }
+  return out;
+}
+
+// Float32 PCM → 16bit mono WAV
+function pcmToWav(samples, rate) {
+  const buf = new ArrayBuffer(44 + samples.length * 2);
+  const v = new DataView(buf);
+  const w = (off, s) => { for (let i = 0; i < s.length; i++) v.setUint8(off + i, s.charCodeAt(i)); };
+  w(0, "RIFF"); v.setUint32(4, 36 + samples.length * 2, true); w(8, "WAVE");
+  w(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  w(36, "data"); v.setUint32(40, samples.length * 2, true);
+  let off = 44;
+  for (let i = 0; i < samples.length; i++, off += 2) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    v.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+  return new Blob([buf], { type: "audio/wav" });
+}
+
+function blobToB64(blob) {
+  return blob.arrayBuffer().then((ab) => {
+    let bin = "";
+    const u8 = new Uint8Array(ab);
+    for (let i = 0; i < u8.length; i += 0x8000) {
+      bin += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+    }
+    return btoa(bin);
+  });
+}
+
+// 送识别一段（samples 为原始采样率的 Float32 段），带上一段文本作上下文
+async function micRecognize(samples, srcRate) {
+  const rate = 16000;
+  const wav = pcmToWav(downsample(samples, srcRate, rate), rate);
+  const b64 = await blobToB64(wav);
+  const r = await fetch("/api/asr", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ audio: b64, context: micDraft.slice(-380) }),
+  });
+  const d = await r.json();
+  if (d.ok && d.text) {
+    micDraft += (micDraft ? "" : "") + d.text;
+    micUpdateInput();
+  }
+}
+
+// 每 MIC_SEGMENT_S 秒触发一次：把未识别的累积采样切一段送 ASR
+async function micFlushSegment(final) {
+  if (micReqBusy || !micAll) return;
+  const srcRate = micCtx ? micCtx.sampleRate : 48000;
+  const segLen = Math.floor(MIC_SEGMENT_S * srcRate);
+  const avail = micAllLen - micSegOffset;
+  if (final) {
+    if (avail < srcRate * 0.8) return; // 残段不足 0.8s 丢弃
+  } else {
+    if (avail < segLen) return;        // 未累积满一整段：等下一 tick
+  }
+  const take = final ? avail : Math.min(avail, segLen);
+  const seg = micAll.slice(micSegOffset, micSegOffset + take);
+  micSegOffset += take;
+  micReqBusy = true;
+  try {
+    await micRecognize(seg, srcRate);
+  } catch (e) {
+    micSetNote("这段识别失败，已跳过", false);
+    setTimeout(() => { if (!micRecording) micSetNote(""); }, 2500);
+  } finally {
+    micReqBusy = false;
+  }
+}
+
+async function micStart() {
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
+    });
+  } catch (e) {
+    micSetNote("无法访问麦克风", false);
+    setTimeout(() => micSetNote(""), 2500);
+    return;
+  }
+  micCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const src = micCtx.createMediaStreamSource(micStream);
+  micProc = micCtx.createScriptProcessor(4096, 1, 1);
+  micAll = new Float32Array(Math.ceil(MIC_MAX_S * micCtx.sampleRate));
+  micAllLen = 0;
+  micSegOffset = 0;
+  micDraft = "";
+  micBase = inputEl.value ? inputEl.value.replace(/\s+$/, "") + "\n" : "";
+  micReqBusy = false;
+  micProc.onaudioprocess = (e) => {
+    const d = e.inputBuffer.getChannelData(0);
+    if (micAllLen + d.length <= micAll.length) {
+      micAll.set(d, micAllLen);
+      micAllLen += d.length;
+    }
+  };
+  src.connect(micProc);
+  micProc.connect(micCtx.destination);
+  micRecording = true;
+  micBtn.classList.add("recording");
+  micBtn.title = "点击结束录音";
+  micTimer = setInterval(() => {
+    micFlushSegment(false);
+    const sec = Math.floor(micAllLen / (micCtx ? micCtx.sampleRate : 48000));
+    micSetNote("● 实时转写中 " + sec + "s（说完点话筒结束）", true);
+    if (sec >= MIC_MAX_S) micStop();
+  }, 800);
+}
+
+async function micStop() {
+  if (!micRecording) return;
+  micRecording = false;
+  clearInterval(micTimer);
+  micSetNote("🎙 最后一段识别中…", false);
+  micBusy = true;
+  try {
+    await micFlushSegment(true);
+    // 等待可能还在飞的段识别完成后收尾
+    let waited = 0;
+    while (micReqBusy && waited < 30) { await new Promise(r => setTimeout(r, 200)); waited += 0.2; }
+    const track = micStream && micStream.getTracks()[0];
+    if (track) track.stop();
+    if (micProc) { try { micProc.disconnect(); } catch (e) {} }
+    if (micCtx) { try { await micCtx.close(); } catch (e) {} }
+    if (!micDraft) {
+      micSetNote("没有识别到内容，请靠近麦克风重试", false);
+      setTimeout(() => micSetNote(""), 3000);
+      micUpdateInput();
+    } else {
+      inputEl.value = micBase + micDraft + " ";
+      inputEl.dispatchEvent(new Event("input", { bubbles: true }));
+      inputEl.focus();
+      micSetNote("");
+    }
+  } finally {
+    micBusy = false;
+    micStream = null;
+    micCtx = null;
+    micProc = null;
+    micAll = null;
+    micBtn.classList.remove("recording");
+    micBtn.title = "点击开始录音（最长 60 秒），实时转文字";
+  }
+}
+
+if (micBtn && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  micBtn.hidden = false;
+  micBtn.addEventListener("click", () => {
+    if (micBusy) return;
+    if (micRecording) { micStop(); } else { micStart(); }
+  });
+}
+
 /* ── 事件绑定 ── */
 
 sendBtn.addEventListener("click", () => submit());

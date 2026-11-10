@@ -624,6 +624,51 @@ def test_domain_gate():
     h_love = [{"role": "user", "content": "我喜欢上一个人但不敢表白"}]
     check("爱情历史不误判为业务 → 不检索",
           not pipeline.is_domain_question("那工作呢", h_love))
+    # 2026-11-10 追加：股票语境优先于领域关键词——“腾讯和阿里股价”里的“阿里”
+    # 是公司不是阿里云，不检索本地 AI 资料，直接交工具循环联网（用户指示）。
+    check("股价题含阿里关键词仍不检索", not pipeline.is_domain_question("分析下腾讯和阿里股价"))
+    check("投资对比题不检索", not pipeline.is_domain_question("腾讯和阿里的股价对比，哪个更值得投资"))
+    check("含型号名的投资题仍检索（AI 话题）",
+          pipeline.is_domain_question("qwen3.8-max 值得投资吗"))
+    check("混元话题进领域词", pipeline.is_domain_question("混元 Hy4 正式版发布了吗"))
+
+
+def test_asr():
+    """ASR 语音识别（qwen-audio-3.1-asr-flash）：payload 构造与端点推导。"""
+    print("[8] ASR payload 与端点推导")
+    from app import asr
+
+    check("ASR: 主模型 3.1 优先", asr.ASR_MODELS[0] == "qwen-audio-3.1-asr-flash")
+    check("ASR: 兜底 3.0", asr.ASR_MODELS[1] == "qwen-audio-3.0-asr-flash")
+
+    p0 = asr.build_payload("qwen-audio-3.1-asr-flash", "QUJD")
+    check("ASR: 无上下文仅一条 user 音频消息", len(p0["input"]["messages"]) == 1)
+    check("ASR: 音频 data URI 前缀",
+          p0["input"]["messages"][0]["content"][0]["input_audio"]["data"]
+          == "data:audio/wav;base64,QUJD")
+    check("ASR: format/sample_rate 参数",
+          p0["parameters"] == {"format": "wav", "sample_rate": 16000})
+
+    p1 = asr.build_payload("qwen-audio-3.1-asr-flash", "QUJD", context="上一段文本")
+    check("ASR: 上下文作为 assistant 消息置首",
+          p1["input"]["messages"][0]["role"] == "assistant"
+          and p1["input"]["messages"][0]["content"][0]["text"] == "上一段文本")
+    check("ASR: 含音频的 user 消息置末",
+          p1["input"]["messages"][-1]["content"][0].get("input_audio") is not None)
+    # 上下文截断到 400 字符（qwen-audio 上下文增强协议限制）
+    p2 = asr.build_payload("m", "QUJD", context="字" * 500)
+    check("ASR: 上下文截断 400 字",
+          len(p2["input"]["messages"][0]["content"][0]["text"]) == 400)
+
+    import os
+    os.environ["DASHSCOPE_BASE_URL"] = "https://llm-xxx.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1"
+    check("ASR: workspace 端点推导",
+          asr._generation_endpoint().endswith("/api/v1/services/aigc/multimodal-generation/generation")
+          and "/compatible-mode" not in asr._generation_endpoint())
+    os.environ["DASHSCOPE_BASE_URL"] = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    check("ASR: 标准域名端点推导",
+          asr._generation_endpoint().startswith("https://dashscope.aliyuncs.com/api/v1/"))
+    del os.environ["DASHSCOPE_BASE_URL"]
 
 
 def test_pipeline_wiring():
@@ -846,6 +891,7 @@ def main():
     test_followup_anchor_and_competitor()
     test_source_visibility()
     test_domain_gate()
+    test_asr()
     test_pipeline_wiring()
     test_store_price_audit()
     test_fx()

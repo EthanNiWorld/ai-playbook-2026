@@ -674,6 +674,41 @@ button:disabled { cursor: not-allowed; }
 .attach-btn svg { width: 18px; height: 18px; }
 .attach-btn:hover { color: var(--accent-ink); border-color: #cf8c59; background: rgba(255, 106, 0, .05); }
 
+/* ── 语音输入（qwen-audio-3.1-asr-flash）── */
+.mic-btn {
+  width: 40px; height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dcd8ce;
+  border-radius: 13px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color .12s, border-color .12s, background .12s;
+}
+.mic-btn svg { width: 18px; height: 18px; }
+.mic-btn:hover { color: var(--accent-ink); border-color: #cf8c59; background: rgba(255, 106, 0, .05); }
+.mic-btn.recording {
+  color: #fff;
+  background: #e5484d;
+  border-color: #e5484d;
+  animation: mic-pulse 1.2s ease-in-out infinite;
+}
+@keyframes mic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(229, 72, 77, .45); }
+  50% { box-shadow: 0 0 0 7px rgba(229, 72, 77, 0); }
+}
+.mic-btn.busy { color: var(--muted); cursor: wait; }
+.mic-note {
+  font-size: 12px;
+  color: var(--muted);
+  align-self: center;
+  margin-right: 8px;
+}
+.mic-note.rec { color: #e5484d; }
+
 .attach-bar {
   display: flex;
   gap: 8px;

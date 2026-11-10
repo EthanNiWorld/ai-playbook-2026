@@ -24,6 +24,7 @@ from .config import REPO_BROWSE_URL, get_llm_config
 from .knowledge import get_index, search_with_models
 from .llm import stream_chat
 from .price_verifier import (
+    _STOCK_CONTEXT_RE,
     audit_answer_prices,
     extract_model_names,
     is_price_question,
@@ -40,13 +41,26 @@ _DOMAIN_HINT_RE = re.compile(
     r"百炼|模型|智能体|agent|大模型|llm|api|token|上下文|推理|训练|微调|部署|"
     r"选型|benchmark|多模态|语音|tts|asr|视频|图像|生图|缓存|限流|并发|吞吐|"
     r"gpu|ecs|服务器|裸金属|网关|编排|框架|rag|embedding|工作流|计费|收费|"
-    r"价格|多少钱|额度|配额|开源|权重|幻觉|私有|合规|备案|鉴权|密钥|阿里云|阿里",
+    r"价格|多少钱|额度|配额|开源|权重|幻觉|私有|合规|备案|鉴权|密钥|阿里云|阿里|"
+    r"混元|文心|豆包|hunyuan|kimi|glm|dashscope",
     re.IGNORECASE,
 )
 
 
 def is_domain_question(question: str, history: list | None = None) -> bool:
-    """问题是否在百炼/阿里云 AI 业务范围内（决定是否检索资料）。"""
+    """问题是否在百炼/阿里云 AI 业务范围内（决定是否检索资料）。
+
+    股票/投资语境优先级高于领域关键词：句中无型号名但命中股票语境
+    （股价/投资/PE 等）时不检索本地资料库、直接交给工具循环联网检索
+    （“腾讯和阿里的股价对比”里的“阿里”是公司而非阿里云，本地 AI 资料
+    帮不上忙，用户 2026-11-10 指示）；句中含型号名则仍按业务题检索
+    （“qwen3.8-max 值得投资吗”是 AI 话题）。
+    """
+
+    if extract_model_names(question):
+        return True
+    if _STOCK_CONTEXT_RE.search(question or ""):
+        return False
 
     def _hit(text: str) -> bool:
         return bool(
