@@ -107,6 +107,16 @@ async def transcribe(audio_b64: str, context: str = "") -> dict:
         if r.status_code == 200:
             text = (r.json().get("output") or {}).get("text") or ""
             return {"text": text.strip(), "model": model}
+        # 400 + ASR_RESPONSE_HAVE_NO_WORDS：音频里没有可识别的词（静音/噪声），
+        # 不是链路故障——返回空文本让前端提示"没有识别到内容"而非"识别失败"
+        # （线上实测：正弦波探针即此错误，注意错误码在 message 字段而非 code 字段）。
+        try:
+            _j = r.json()
+            _msg = (_j.get("code") or "") + " " + (_j.get("message") or "")
+        except Exception:
+            _msg = ""
+        if r.status_code == 400 and "NO_WORDS" in _msg:
+            return {"text": "", "model": model}
         body = r.text[:200]
         last_err = f"HTTP {r.status_code}: {body}"
         log.warning("ASR %s 失败: %s", model, last_err)
