@@ -15,7 +15,7 @@ import json
 import logging
 from datetime import datetime
 
-from . import fx, price_verifier, share_card
+from . import fx, price_verifier, share_card, tpm_calc
 from .searcher import web_search
 
 log = logging.getLogger("tools")
@@ -113,6 +113,42 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "estimate_tpm_cost",
+            "description": (
+                "测算 auto TPM 模型（动态限流）的日成本或所需 TPM（基于新加坡官方定价）。"
+                "两类问法：①用户给预算问容量（“每天预算 X 美元/人民币需要多少 TPM”）→ "
+                "传 daily_cost_usd（人民币先按汇率换算）；②用户给 TPM 问成本"
+                "（“2000 万 TPM 一天多少钱”）→ 传 tpm（单位 tokens/min）。"
+                "都不传时按默认顶格 2000 万 TPM 正算。适用于 qwen3.8 系列/"
+                "deepseek-v4/kimi-k3/glm-5.3 等动态限流模型的容量规划。"
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "model": {
+                        "type": "string",
+                        "description": "模型名，用户原话即可（如 qwen3.8-flash）",
+                    },
+                    "tpm": {
+                        "type": "number",
+                        "description": "正算：TPM 限额（tokens/min），如 20000000 = 2000万",
+                    },
+                    "daily_cost_usd": {
+                        "type": "number",
+                        "description": "反算：日预算（USD），与 tpm 二选一",
+                    },
+                    "daily_cost_cny": {
+                        "type": "number",
+                        "description": "反算：日预算（人民币，工具内自动按 6.67 折算）",
+                    },
+                },
+                "required": ["model"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "search_web",
             "description": (
                 "联网搜索时效性信息（如竞品最新定价、新发布产品）。"
@@ -136,6 +172,7 @@ _TOOL_STATUS = {
     "get_fx_rate": "💱 获取实时汇率...",
     "make_price_share_link": "🔗 生成价格分享卡片...",
     "get_current_time": "🕒 获取当前时间...",
+    "estimate_tpm_cost": "📊 TPM/成本测算...",
     "search_web": "🔍 联网搜索...",
 }
 
@@ -224,6 +261,35 @@ async def execute_tool(name: str, arguments: str) -> dict:
             "声明『数据为检索时点的最新公开口径，具体时点以来源页为准』，不得断言为实时。"
         )
         return {"content": content}
+
+    if name == "estimate_tpm_cost":
+        model = str(args.get("model", "")).strip()
+        if not model:
+            return {"content": "缺少 model 参数。请提供用户所问的模型名。"}
+        tpm = args.get("tpm")
+        daily_usd = args.get("daily_cost_usd")
+        daily_cny = args.get("daily_cost_cny")
+        if daily_cny and not daily_usd:
+            info = await fx.usd_cny()
+            rate = info["rate"] if info else fx._RATE_FALLBACK if hasattr(fx, "_RATE_FALLBACK") else 6.67
+            daily_usd = round(daily_cny / rate, 2)
+        try:
+            r = await tpm_calc.estimate(
+                model,
+                tpm=int(tpm) if tpm else None,
+                daily_cost_usd=float(daily_usd) if daily_usd else None,
+            )
+        except Exception as e:
+            log.exception("estimate_tpm_cost 执行失败")
+            return {"content": f"测算失败（{e}）。请引导用户以官方定价页自行核算。"}
+        if "error" in r:
+            return {"content": r["error"]}
+        src = {
+            "title": f"{r['model']} 模型详情页（Singapore 定价 · 权威）",
+            "url": r.get("source_url", price_verifier.PRICE_PAGE_URL),
+            "kind": "official",
+        }
+        return {"content": tpm_calc.format_md(r), "sources": [src]}
 
     if name == "search_web":
         query = str(args.get("query", "")).strip()[:200]
