@@ -576,6 +576,14 @@ def test_source_visibility():
           kinds == ["official", "web", "knowledge"], str(kinds))
     check("来源: 空列表安全", pipeline.order_sources([]) == [])
     check("来源: limit 截断", len(pipeline.order_sources(sources, limit=2)) == 2)
+    # 展示上限 3（2026-11-10 用户需求）：多条来源时前端最多显示 3 条，
+    # 按可信度官方>搜索>知识取前 3；落库仍是全量不受影响。
+    many = [
+        {"title": f"w{i}", "url": f"https://e.com/{i}", "kind": "web"} for i in range(6)
+    ] + [{"title": "off", "url": "https://off.com", "kind": "official"}]
+    out3 = pipeline.order_sources(many)
+    check("来源: 展示上限 3 条", len(out3) == 3, str(len(out3)))
+    check("来源: 官方优先占位", out3[0]["kind"] == "official", str(out3))
     # 未知 kind 排最后且不丢弃
     out2 = pipeline.order_sources([{"kind": "mystery", "url": "u"}, {"kind": "official", "url": "u2"}])
     check("来源: 未知 kind 兜底排末尾",

@@ -189,6 +189,16 @@ _CLARIFY_LISTING_RE = re.compile(
 )
 
 
+# 股票/投资语境：这里的“价格”指股价/估值，不是百炼模型 token 价，
+# 命中时不得走“缺型号反问”快路径（实测踩坑：追问“腾讯股价是哪天的价格？”
+# 被反问“你想问哪个模型的价格”秒回劫持），交工具循环让模型自行联网。
+_STOCK_CONTEXT_RE = re.compile(
+    r"股价|股票|A股|A 股|港股|美股|港元|市值|抄底|涨停|跌停|茅台|五粮液|"
+    r"投资|买入|持仓|PE|PEG|DCF",
+    re.IGNORECASE,
+)
+
+
 def needs_model_clarify(question: str, history: list | None = None) -> bool:
     """价格意图明确、但根本没说问哪个型号时，应该反问而不是直接拒答。
 
@@ -196,9 +206,10 @@ def needs_model_clarify(question: str, history: list | None = None) -> bool:
     「无 official 证据 → 输出固定拒答话术」，思考 1000+ 字、耗时 44 秒，最后只
     回一句"暂未能联网核实"——信息量为零。真实诉求是让助手反问一句型号。
 
-    只有下面五类"能自己答"的情况才跳过反问：
+    只有下面六类"能自己答"的情况才跳过反问：
       1) 句中已含型号（含追问里的型号）；2) 家族词（qwen 多少钱 → 厂商级概览）；
-      3) 产品订阅价（Qoder 等，交知识库）；4) 列举式问法；5) 历史里问过型号（追问）。
+      3) 产品订阅价（Qoder 等，交知识库）；4) 列举式问法；5) 历史里问过型号（追问）；
+      6) 股票/投资语境（股价≠模型价，交工具循环联网查行情）。
     """
     if not question or not PRICE_KEYWORDS_RE.search(question):
         return False
@@ -206,7 +217,7 @@ def needs_model_clarify(question: str, history: list | None = None) -> bool:
         return False
     if _FAMILY_HINT_RE.search(question) or _PRODUCT_NAME_RE.search(question):
         return False
-    if _CLARIFY_LISTING_RE.search(question):
+    if _CLARIFY_LISTING_RE.search(question) or _STOCK_CONTEXT_RE.search(question):
         return False
     # 追问：「它/这个多少钱」应沿用上一轮型号，反问反而打断
     for h in (history or [])[-6:]:

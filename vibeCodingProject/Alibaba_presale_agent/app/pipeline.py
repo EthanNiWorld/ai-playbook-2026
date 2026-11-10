@@ -77,8 +77,13 @@ MAX_TOOL_ROUNDS = 3      # 工具循环轮数上限（前 N-1 轮可调工具，
 _KIND_ORDER = {"official": 0, "web": 1, "knowledge": 2}
 
 
-def order_sources(sources: list[dict], limit: int = 10) -> list[dict]:
-    """按可信度排序后截断，供前端展示（含知识库引用）。"""
+# 展示上限：参考来源区最多显示 3 条（官方 > 搜索 > 知识片段按可信度取前 3）。
+# 截断只发生在推送给前端的列表，落库仍是全量（后台可追溯全部来源）。
+_DISPLAY_SOURCE_LIMIT = 3
+
+
+def order_sources(sources: list[dict], limit: int = _DISPLAY_SOURCE_LIMIT) -> list[dict]:
+    """按可信度排序后截断，供前端展示（含知识引用）。"""
     return sorted(sources, key=lambda s: _KIND_ORDER.get(s.get("kind"), 3))[:limit]
 
 

@@ -13,6 +13,7 @@ pipeline 正则开关改为 LLM function calling 自主决策。本模块只做�
 
 import json
 import logging
+from datetime import datetime
 
 from . import fx, price_verifier, share_card
 from .searcher import web_search
@@ -99,6 +100,19 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "get_current_time",
+            "description": (
+                "获取服务器当前日期时间（含星期与时区）。凡回答涉及『今天/现在/最新"
+                "能不能查到、数据是不是最新、财报发布没发布』等时效判断，"
+                "或需要给回答标注数据时点时，先调用本工具再下结论；"
+                "禁止凭检索结果推断当前日期。"
+            ),
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "search_web",
             "description": (
                 "联网搜索时效性信息（如竞品最新定价、新发布产品）。"
@@ -121,6 +135,7 @@ _TOOL_STATUS = {
     "verify_price": "💰 联网核实官方定价...",
     "get_fx_rate": "💱 获取实时汇率...",
     "make_price_share_link": "🔗 生成价格分享卡片...",
+    "get_current_time": "🕒 获取当前时间...",
     "search_web": "🔍 联网搜索...",
 }
 
@@ -198,6 +213,17 @@ async def execute_tool(name: str, arguments: str) -> dict:
             }
             return {"content": fx.evidence_md(info), "sources": [src]}
         return {"content": fx.no_source_answer()}
+
+    if name == "get_current_time":
+        now = datetime.now().astimezone()
+        weekdays = ["一", "二", "三", "四", "五", "六", "日"]
+        content = (
+            f"当前时间：{now.strftime('%Y-%m-%d %H:%M')} （星期{weekdays[now.weekday()]}，"
+            f"时区 {now.tzname() or 'UTC' + now.strftime('%z')}）\n"
+            "时效判断提示：财经/行情/财报类检索结果若未带日期戳，应结合当前日期"
+            "声明『数据为检索时点的最新公开口径，具体时点以来源页为准』，不得断言为实时。"
+        )
+        return {"content": content}
 
     if name == "search_web":
         query = str(args.get("query", "")).strip()[:200]
