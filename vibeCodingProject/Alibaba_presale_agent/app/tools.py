@@ -15,7 +15,7 @@ import json
 import logging
 from datetime import datetime
 
-from . import fx, price_verifier, share_card, tpm_calc
+from . import fx, price_verifier, rate_limits, share_card, tpm_calc
 from .searcher import web_search
 
 log = logging.getLogger("tools")
@@ -60,6 +60,38 @@ TOOLS = [
                     },
                 },
                 "required": ["model"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_model_rate_limit",
+            "description": (
+                "联网查询阿里云百炼官方限流页，获取视频生成/图像生成模型的 RPM、RPS 与最大并发数。"
+                "只要用户问视频模型或生图模型的 RPM、RPS、并发数、限流、配额、"
+                "同时能跑几个任务（如「wan3.0 并发多少」「qwen-image-3.0-pro 每分钟几次」），"
+                "必须先调用本工具拿官方表格，严禁凭记忆或资料片段回答。"
+                "价格问题仍用 verify_price；价格与限流同时问时可并行调用两个工具。"
+                "用户没说具体型号时，用 category 指定 video 或 image；说了型号就填 model。"
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "model": {
+                        "type": "string",
+                        "description": "型号，用户原话即可（如 wan3.0-video-prime、qwen-image-3.0-pro）；未指定可留空",
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": ["video", "image"],
+                        "description": "未指定具体型号时必填：video=视频生成，image=图像生成",
+                    },
+                    "region": {
+                        "type": "string",
+                        "description": "可选地域（如 新加坡、北京、美国）；用户未指定则不填",
+                    },
+                },
             },
         },
     },
@@ -169,6 +201,7 @@ TOOLS = [
 # 工具执行时的前端状态提示（pipeline 转成 status 事件）
 _TOOL_STATUS = {
     "verify_price": "💰 联网核实官方定价...",
+    "get_model_rate_limit": "📈 查询官方限流与并发...",
     "get_fx_rate": "💱 获取实时汇率...",
     "make_price_share_link": "🔗 生成价格分享卡片...",
     "get_current_time": "🕒 获取当前时间...",
@@ -219,6 +252,27 @@ async def execute_tool(name: str, arguments: str) -> dict:
             "official_md": ev["official_md"],
             "competitor_md": ev["competitor_md"],
         }
+
+    if name == "get_model_rate_limit":
+        model = str(args.get("model", "") or "").strip()
+        category = str(args.get("category", "") or "").strip().lower()
+        region = str(args.get("region", "") or "").strip()
+        if category not in ("", "video", "image"):
+            category = ""
+        if not model and not category:
+            return {"content": "缺少 model 或 category 参数。请提供用户所问的型号，或指定 video/image 类别。"}
+        try:
+            return await rate_limits.get_rate_limits(
+                model=model, category=category, region=region
+            )
+        except Exception as e:
+            log.exception("get_model_rate_limit 执行失败")
+            return {
+                "content": (
+                    f"官方限流查询失败（{e}）。请勿猜测 RPM/并发数，"
+                    f"引导用户打开官方限流页：{rate_limits.RATE_LIMIT_PAGE_URL}"
+                )
+            }
 
     if name == "make_price_share_link":
         model = str(args.get("model", "")).strip()

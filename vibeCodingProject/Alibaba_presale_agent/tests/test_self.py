@@ -633,6 +633,98 @@ def test_domain_gate():
     check("混元话题进领域词", pipeline.is_domain_question("混元 Hy4 正式版发布了吗"))
 
 
+def test_rate_limit_lookup():
+    """视频/生图官方限流：HTML 解析、型号归一、类别与地域筛选（离线）。"""
+    print("[8] 官方限流查询（视频/生图）")
+    from app import rate_limits as rl, tools
+
+    html = """
+    <h2>图像与视频生成</h2>
+    <h3>千问（Qwen-Image）</h3>
+    <div id="panel-新加坡">
+      <table>
+        <thead>
+          <tr><th>模型名称</th><th colspan="2">限流条件</th></tr>
+          <tr><th>任务下发接口调用限制</th><th>同时处理中任务数量（并发数）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>qwen-image-3.0-pro</td><td>5 次/分钟</td><td>同步接口无限制 / 异步接口 10</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="panel-华北2-北京">
+      <table>
+        <thead>
+          <tr><th>模型名称</th><th colspan="2">限流条件</th></tr>
+          <tr><th>任务下发接口调用限制</th><th>同时处理中任务数量（并发数）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>qwen-image-3.0</td><td>20 次/分钟</td><td>同步接口无限制 / 异步接口 10</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>万相系列</h3>
+    <div id="panel-新加坡">
+      <table>
+        <thead>
+          <tr><th>模型名称</th><th colspan="2">限流条件</th></tr>
+          <tr><th>每秒钟调用次数（RPS）</th><th>同时处理中任务数量（并发数）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>wan3.0-video-prime</td><td>5</td><td>5</td></tr>
+          <tr><td>wan3.0-video</td><td>5</td><td>5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    """
+
+    rows = rl.parse_rate_limit_html(html)
+    check("限流解析: 4 条数据行", len(rows) == 4, str(rows))
+    check("限流解析: 地域来自 tab panel",
+          {r["region"] for r in rows} == {"新加坡", "华北2（北京）"},
+          str({r["region"] for r in rows}))
+
+    img = rl.lookup_rate_limits(rows, model="qwen image 3.0 pro")
+    check("限流型号归一: qwen image 3.0 pro",
+          img["matched_models"] == ["qwen-image-3.0-pro"], str(img["matched_models"]))
+    img_md = rl.format_evidence(img, "https://example.com/rate-limit", "2026-11-10 20:00")
+    check("限流证据: 生图 RPM 与异步并发原样保留",
+          "任务下发接口调用限制 | 5 次/分钟" in img_md
+          and "同步接口无限制 / 异步接口 10" in img_md, img_md)
+
+    video = rl.lookup_rate_limits(rows, model="wan3.0 prime")
+    check("限流型号归一: wan3.0 prime → wan3.0-video-prime",
+          video["matched_models"] == ["wan3.0-video-prime"], str(video["matched_models"]))
+    bare = rl.lookup_rate_limits(rows, model="wan3.0")
+    check("限流泛型号: 裸 wan3.0 同时返回标准版与 Prime",
+          {r["model"] for r in bare["rows"]} == {"wan3.0-video", "wan3.0-video-prime"},
+          str(bare["matched_models"]))
+    video_md = rl.format_evidence(video, "https://example.com/rate-limit", "2026-11-10 20:00")
+    check("限流证据: 视频 RPS 与并发两项都在",
+          "每秒钟调用次数（RPS） | 5" in video_md
+          and "同时处理中任务数量（并发数） | 5" in video_md, video_md)
+    check("限流证据: 不套用 LLM 默认额度",
+          "3,000 万 TPM" not in video_md and "20,000 万 RPM" not in video_md, video_md)
+
+    beijing = rl.lookup_rate_limits(rows, model="qwen-image-3.0", region="北京")
+    check("限流地域筛选: 北京",
+          bool(beijing["rows"]) and {r["region"] for r in beijing["rows"]} == {"华北2（北京）"},
+          str(beijing["rows"]))
+
+    generic = rl.lookup_rate_limits(rows, category="video")
+    check("限流泛问: 未指定型号时按官方页结果返回",
+          {r["model"] for r in generic["rows"]} == {"wan3.0-video", "wan3.0-video-prime"},
+          str(generic["matched_models"]))
+    check("限流无命中: 不编造数字，返回未找到说明",
+          "官方限流页未找到" in rl.lookup_rate_limits(rows, model="not-a-model")["note"])
+
+    names = [t["function"]["name"] for t in tools.TOOLS]
+    check("限流工具已注册到 function calling", "get_model_rate_limit" in names, str(names))
+    schema = next(t for t in tools.TOOLS if t["function"]["name"] == "get_model_rate_limit")
+    check("限流工具: category 枚举 video/image",
+          schema["function"]["parameters"]["properties"]["category"]["enum"] == ["video", "image"])
+
+
 def test_asr():
     """ASR 语音识别（qwen-audio-3.1-asr-flash）：payload 构造与端点推导。"""
     print("[8] ASR payload 与端点推导")
@@ -891,6 +983,7 @@ def main():
     test_followup_anchor_and_competitor()
     test_source_visibility()
     test_domain_gate()
+    test_rate_limit_lookup()
     test_asr()
     test_pipeline_wiring()
     test_store_price_audit()
