@@ -724,7 +724,7 @@ async function micFlushSegment(final) {
   try {
     await micRecognize(seg, srcRate);
   } catch (e) {
-    micSetNote("这段识别失败，已跳过", false);
+    micSetNote("刚才没听清，已跳过", false);
     setTimeout(() => { if (!micRecording) micSetNote(""); }, 2500);
   } finally {
     micReqBusy = false;
@@ -761,11 +761,11 @@ async function micStart() {
   micProc.connect(micCtx.destination);
   micRecording = true;
   micBtn.classList.add("recording");
-  micBtn.title = "点击结束录音";
+  micBtn.title = "说完点我";
   micTimer = setInterval(() => {
     micFlushSegment(false);
+    micSetNote("🎤 正在聆听…（说完点一下话筒）", true);
     const sec = Math.floor(micAllLen / (micCtx ? micCtx.sampleRate : 48000));
-    micSetNote("● 实时转写中 " + sec + "s（说完点话筒结束）", true);
     if (sec >= MIC_MAX_S) micStop();
   }, 800);
 }
@@ -774,7 +774,7 @@ async function micStop() {
   if (!micRecording) return;
   micRecording = false;
   clearInterval(micTimer);
-  micSetNote("🎙 最后一段识别中…", false);
+  micSetNote("🎤 稍等，正在整理…", false);
   micBusy = true;
   try {
     await micFlushSegment(true);
@@ -802,7 +802,7 @@ async function micStop() {
     micProc = null;
     micAll = null;
     micBtn.classList.remove("recording");
-    micBtn.title = "点击开始录音（最长 60 秒），实时转文字";
+    micBtn.title = "点我说话（最长 60 秒），说完再点一下";
   }
 }
 

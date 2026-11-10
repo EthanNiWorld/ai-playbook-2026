@@ -692,13 +692,13 @@ button:disabled { cursor: not-allowed; }
 .mic-btn:hover { color: var(--accent-ink); border-color: #cf8c59; background: rgba(255, 106, 0, .05); }
 .mic-btn.recording {
   color: #fff;
-  background: #e5484d;
-  border-color: #e5484d;
+  background: #f07a24;
+  border-color: #f07a24;
   animation: mic-pulse 1.2s ease-in-out infinite;
 }
 @keyframes mic-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(229, 72, 77, .45); }
-  50% { box-shadow: 0 0 0 7px rgba(229, 72, 77, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(240, 122, 36, .45); }
+  50% { box-shadow: 0 0 0 7px rgba(240, 122, 36, 0); }
 }
 .mic-btn.busy { color: var(--muted); cursor: wait; }
 .mic-note {
@@ -707,7 +707,7 @@ button:disabled { cursor: not-allowed; }
   align-self: center;
   margin-right: 8px;
 }
-.mic-note.rec { color: #e5484d; }
+.mic-note.rec { color: #cf6a1e; }
 
 .attach-bar {
   display: flex;
