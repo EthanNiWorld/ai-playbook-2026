@@ -806,10 +806,21 @@ async function micStop() {
   }
 }
 
-if (micBtn && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+// 麦克风可用性：getUserMedia 仅在安全上下文（HTTPS / localhost）可用。
+// HTTP 访问（如 http://day1cloud.cn）时按钮仍显示，点击给出升级提示，
+// 避免用户以为功能缺失（线上实测踩坑：地址栏"不安全"= HTTP）。
+const micSupported = !!(
+  navigator.mediaDevices && navigator.mediaDevices.getUserMedia
+);
+if (micBtn) {
   micBtn.hidden = false;
   micBtn.addEventListener("click", () => {
     if (micBusy) return;
+    if (!micSupported) {
+      micSetNote("🎤 语音输入需要 HTTPS 访问（当前是 HTTP，浏览器不开放麦克风）", false);
+      setTimeout(() => micSetNote(""), 4000);
+      return;
+    }
     if (micRecording) { micStop(); } else { micStart(); }
   });
 }

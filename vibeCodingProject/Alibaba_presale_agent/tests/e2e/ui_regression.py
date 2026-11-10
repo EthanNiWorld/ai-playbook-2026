@@ -228,7 +228,8 @@ def main():
               and st["sendBg"] == "rgb(238, 236, 230)" and st["sendRadius"] == "13px",
               str((st["sendW"], st["sendH"], st["sendBg"], st["sendRadius"])))
         check("侧栏 1440 下可见", st["sidebarDisplay"] != "none", st["sidebarDisplay"])
-        check("首屏 4 个推荐问题", st["chips"] == 4, st["chips"])
+        # 2026-11-10：新增聊一聊爱情/股票两卡（用户需求），共 6 个
+        check("首屏 6 个推荐问题", st["chips"] == 6, st["chips"])
         check("空态无用户消息", st["userMsgs"] == 0, st["userMsgs"])
         check("composer 圆角 22px", st["composerRadius"] == "22px", st["composerRadius"])
         check("1440 下无横向溢出", st["docOverflow"] is False)
