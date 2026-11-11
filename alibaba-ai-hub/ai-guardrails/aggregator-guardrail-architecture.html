@@ -184,7 +184,8 @@
             <b>❸ 输出流式检测</b>
             response_security_check_hp<br>
             每 100~200 字切片送检<br>
-            <span class="lat">每切片 130~250ms</span>
+            <span class="lat">每切片 130~250ms</span><br>
+            <span style="color:#1a56db;font-weight:600;">切片粒度可配置 ⚙</span>
           </div>
           <div class="farrow">→</div>
           <div class="step">
@@ -269,7 +270,7 @@
     <span class="kw">"scope"</span>: {<span class="kw">"api_keys"</span>: [<span class="cm">"*"</span>], <span class="kw">"models"</span>: [<span class="cm">"*"</span>]},
     <span class="kw">"input_check"</span>: <span class="cm">"query_security_check"</span>,
     <span class="kw">"output_check"</span>: <span class="cm">"response_security_check_hp"</span>,
-    <span class="kw">"slice_chars"</span>: 150,
+    <span class="kw">"slice_chars"</span>: 150,  <span class="cm"># 可配置，租户级热下发</span>
     <span class="kw">"keyword_libs"</span>: [<span class="cm">"竞品词库"</span>, <span class="cm">"行业敏感词库"</span>],
     <span class="kw">"fail_policy"</span>: <span class="cm">"fail-close"</span>,
     <span class="kw">"billing"</span>: <span class="cm">"pass-through"</span>
@@ -296,7 +297,7 @@ stream = route(req)                <span class="cm"># ❷ 原有路由/failover 
   <div class="todo-grid">
     <div class="todo"><span class="tag mod">网关改造</span><span class="t">围栏插件框架</span><br>请求前/响应后钩子 + 租户级开关下发（配置中心热更新），插件故障不拖垮主链路（超时熔断）。</div>
     <div class="todo"><span class="tag new">新建</span><span class="t">输入检测钩子</span><br>同步调用 query_security_check，block 直接拒绝并返回代答；实测 TTFT +0.2s，非推理模型需重新评估占比。</div>
-    <div class="todo"><span class="tag new">新建</span><span class="t">输出流式检测器</span><br>hp 版按字符切片（100~200 字/片），chatId+done 关联一轮对话；block 立即停发、撤回已透出内容、替换代答。</div>
+    <div class="todo"><span class="tag new">新建</span><span class="t">输出流式检测器</span><br>hp 版按字符切片，chatId+done 关联一轮对话；block 立即停发、撤回已透出内容、替换代答。<b>切片粒度可配置</b>（slice_chars，租户级热下发，≤2000 字符/片）：切小→首字早/拦截快但费用高，切大→反之，推荐 100~200 字并按标点边界对齐。</div>
     <div class="todo"><span class="tag new">新建</span><span class="t">租户合规配置中心</span><br>租户 → 防护维度/词库/阈值/代答话术/fail 策略的映射；词库变更经配置管理 API 下发（注意 3~5 分钟生效窗口）。</div>
     <div class="todo"><span class="tag new">新建</span><span class="t">计量计费透传</span><br>护栏按次计费（双维度 0.003 元/次，流式每切片独立计费）→ 计入租户账单或平台补贴；与网关按 token 计费解耦。</div>
     <div class="todo"><span class="tag new">新建</span><span class="t">监控与配额管理</span><br>护栏延迟/错误率/QPS 监控（上限 50/s，每请求消耗 1+N 次配额）；风险事件告警与审计报表对接。</div>

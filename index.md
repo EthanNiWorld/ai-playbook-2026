@@ -34,6 +34,7 @@
 | 决策模型 / decision-model / System One / 工单分流 / 内容审核判断 | [百炼决策模型](alibaba-ai-hub/maas/decision-model.md) |
 | 百炼平台 / 多账号 / TPM 扩量 / 限流 | [百炼平台](alibaba-ai-hub/maas/overview.md) |
 | 百炼安全 / SOC 2 / CMaaS / 数据主权 / 隔离 | [百炼安全合规](alibaba-ai-hub/maas/model_studio_security-compliance_cn.md) |
+| AI 安全护栏 / 内容合规 / 提示词攻击 / 敏感数据 / 自定义词库 / 流式审核 | [AI 安全护栏](alibaba-ai-hub/ai-guardrails/ai-guardrails.md) |
 | 百炼权限 / RAM / 工作空间 / API Key 配置 | [百炼权限指南](alibaba-ai-hub/maas/model_studio_config/model-studio-workspace-permission-guide.md) |
 | Salebook / ROI 计算器 / 售前工具 | [sales-tools/](alibaba-ai-hub/maas/sales-tools/) |
 | Qoder / AI 编程 / IDE 插件 | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) |
@@ -119,7 +120,7 @@
 
 > 分组顺序：**云厂商**（阿里云 / Google）→ **海外模型厂商** → **中国模型厂商**。
 
-### 🟧 阿里云（核心阵地，41 篇深度文档）
+### 🟧 阿里云（核心阵地，44 篇深度文档）
 
 > **从底层算力到上层应用，覆盖 MaaS / AI Coding / AI App / AI Infra / 竞品对比全链路。**
 
@@ -160,6 +161,9 @@
 **AI Infra（GPU 算力）**
 - [GPU 产品线选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) ⭐ — A100/H100/H20 选型决策树
 - [AgenticFS](alibaba-ai-hub/ai-infra/agenticfs.md) — Agent 原生 Serverless 文件存储：per-AgenticSpace 独立 inode + QoS + 配额，单系统 50 万 Space，当前邀测
+
+**AI 安全（AI Guardrails）**
+- [AI 安全护栏](alibaba-ai-hub/ai-guardrails/ai-guardrails.md) — LLM 输入输出一站式防护：内容合规/提示词攻击/敏感数据/幻觉/水印，双 SDK 接入、流式切片方案与计费口径，含 2026-11-11 延迟与拦截实测
 
 **Agent 框架（AIAgentFrameworks）**
 - [主流 Agent 框架调研](alibaba-ai-hub/AIAgentFrameworks/agent-frameworks-overview.md) — LangChain / LangGraph / LlamaIndex / AutoGen / CrewAI 五大框架的设计理念、创始团队、发布时间、五抽象对比与选型速查（AutoGen→AG2→Microsoft Agent Framework 演进链）

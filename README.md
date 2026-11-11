@@ -6,13 +6,13 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/覆盖厂商-15-blue?style=for-the-badge" alt="覆盖厂商 15 家：阿里云 + 14 家外部厂商">
-  <img src="https://img.shields.io/badge/结构化文档-103-orange?style=for-the-badge" alt="结构化文档 103 篇">
+  <img src="https://img.shields.io/badge/结构化文档-106-orange?style=for-the-badge" alt="结构化文档 106 篇">
   <img src="https://img.shields.io/badge/知识维度-4-green?style=for-the-badge" alt="知识维度 4 类：通识 · 产品 · 对比 · 方案">
   <img src="https://img.shields.io/badge/核心阵地-阿里云-purple?style=for-the-badge" alt="核心阵地：阿里云 MaaS · Coding · App · Infra">
   <img src="https://img.shields.io/badge/最后更新-2026--11--11-lightgrey?style=for-the-badge" alt="最后更新 2026-11-11">
 </p>
 
-<!-- 统计口径（2026-11-11 实测）：结构化文档 = alibaba-ai-hub/ 与 knowledge/ 下 *.md（排除 _ 开头模板）= 41 + 62 = 103 篇；HTML/PNG 交付件不计入。修改门面数字前请用 find 重测，勿凭报告/印象自增 -->
+<!-- 统计口径（2026-11-11 实测）：结构化文档 = alibaba-ai-hub/ 与 knowledge/ 下 *.md（排除 _ 开头模板与 .venv）= 44 + 62 = 106 篇；HTML/PNG 交付件不计入。修改门面数字前请用 find 重测，勿凭报告/印象自增 -->
 
 <p align="center">
   <a href="index.md"><img src="https://img.shields.io/badge/📋-全局索引-blue?style=for-the-badge" alt="全局索引"></a>
@@ -30,9 +30,9 @@
 <td width="50%" valign="top">
 
 **☁️ 阿里云 AI 全栈**
-> 41 篇 · MaaS / Coding / App / Infra / 行业方案 全链路
+> 44 篇 · MaaS / Coding / App / Infra / 安全 / 行业方案 全链路
 
-[百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [决策模型](alibaba-ai-hub/maas/decision-model.md) · [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [GPU](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [全部 41 篇 → index.md](index.md)
+[百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [决策模型](alibaba-ai-hub/maas/decision-model.md) · [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [GPU](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [AI 护栏](alibaba-ai-hub/ai-guardrails/ai-guardrails.md) · [全部 44 篇 → index.md](index.md)
 
 </td>
 <td width="50%" valign="top">
@@ -134,7 +134,7 @@
 
 ## ☁️ 阿里云 AI 全栈速览
 
-> **41 篇深度文档，覆盖从底层算力到上层应用的完整 AI 产品矩阵（含行业方案）。**
+> **44 篇深度文档，覆盖从底层算力到上层应用的完整 AI 产品矩阵（含行业方案）。**
 
 | 层级 | 核心产品 | 快速入口 |
 |------|---------|---------|
@@ -142,6 +142,7 @@
 | ⌨️ **AI Coding** | Qoder（企业级 AI Coding） | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [Qoder 架构分析](alibaba-ai-hub/ai-coding/qoder_survey_20260622.md) · [vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) |
 | 🤖 **AI 应用平台** | QwenWork · Claw · JVS Crew | [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [Claw](alibaba-ai-hub/ai-application/claw-family.md) · [JVS Crew](alibaba-ai-hub/ai-application/jvs-crew.md) |
 | ⚡ **AI Infra（存储 / 算力）** | GPU 选型 · AgenticFS | [GPU 选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [AgenticFS](alibaba-ai-hub/ai-infra/agenticfs.md) |
+| 🛡️ **AI 安全** | AI 安全护栏（LLM 输入输出防护） | [AI 安全护栏](alibaba-ai-hub/ai-guardrails/ai-guardrails.md) |
 | 🥊 **竞品对比** | vs Trae · vs Hy4 · vs Doubao · Haiku vs Luna | [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) · [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) |
 
 > 💡 **重点推荐**：[企业自建 AI 平台方案](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) — Higress AI 网关 + 灵骏 GPU + 百炼 Fallback 全栈方案
@@ -162,11 +163,12 @@ mindmap
       安全护栏 / 长程任务 / 存储超级周期
       算子经济学 / Agent Native 存储
     点:厂商与产品
-      阿里云 ☁️ 41 篇
+      阿里云 ☁️ 44 篇
         MaaS: Qwen3.8 / Wan3.0
         AI Coding: Qoder
         AI App: QwenWork / Claw
         AI Infra: GPU 选型 / AgenticFS
+        AI 安全: AI 护栏
       Anthropic
         Fable 5.2 / Opus 5.5 / Sonnet 5.5 / Haiku 5.5 · Claude Code
       OpenAI
@@ -239,11 +241,12 @@ flowchart LR
 
 ```
 .
-├── alibaba-ai-hub/     ← 🟧 阿里云 AI 全栈（核心阵地·主推，41 篇）
+├── alibaba-ai-hub/     ← 🟧 阿里云 AI 全栈（核心阵地·主推，44 篇）
 │   ├── maas/                  ← MaaS 模型服务（百炼 / Qwen / Qwen Embedding & Rerank / Wan / CosyVoice / FunASR / Qwen-Audio TTS / Qwen-Audio ASR / Qwen-Audio Realtime / Fun-Music / sales-tools）
 │   ├── ai-coding/             ← Qoder（企业级 AI Coding IDE）
 │   ├── ai-application/        ← QwenWork / Claw / JVS Crew / 万镜一刻
 │   ├── ai-infra/              ← GPU 选型 / AgenticFS（Agent 原生文件存储）
+│   ├── ai-guardrails/         ← AI 安全护栏（产品文档 + 实测报告 + 架构图）
 │   ├── competitive-analysis/  ← 竞品对比（vs Trae / vs Hy3 / vs Doubao / Haiku 5.5 vs GPT-6 Luna）
 │   └── ai-industry-solutions/ ← 🟩 行业方案（企业AI平台 / 短剧出海 / IPC / 商业地产）
 ├── inbox/              ← 📥 原始素材暂存（处理后自动归档）
