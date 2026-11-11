@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>模型API聚合平台 · 可插拔AI安全围栏技术架构（脱敏版）</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; }
+  body { background:#f4f6fa; padding:28px; }
+  .page { width:1144px; margin:0 auto; }  /* 固定内容宽 + 水平居中：任意窗口宽度下左右留白均等 */
+  h1 { font-size:24px; color:#1a2233; }
+  .sub { color:#6b7688; font-size:13px; margin-top:6px; line-height:1.7; }
+  .badge { display:inline-block; background:#e8f0fe; color:#1a56db; border-radius:4px; padding:1px 8px; font-size:12px; margin-right:6px; }
+  .badge.warn { background:#fff4e5; color:#b25e09; }
+  .legend { display:flex; gap:18px; margin:14px 0 18px; font-size:12px; color:#4a5568; align-items:center; }
+  .chip { display:inline-block; width:14px; height:14px; border-radius:3px; margin-right:5px; vertical-align:-2px; }
+
+  .box { border-radius:10px; padding:12px 16px; }
+  .layer-label { font-size:12px; color:#8a94a6; letter-spacing:2px; margin:0 0 6px 2px; font-weight:600; }
+
+  /* 租户层 */
+  .tenants { display:flex; gap:16px; }
+  .tenant { flex:1; background:#fff; border:1.5px solid #d5dbe5; text-align:center; }
+  .tenant b { font-size:15px; color:#1a2233; }
+  .tenant .desc { font-size:12px; color:#6b7688; margin-top:4px; line-height:1.6; }
+  .tenant.compliance { border-color:#f0a35e; background:#fffaf3; }
+  .tenant.compliance b { color:#b25e09; }
+
+  .arrow-down { text-align:center; color:#9aa5b5; font-size:20px; line-height:1.2; margin:4px 0; }
+  .arrow-down .note { font-size:11px; color:#8a94a6; display:block; }
+
+  /* 网关 */
+  .gateway { background:#fff; border:2px solid #1a56db; border-radius:12px; padding:14px 16px; }
+  .gateway-title { display:flex; justify-content:space-between; align-items:center; }
+  .gateway-title b { font-size:16px; color:#1a56db; }
+  .gateway-title span { font-size:12px; color:#6b7688; }
+  .existing { display:flex; gap:8px; margin:10px 0 12px; }
+  .existing div { flex:1; background:#f1f4f9; border:1px solid #dde3ec; border-radius:6px; text-align:center; font-size:12px; color:#4a5568; padding:7px 4px; }
+
+  .plugin-wrap { display:flex; gap:14px; }
+  .plugin { flex:1.65; border:2px dashed #e8833a; border-radius:10px; background:#fffdf9; padding:12px; }
+  .plugin-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .plugin-head b { color:#b25e09; font-size:14px; }
+  .tag { font-size:11px; border-radius:3px; padding:1px 7px; font-weight:600; }
+  .tag.new { background:#e8833a; color:#fff; }
+  .tag.mod { background:#1a56db; color:#fff; }
+  .tag.cfg { background:#0e9f6e; color:#fff; }
+  .tag.have { background:#9aa5b5; color:#fff; }
+  .flow { display:flex; align-items:stretch; gap:6px; }
+  .step { flex:1; background:#fff; border:1.5px solid #f0a35e; border-radius:8px; padding:8px 9px; font-size:12px; color:#3d4657; line-height:1.55; }
+  .step b { display:block; font-size:12.5px; color:#b25e09; margin-bottom:2px; }
+  .step .lat { color:#0e9f6e; font-weight:600; }
+  .step.llm { border-color:#9aa5b5; background:#f7f9fc; }
+  .step.llm b { color:#4a5568; }
+  .farrow { align-self:center; color:#e8833a; font-size:16px; font-weight:700; }
+  .plugin-foot { margin-top:9px; font-size:11.5px; color:#6b7688; line-height:1.7; background:#fff; border-radius:6px; padding:7px 9px; border:1px solid #f3e2c7; }
+  .plugin-foot b { color:#b25e09; }
+
+  /* 护栏云服务 */
+  .guard-saas { flex:1; background:#eef4ff; border:1.5px solid #1a56db; border-radius:10px; padding:12px; }
+  .guard-saas b { color:#1a56db; font-size:14px; }
+  .guard-saas .role { font-size:11px; color:#6b7688; margin:2px 0 8px; }
+  .guard-saas ul { list-style:none; }
+  .guard-saas li { font-size:11.5px; color:#3d4657; line-height:1.5; padding:5px 8px; background:#fff; border-radius:5px; margin-bottom:5px; border:1px solid #d8e2f5; }
+  .guard-saas li b { font-size:11.5px; color:#1a2233; }
+  .link-label { text-align:center; font-size:11px; color:#1a56db; margin:6px 0 0; font-weight:600; }
+
+  .bypass { margin-top:10px; font-size:12px; color:#4a5568; background:#f1f4f9; border:1px dashed #9aa5b5; border-radius:6px; padding:7px 10px; line-height:1.6; }
+  .bypass b { color:#1a2233; }
+
+  /* 推理资源层 */
+  .backends { display:flex; gap:14px; }
+  .backend { flex:1; background:#fff; border:1.5px solid #d5dbe5; border-radius:10px; padding:12px 14px; }
+  .backend b { font-size:14px; color:#1a2233; display:block; }
+  .backend .desc { font-size:11.5px; color:#6b7688; margin-top:4px; line-height:1.65; }
+  .backend.own { border-top:4px solid #6b7688; }
+  .backend.bailian { border-top:4px solid #ff6a00; }
+  .backend.other { border-top:4px solid #9aa5b5; }
+
+  /* 建设清单 */
+  h2 { font-size:17px; color:#1a2233; margin:22px 0 10px; border-left:4px solid #1a56db; padding-left:9px; }
+  .todo-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .todo { background:#fff; border:1px solid #dde3ec; border-radius:8px; padding:10px 12px; font-size:12px; color:#3d4657; line-height:1.65; }
+  .todo .t { font-weight:700; color:#1a2233; font-size:12.5px; }
+  .todo .tag { margin-right:6px; }
+
+  /* 实测数据 */
+  .facts { display:flex; gap:10px; }
+  .fact { flex:1; background:#1a2233; color:#fff; border-radius:8px; padding:10px 12px; }
+  .fact .v { font-size:19px; font-weight:700; color:#7dd3a8; }
+  .fact .k { font-size:11px; color:#b8c0cf; margin-top:3px; line-height:1.5; }
+
+  .footer { margin-top:18px; font-size:11px; color:#8a94a6; line-height:1.8; border-top:1px solid #dde3ec; padding-top:10px; }
+
+  /* 开关决策模型 */
+  .decision-chain { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+  .dnode { flex:1; background:#fff; border:1.5px solid #1a56db; border-radius:8px; padding:8px 10px; font-size:12px; color:#1a2233; text-align:center; line-height:1.5; }
+  .dnode b { color:#1a56db; display:block; font-size:12.5px; }
+  .dnode .sub2 { font-size:11px; color:#6b7688; }
+  .darrow { color:#1a56db; font-weight:700; font-size:15px; }
+  .decision-cols { display:flex; gap:12px; }
+  .decision-left { flex:1.1; }
+  .decision-right { flex:1; }
+  table.dtable { width:100%; border-collapse:collapse; background:#fff; border-radius:8px; overflow:hidden; font-size:12px; }
+  .dtable th { background:#1a2233; color:#fff; padding:7px 9px; text-align:left; font-size:12px; }
+  .dtable td { border:1px solid #e3e8f0; padding:7px 9px; color:#3d4657; line-height:1.55; vertical-align:top; }
+  .dtable td b { color:#1a2233; }
+  .iron-rule { margin-top:9px; background:#fff4e5; border:1.5px solid #f0a35e; border-radius:8px; padding:8px 11px; font-size:12px; color:#7a4a12; line-height:1.65; }
+  .iron-rule b { color:#b25e09; }
+  pre.code { background:#1a2233; color:#d7e0ee; border-radius:8px; padding:10px 12px; font-size:11px; line-height:1.6; font-family:"SF Mono",Menlo,Consolas,monospace; overflow:hidden; white-space:pre-wrap; word-break:break-all; }
+  pre.code .cm { color:#7dd3a8; }
+  pre.code .kw { color:#8ab8ff; }
+  .code-title { font-size:12px; color:#1a2233; font-weight:700; margin:8px 0 5px; }
+  .impl-notes { margin-top:9px; background:#fff; border:1px solid #dde3ec; border-radius:8px; padding:8px 11px; font-size:11.5px; color:#3d4657; line-height:1.75; }
+  .impl-notes b { color:#1a2233; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>模型 API 聚合平台 · 可插拔 AI 安全围栏技术架构</h1>
+  <div class="sub">
+    <span class="badge">脱敏版</span><span class="badge warn">售前方案</span>
+    适用对象：某头部模型 API 聚合平台（数十亿 TPM 级，自有 GPU 推理 + 多渠道 API 聚合，对外提供 toB 模型服务）。<br>
+    核心诉求：合规检测作为<b>可插拔能力</b>——需要合规的 toB 租户开启，不需要的租户零影响直通。2026-11-11 · 数据均来自当日实测。
+  </div>
+
+  <div class="legend">
+    <span><span class="chip" style="background:#f1f4f9;border:1px solid #dde3ec;"></span>平台已有能力</span>
+    <span><span class="chip" style="background:#e8833a;"></span>需新建（网关侧）</span>
+    <span><span class="chip" style="background:#1a56db;"></span>阿里云服务 / 网关改造</span>
+    <span><span class="chip" style="background:#0e9f6e;"></span>配置项（无需开发）</span>
+  </div>
+
+  <!-- 租户层 -->
+  <div class="layer-label">① 租户层（toB 用户 / 开发者）</div>
+  <div class="tenants">
+    <div class="box tenant compliance">
+      <b>需合规租户</b>
+      <div class="desc">金融 / 政企 / 教育 / 医疗等行业客户<br>要求输入输出内容合规、敏感词拦截、审计留痕</div>
+    </div>
+    <div class="box tenant">
+      <b>普通租户</b>
+      <div class="desc">一般企业 / 个人开发者<br>无需合规检测，追求最低延迟与成本</div>
+    </div>
+  </div>
+  <div class="arrow-down">▼<span class="note">HTTPS · OpenAI 兼容协议 · 租户 API Key 鉴权</span></div>
+
+  <!-- 网关层 -->
+  <div class="layer-label">② 聚合平台 · 自建 API 网关（核心改造层）</div>
+  <div class="gateway">
+    <div class="gateway-title">
+      <b>API 网关</b>
+      <span>认证鉴权 / 租户隔离 / 限流配额 / 计量计费 / 模型路由 —— 均为已有能力</span>
+    </div>
+    <div class="existing">
+      <div>认证鉴权<br>API Key 管理</div>
+      <div>租户隔离<br>配额限流</div>
+      <div>计量计费<br>按 token 出账</div>
+      <div>模型路由<br>多渠道调度</div>
+      <div>日志审计<br>调用链追踪</div>
+    </div>
+
+    <div class="plugin-wrap">
+      <!-- 可插拔围栏插件 -->
+      <div class="plugin">
+        <div class="plugin-head">
+          <b>可插拔安全围栏插件（请求/响应钩子）</b>
+          <span class="tag new">需新建</span>
+        </div>
+        <div class="flow">
+          <div class="step">
+            <b>❶ 输入检测（同步）</b>
+            query_security_check<br>
+            注入攻击 / 违规内容<br>
+            <span class="lat">TTFT +0.2s</span>
+          </div>
+          <div class="farrow">→</div>
+          <div class="step llm">
+            <b>❷ 路由推理</b>
+            按模型/成本/时延<br>调度至下层资源<br>（原有路由逻辑不变）
+          </div>
+          <div class="farrow">→</div>
+          <div class="step">
+            <b>❸ 输出流式检测</b>
+            response_security_check_hp<br>
+            每 100~200 字切片送检<br>
+            <span class="lat">每切片 130~250ms</span>
+          </div>
+          <div class="farrow">→</div>
+          <div class="step">
+            <b>❹ 处置执行</b>
+            pass → 逐批透出<br>
+            block → 停发+撤回<br>替换合规代答话术
+          </div>
+        </div>
+        <div class="plugin-foot">
+          <b>插拔开关粒度：</b>租户级 / API Key 级 / 模型级，默认关闭；开启租户走 ❶❸❹，关闭租户跳过全部检测钩子。<br>
+          <b>降级策略：</b>护栏超时/故障时按租户配置 fail-open（放行+告警）或 fail-close（拒绝），合规租户建议 fail-close。
+        </div>
+      </div>
+
+      <!-- 阿里云护栏 SaaS -->
+      <div class="guard-saas">
+        <b>阿里云 AI 安全护栏（SaaS API）</b>
+        <div class="role">无需部署检测引擎，纯 API 调用 · 北京/上海等多接入点 · 支持 VPC 内网</div>
+        <ul>
+          <li><b>检测 API</b>：MultiModalGuard（输入/输出/多模态），单用户 QPS 50/s</li>
+          <li><b>防护配置</b>：内容合规 / 提示词攻击 / 敏感数据脱敏，维度独立开关</li>
+          <li><b>自定义词库</b>：竞品词/业务敏感词，命中即 block（API 可管，生效约 3~5 分钟）</li>
+          <li><b>代答库 / 风险报表</b>：按标签配代答，检测日志可查询导出</li>
+        </ul>
+        <div class="link-label">⇄ 插件经 HTTPS/内网调用 · 按成功次数计费</div>
+      </div>
+    </div>
+
+    <div class="bypass">
+      <b>可插拔旁路：</b>未开启合规的租户 → 跳过 ❶❸❹，网关原有链路直连推理资源，<b>零延迟增量、零护栏费用</b>；开启状态由租户配置中心实时下发，无需重启网关。<br>
+      <b>决策键 = 租户 UID（非渠道）</b>：failover / 重试 / 渠道切换<b>不改变合规等级</b>，检测状态跟随请求而非后端资源。
+    </div>
+  </div>
+  <div class="arrow-down">▼<span class="note">统一出口 · 流式 SSE 透传 · 渠道故障自动切换</span></div>
+
+  <!-- 推理资源层 -->
+  <div class="layer-label">③ 推理资源层（多渠道聚合，已有）</div>
+  <div class="backends">
+    <div class="backend own">
+      <b>自有 GPU 集群推理</b>
+      <div class="desc">自部署开源/自研模型（vLLM / SGLang 等）<br>OpenAI 兼容 API 对外<br>成本最优，容量受自有卡规模约束</div>
+    </div>
+    <div class="backend bailian">
+      <b>阿里云百炼 MaaS API</b>
+      <div class="desc">qwen / glm / kimi 等商业模型<br>按 token 计费，弹性 TPM<br>注意：百炼另有一套按 token 计费的内置护栏（bl_query/response_guard），与网关侧 API 护栏二选一即可，避免重复检测重复付费</div>
+    </div>
+    <div class="backend other">
+      <b>其他渠道 API</b>
+      <div class="desc">第三方 MaaS / 模型厂商直连<br>作为容量补充与价格套利<br>统一经网关出口，合规策略一致</div>
+    </div>
+  </div>
+
+  <!-- 开关决策模型 -->
+  <h2>开关决策模型：按租户 UID，不按渠道（如何做）</h2>
+  <div class="decision-chain">
+    <div class="dnode"><b>租户 API Key</b><span class="sub2">请求携带</span></div>
+    <div class="darrow">→</div>
+    <div class="dnode"><b>鉴权解析 UID</b><span class="sub2">网关已有能力</span></div>
+    <div class="darrow">→</div>
+    <div class="dnode"><b>合规配置中心</b><span class="sub2">O(1) 内存查询 · 热下发</span></div>
+    <div class="darrow">→</div>
+    <div class="dnode"><b>enabled?</b><span class="sub2">true → 走围栏钩子</span></div>
+    <div class="darrow">→</div>
+    <div class="dnode" style="border-color:#9aa5b5;"><b>false → 旁路直通</b><span class="sub2">零延迟增量 · 零费用</span></div>
+  </div>
+  <div class="decision-cols">
+    <div class="decision-left">
+      <table class="dtable">
+        <tr><th style="width:64px;">层</th><th style="width:130px;">决策键</th><th>职责与理由</th></tr>
+        <tr><td><b>开关层</b></td><td><b>租户 UID</b><br>（可细到 API Key / 模型级）</td><td>回答「要不要检」。合规义务来自租户业务场景（金融/政企面向 C 端），与模型跑在哪无关；计费、审计、自助开关均以 UID 为主键。</td></tr>
+        <tr><td><b>执行层</b></td><td>渠道（资源1/2/3）</td><td>回答「在哪检最划算」。默认统一网关侧检测（策略/词库/账单一致）；百炼渠道可选内置护栏降本，但与网关护栏<b>二选一</b>，避免重复检测重复付费。</td></tr>
+        <tr><td><b>兜底层</b></td><td>全局（可选）</td><td>平台自身作为生成式 AI 服务提供者的底线合规：全量流量基础检测，租户增强策略叠加其上。</td></tr>
+      </table>
+      <div class="iron-rule"><b>铁律：</b>渠道开关会让合规等级随路由漂移——百炼故障切到自有 GPU 时合规租户瞬间「裸奔」。按 UID 决策与路由完全解耦，任意 failover / 重试 / 渠道套利下合规等级恒定。</div>
+    </div>
+    <div class="decision-right">
+      <div class="code-title">租户合规配置（配置中心下发，热更新）</div>
+      <pre class="code">{
+  <span class="kw">"tenant_uid"</span>: <span class="cm">"t_10086"</span>,
+  <span class="kw">"guardrail"</span>: {
+    <span class="kw">"enabled"</span>: true,
+    <span class="kw">"scope"</span>: {<span class="kw">"api_keys"</span>: [<span class="cm">"*"</span>], <span class="kw">"models"</span>: [<span class="cm">"*"</span>]},
+    <span class="kw">"input_check"</span>: <span class="cm">"query_security_check"</span>,
+    <span class="kw">"output_check"</span>: <span class="cm">"response_security_check_hp"</span>,
+    <span class="kw">"slice_chars"</span>: 150,
+    <span class="kw">"keyword_libs"</span>: [<span class="cm">"竞品词库"</span>, <span class="cm">"行业敏感词库"</span>],
+    <span class="kw">"fail_policy"</span>: <span class="cm">"fail-close"</span>,
+    <span class="kw">"billing"</span>: <span class="cm">"pass-through"</span>
+  }
+}</pre>
+      <div class="code-title">网关钩子伪代码（决策与执行分离）</div>
+      <pre class="code">cfg = store.get(tenant_uid)        <span class="cm"># 鉴权后 O(1) 查询</span>
+<span class="kw">if not</span> cfg.enabled: <span class="kw">return</span> passthrough(req)
+<span class="kw">if</span> guard(req.prompt).blocked:     <span class="cm"># ❶ 输入同步检测</span>
+    <span class="kw">return</span> reject(cfg.answer)
+stream = route(req)                <span class="cm"># ❷ 原有路由/failover 不变</span>
+<span class="kw">for</span> s <span class="kw">in</span> slices(stream, 150):      <span class="cm"># ❸ hp 切片, chatId+done</span>
+    <span class="kw">if</span> guard(s).blocked:
+        <span class="kw">return</span> revoke_and_replace(cfg.answer)  <span class="cm"># ❹</span>
+    emit(s)</pre>
+    </div>
+  </div>
+  <div class="impl-notes">
+    <b>落地四要点：</b>① 配置中心热更新，开关变更无需重启网关；② 检测状态挂在请求上下文（chatId），渠道重试/failover 不重置、不重复计费；③ 护栏调用设超时（建议 500ms~1s）+ 熔断，故障按租户 fail_policy 处置（合规租户建议 fail-close）；④ 按 UID 计量检测次数（输入 1 次 + 输出 N 切片），透传租户账单或平台补贴。
+  </div>
+
+  <!-- 建设清单 -->
+  <h2>需要做什么（建设清单）</h2>
+  <div class="todo-grid">
+    <div class="todo"><span class="tag mod">网关改造</span><span class="t">围栏插件框架</span><br>请求前/响应后钩子 + 租户级开关下发（配置中心热更新），插件故障不拖垮主链路（超时熔断）。</div>
+    <div class="todo"><span class="tag new">新建</span><span class="t">输入检测钩子</span><br>同步调用 query_security_check，block 直接拒绝并返回代答；实测 TTFT +0.2s，非推理模型需重新评估占比。</div>
+    <div class="todo"><span class="tag new">新建</span><span class="t">输出流式检测器</span><br>hp 版按字符切片（100~200 字/片），chatId+done 关联一轮对话；block 立即停发、撤回已透出内容、替换代答。</div>
+    <div class="todo"><span class="tag new">新建</span><span class="t">租户合规配置中心</span><br>租户 → 防护维度/词库/阈值/代答话术/fail 策略的映射；词库变更经配置管理 API 下发（注意 3~5 分钟生效窗口）。</div>
+    <div class="todo"><span class="tag new">新建</span><span class="t">计量计费透传</span><br>护栏按次计费（双维度 0.003 元/次，流式每切片独立计费）→ 计入租户账单或平台补贴；与网关按 token 计费解耦。</div>
+    <div class="todo"><span class="tag new">新建</span><span class="t">监控与配额管理</span><br>护栏延迟/错误率/QPS 监控（上限 50/s，每请求消耗 1+N 次配额）；风险事件告警与审计报表对接。</div>
+    <div class="todo"><span class="tag cfg">阿里云配置</span><span class="t">开通与授权</span><br>开通 AI 安全护栏（可纯 API 完成，按量后付费不调用不收费）；RAM 用户授予 AliyunYundunGreenWebFullAccess。</div>
+    <div class="todo"><span class="tag cfg">阿里云配置</span><span class="t">词库与代答库</span><br>自定义关键词库（竞品词/业务敏感词）绑定到 service；按风险标签配置代答内容；敏感数据脱敏（mask）按需开启。</div>
+  </div>
+
+  <!-- 实测数据 -->
+  <h2>关键实测数据（2026-11-11，glm-5.3 北京 + 护栏北京接入点）</h2>
+  <div class="facts">
+    <div class="fact"><div class="v">+0.2s</div><div class="k">输入同步检测 TTFT 增量<br>（实测 146~356ms/次）</div></div>
+    <div class="fact"><div class="v">+0.5s</div><div class="k">输入+流式切片 TTFT 增量<br>输出侧每切片 130~246ms</div></div>
+    <div class="fact"><div class="v">0%</div><div class="k">模型生成速度不受影响<br>各模式 83~103 tok/s 无差异</div></div>
+    <div class="fact"><div class="v">15元/万次</div><div class="k">按成功调用次数/维度计费<br>与文本长度无关（≤2000字符）</div></div>
+    <div class="fact"><div class="v">100%</div><div class="k">自定义词拦截验证通过<br>目标短语 block·正常文本零误伤</div></div>
+  </div>
+
+  <div class="footer">
+    脱敏说明：客户名称已按行业代号泛化，不含任何真实凭证/账号信息。<br>
+    实测依据：alibaba-ai-hub/ai-guardrails/ 两份测试报告（功能拦截 + 性能影响）。官方信源：help.aliyun.com 文档 2937220 / 2937221 / 2980054 / 2872706（2026-11-11 核实）。
+  </div>
+
+</div>
+</body>
+</html>
