@@ -17,6 +17,8 @@ __pycache__/
 *.pyc
 .venv/
 .venv_record/
+# 护栏测试运行时状态（含账号 Uid/RequestId，仅本地恢复配置用）
+alibaba-ai-hub/ai-guardrails/guardrail_test_state.json
 
 # Node
 node_modules/
