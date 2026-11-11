@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-CosyVoice v3.5-plus Demo
-声音复刻 | 声音设计 | 语音合成
+Qwen-Audio 3.1 TTS Demo
+声音复刻 | 声音设计 | 语音合成（qwen-audio-3.1-tts-plus）
 """
 import os
 import re
@@ -31,9 +31,21 @@ dashscope.base_websocket_api_url = f"wss://{WORKSPACE_ID}.cn-beijing.maas.aliyun
 dashscope.base_http_api_url = f"https://{WORKSPACE_ID}.cn-beijing.maas.aliyuncs.com/api/v1"
 
 BASE_URL = f"https://{WORKSPACE_ID}.cn-beijing.maas.aliyuncs.com/api/v1"
-TARGET_MODEL = "cosyvoice-v3.5-plus"
+# TTS 主推：qwen-audio-3.1-tts-plus（精品音色 / 内容制作，支持声音复刻 + 声音设计 + 指令控制）
+# 同族另有 qwen-audio-3.1-tts-flash（实时交互）与 qwen-audio-3.1-tts-next（音频生成，参数范式不同）
+TARGET_MODEL = "qwen-audio-3.1-tts-plus"
 QWEN_AUDIO_ASR_MODEL = "qwen-audio-3.0-asr-flash-filetrans"
 QWEN_AUDIO_ASR_FLASH_MODEL = "qwen-audio-3.0-asr-flash"
+# 声音设计提示词优化所用大模型（走标准 DashScope 端点）
+QWEN_CHAT_MODEL = "qwen3.8-max"
+
+# TARGET_MODEL 的 v3.1 旗舰系统音色：音色与模型强绑定，不可跨模型复用
+SYSTEM_VOICES = [
+    ("longanlingxin_v3.1", "龙安灵心 · 女声（旗舰音色）"),
+    ("xunanchuan_v3.1", "徐南川 · 男声（多语种/方言音色组）"),
+    ("longanhuan_v3.1", "龙安欢 · 女声（多语种/方言音色组）"),
+    ("longanfengyue_v3.1", "龙安枫月（旗舰音色）"),
+]
 HEADERS = {
     "Authorization": f"Bearer {dashscope.api_key}",
     "Content-Type": "application/json",
@@ -65,6 +77,7 @@ def save_voice(voice_id: str, source: str, prefix: str, extra: dict = None):
     voices = load_voices()
     entry = {
         "voice_id": voice_id,
+        "model": TARGET_MODEL,  # 音色与模型强绑定，记录归属模型
         "source": source,  # "clone" or "design"
         "prefix": prefix,
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -88,11 +101,14 @@ def load_voices() -> list:
 
 
 def get_voice_choices() -> list:
-    """生成 Gradio Dropdown 的 choices 列表"""
-    voices = load_voices()
-    choices = []
-    for v in voices:
+    """生成 Gradio Dropdown 的 choices：v3.1 系统音色在前，本地已保存音色在后"""
+    choices = [(f"⭐ 系统音色 | {desc} | {vid}", vid) for vid, desc in SYSTEM_VOICES]
+
+    # 旧模型（如 CosyVoice）创建的音色无法跨模型复用，这里按 voice_id 前缀过滤
+    for v in load_voices():
         vid = v.get("voice_id", "")
+        if not vid.startswith(f"{TARGET_MODEL}-"):
+            continue
         src = "🎤复刻" if v.get("source") == "clone" else "🎨设计"
         prefix = v.get("prefix", "")
         created = v.get("created_at", "")
@@ -260,12 +276,12 @@ def clone_voice_file(audio_file, prefix):
 
 
 def optimize_voice_prompt(user_prompt, language):
-    """用 qwen3.7-max 优化声音设计提示词（走标准 DashScope 端点）"""
+    """用 qwen3.8-max 优化声音设计提示词（走标准 DashScope 端点）"""
 
     if not user_prompt or not user_prompt.strip():
         return "❌ 请先输入音色描述", user_prompt
 
-    system_prompt = """你是一个专业的声音设计提示词优化专家。用户会给你一段关于音色的描述，你需要将其优化为适合 CosyVoice 声音设计 API 的 voice_prompt。
+    system_prompt = """你是一个专业的声音设计提示词优化专家。用户会给你一段关于音色的描述，你需要将其优化为适合 Qwen-Audio-TTS 声音设计 API 的 voice_prompt。
 
 优化规则：
 1. 保留用户的核心意图（音色特征、性别、年龄、情绪、场景）
@@ -291,7 +307,7 @@ def optimize_voice_prompt(user_prompt, language):
                 "Content-Type": "application/json",
             },
             json={
-                "model": "qwen3.7-max",
+                "model": QWEN_CHAT_MODEL,
                 "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": f"请优化以下声音描述：\n{user_prompt}"},
@@ -315,8 +331,9 @@ def design_voice(voice_prompt, preview_text, prefix, language):
     """声音设计 —— 通过文字描述创建音色"""
     if not voice_prompt:
         return "❌ 请输入音色描述", "", None
-    if not preview_text:
-        preview_text = "你好，这是一段测试语音。"
+    # preview_text 少于 15 字符会被服务端拒绝（InvalidParameter），过短时补默认文案
+    if not preview_text or len(preview_text.strip()) < 15:
+        preview_text = "你好，欢迎使用声音设计功能，这是一段用于试听的测试语音。"
     prefix = _sanitize_prefix(prefix)
 
     try:
@@ -376,6 +393,10 @@ def synthesize(voice_id, text, style_instruction):
         return "❌ 请输入 Voice ID", None, ""
     if not text:
         return "❌ 请输入合成文本", None, ""
+
+    # 音色与模型强绑定：跨模型复用 voice_id 会报 InvalidParameter
+    if voice_id not in {vid for vid, _ in SYSTEM_VOICES} and not voice_id.startswith(f"{TARGET_MODEL}-"):
+        return f"❌ 音色与模型不匹配：当前 TTS 模型为 {TARGET_MODEL}，请改用系统音色或复刻/设计音色", None, ""
 
     try:
         # 构建 SpeechSynthesizer 参数
@@ -785,10 +806,10 @@ CSS = """
 }
 """
 
-with gr.Blocks(title="TTS (CosyVoice v3.5-plus) & ASR (fun-asr / Qwen-Audio) Demo", css=CSS, theme=gr.themes.Soft()) as app:
+with gr.Blocks(title="TTS (Qwen-Audio 3.1-tts-plus) & ASR (Qwen-Audio 3.0-ASR) Demo", css=CSS, theme=gr.themes.Soft()) as app:
     gr.Markdown(
         """
-        # 🎙️ TTS (CosyVoice v3.5-plus) & ASR (fun-asr / Qwen-Audio) Demo
+        # 🎙️ TTS (Qwen-Audio 3.1-tts-plus) & ASR (Qwen-Audio 3.0-ASR) Demo
         ### 声音复刻 · 声音设计 · 语音合成 · 语音识别
         """,
     )
@@ -799,6 +820,7 @@ with gr.Blocks(title="TTS (CosyVoice v3.5-plus) & ASR (fun-asr / Qwen-Audio) Dem
             """
             **上传 10~20 秒清晰人声音频，即可克隆音色。**
             支持格式：`WAV` / `MP3` / `M4A`，`≤ 10MB`，采样率 `≥ 16kHz`。
+            克隆音色绑定到 `qwen-audio-3.1-tts-plus`，音色不可跨模型复用。
             """
         )
         with gr.Row():
@@ -898,22 +920,22 @@ with gr.Blocks(title="TTS (CosyVoice v3.5-plus) & ASR (fun-asr / Qwen-Audio) Dem
     with gr.Tab("🔊 语音合成 TTS") as tts_tab:
         gr.Markdown(
             """
-            **选择已保存的音色或手动输入 Voice ID，合成语音。**
-            音色创建成功后会自动保存到 `output/voices.json`，下次可直接选用。
+            **选择系统音色 / 已保存的自定义音色，或手动输入 Voice ID，合成语音。**
+            系统音色与复刻、设计音色均绑定 `qwen-audio-3.1-tts-plus`；自定义音色创建成功后自动保存到 `output/voices.json`。
             """
         )
         with gr.Row():
             with gr.Column():
                 tts_voice_dropdown = gr.Dropdown(
-                    label="已保存的音色",
+                    label="系统音色 / 自定义音色",
                     choices=get_voice_choices(),
                     value=None,
                     interactive=True,
-                    info="从本地保存的音色中选择，自动填充 Voice ID",
+                    info="v3.1 系统音色可直接试听；自定义音色来自本地 output/voices.json",
                 )
                 tts_voice_id = gr.Textbox(
                     label="Voice ID（也可手动输入）",
-                    placeholder="例如：cosyvoice-v3.5-plus-vc-myvoice-xxxxx",
+                    placeholder="例如：qwen-audio-3.1-tts-plus-myvoice-xxxxx",
                     elem_classes=["mono"],
                 )
                 tts_style = gr.Dropdown(
@@ -929,7 +951,7 @@ with gr.Blocks(title="TTS (CosyVoice v3.5-plus) & ASR (fun-asr / Qwen-Audio) Dem
                     value=None,
                     interactive=True,
                     allow_custom_value=True,
-                    info="通过 instruction 参数控制语音风格，原文不会被修改",
+                    info="通过 instruction 参数控制风格，原文不被改写；也可在文本中直接写 [laughing] / [crying] 等标签",
                 )
                 tts_text = gr.Textbox(
                     label="合成文本",
@@ -993,7 +1015,7 @@ with gr.Blocks(title="TTS (CosyVoice v3.5-plus) & ASR (fun-asr / Qwen-Audio) Dem
         del_btn.click(delete_voice, inputs=[del_vid], outputs=[del_result])
 
     # ===== Tab 5: ASR 语音识别 =====
-    with gr.Tab("🎧 ASR 语音识别") as asr_tab:
+    with gr.Tab("🎧 ASR 语音识别（Fun-ASR · 存量）") as asr_tab:
         gr.Markdown(
             """
             **上传音频或输入音频 URL，识别为文字。**
@@ -1076,7 +1098,7 @@ with gr.Blocks(title="TTS (CosyVoice v3.5-plus) & ASR (fun-asr / Qwen-Audio) Dem
         )
 
     # ===== Tab 6: Qwen-Audio ASR（后台模型 qwen-audio-3.0-asr-flash-filetrans）=====
-    with gr.Tab("🎙️ Qwen-Audio ASR") as qwen_asr_tab:
+    with gr.Tab("🎙️ Qwen-Audio ASR Filetrans") as qwen_asr_tab:
         gr.Markdown(
             f"""
             **上传音频或输入音频 URL，识别为文字。后台模型：`{QWEN_AUDIO_ASR_MODEL}`**
@@ -1159,7 +1181,7 @@ with gr.Blocks(title="TTS (CosyVoice v3.5-plus) & ASR (fun-asr / Qwen-Audio) Dem
         )
 
     # ===== Tab 7: Qwen-Audio ASR Flash（后台模型 qwen-audio-3.0-asr-flash，同步多模态接口）=====
-    with gr.Tab("⚡ Qwen-Audio ASR Flash") as flash_asr_tab:
+    with gr.Tab("⚡ Qwen-Audio ASR Flash（主推）") as flash_asr_tab:
         gr.Markdown(
             f"""
             **上传音频或输入音频 URL，识别为文字。后台模型：`{QWEN_AUDIO_ASR_FLASH_MODEL}`**
