@@ -115,7 +115,7 @@ USD / 每百万 tokens（国际站新加坡为主口径，北京作参考）：
 |------|-----------|----------|
 | 需要看到画面 / 视觉问答 / 直播分析 | 不支持视频与图像帧输入 | Qwen3.8-Omni-Flash-Realtime |
 | 只要把长文本转成音频（有声书、播客） | 双工模型按轮对话，不适配整段朗读与多 voice 分角色 | qwen-audio-3.1-tts-plus / tts-next |
-| 只要把录音转写成文字（会议、庭审） | 双工模型的 ASR 只服务于对话理解 | qwen-audio-3.0-asr-flash / fun-asr |
+| 只要把录音转写成文字（会议、庭审） | 双工模型的 ASR 只服务于对话理解 | qwen-audio-3.1-asr-flash（短音频）/ -flash-filetrans（长音频）/ -flash-streaming（实时）/ fun-asr |
 | 需要多人会议纪要 / 多声道采集 | 不支持多通道音频输入 | Qwen3.8-Omni-Flash-Realtime（WebSocket 支持 1/2/4 声道） |
 | 需要长回答（>16K tokens 输出） | 最大输出 16,384 | Omni realtime（65,536）或文本模型 |
 

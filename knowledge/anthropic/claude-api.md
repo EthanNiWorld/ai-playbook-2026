@@ -1,13 +1,13 @@
 # Anthropic Claude 模型
 
-> 最后更新: 2026-11-08
+> 最后更新: 2026-11-11
 > 所属厂商: Anthropic
 > 产品类别: MaaS
 > 状态: Published
 
 > **定位**: Anthropic 旗舰模型系列，强调 Constitutional AI 安全对齐、长文本理解与高精度推理
-**最高能力档**: Claude Fable 5.1（Fable 线小版本更新，$10/$50 同价；AA 指数 65.7、HLE 65.0%——2026-09 AA v4.1.1 口径）
-**主力推荐**: Claude Opus 5.5（2026.09.22，$4/$20，比 Opus 5 降 20%；TB 4.0 榜单 64.8%（官方自报 66.4%）、AA 指数 **59**（Intelligence Index v5，2026-11-08 查询）；2026-10 曾为独立榜第一，10-28 起榜首为 Gemini 4 Carbon 60）
+**最高能力档**: Claude Fable 5.2（Fable 线小版本更新，官方定价 $8/$40 较 5.1 降 20%；AA Intelligence Index v5.0.1 = 65、#1/746，2026-11-09 官方发布 / 11-11 查询；1M 上下文、文本+图像输入、effort 五档；与 Mythos 5.2 同期发布）
+**主力推荐**: Claude Opus 5.5（2026.09.22，$4/$20，比 Opus 5 降 20%；TB 4.0 榜单 64.8%（官方自报 66.4%）、AA 指数 **59**（Intelligence Index v5，2026-11-08 查询）；2026-10 曾为独立榜第一，10-28 起 Gemini 4 Carbon 接棒、11-09 起 Fable 5.2 登顶（AA 座次详见 benchmark 统一口径））
 **均衡档**: Claude Sonnet 5.5（2026.09.28，$2/$10，cache 读减半）
 **轻量档**: Claude Haiku 5.5（2026.10.07，1M 上下文，Claude 系首个按上下文长度分层定价 $0.10/$0.50）
 **适用**: 高精度推理、复杂长文本分析、代码生成、企业级 Agent、合规要求高场景、高并发轻量任务（Haiku 5.5）
@@ -17,14 +17,14 @@
 
 | 模型 | 定位 | 上下文 | 特点 | 推出时间 |
 |------|------|--------|------|----------|
-| **Claude Fable 5.1** 🚩 | **最高能力档**（Fable 线小版本更新） | [⚠️ 待补充] | $10/$50 同价；AA 指数 65.7 / HLE 65.0%（Vellum/AA 榜单口径） | [⚠️ 待补充] |
+| **Claude Fable 5.2** 🚩 | **最高能力档**（Fable 线小版本更新） | **1M** | 官方定价 $8/$40（较 5.1 降 20%）；AA v5.0.1 = 65 #1/746；官方 TB-Science 0.1 74.6% / HLE 74.2%；文本+图像输入、effort 五档；较 5.1 快 30%（详见下方补录） | 2026.11.09 |
 | **Claude Opus 5.5** ⭐ | **主力推荐**（新旗舰） | [⚠️ 待补充] | $4/$20（比 Opus 5 -20%）；TB 4.0 66.4%（榜单 64.8%）、AA 指数 59（v5，2026-11-08 查询）；与 Gemini 4 Argon 标准价同价 | 2026.09.22 |
 | **Claude Sonnet 5.5** | 均衡档（Sonnet 线当前主推） | [⚠️ 待补充] | $2/$10（低于 Sonnet 5 标准价 $3/$15）；cache 读减半（agentic -20%）；TB 4.0 70.6%（榜单 61.8%）、AA 指数 56 | 2026.09.28 |
 | **Claude Haiku 5.5** | 轻量/高并发（Haiku 线当前主推） | **1M** | 首个按上下文长度分层定价：$0.10/$0.50（≤100K）；128K 输出；effort 五档；computer use / browser use beta | 2026.10.07 |
 
-> 📌 **限制访问模型**：**Claude Mythos 5**（2026.06.09）与 Fable 5 同底座、同定价、同 API 行为，仅去除网络安全限制，**仅通过 Project Glasswing** 向美国政府网络防御者与关键基础设施提供商开放；非参与组织请用 Fable 5。详见下文专章。
+> 📌 **限制访问模型**：**Claude Mythos 5**（2026.06.09）与 Fable 5 同底座、同定价、同 API 行为，仅去除网络安全限制，**仅通过 Project Glasswing** 向美国政府网络防御者与关键基础设施提供商开放；非参与组织请用 Fable 5。**Mythos 5.2**（2026.11.09，与 Fable 5.2 同期）延续限制访问，仅向网络安全 / 生物医学研究的验证机构开放。详见下文专章。
 
-> 📌 **历史模型**（仍可调用，不建议新项目选用）：**Opus 5**（2026.07.24，已被 Opus 5.5 取代）/ **Sonnet 5**（2026.06.30，已被 Sonnet 5.5 取代）/ **Fable 5**（2026.06.09，Fable 线已迭代至 5.1）/ **Haiku 4.5**（已被 Haiku 5.5 取代）/ **Opus 4.8**（2026.05.28）/ **Opus 4.7**（2026.04.16）/ **Opus 4.6** / **Sonnet 4.6**。**Opus 4.1 已废弃，2026-08-05 退役**。
+> 📌 **历史模型**（仍可调用，不建议新项目选用）：**Opus 5**（2026.07.24，已被 Opus 5.5 取代）/ **Sonnet 5**（2026.06.30，已被 Sonnet 5.5 取代）/ **Fable 5.1**（已被 Fable 5.2 取代）/ **Fable 5**（2026.06.09，Fable 线已迭代至 5.2）/ **Haiku 4.5**（已被 Haiku 5.5 取代）/ **Opus 4.8**（2026.05.28）/ **Opus 4.7**（2026.04.16）/ **Opus 4.6** / **Sonnet 4.6**。**Opus 4.1 已废弃，2026-08-05 退役**。
 
 ### Claude Opus 5.5 与 Claude 5.5 家族刷新（2026.09-10）
 
@@ -34,8 +34,8 @@
 
 **Claude Opus 5.5**（2026-09-22）：
 - 定价 **$4/$20**（比 Opus 5 的 $5/$25 降 20%；与 Gemini 4 Argon 标准价同价）
-- 关键评测（第三方/竞对发布会口径）：Terminal-Bench 4.0 **66.4%**（领先 Gemini 4 Argon 57.4%）、DeepSWE v1.1 74.2%、AutomationBench 42.5%、Harvey Legal Agent 3.8%、Gray Swan IPI 攻击成功率 1.0%；AA Intelligence Index **59**（v5，2026-11-08 查询；2026-10 曾为独立榜第一，10-28 起 Gemini 4 Carbon 60 登顶）（Sonnet 5.5 56 次之）；AA 实测 $5.98/task、max effort 平均 $23.21/task（GPT-6.1 Sol 对比口径）
-- **⚠️ TB 4.0 统一对比口径**：跨模型横向对比统一取 **tbench.ai 榜单（最优提交，2026-11-08 查询）**——Opus 5.5 **64.8%** / Sonnet 5.5 **61.8%** / GPT-6 Astra 58.2%；厂商自报值 Opus 5.5 66.4% / Sonnet 5.5 70.6%（Claude Code harness）仅用于单产品宣传，不参与跨模型对比。TB 4.0 为当前统一基准版本；TB 2.x 时代模型（Opus 4.7/4.8 等）不追溯更新
+- 关键评测（第三方/竞对发布会口径）：Terminal-Bench 4.0 **66.4%**（领先 Gemini 4 Argon 57.4%）、DeepSWE v1.1 74.2%、AutomationBench 42.5%、Harvey Legal Agent 3.8%、Gray Swan IPI 攻击成功率 1.0%；AA Intelligence Index **59**（v5，2026-11-08 查询；2026-10 曾为独立榜第一，10-28 起 Gemini 4 Carbon 接棒、11-09 起 Fable 5.2 登顶）（Sonnet 5.5 56 次之）；AA 实测 $5.98/task、max effort 平均 $23.21/task（GPT-6.1 Sol 对比口径）
+- **⚠️ TB 4.0 统一对比口径**：跨模型横向对比统一取 **tbench.ai 榜单（最优提交，2026-11-08 查询）**——Opus 5.5 **64.8%** / Sonnet 5.5 **61.8%** / GPT-6 Astra 58.2%；厂商自报值 Opus 5.5 66.4% / Sonnet 5.5 70.6%（Claude Code harness）仅用于单产品宣传，不参与跨模型对比。TB 4.0 为当前统一基准版本；TB 2.x 时代模型（Opus 4.7/4.8 等）不追溯更新。⚠️ **TB 4.1 已发布**（tbench.ai 2026-11-11 核实版本号，榜单数值 JS 空表待复核）——4.0 分数保留原口径，4.1 数值待补，不混排
 - 其余规格（上下文窗口、最大输出等）：[⚠️ 待补充——素材未提供]
 
 **Claude Sonnet 5.5**（2026-09-28）：
@@ -45,7 +45,12 @@
 
 **家族级成本攻势**（同期）：Max/Team 订阅月度 API credits——Max 5x $100 / Max 20x $200 / Team 至 $500（不滚存），等于订阅费全额返还 API 额度（来源：Simon Willison 实测）。
 
-**Fable 线补录**：**Claude Fable 5.1**——Fable 线小版本更新，$10/$50 同价；AA 指数 65.7、HLE 65.0%（2026-09 AA v4.1.1 口径，Astra 发布时领先 Astra 61.2 / Opus 5 63.1 / Fable 5 62.1；⚠️ 2026-10 最新口径下 Fable 5.1 为 53，AA 指数随新模型发布重新校准，跨时间引用需注明口径）。发布时间 [⚠️ 待补充]。
+**Fable 线补录**：**Claude Fable 5.2**（当前最高能力档，2026-11-09 官方发布，与 Mythos 5.2 同期）——AA Intelligence Index v5.0.1 = **65、#1/746**（发布日登顶，取代 Gemini 4 Carbon）；官方定价 **$8 输入 / $40 输出**（较 5.1 降 20%，AA 收录 + 媒体转述官方一致）、cache 折扣 98%；1M 上下文、文本+图像输入、effort 五档（Max/Low/Medium/High/Xhigh）。
+- **官方发布口径**（Mashable 转述 Anthropic 发布图，2026-11-11 核实）：Terminal-Bench-Science 0.1 **74.6%**（5.1 为 52.6%、GPT-6 Astra 68.1%）、HLE **74.2%**（5.1 为 65.6%，子集未明）；较 5.1 生成快 **30%**、表达更清晰；预发布测试曾从零设计 3 个可用电子设备、解决 2 个黑洞物理开放问题、30 小时形式化证明费马大定理。⚠️ TB-Science 0.1 与 TB 4.0 为不同评测，不混排；官方 benchmark 为自报口径，与 AA 独立评测并列参考。
+- **AA 独立实测**（2026-11-11 查询）：$26.54/task、44.4 min/task、103 tok/s、TTFA 230.35s、275M output tokens（极慢且冗长，中位 72.8M），blended $5.74（6 家 API 供应商）。
+- ⚠️ anthropic.com 发布页直取 404，官方细节经 AA（一手评测）+ Mashable（转述官方）双源交叉；官方发布页 URL / System Card 待补。
+
+**上代 Fable 5.1**——$10/$50 同价；AA 指数 65.7、HLE 65.0%（2026-09 AA v4.1.1 口径，Astra 发布时领先 Astra 61.2 / Opus 5 63.1 / Fable 5 62.1；⚠️ 2026-10 口径下 Fable 5.1 为 53，AA 指数随新模型发布重新校准，跨时间引用需注明口径），已被 5.2 取代。
 
 ---
 
@@ -67,7 +72,7 @@
 - **关键基准**：SWE-Bench Pro **80.3%**（+11.1pp vs Opus 4.8 69.2%）、FrontierCode Diamond 29.3%、GDP.pdf 29.8%
 - **核心能力**：长程 Agent 可连续工作数天（Stripe 用 1 天完成原本需 2 个月的 50M 行 Ruby 迁移）；主动自验证（写测试校验自己代码、用 Vision 比对设计稿、进展汇报前强制审计工具结果）；可靠派遣并行子 Agent；视觉 SOTA（截图重建 web app、仅凭原始截图通关 Pokémon FireRed）
 - **代价**：约 <5% 会话因 cyber / 生物 / 蒸馏查询被自动降级到 Opus 4.8 代答——此类公开分数等于 Opus 4.8
-- **状态**：Fable 线已迭代至 **Fable 5.1**（当前最高能力档，$10/$50）
+- **状态**：Fable 线已迭代至 **Fable 5.2**（当前最高能力档，$8/$40，2026.11.09）
 
 ---
 
@@ -76,6 +81,7 @@
 - **模型 ID**：`claude-mythos-5`；**1M 上下文 / 128K 输出**；定价 **$10/$50**（与 Fable 5 相同）
 - **定位**：Fable 5 同底座但**去除网络安全限制**；仅通过 Project Glasswing 向美国政府网络防御者与关键基础设施提供商开放，非参与组织请用 Fable 线
 - **合规**：Mythos-class 流量须 30 天数据留存 + 人工访问日志 + 自动删除；不用于训练
+- **后继 Mythos 5.2**（2026.11.09，与 Fable 5.2 同期）：延续限制访问，仅向网络安全 / 生物医学研究的验证机构开放（Fable 5.2 则面向全体 Claude 用户、带强 cyber/生物护栏）；规格/定价官方未直取 [⚠️ 待补充]（来源：Mashable 转述官方）
 - **关键基准（竞争情报价值）**：
 
 | 基准 | Mythos 5 | Fable 5（降级后） | Opus 4.8 |
@@ -170,8 +176,8 @@
 | 能力 | 说明 |
 |------|------|
 | **高精度推理** | Constitutional AI 安全对齐，强调输出安全性与无害性 |
-| **长上下文** | Fable 5.1 / Opus 5.5 / Sonnet 5.5 / Haiku 5.5 均为 1M tokens，标准 API 价格无长上下文附加费 |
-| **代码生成** | Opus 5.5 TB 4.0 66.4%、AA 指数 59（v5）；Sonnet 5.5 TB 4.0 70.6%；Fable 5.1 AA 指数 65.7 |
+| **长上下文** | Fable 5.2 / Opus 5.5 / Sonnet 5.5 / Haiku 5.5 均为 1M tokens，标准 API 价格无长上下文附加费 |
+| **代码生成** | Opus 5.5 TB 4.0 66.4%、AA 指数 59（v5）；Sonnet 5.5 TB 4.0 70.6%；Fable 5.2 AA 指数 65（v5.0.1） |
 | **多模态** | 支持图片等多模态输入；Haiku 5.5 支持 computer use / browser use beta |
 | **Agent 能力** | Claude Code 编程 Agent；全系列支持 effort 阶梯调参与 adaptive thinking；Haiku 5.5 支持 effort 五档 |
 | **安全对齐** | Constitutional AI 安全对齐；护栏从「按领域封禁」下沉到「按任务阶段切分」（详见 [安全护栏粒度](../ai-general-notes/safety-guardrail-granularity.md)） |
@@ -180,7 +186,7 @@
 
 | 限制项 | 具体值 | 说明 |
 |--------|--------|------|
-| 价格 | 分档 | Fable 5.1 $10/$50；Opus 5.5 $4/$20；Sonnet 5.5 $2/$10；Haiku 5.5 $0.10/$0.50（≤100K，>100K 段 $0.50/$2.50）；详见下方定价表 |
+| 价格 | 分档 | Fable 5.2 $8/$40（AA 口径）；Opus 5.5 $4/$20；Sonnet 5.5 $2/$10；Haiku 5.5 $0.10/$0.50（≤100K，>100K 段 $0.50/$2.50）；详见下方定价表 |
 | 网络安全护栏 | 分类器拦截 | 渗透测试 / exploit 生成 / 二进制漏洞扫描被阻断；需降低护栏需申请 CVP |
 | Fable 线数据留存 | 强制 30 天 | 不可用于 ZDR；Opus / Sonnet / Haiku 线无此限制 |
 | Claude tokenizer | token 量 ×1.0–1.35 | 自 Opus 4.7 起引入，Sonnet 5 起明显；测算成本不可只看单价 |
@@ -194,7 +200,7 @@
 | 场景 | 推荐模型 | 说明 |
 |------|----------|------|
 | 日常主力 / 性价比最优 | **Opus 5.5** | $4/$20 新旗舰，TB 4.0 66.4%、AA 指数 59（v5） |
-| 极限难度任务 | Fable 5.1 | 最高能力档 $10/$50，AA 指数 65.7（09 口径） |
+| 极限难度任务 | Fable 5.2 | 最高能力档 $8/$40（AA 口径），AA v5.0.1 = 65 #1 |
 | 大规模 Agent / 成本敏感 | **Sonnet 5.5** | $2/$10，cache 读减半（agentic -20%），TB 4.0 70.6% |
 | 高并发摘要/压缩/subagent | **Haiku 5.5** | $0.10/$0.50（≤100K），同价档智力领先 GPT-6 Luna（详见[竞品对比](../../alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md)） |
 | 长上下文高并发（>100K） | Haiku 5.5（>100K 段）或 GPT-6 Luna | Haiku >100K 涨 5×，性价比对比见竞品分析 |
@@ -213,14 +219,15 @@
 
 | 模型 | 输入 ($/1M tokens) | 输出 ($/1M tokens) | Prompt Cache Write | Prompt Cache Read |
 |------|---------------------|---------------------|-------------------|-------------------|
-| **Claude Fable 5.1** | $10.00 | $50.00 | $12.50 | $0.25 |
+| **Claude Fable 5.2** | $8.00 | $40.00 | [⚠️ 待补充] | [⚠️ 待补充]（AA 口径 cache 折扣 98%） |
+| Claude Fable 5.1（上代） | $10.00 | $50.00 | $12.50 | $0.25 |
 | **Claude Mythos 5**（限制访问） | $10.00 | $50.00 | — | — |
 | **Claude Opus 5.5** | **$4.00** | **$20.00** | $5.00 | $0.20 |
 | **Claude Sonnet 5.5** | **$2.00** | **$10.00** | $2.50 | **$0.10**（官方口径较 $0.20 减半） |
 | **Claude Haiku 5.5**（prompt ≤100K tokens） | **$0.10** | **$0.50** | $0.125 | $0.01 |
 | **Claude Haiku 5.5**（prompt >100K tokens） | **$0.50** | **$2.50** | $0.625 | $0.05 |
 
-> 来源：[Anthropic 官方定价页](https://www.anthropic.com/pricing)（cache 价格 2026-10-19 核实）；Fable 5.1 / Mythos 5 沿用 Fable 5 同价口径。
+> 来源：[Anthropic 官方定价页](https://www.anthropic.com/pricing)（cache 价格 2026-10-19 核实）；Fable 5.1 / Mythos 5 沿用 Fable 5 同价口径。**Fable 5.2 官方定价 $8/$40**（2026-11-09 发布，AA 收录 + Mashable 转述官方一致；cache 单价待官方核实）。
 
 > ⚡ **Fast mode**：Opus 5.5 支持 fast mode——2.5× 速度、2× 标准定价（官方定价页，2026-10-19）。
 
@@ -230,7 +237,7 @@
 
 ## 竞品对比
 
-> 📌 **最新对比**：Claude 5.5 家族（Opus 5.5 09-22 / Sonnet 5.5 09-28 / Haiku 5.5 10-07）与 GPT-6、Gemini 4 Argon 的横向对比（含 AA 独立指数座次：Opus 5.5 58 第一）见 [Haiku 5.5 vs GPT-6 Luna 小型档竞争分析](../../alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md)。
+> 📌 **最新对比**：Claude 5.5 家族（Opus 5.5 09-22 / Sonnet 5.5 09-28 / Haiku 5.5 10-07）与 GPT-6、Gemini 4 Argon 的横向对比（AA 独立指数座次以 [Benchmark 全库统一口径](../ai-general-notes/benchmark-coding-agentic.md) 为准；Opus 5.5 曾于 2026-10 登顶，现榜首为 Fable 5.2）见 [Haiku 5.5 vs GPT-6 Luna 小型档竞争分析](../../alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md)。
 >
 > 历史世代（Fable 5 / Opus 4.8 时期）的跨厂商对比已随各模型迭代失效，不再维护。
 
@@ -265,6 +272,8 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-11 | 补研（knowledge-verification-2026-11-11 B 组）：Fable 5.2 官方发布细节入库（发布日、官方 TB-Science/HLE 口径、快 30%、预发布成果），定价由 AA 口径升为官方公布（AA+媒体双源）；新增 Mythos 5.2 同期限制访问模型；anthropic.com 发布页 404、System Card 待补 |
+| 2026-11-11 | 校验修复（knowledge-verification-2026-11-11）：补记 Fable 5.2 并切为最高能力档（AA 口径，官方发布页未直取、细节待补研），Fable 5.1 移入历史；TB 4.1 已发布注记（榜单数值待复核）；竞品对比注 AA 座次残留改指向 benchmark 全库统一口径；Changelog 折叠最早 2 条 |
 | 2026-11-08 | 校验修复（knowledge-verification-2026-11-08）：AA Intelligence Index 刷新（Opus 5.5 58→59，全文 4 处同步，标查询日期）；**TB 4.0 定为统一对比口径**——跨模型对比取 tbench.ai 榜单值，厂商自报值仅单产品宣传，TB 2.x 时代模型（Opus 4.7/4.8）不追溯更新 |
 | 2026-11-03 | 校验修复（knowledge-verification-2026-11-03）：Opus 5.5「AA 当前独立榜第一」改为带版本/日期的历史口径（v5，2026-10 登顶；10-28 起 Gemini 4 Carbon 接棒），共 5 处同步；Carbon 分数价格未预填 |
 | 2026-10-19 | 校验修复（knowledge-verification-2026-10-19）：定价表 cache 价格回填（官方定价页核实）——Fable 5.1 write $12.50 / read $0.25、Opus 5.5 write $5 / read $0.20、Sonnet 5.5 write $2.50；补注 Opus 5.5 fast mode（2.5× 速度、2× 定价） |
@@ -274,5 +283,13 @@
 | 2026-06-15 | 合并 ai-native-expert 素材：Fable 5 新增「days-long 自主执行」和「主动自验证（Proactive Self-Verification）」详细行为描述（来自官方 Prompting Guide）；补充并行子 Agent 委托能力 |
 | 2026-06-14 | 新增 Claude Fable 5（2026.06.09）与 Claude Mythos 5 完整信息：定价 $10/$50、Mythos-class 架构、自动降级机制、SWE-Bench Pro 80.3%、关键 benchmarks；更新 Haiku 为 4.5；定价表补全 Prompt Caching；更新竞品对比 |
 | 2026-06-03 | 合并 ai-native-expert 素材：新增 Agentic 基准（Online-Mind2Web 84%）、Legal Agent Benchmark、Tool calling 改进、Messages API 系统条目、42 天迭代策略分析 |
+
+<details>
+<summary>历史早期记录（2026-05 建档阶段）</summary>
+
+| 日期 | 变更内容 |
+|------|----------|
 | 2026-05-31 | 更新 Opus 4.8（2026.05.28 发布），包含关键基准（SWE-Bench Pro 69.2%等）、诚实度4×提升、fast mode降价、与Gemini 3.1 Pro竞品对比 |
 | 2026-05-28 | 新建文档，首次提炼 Claude Opus 4.7 系列信息 |
+
+</details>

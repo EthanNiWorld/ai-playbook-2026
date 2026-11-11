@@ -74,7 +74,7 @@
 - 图片生成：qwen-image-3.0-pro（qwen-image-3.1 coming soon）
 - TTS 语音合成：qwen-audio-3.1-tts-flash（主推，北京 + 新加坡，74 系统音色含多语种方言，比 plus 快约 2 倍、成本约 1/10）/ qwen-audio-3.1-tts-plus（精品音色、指令控制、声音复刻）/ qwen-audio-3.1-tts-next（音频生成，人声 + 音效 + 环境音一次出，适合多人播客 / 对谈 / 有声剧）
 - 实时语音对话：qwen-audio-3.1-realtime-flash（主推，听 + 想 + 说一体，smart_turn_v2 语义轮次、声音复刻、FC 与联网搜索可同开）/ qwen-audio-3.1-realtime-plus（高表现力档，音频输出单价约为 flash 的 12.8 倍）/ qwen3.8-omni-flash-realtime（全模态文本 + 音频 + 视频帧，纯语音场景仍选 realtime-flash）
-- ASR 语音识别：qwen-audio-3.0-asr-flash（词级时间戳）
+- ASR 语音识别：qwen-audio-3.1-asr-flash（主推，≤5 分钟同步，热词 + Prompt 上下文 + 说话人分离 + 词级时间戳 + 原生润色）/ qwen-audio-3.1-asr-flash-filetrans（≤12 小时长音频异步）/ qwen-audio-3.1-asr-flash-streaming（实时流式，不限时长）/ qwen-audio-3.1-asr-flash-message（输入法、语音消息）；均按输入 + 输出 Token 计费
 - Embedding：qwen3.7-text-embedding（推荐，最高 2560 维）/ qwen3.7-text-embedding-flash（成本约 1/4，大规模建库首选）；精排配 qwen3.7-text-rerank 组成两阶段检索；text-embedding-v4 为上代，新项目不再选
 - 一套 API Key 调多家模型：OpenAI / Anthropic 兼容协议，迁移零成本
 

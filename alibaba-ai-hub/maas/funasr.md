@@ -6,7 +6,7 @@
 > 状态: Published
 
 <!-- SUMMARY_START -->
-**定位**: 百炼平台工业级语音识别工具包（2026-09-18 起售前 ASR 主推移交 qwen-audio-3.0-asr-flash），一站式覆盖 ASR + VAD + 标点恢复 + 说话人分离 + 情感检测 + 音频事件识别六大能力
+**定位**: 百炼平台工业级语音识别工具包（2026-11-11 起售前 ASR 主推为 qwen-audio-3.1-asr-flash），一站式覆盖 ASR + VAD + 标点恢复 + 说话人分离 + 情感检测 + 音频事件识别六大能力
 **适用**: 会议转写、字幕生成、通话分析、客服质检、直播字幕、语音助手、舆情分析
 **不适用**: 仅需基础语音转文字且预算极低的场景（可用 Qwen3-ASR 过渡）
 **竞品**: OpenAI Whisper、Google Speech-to-Text、AssemblyAI、Deepgram
@@ -17,7 +17,7 @@
 
 ### 一句话定位
 
-阿里 FunAudioLLM 团队研发的**工业级语音识别工具包**，开源 16K+ Stars，百炼平台 ASR 产品线（2026-09-18 起售前主推移交 qwen-audio-3.0-asr-flash），一次调用完成语音识别、语音检测、标点恢复、说话人分离、情感检测、音频事件识别六大能力。
+阿里 FunAudioLLM 团队研发的**工业级语音识别工具包**，开源 16K+ Stars，百炼平台 ASR 产品线（2026-11-11 起售前主推为 qwen-audio-3.1-asr-flash），一次调用完成语音识别、语音检测、标点恢复、说话人分离、情感检测、音频事件识别六大能力。
 
 ### 底层原理（通俗版）
 
@@ -34,7 +34,7 @@ FunASR 是一套完整的语音理解流水线：原始音频输入 → VAD 切�
 | **fun-asr-realtime** | WebSocket | 实时流式识别（边说边出字） | 实时 |
 | fun-asr-mtl | HTTP 异步 | 多语言增强版 | 在售 |
 
-> **Qwen3-ASR**（qwen3-asr-flash-filetrans / qwen3-asr-flash-realtime）仍可在百炼调用（旧版）；2026-09-18 起售前 ASR 主推为 qwen-audio-3.0-asr-flash（详见 qwen-audio-asr.md），FunASR 系列仍在售。
+> **Qwen3-ASR**（qwen3-asr-flash-filetrans / qwen3-asr-flash-realtime）仍可在百炼调用（旧版）；2026-11-11 起售前 ASR 主推为 qwen-audio-3.1-asr-flash（详见 qwen-audio-asr.md），FunASR 系列仍在售。
 
 ### 核心限制
 

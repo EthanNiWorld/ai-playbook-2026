@@ -1,6 +1,6 @@
 # Gemini Enterprise Agent Platform — MaaS & Agent 服务
 
-> 最后更新: 2026-05-31
+> 最后更新: 2026-11-11
 > 所属厂商: GCP
 > 产品类别: MaaS
 > 状态: Published
@@ -11,6 +11,8 @@
 **不适用**: 仅需单次 API 推理（直接用 Gemini API / AI Studio）
 **竞品**: Azure AI Foundry、火山方舟 MaaS、AWS Bedrock
 <!-- SUMMARY_END -->
+
+> ⚠️ 素材截止：2026.04 Google Cloud Next '26。平台组件与模型供给可能已有更新；模型代际已于 2026-11-11 复核（详见 [Gemini](gemini.md)），其余架构细节使用前请验证。
 
 ## 平台架构
 
@@ -28,7 +30,7 @@
 
 | 模型来源 | 代表模型 |
 |---|---|
-| **Google 自研** | Gemini 2.5 Flash / Pro / Ultra、Imagen（文生图）、Chirp（语音） |
+| **Google 自研** | Gemini 系列（当前公开可得：3.8 Flash / 3.1 Pro 等；4 Carbon / Argon 受限开放，详见 [Gemini](gemini.md)）、Imagen（文生图）、Chirp（语音） |
 | **第三方** | Claude Opus/Sonnet（Anthropic）、Llama（Meta）、开源模型 |
 | **开源** | 通过 HuggingFace 等渠道接入 |
 
@@ -52,4 +54,5 @@ Agent 的上下文引擎：
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-11 | 复核更新：Model Garden 自研模型代际改为当前公开可得口径（详情引用 gemini.md），追加素材截止提示；平台架构仍基于 2026.04 Next '26 素材 |
 | 2026-05-31 | 重写：Vertex AI→Gemini Enterprise Agent Platform 品牌迁移、Model Garden 整合、Agentic Data Cloud、MCP/A2A 协议支持 |

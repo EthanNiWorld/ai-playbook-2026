@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-11-10
+> 最后更新：2026-11-11
 
 ## 目录
 
@@ -9,8 +9,8 @@
 - [道：AI 领域知识（跨厂商）](#道ai-领域知识跨厂商)
 - [点：单产品知识](#点单产品知识)
   - 云厂商：[阿里云](#阿里云) · [Google](#google)
-  - 海外模型厂商：[Anthropic](#anthropic) · [OpenAI](#openai) · [Microsoft AI (MAI)](#microsoft-ai-mai)
-  - 中国模型厂商：[DeepSeek](#deepseek深度求索) · [MiniMax](#minimax) · [智谱 AI](#智谱-aizhipu) · [月之暗面](#月之暗面moonshot-ai) · [腾讯混元](#腾讯混元tencent-hunyuan) · [小米 MiMo](#小米-mimo-xiaomi-mimo) · [阶跃星辰](#阶跃星辰stepfun)
+  - 海外模型厂商：[Anthropic](#anthropic) · [OpenAI](#openai) · [Microsoft AI (MAI)](#microsoft-ai-mai) · [Meta](#meta)
+  - 中国模型厂商：[DeepSeek](#deepseek深度求索) · [MiniMax](#minimax) · [智谱 AI](#智谱-aizhipu) · [月之暗面](#月之暗面moonshot-ai) · [字节跳动](#字节跳动) · [腾讯混元](#腾讯混元tencent-hunyuan) · [小米 MiMo](#小米-mimo-xiaomi-mimo) · [阶跃星辰](#阶跃星辰stepfun) · [蚂蚁百灵](#蚂蚁百灵ant-group)
 - [线：对比分析（阿里云视角）](#线对比分析阿里云视角)
 - [体：行业解决方案](#体行业解决方案)
 - [模板参考](#模板参考)
@@ -28,9 +28,8 @@
 | 万相 / Wan / 视频生成 / 图生视频 | [万相](alibaba-ai-hub/maas/wan.md) |
 | Qwen-Audio-TTS / 语音合成 / TTS / 声音复刻 / 音频生成 / AudioGen / 多人播客 | [Qwen-Audio TTS](alibaba-ai-hub/maas/qwen-audio-tts.md) · [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md)（前主推） |
 | FunASR / 语音识别 / ASR / 说话人分离 | [FunASR](alibaba-ai-hub/maas/funasr.md) |
-| Qwen-Audio / Qwen-Audio-3.0-ASR / LLM 语音识别 / 即时热词 | [Qwen-Audio ASR](alibaba-ai-hub/maas/qwen-audio-asr.md) |
+| Qwen-Audio / Qwen-Audio-3.1-ASR / LLM 语音识别 / 即时热词 / 说话人分离 | [Qwen-Audio ASR](alibaba-ai-hub/maas/qwen-audio-asr.md) |
 | 实时语音对话 / 实时双工 / Realtime / 语音助手 / smart_turn / 说话人增强 / vs Omni Realtime | [Qwen-Audio Realtime](alibaba-ai-hub/maas/qwen-audio-realtime.md) |
-| HappyHorse / 快乐小马 / AI 视频生成 / 音视频联合生成 | [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) |
 | Fun-Music / 音乐生成 / AI 作曲 / 歌词生成歌曲 | [Fun-Music](alibaba-ai-hub/maas/fun-music.md) |
 | 决策模型 / decision-model / System One / 工单分流 / 内容审核判断 | [百炼决策模型](alibaba-ai-hub/maas/decision-model.md) |
 | 百炼平台 / 多账号 / TPM 扩量 / 限流 | [百炼平台](alibaba-ai-hub/maas/overview.md) |
@@ -57,12 +56,13 @@
 | 存储超级周期 / HBM / 内存涨价 / 上下文经济学 / KV cache 显存需求 / 三星利润超英伟达 | [AI 存储超级周期](knowledge/ai-general-notes/ai-memory-supercycle.md) |
 | 安全护栏 / 分类器拦截 / 降级兜底 / 护栏粒度 / CVP | [安全护栏粒度](knowledge/ai-general-notes/safety-guardrail-granularity.md) ⭐ |
 | MSA / 稀疏注意力 / MiniMax 架构 | [MSA 稀疏注意力](knowledge/minimax/msa-sparse-attention.md) |
-| Claude / Opus 5.5 / Sonnet 5.5 / Haiku 5.5 / Fable 5.1 / 分层定价 | [Claude API](knowledge/anthropic/claude-api.md) |
+| Claude / Opus 5.5 / Sonnet 5.5 / Haiku 5.5 / Fable 5.2 / 分层定价 | [Claude API](knowledge/anthropic/claude-api.md) |
 | S-1 / 招股书 / 营收增速 / 毛利率 / NRR / 客户分层 / IPO | [Anthropic 公司分析](knowledge/anthropic/general_intro.md) ⭐ + [看板](knowledge/anthropic/general_intro.html) |
 | Claude Code / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) |
 | Gemini / Gemini 4 Carbon / Argon / 1M 输出上限 / Google / Computer Use | [Gemini](knowledge/google/maas/gemini.md) |
 | GPT-6 / Astra / Sol / Terra / Luna / GPT-5 / ChatGPT / OpenAI / Codex | [GPT-6 系列](knowledge/openai/gpt-6-series.md) · [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
 | MAI / 微软自研 / Copilot 模型 | [MAI 模型家族](knowledge/microsoft/mai-models.md) |
+| Meta / Muse / Wonder / Ember / Muse Code | [Muse 系列](knowledge/meta/muse-series.md) |
 | DeepSeek / R1 / V4 / 开源 | [DeepSeek](knowledge/deepseek/general_intro.md) ⭐ |
 | Hy3 / Hy4 / 腾讯混元 / Hunyuan | [混元系列](knowledge/tencent/hunyuan.md) |
 | MiMo / 小米 / V2.6 / 全模态 | [MiMo 系列](knowledge/xiaomi/mimo-series.md) |
@@ -74,6 +74,7 @@
 | Kimi / 月之暗面 / Moonshot / K3 / K3.1 Pro | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
 | GLM / 智谱 / GLM-5.3 / GLM-5.3-Flash / FlashX / GLM-5.2 / 1M 上下文 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) |
 | Seedance / 字节视频生成 / AI 短剧 / 火山方舟 | [Seedance 系列](knowledge/bytedance/seedance-series.md) |
+| 蚂蚁 / 百灵 / Ling-3.1-flash / antdigital | [Ling 系列](knowledge/ant/ling-series.md) |
 | GRPO / PPO / critic / RL 算法选型 / Agentic RL | [RL 算法选型](knowledge/ai-general-notes/rl-algorithm-selection-grpo-vs-ppo.md) |
 | 视频模型数据策略 / 不蒸馏 / 数据质量密度 | [视频模型数据策略](knowledge/ai-general-notes/video-model-data-strategy.md) |
 | API 定价 / 开源套利 / 架构降本 / Flash 低价可持续性 | [开源定价套利与架构降本](knowledge/ai-general-notes/open-weights-api-pricing-floor.md) |
@@ -130,10 +131,9 @@
 - [万相](alibaba-ai-hub/maas/wan.md) — 视频生成旗舰、首尾帧控制
 - [Qwen-Audio TTS](alibaba-ai-hub/maas/qwen-audio-tts.md) — 语音合成主推：3.1 三档（flash 实时交互型 TTS / plus 精品音色 / next 音频生成 AudioGen，兼做 TTS + 多 voice 播客）北京 + 新加坡双节点，声音复刻 / 设计 / 指令控制 / 标签控制
 - [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md) — TTS 产品线（2026-09-18 起售前主推移交 Qwen-Audio-TTS 3.x：3.1 flash/plus/next 北京 + 新加坡），声音复刻+声音设计+指令控制，仍在售
-- [FunASR](alibaba-ai-hub/maas/funasr.md) — ASR 产品线（2026-09-18 起售前主推移交 qwen-audio-3.0-asr-flash），六大能力一站式语音识别，仍在售
-- [Qwen-Audio ASR](alibaba-ai-hub/maas/qwen-audio-asr.md) — LLM-based ASR 系列，上下文理解+即时热词，含中英混说实测幻觉案例
+- [FunASR](alibaba-ai-hub/maas/funasr.md) — ASR 产品线（2026-11-11 起售前主推为 qwen-audio-3.1-asr-flash），六大能力一站式语音识别，仍在售
+- [Qwen-Audio ASR](alibaba-ai-hub/maas/qwen-audio-asr.md) — Qwen-Audio-3.1-ASR 四变体（flash / filetrans / streaming / message），上下文理解 + 说话人分离 + 原生润色，按 Token 计费；含 3.0 代际中英混说实测幻觉案例
 - [Qwen-Audio Realtime](alibaba-ai-hub/maas/qwen-audio-realtime.md) — 端到端实时双工语音对话：3.1 flash（低延迟主力）/ plus（高表现力）北京 + 新加坡，语义轮次 smart_turn_v2、说话人增强、声音复刻；含与 Qwen3.8-Omni-Flash-Realtime 的官方场景切分与逐项对比
-- [HappyHorse](alibaba-ai-hub/maas/happyhorse.md) — AI 视频生成（音视频联合单次生成，淘天 ATH）
 - [Fun-Music](alibaba-ai-hub/maas/fun-music.md) — AI 音乐生成，歌词到歌曲端到端，fun-music-v1 实测
 - [百炼决策模型](alibaba-ai-hub/maas/decision-model.md) — decision-model-preview（09-24，System One 协议结构化决策：choice/noul/score 一次前向并行，P50 51ms；含端点约束与三坑实测）
 - [百炼网络接入方案](alibaba-ai-hub/maas/maas-solution-and-api-sample/bailian-network-access-solutions.md) — 跨云/跨境调用百炼 API 的网络层选型（公网直连 / PrivateLink / GA 全球加速）
@@ -174,7 +174,7 @@
 
 **MaaS**
 - [Gemini Enterprise Agent Platform](knowledge/google/maas/overview.md)
-- [Gemini](knowledge/google/maas/gemini.md) — **4 Carbon（10/28，AA v5.0 = 59 新榜首，Fairwind 受限）** / 4 Argon（9/30，🌟 1M 输出上限，Fairwind 受限）/ 3.1 Pro（公开可得旗舰）/ **3.8 Flash（workhorse：入门价 $0.75/$3.75 至 2026 年底）** / 3.5 Flash-Lite；3.5 Pro 确认搁置
+- [Gemini](knowledge/google/maas/gemini.md) — **4 Carbon（10/28，AA v5.0 = 60，曾榜首、现 Fable 5.2 登顶，Fairwind 受限）** / 4 Argon（9/30，🌟 1M 输出上限，Fairwind 受限）/ 3.1 Pro（公开可得旗舰）/ **3.8 Flash（workhorse：入门价 $0.75/$3.75 至 2026 年底）** / 3.5 Flash-Lite；3.5 Pro 确认搁置
 
 **AI Platform**
 - [Vertex AI → Agent Platform](knowledge/google/ai-platform/vertex-ai.md) — 训练/部署/Agent
@@ -182,7 +182,7 @@
 ### Anthropic
 
 - 公司分析: [Anthropic 公司分析](knowledge/anthropic/general_intro.md) + [📊 增长与单位经济看板](knowledge/anthropic/general_intro.html) — S-1/A 口径（2026.11.02 修正，财报至 2026.09.30）：前三季营收 $332.4 亿、Q3 单季 $169.5 亿（YoY +1,127% / QoQ +47%）、毛利率约 85%、NRR ~900%、1.19 万家 $10 万+ 客户、算力承诺 $8,954 亿
-- MaaS: [Claude API](knowledge/anthropic/claude-api.md) — 🚩 Fable 5.1（最高能力档 $10/$50）/ **⭐ Opus 5.5（2026.09.22，$4/$20，TB 4.0 66.4%、AA 独立榜第一）** / **Sonnet 5.5（2026.09.28，$2/$10 + cache 读减半）** / **Haiku 5.5（2026.10.07，1M ctx，Claude 系首个分层定价 $0.10/$0.50）**
+- MaaS: [Claude API](knowledge/anthropic/claude-api.md) — 🚩 Fable 5.2（最高能力档 $8/$40，AA v5.0.1=65 榜首）/ **⭐ Opus 5.5（2026.09.22，$4/$20，TB 4.0 66.4%、AA 59 曾独立榜第一）** / **Sonnet 5.5（2026.09.28，$2/$10 + cache 读减半）** / **Haiku 5.5（2026.10.07，1M ctx，Claude 系首个分层定价 $0.10/$0.50）**
 - AI Coding: [Claude Code](knowledge/anthropic/claude-code.md) — 终端 AI 编程
 - AI App: [Claude Cowork](knowledge/anthropic/claude-cowork.md) — 桌面通用知识工作 Agent · [Claude Managed Agents](knowledge/anthropic/claude-managed-agents.md)
 
@@ -195,6 +195,10 @@
 ### Microsoft AI (MAI)
 
 - 模型家族: [MAI 模型家族](knowledge/microsoft/mai-models.md) — Build 2026 首发 7 款自研模型：🚩 MAI-Thinking-1（推理旗舰，35B 激活/~1T 总参，AIME 2026 94.5%）/ MAI-Code-1-Flash（5B 激活，GitHub Copilot 原生集成）/ Image-2.5 / Transcribe-1.5 / Voice-2
+
+### Meta
+
+- 模型系列: [Muse 系列](knowledge/meta/muse-series.md) — 🚩 Wonder Full（旗舰，Muse Code 独占，AA v5.0.1=50）/ Wonder（API 主力 $4/$20，AA 44）/ Ember（性价比 $0.10/$0.50，AA 36，$0.14/task 为 ≥36 分档最便宜）；1M 上下文、闭权重
 
 ### DeepSeek（深度求索）
 
@@ -214,7 +218,7 @@
 ### 智谱 AI（Zhipu）
 
 - 公司分析: [智谱 AI 公司分析](knowledge/zhipu/general_intro.md) — 2026.01 港股 IPO（02513.HK，全球大模型第一股）、GLM-5 编程开源 SOTA、MaaS ARR 17 亿元
-- 模型系列: [GLM 系列](knowledge/zhipu/glm-series.md) — GLM-4 / 4.5 / 4.6 / 5 / 5.1 / 5.2 / **5.3（8/14 发布，同基座后训练 Scaling，TB 3.0 28.3 开源第一，安全攻防涌现能力）** / **5.3-Flash（8/26 发布并开源，系列首个原生多模态，320B-A18B，¥0.8/¥2.8，AA 57）+ FlashX 高速服务档（9/18，同模型扩容集群 200 t/s，¥2/¥7）**，GLM-5.2 Solid 1M 上下文 + 长程任务开源 SOTA；**GLM-Legal（10/12，首个自有品牌法律 Agent 模型，Harvey LAB 19.2% 开放权重第一，Beta 申请制）**
+- 模型系列: [GLM 系列](knowledge/zhipu/glm-series.md) — GLM-4 / 4.5 / 4.6 / 5 / 5.1 / 5.2 / **5.3（8/14 发布，同基座后训练 Scaling，TB 3.0 28.3 开源第一，安全攻防涌现能力）** / **5.3-Flash（8/26 发布并开源，系列首个原生多模态，320B-A18B，¥0.8/¥2.8，AA 57）+ FlashX 高速服务档（9/18，同模型扩容集群 200 t/s，¥2/¥7）**，GLM-5.2 Solid 1M 上下文 + 长程任务开源 SOTA；**GLM-Legal（10/12，首个自有品牌法律 Agent 模型，Harvey LAB 19.2% 开放权重第一，定价已公开·原 Beta 申请制）**
 
 ### 月之暗面（Moonshot AI）
 
@@ -238,6 +242,10 @@
 
 - 公司分析: [StepFun 公司分析](knowledge/stepfun/general_intro.md) — 2026.01 B+轮超 50 亿人民币（印奇任董事长），"AI+终端"战略：手机装机 4200 万台 + 吉利 AgentOS 座舱，终端 Agent 大脑供应商定位
 - 模型系列: [Step 系列](knowledge/stepfun/step-series.md) — **Step 5 Preview（当前旗舰，09-20，600B/27B、1M、开放权重，¥7/¥20）** / 3.7 Flash（效率型，198B/11B、256K、Advisor Mode）/ Step 3 / 3.5 Flash
+
+### 蚂蚁百灵（Ant Group）
+
+- 模型系列: [Ling 系列](knowledge/ant/ling-series.md) — 🚩 Ling-3.1-flash（2026.09.30，~560B/25B MoE，1M ctx / 256K 输出，纯文本，百炼北京 ¥2/¥6 · 缓存 ¥0.4，推理服务：蚂蚁数科）；系列另有 Ling-3.0-flash-VL / Ring-2.6-1T 等（待补研）
 
 ---
 

@@ -111,7 +111,7 @@
 | 文本生成 | qwen-max（qwen3.8-max 起）/ qwen-plus（qwen3.7-plus 起）/ qwen-flash（qwen3.8-flash 起）/ deepseek-pro（deepseek-v4-pro-0813 起）/ deepseek-flash（deepseek-v4-flash-0731 起）/ glm（glm-5.2 起） |
 | 图像生成 | qwen-image-pro（qwen-image-3.0-pro 起）/ qwen-image（qwen-image-3.0 起） |
 | 语音合成 | qwen-audio-3.1-tts-*（flash、plus） |
-| 语音识别 | qwen-audio-3.1-asr-*（flash、flash-streaming、flash-filetrans、flash-messages） |
+| 语音识别 | qwen-audio-3.1-asr-*（flash、flash-streaming、flash-filetrans、flash-message） |
 | 向量与重排序 | text-embedding-v4 及后续新版本 |
 
 **重要边界（售前必读）**：
