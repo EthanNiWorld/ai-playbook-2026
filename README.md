@@ -2,17 +2,17 @@
 
 > **AI 解决方案售前知识库** — 模型选型 · 竞品对比 · 行业方案 · 技术通识，一站式参考
 >
-> 最后更新：2026-11-11
+> 最后更新：2026-11-12
 
 <p align="center">
   <img src="https://img.shields.io/badge/覆盖厂商-15-blue?style=for-the-badge" alt="覆盖厂商 15 家：阿里云 + 14 家外部厂商">
-  <img src="https://img.shields.io/badge/结构化文档-106-orange?style=for-the-badge" alt="结构化文档 106 篇">
+  <img src="https://img.shields.io/badge/结构化文档-107-orange?style=for-the-badge" alt="结构化文档 107 篇">
   <img src="https://img.shields.io/badge/知识维度-4-green?style=for-the-badge" alt="知识维度 4 类：通识 · 产品 · 对比 · 方案">
   <img src="https://img.shields.io/badge/核心阵地-阿里云-purple?style=for-the-badge" alt="核心阵地：阿里云 MaaS · Coding · App · Infra">
-  <img src="https://img.shields.io/badge/最后更新-2026--11--11-lightgrey?style=for-the-badge" alt="最后更新 2026-11-11">
+  <img src="https://img.shields.io/badge/最后更新-2026--11--12-lightgrey?style=for-the-badge" alt="最后更新 2026-11-12">
 </p>
 
-<!-- 统计口径（2026-11-11 实测）：结构化文档 = alibaba-ai-hub/ 与 knowledge/ 下 *.md（排除 _ 开头模板与 .venv）= 44 + 62 = 106 篇；HTML/PNG 交付件不计入。修改门面数字前请用 find 重测，勿凭报告/印象自增 -->
+<!-- 统计口径（2026-11-12 实测）：结构化文档 = alibaba-ai-hub/ 与 knowledge/ 下 *.md（排除 _ 开头模板与 .venv）= 45 + 62 = 107 篇；HTML/PNG 交付件不计入。修改门面数字前请用 find 重测，勿凭报告/印象自增 -->
 
 <p align="center">
   <a href="index.md"><img src="https://img.shields.io/badge/📋-全局索引-blue?style=for-the-badge" alt="全局索引"></a>
@@ -30,9 +30,9 @@
 <td width="50%" valign="top">
 
 **☁️ 阿里云 AI 全栈**
-> 44 篇 · MaaS / Coding / App / Infra / 安全 / 行业方案 全链路
+> 45 篇 · MaaS / Coding / App / Infra / 安全 / 行业方案 全链路
 
-[百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [决策模型](alibaba-ai-hub/maas/decision-model.md) · [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [GPU](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [AI 护栏](alibaba-ai-hub/ai-guardrails/ai-guardrails.md) · [全部 44 篇 → index.md](index.md)
+[百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [决策模型](alibaba-ai-hub/maas/decision-model.md) · [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [GPU](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [AI 护栏](alibaba-ai-hub/ai-guardrails/ai-guardrails.md) · [全部 45 篇 → index.md](index.md)
 
 </td>
 <td width="50%" valign="top">
@@ -134,7 +134,7 @@
 
 ## ☁️ 阿里云 AI 全栈速览
 
-> **44 篇深度文档，覆盖从底层算力到上层应用的完整 AI 产品矩阵（含行业方案）。**
+> **45 篇深度文档，覆盖从底层算力到上层应用的完整 AI 产品矩阵（含行业方案）。**
 
 | 层级 | 核心产品 | 快速入口 |
 |------|---------|---------|
@@ -163,7 +163,7 @@ mindmap
       安全护栏 / 长程任务 / 存储超级周期
       算子经济学 / Agent Native 存储
     点:厂商与产品
-      阿里云 ☁️ 44 篇
+      阿里云 ☁️ 45 篇
         MaaS: Qwen3.8 / Wan3.0
         AI Coding: Qoder
         AI App: QwenWork / Claw
@@ -241,7 +241,7 @@ flowchart LR
 
 ```
 .
-├── alibaba-ai-hub/     ← 🟧 阿里云 AI 全栈（核心阵地·主推，44 篇）
+├── alibaba-ai-hub/     ← 🟧 阿里云 AI 全栈（核心阵地·主推，45 篇）
 │   ├── maas/                  ← MaaS 模型服务（百炼 / Qwen / Qwen Embedding & Rerank / Wan / CosyVoice / FunASR / Qwen-Audio TTS / Qwen-Audio ASR / Qwen-Audio Realtime / Fun-Music / sales-tools）
 │   ├── ai-coding/             ← Qoder（企业级 AI Coding IDE）
 │   ├── ai-application/        ← QwenWork / Claw / JVS Crew / 万镜一刻

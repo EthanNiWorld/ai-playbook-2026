@@ -261,6 +261,7 @@ AI 网关（统一多模型审核策略）、WAF、百炼智能体、Dify 智能
 
 ## 相关文档（本目录）
 
+- [客户问答：准召数据与 Jev 类决策模型对比](qa-accuracy-and-decision-model-comparison.md) — Qwen3Guard 基座口径、技术报告 benchmark、PoC 实测方案
 - [自定义词库拦截实测报告](test_guardrail_custom_keyword_results_20261111.md) — 端到端拦截验证 + 开通/配置排障链
 - [护栏延迟与计费口径实测报告](bench_guardrail_latency_results_20261111.md) — TTFT/输出速度/费用四模式对照
 - [聚合平台可插拔围栏架构图](aggregator-guardrail-architecture.png)（[HTML 源](aggregator-guardrail-architecture.html)）
