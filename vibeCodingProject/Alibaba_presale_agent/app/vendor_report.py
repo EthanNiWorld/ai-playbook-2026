@@ -39,12 +39,6 @@ _RE_OVERVIEW = re.compile(
 _RE_CASE_ID = re.compile(r'TC-\d+-[0-9A-Za-z]+')
 _RE_TAGS = re.compile(r'<[^>]+>')
 
-# 请求体里对定界有意义的参数（其余如超长 messages 正文仅做预览）
-_KEY_PARAMS = (
-    "model", "stream", "stream_options", "prompt_cache_options", "reasoning_effort",
-    "thinking", "chat_template_kwargs", "enable_thinking", "response_format",
-    "max_completion_tokens", "max_tokens", "temperature", "tool_choice",
-)
 _MAX_CASES = 12          # 单次最多分析的阻塞失败用例数（超出截断并提示）
 _MAX_FIELD_CHARS = 1400  # 单个请求/响应证据压缩后的字符上限
 
@@ -84,7 +78,9 @@ def _preview_content(content, limit: int = 160) -> str:
 
 
 def _compact_request(raw: str) -> str:
-    """压缩请求体：保留关键参数 + messages 角色/内容预览 + 图片 detail"""
+    """压缩请求体：保留所有顶层参数（任何模型都不丢证据），仅 messages 做预览、
+    tools 收敛为计数+名称、超长字符串值截断。不用参数白名单——新模型的 novel
+    参数（如 enable_search/do_sample/新思考开关）也能完整送给 LLM 定界。"""
     txt = html.unescape(raw or "").strip()
     try:
         obj = json.loads(txt)
@@ -92,9 +88,21 @@ def _compact_request(raw: str) -> str:
         return txt[:_MAX_FIELD_CHARS]
     if not isinstance(obj, dict):
         return txt[:_MAX_FIELD_CHARS]
-    out = {k: obj[k] for k in _KEY_PARAMS if k in obj}
-    if isinstance(obj.get("tools"), list):
-        out["tools_count"] = len(obj["tools"])
+    out = {}
+    for k, v in obj.items():
+        if k == "messages":
+            continue
+        if k == "tools" and isinstance(v, list):
+            out["tools_count"] = len(v)
+            out["tool_names"] = [
+                (t.get("function", {}) or {}).get("name")
+                for t in v if isinstance(t, dict)
+            ][:8]
+            continue
+        if isinstance(v, str) and len(v) > 240:
+            out[k] = v[:240] + "…"
+        else:
+            out[k] = v
     msgs = obj.get("messages")
     if isinstance(msgs, list):
         out["messages"] = [
@@ -263,12 +271,30 @@ REPORT_SYSTEM_PROMPT = """你是阿里云百炼（Model Studio）的售前技术
 - 报错为服务端 Pydantic literal_error / HTTP 400 / 耗时数十毫秒 / 无 usage 与 token 统计 → 在协议适配与参数校验层被拒，未到模型权重；多模型同报错指向公共请求 Schema 白名单。
 - 区分「参数能否通过校验」与「参数通过后语义是否真正生效」两层：参数被接受 ≠ 语义被实现（如各档 image_tokens 全相同，提示降采样可能未生效）。
 
-【常见误判知识卡】（命中时优先据此定界，但仍须结合报告证据）
-- **cache_write_tokens 缺失**：是 Moonshot 写入侧诊断扩展字段（OpenAI SDK 中为 Optional[int]=None，非强制必返），非 OpenAI 标准。缓存是否真生效看标准字段 cached_tokens 是否在重放时 >0；只要 cached_tokens 正常，缓存折扣计费不受影响。注意隐式缓存有激活门槛与写入延迟：前缀较短（实测约 <1200 token）或写入后紧接重放可能 cached_tokens=0，不能据此判缓存失效；建议用 ≥2048 token 前缀、间隔 ≥10s 重放验证。若报告在首轮写入断言处即中止、命中轮从未执行，属测试设计导致的假阴性。
-- **reasoning_content「意外存在」**：关闭思考时返回空字符串 "" 在类型上合法（厂商扩展字段 optional+nullable）。应以 reasoning_tokens 缺失或为 0 作主判据，而非「字段必须不存在/为 null」。空串 ≠ 思考未关闭。
-- **流式末块 choices 非空 / 无 choices:[] 的 usage 块**：独立的 choices:[] + 顶层 usage 块**仅在 stream_options.include_usage=true 时**才出现。若请求只设 stream:true 而漏设 include_usage，则 usage 骑在 finish 块里属正常；此时断言「末块 choices==[]」是测试前提缺陷，非平台问题。
-- **image_url.detail=original 被 400**：先查上游厂商官方枚举（如 DeepSeek 官方为 low/high/original/auto）。若上游承诺 original 而平台拒绝，属对上游协议兼容不完整；若仅基础三档可用，需区分基础阻塞项与扩展能力项。
-- **ttl 大写/未声明档位被接受(200)而非拒绝(400)**：严格大小写拒绝是厂商校验严格度，非 OpenAI 要求；宽容接受使请求成功而非失败，不影响使用（最坏降级默认档）。
+【常见误判知识卡 — 只是示例，非穷举】命中时优先据此定界；**未命中时按上述通用方法论 + 该模型上游官方协议推理，不得因知识卡未覆盖某模型就回避定界**。知识卡按厂商分组，被测模型可能是任何厂商（Qwen/DeepSeek/GLM/Kimi 等），须先识别模型再套用对应条目。
+
+■ 通用（任何模型适用）
+- **流式末块 choices 非空 / 无 choices:[] 的 usage 块**：独立的 choices:[] + 顶层 usage 块**仅在 stream_options.include_usage=true 时**才出现。请求只设 stream:true 而漏设 include_usage 时，usage 骑在 finish 块里属正常；断言「末块 choices==[]」是测试前提缺陷，非平台问题。
+- **reasoning_content「意外存在」**：思考模型关闭思考时返回空字符串 "" 在类型上合法（厂商扩展字段 optional+nullable）。应以 reasoning_tokens 缺失或为 0 作主判据，而非「字段必须不存在/为 null」。空串 ≠ 思考未关闭。
+- **参数被接受 ≠ 语义被实现**：某参数返回 200 不代表其语义生效（如各档 image_tokens 全相同提示降采样未生效）；需另立语义验证，不能仅凭「接受」判通过、也不能仅凭「拒绝某扩展值」判缺陷。
+
+■ Moonshot / Kimi
+- **cache_write_tokens 缺失**：Moonshot 写入侧诊断扩展字段（OpenAI SDK 中 Optional[int]=None，非强制必返）。缓存是否真生效看标准字段 cached_tokens 重放是否 >0。隐式缓存有激活门槛与写入延迟：前缀较短（约 <1200 token）或写入后紧接重放可能 cached_tokens=0，不能据此判缓存失效；建议 ≥2048 token 前缀、间隔 ≥10s 重放。报告若在首轮写入断言处即中止、命中轮从未执行，属测试设计假阴性。
+- **prompt_cache_options / ttl 大写或未声明档位被接受(200)而非拒绝(400)**：prompt_cache_options 本身是 Moonshot 扩展（非 OpenAI 标准）；严格大小写拒绝是厂商校验风格，宽容接受使请求成功而非失败，不影响使用（最坏降级默认档）。
+
+■ DeepSeek
+- **image_url.detail=original 被 400**：DeepSeek 官方枚举为 low/high/original/auto，original 是上游合法承诺值；平台拒绝属对上游协议兼容不完整（非客户端用非法值）。high 保留原图、上游文档语义等价 original，可作功能替代但须区分「上游等价推导」与「平台官方替代方案」。
+
+■ Qwen / 通义（DashScope）
+- **enable_thinking / thinking 开关**：Qwen 思考模型用 enable_thinking（或 chat_template_kwargs）控制；关闭思考的判据同样是 reasoning_tokens=0 / 无思考文本，而非 reasoning_content 字段必须缺失。
+- **enable_search / search_info 等联网扩展**：属 DashScope 扩展字段，非 OpenAI 标准；其返回形态差异不应判为协议不兼容。
+- **上下文缓存**：DashScope 缓存命中看 usage.prompt_tokens_details.cached_tokens；cache_write_tokens 非 Qwen 必返字段。
+
+■ GLM / 智谱
+- **tool_choice 强制下 finish_reason=stop**：GLM 系列在强制 tool_choice 时 finish_reason 可能返回 stop 而非 tool_calls；判断是否发起工具调用应以 tool_calls 非空为准，不信任 finish_reason（既有实测教训）。
+- **reasoning_content / thinking.type**：GLM 思考扩展字段，关闭思考判据同通用条（reasoning_tokens=0）。
+
+【厂商识别】先从报告 meta 的「模型 ID」识别厂商（qwen*→Qwen、deepseek*→DeepSeek、glm*→GLM、kimi*→Moonshot），套用对应知识卡；混合/未知模型按通用方法论 + 上游官方协议处理。
 
 【输出要求】
 - 对**每一条**阻塞失败用例单独成节，标题用用例名，依次回答三个问题：

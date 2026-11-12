@@ -1021,6 +1021,33 @@ def test_vendor_report():
     check("报告解析: 纯非阻塞报告零失败", vr.parse_report(only_nb)["stats"]["failure_count"] == 0)
 
 
+def test_vendor_report_generality():
+    """通用性加固：请求保留所有顶层参数(新模型 novel 参数不丢)+知识卡分厂商覆盖+格式守卫"""
+    from app import vendor_report as vr
+    # 含旧白名单外的新模型参数（Qwen enable_search / GLM do_sample / top_p / 自定义）
+    req = ('{"model":"qwen4.0","enable_search":true,"do_sample":false,"top_p":0.8,'
+           '"custom_flag":"x","messages":[{"role":"user","content":"hi"}],'
+           '"tools":[{"function":{"name":"f1"}},{"function":{"name":"f2"}}]}')
+    comp = vr._compact_request(req)
+    check("通用: 保留 enable_search", "enable_search" in comp)
+    check("通用: 保留 do_sample", "do_sample" in comp)
+    check("通用: 保留 top_p", "top_p" in comp)
+    check("通用: 保留 novel custom_flag", "custom_flag" in comp)
+    check("通用: tools 收敛计数+名称", "tools_count" in comp and "f1" in comp)
+    check("通用: messages 仍预览", "user" in comp)
+    # 超长字符串值截断（避免单个大参数挤占上下文）
+    lc = vr._compact_request('{"model":"m","big":"' + ("A" * 500) + '"}')
+    check("通用: 超长字符串截断", len(lc) < 400 and "…" in lc)
+    # 知识卡分厂商覆盖 + 通用方法论声明
+    sp = vr.REPORT_SYSTEM_PROMPT
+    check("知识卡: 含 Qwen 段", "Qwen" in sp and "enable_search" in sp)
+    check("知识卡: 含 GLM 段", "GLM" in sp and "finish_reason" in sp)
+    check("知识卡: 含 DeepSeek 段", "DeepSeek" in sp)
+    check("知识卡: 非穷举+厂商识别声明", "非穷举" in sp and "厂商识别" in sp)
+    # 格式守卫：含标记但无有效分组 → groups 空（server 据此提示格式不识别）
+    check("格式守卫: 残缺报告 groups 空", vr.parse_report('<summary class="template-group-heading">残缺</summary>')["groups"] == [])
+
+
 def main():
     print("=" * 56)
     print("阿里小可爱AI问答助手 — 离线自测套件")
@@ -1042,6 +1069,7 @@ def main():
     test_store_price_audit()
     test_fx()
     test_vendor_report()
+    test_vendor_report_generality()
     print("-" * 56)
     print(f"结果: {PASS} 通过 / {FAIL} 失败")
     sys.exit(1 if FAIL else 0)

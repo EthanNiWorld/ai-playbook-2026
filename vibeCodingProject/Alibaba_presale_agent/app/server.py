@@ -309,6 +309,12 @@ async def report_analyze(req: ReportRequest):
                 "meta": parsed["meta"],
             }
             yield f"data: {json.dumps(meta_ev, ensure_ascii=False)}\n\n"
+            if not parsed["groups"]:
+                msg = ("⚠️ 未能识别报告的分组结构。本工具适配含「template-group-heading」分组的供应商测试报告模板；"
+                       "当前文件虽含该标记但未解析出有效分组，可能是模板版本不同或文件损坏，请确认报告格式后重试。")
+                yield f"data: {json.dumps({'type': 'delta', 'text': msg}, ensure_ascii=False)}\n\n"
+                yield f"data: {json.dumps({'type': 'done'}, ensure_ascii=False)}\n\n"
+                return
             if not parsed["blocking_failures"]:
                 msg = "✅ 该报告阻塞性分组全部通过，没有需要定界的失败用例。"
                 nb = [g for g in parsed["groups"]
