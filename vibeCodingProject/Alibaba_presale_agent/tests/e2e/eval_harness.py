@@ -112,7 +112,9 @@ def _llm_json(client: OpenAI, prompt: str) -> dict:
 
 
 def _norm_q(q: str) -> str:
-    return re.sub(r"\s+", "", (q or "").lower())
+    q = (q or "").lower().strip()
+    q = re.sub(r"[\s。？！?!，,、]+$", "", q)  # 去尾部标点（“了。”与“了”视为同题）
+    return re.sub(r"\s+", "", q)
 
 
 def _read_history(db_path: Path) -> list[dict]:
@@ -126,8 +128,10 @@ def _read_history(db_path: Path) -> list[dict]:
     try:
         rows = conn.execute(
             "SELECT id, question, answer, price_status, price_audit, latency_ms,"
-            " feedback, created_at FROM answers"
-            " WHERE interrupted=0 AND answer!='' AND session_id NOT LIKE 'judge-%'"
+            " feedback, feedback_reason, created_at FROM answers"
+            " WHERE interrupted=0 AND answer!=''"
+            " AND session_id NOT LIKE 'judge-%' AND session_id NOT LIKE 'replay-%'"
+            " AND session_id NOT LIKE 'diagnose-%'"
             " ORDER BY id"
         ).fetchall()
     finally:
@@ -567,9 +571,207 @@ def cmd_refresh(args) -> None:
     print(f"\n自迭代追加 {added} case，评测集现 {len(s['cases'])} case → {SET_PATH}")
 
 
+def _replay(question: str) -> dict:
+    """重放一题打当前架构（diagnose-* 会话，不入语料），收 SSE 取答案与元信息。"""
+    t0 = time.time()
+    r = httpx.post(f"{BASE}/api/chat",
+                   json={"question": question, "history": [],
+                         "session_id": f"diagnose-{int(time.time() * 1000)}"},
+                   timeout=300)
+    parts, done, err = [], {}, ""
+    for line in r.text.splitlines():
+        if not line.startswith("data: "):
+            continue
+        try:
+            ev = json.loads(line[6:])
+        except Exception:
+            continue
+        if ev["type"] == "delta":
+            parts.append(ev["text"])
+        elif ev["type"] == "done":
+            done = ev
+        elif ev["type"] == "error":
+            err = ev.get("message", "")
+    return {"answer": "".join(parts), "done": done, "error": err,
+            "elapsed": round(time.time() - t0, 1)}
+
+
+def _mine_problems(rows: list[dict]) -> list[dict]:
+    """挖问题信号（踩/审计不符/中断/慢>120s），按问题跨库聚合去重。
+
+    跨记录聚合同一问题的信号：踩因保留最新非空（避免最新一条点踩未填原因
+    而丢掉早期有意义的踩因）；慢取最大耗时；审计/中断取是否出现过。
+    """
+    agg: dict[str, dict] = {}
+    for r in rows:
+        key = _norm_q(r["question"])
+        a = agg.setdefault(key, {
+            "question": r["question"], "_src": r["_src"], "id": r["id"],
+            "created_at": r.get("created_at") or "", "has_down": False,
+            "down_reason": "", "audit": "", "interrupted": False, "max_latency": 0,
+        })
+        if (r.get("created_at") or "") > a["created_at"]:
+            a.update(created_at=r.get("created_at") or "", question=r["question"],
+                     _src=r["_src"], id=r["id"])
+        reason = r.get("feedback_reason") or ""
+        if r.get("feedback") == "down" and "回归测试" not in reason:
+            a["has_down"] = True
+            if reason:
+                a["down_reason"] = reason
+        if (r.get("price_audit") or "").startswith("mismatch"):
+            a["audit"] = r["price_audit"]
+        if r.get("interrupted"):
+            a["interrupted"] = True
+        else:
+            a["max_latency"] = max(a["max_latency"], r.get("latency_ms") or 0)
+    problems = []
+    for a in agg.values():
+        sig = []
+        if a["has_down"]:
+            sig.append(("down", a["down_reason"]))
+        if a["audit"]:
+            sig.append(("audit", a["audit"]))
+        if a["interrupted"]:
+            sig.append(("interrupted", ""))
+        if a["max_latency"] > 120000:
+            sig.append(("slow", a["max_latency"]))
+        if sig:
+            problems.append({**a, "signals": sig})
+    return sorted(problems, key=lambda r: r.get("created_at") or "")
+
+
+_WORK_PITCH = ("模型价格、选型", "随时喊我", "需要我帮忙的时候")
+
+
+def _classify(orig: dict, rp: dict) -> tuple[str, list, float]:
+    """按原始信号类型判重放结果。返回 (总体判定, 逐信号明细, 重放耗时s)。
+
+    确定性信号（审计/耗时）自动判；语义类点踩除已知模式外标「需人工」。
+    """
+    d = rp["done"]
+    audit = d.get("price_audit") or ""
+    status = d.get("price_status") or ""
+    lat = (d.get("latency_ms") or rp["elapsed"] * 1000) / 1000
+    ans = rp["answer"]
+    detail = []
+    for kind, val in orig["signals"]:
+        if kind == "audit":
+            if audit.startswith("mismatch"):
+                detail.append(("审计", "❌仍存在", f"重放仍 mismatch:{audit[:36]}"))
+            else:
+                detail.append(("审计", "✅已解决", f"重放 audit={audit or 'ok'}"))
+        elif kind in ("slow", "interrupted"):
+            if lat < 60:
+                detail.append(("耗时", "✅已解决", f"重放 {lat:.0f}s"))
+            elif lat <= 120:
+                detail.append(("耗时", "🟡改善但仍慢", f"重放 {lat:.0f}s"))
+            else:
+                detail.append(("耗时", "❌仍慢", f"重放 {lat:.0f}s"))
+        elif kind == "down":
+            if any(k in val for k in ("该问", "反问", "哪个模型")):
+                v = "✅已解决" if status == "clarify" else "❌仍存在"
+                detail.append(("反问", v, f"重放 status={status or '-'}"))
+            elif "爱情" in val or "结尾" in val:
+                pitch = any(k in ans for k in _WORK_PITCH)
+                v = "❌仍存在" if pitch else "✅已解决"
+                detail.append(("爱情尾巴", v, "仍有工作引导" if pitch else "无引导尾巴"))
+            else:
+                detail.append(("点踩", "🟡需人工", f"踩因:{val[:30]}"))
+    sev = {"❌": 2, "🟡": 1, "✅": 0}
+    overall = max(detail, key=lambda x: sev.get(x[1][0], 0))[1] if detail else "🟡需人工"
+    return overall, detail, lat
+
+
+def cmd_diagnose(args) -> None:
+    """挖历史问题 → 重放当前架构 → 分类「已解决/仍存在/需人工」。
+
+    避免重复修已修好的问题：只有重放仍复现的才是真优化目标。
+    """
+    rows = _read_merged(args.db)
+    problems = _mine_problems(rows)
+    if args.limit:
+        problems = problems[:args.limit]
+    if not problems:
+        print("未挖到问题信号（无踩/审计不符/中断/慢请求）")
+        return
+    try:
+        httpx.get(f"{BASE}/api/health", timeout=5).raise_for_status()
+    except Exception as e:
+        print(f"服务不可用: {e}")
+        sys.exit(2)
+    print(f"挖到 {len(problems)} 个去重问题题，逐一重放当前架构...\n")
+    results = []
+    for i, p in enumerate(problems, 1):
+        sig_txt = "/".join(k for k, _ in p["signals"])
+        print(f"[{i}/{len(problems)}] ({sig_txt}) {p['question'][:46]}")
+        try:
+            rp = _replay(p["question"])
+        except Exception as e:
+            print(f"    重放失败: {str(e)[:60]}")
+            results.append({**p, "overall": "🟡需人工", "detail": [], "latency_s": 0,
+                            "replay_answer": "", "error": str(e)[:120]})
+            continue
+        overall, detail, lat = _classify(p, rp)
+        print(f"    {overall} | {lat:.0f}s | " + "; ".join(f"{k}:{v}" for k, v, _ in detail))
+        results.append({**p, "overall": overall, "detail": detail, "latency_s": round(lat, 1),
+                        "replay_answer": rp["answer"][:600], "replay_status": rp["done"].get("price_status"),
+                        "replay_audit": rp["done"].get("price_audit")})
+
+    cnt = {"✅已解决": 0, "🟡": 0, "❌": 0}
+    for x in results:
+        if x["overall"].startswith("✅"):
+            cnt["✅已解决"] += 1
+        elif x["overall"].startswith("❌"):
+            cnt["❌"] += 1
+        else:
+            cnt["🟡"] += 1
+    remaining = [x for x in results if x["overall"].startswith("❌")]
+    manual = [x for x in results if x["overall"].startswith("🟡")]
+
+    print("\n" + "-" * 64)
+    print(f"诊断汇总: ✅已解决 {cnt['✅已解决']} | 🟡改善/需人工 {cnt['🟡']} | ❌仍存在 {cnt['❌']}")
+    if remaining:
+        print("❌ 仍需优化（重放复现）:")
+        for x in remaining:
+            print(f"  - {x['question'][:50]} | {'; '.join(n for _, _, n in x['detail'])}")
+    if manual:
+        print("🟡 需人工复核（语义类点踩，附重放答案）:")
+        for x in manual:
+            print(f"  - {x['question'][:50]}")
+
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    ts = time.strftime("%Y%m%d-%H%M%S")
+    payload = {"ts": ts, "summary": cnt, "results": results}
+    (REPORT_DIR / f"diagnose-{ts}.json").write_text(
+        json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
+    md = [f"# 架构问题诊断 {ts}", "",
+          f"重放 {len(results)} 个历史问题题打当前架构：",
+          f"- ✅已解决 **{cnt['✅已解决']}** | 🟡改善/需人工 **{cnt['🟡']}** | ❌仍存在 **{cnt['❌']}**", "",
+          "| 问题 | 原信号 | 重放判定 | 耗时 | 明细 |", "|---|---|---|---|---|"]
+    for x in results:
+        sig = "/".join(k for k, _ in x["signals"])
+        det = "; ".join(f"{k}:{v}" for k, v, _ in x.get("detail", []))
+        md.append(f"| {x['question'][:40]} | {sig} | {x['overall']} | {x.get('latency_s', 0)}s | {det} |")
+    if remaining:
+        md += ["", "## ❌ 仍需优化", ""]
+        for x in remaining:
+            md += [f"### {x['question'][:60]}", "",
+                   f"- 原信号: {'/'.join(k for k, _ in x['signals'])}",
+                   f"- 重放: {'; '.join(n for _, _, n in x['detail'])}", "",
+                   "```", x.get("replay_answer", "")[:500], "```", ""]
+    if manual:
+        md += ["", "## 🟡 需人工复核", ""]
+        for x in manual:
+            md += [f"### {x['question'][:60]}", "",
+                   f"- 踩因: {'; '.join(v for k, v in x['signals'] if k == 'down')}", "",
+                   "```", x.get("replay_answer", "")[:500], "```", ""]
+    (REPORT_DIR / f"diagnose-{ts}.md").write_text("\n".join(md), encoding="utf-8")
+    print(f"报告: {REPORT_DIR}/diagnose-{ts}.md")
+
+
 def main():
     ap = argparse.ArgumentParser(description="评测集闭环：build/run/refresh")
-    ap.add_argument("cmd", choices=["build", "run", "refresh"])
+    ap.add_argument("cmd", choices=["build", "run", "refresh", "diagnose"])
     ap.add_argument("--limit", type=int, default=24, help="build/refresh 选取条数上限")
     ap.add_argument("--db", nargs="+", default=[str(DEFAULT_DB)],
                     help="qa.db 路径，可多个（本地 + 远端拷贝）合并去重")
@@ -578,7 +780,7 @@ def main():
     ap.add_argument("--baseline", default=None,
                     help="run 对比的基线文件（默认 baseline.json，无则上次报告）")
     args = ap.parse_args()
-    {"build": cmd_build, "run": cmd_run, "refresh": cmd_refresh}[args.cmd](args)
+    {"build": cmd_build, "run": cmd_run, "refresh": cmd_refresh, "diagnose": cmd_diagnose}[args.cmd](args)
 
 
 if __name__ == "__main__":
