@@ -99,6 +99,7 @@ td.time-cell { white-space: nowrap; font-variant-numeric: tabular-nums; color: #
       <th style="width:66px">反馈</th>
       <th style="width:130px">点踩原因</th>
       <th style="width:86px">价格核实</th>
+      <th style="width:70px" title="从请求到回答完成的总耗时（含检索/工具调用/生成）；≥30s 橙、≥60s 红">耗时</th>
       <th style="width:110px">时间</th>
     </tr>
   </thead>
@@ -166,7 +167,7 @@ function showError(msg) {
 
 function setRowsPlaceholder(msg) {
   document.getElementById("rows").innerHTML =
-    '<tr><td colspan="10" class="empty">' + msg + "</td></tr>";
+    '<tr><td colspan="11" class="empty">' + msg + "</td></tr>";
 }
 
 // ISO 时间（2026-11-10T01:48:08+08:00）转人读格式：今天/昨天/HH:MM，悬停仍可看原值
@@ -293,6 +294,13 @@ async function loadRows() {
         "<td>" + fb + "</td>" +
         "<td>" + reason + "</td>" +
         "<td>" + price + auditTag + "</td>" +
+        (function () {
+          const ms = it.latency_ms || 0;
+          const s = ms / 1000;
+          const color = s >= 60 ? "color:#DC2626;font-weight:600" : s >= 30 ? "color:#D97706" : "";
+          return '<td style="white-space:nowrap;' + color + '" title="' + ms + ' ms">' +
+            (ms ? s.toFixed(1) + "s" : "—") + "</td>";
+        })() +
         '<td class="time-cell" title="' + escapeHtml(it.created_at) + '">' + fmtTime(it.created_at) + "</td>" +
         "</tr>";
     }).join("");
