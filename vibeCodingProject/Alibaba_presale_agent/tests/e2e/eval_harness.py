@@ -46,6 +46,7 @@ from judge_quality import (  # noqa: E402  复用既有分层评审判据
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DB = ROOT / "data" / "qa.db"
 SET_PATH = ROOT / "data" / "eval" / "golden_set.json"
+BASELINE_PATH = ROOT / "data" / "eval" / "baseline.json"
 REPORT_DIR = ROOT / "data" / "reports"
 BASE = os.getenv("EVAL_BASE", "http://127.0.0.1:8000")
 PRICE_RE = re.compile(r"\$\s?\d+(?:\.\d+)?")
@@ -361,10 +362,58 @@ def cmd_run(args) -> None:
             "answer_id": done.get("answer_id"),
         })
 
-    _report(results, s)
+    _report(results, s, args)
 
 
-def _report(results: list[dict], s: dict) -> None:
+def _compare(cur: dict, base: dict | None) -> dict:
+    """本次 vs 基线：准确性/耗时双指标 delta + 逐 case 判定迁移 + 迭代结论。
+
+    迭代判据（准确性优先，耗时并列）：
+      - 准确性硬门退化（pass→fail 且含 hard_fail）是一票否决；
+      - judge 判定退化（无 hard_fail）可能是评审噪声，提示复跑；
+      - 通过率↑ 或 持平且 p95↓ → 改进。
+    """
+    if not base:
+        return {"has_base": False}
+    ca, ba = cur["accuracy"], base.get("accuracy", 0)
+    cl, bl = cur["latency"], base.get("latency", {})
+    acc_d = round(ca - ba, 1)
+    lat_avg_d = round(cl["avg"] - bl.get("avg", 0), 1)
+    lat_p95_d = round(cl["p95"] - bl.get("p95", 0), 1)
+    bmap = {x["id"]: x for x in base.get("results", [])}
+    regress, improve, hard_regress = [], [], []
+    for x in cur["results"]:
+        b = bmap.get(x["id"])
+        if not b:
+            continue
+        bv, cv = b.get("verdict"), x["verdict"]
+        if bv == "pass" and cv == "fail":
+            regress.append(x["id"])
+            if x.get("hard_fail"):
+                hard_regress.append(x["id"])
+        elif bv in ("fail", "warn") and cv == "pass":
+            improve.append(x["id"])
+    if hard_regress:
+        verdict = "❌ 不可接受：准确性硬门退化"
+    elif regress:
+        verdict = "⚠️ judge 判定退化（可能噪声，建议复跑确认）"
+    elif acc_d > 0 or (acc_d == 0 and lat_p95_d < -1):
+        verdict = "✅ 改进"
+    elif acc_d < 0:
+        verdict = "⚠️ 通过率下降"
+    elif lat_p95_d > 1:
+        verdict = "⚠️ 耗时上升（准确性持平）"
+    else:
+        verdict = "➖ 基本持平"
+    return {
+        "has_base": True, "base_ts": base.get("ts", "?"),
+        "acc_delta": acc_d, "lat_avg_delta": lat_avg_d, "lat_p95_delta": lat_p95_d,
+        "regressions": regress, "improvements": improve, "hard_regressions": hard_regress,
+        "verdict": verdict,
+    }
+
+
+def _report(results: list[dict], s: dict, args) -> None:
     cnt = {"pass": 0, "warn": 0, "fail": 0}
     for x in results:
         cnt[x["verdict"]] = cnt.get(x["verdict"], 0) + 1
@@ -382,39 +431,55 @@ def _report(results: list[dict], s: dict) -> None:
         vals = [sc[k] for sc in scored if isinstance(sc.get(k), (int, float))]
         avg[k] = round(sum(vals) / len(vals), 2) if vals else None
 
-    # 与上次回归对比（自迭代追踪：检测退化）
-    prev = _latest_report()
-    delta = ""
-    regress = []
-    if prev:
-        pa = prev.get("accuracy", 0)
-        delta = f"（上次 {pa}% → 本次 {acc}%，{'+' if acc >= pa else ''}{round(acc - pa, 1)}pp）"
-        prev_pass = {x["id"] for x in prev.get("results", []) if x.get("verdict") == "pass"}
-        regress = [x["id"] for x in results if x["verdict"] == "fail" and x["id"] in prev_pass]
-
-    print("\n" + "-" * 64)
-    print(f"准确性: pass={cnt['pass']} warn={cnt['warn']} fail={cnt['fail']} → 通过率 {acc}% {delta}")
-    print(f"耗时: avg={lat_stat['avg']}s p95={lat_stat['p95']}s max={lat_stat['max']}s")
-    print(f"均分(n={len(scored)}): " + " ".join(f"{k}={v}" for k, v in avg.items()))
-    if regress:
-        print(f"⚠️ 退化 case（上次 pass 本次 fail）: {regress}")
-
-    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    # 基线对比：优先 --baseline 指定 > 固定基线 baseline.json > 上次报告
     ts = time.strftime("%Y%m%d-%H%M%S")
     payload = {"ts": ts, "judge_model": JUDGE_MODEL, "accuracy": acc,
                "count": cnt, "latency": lat_stat, "avg_scores": avg,
-               "regressions": regress, "set_meta": s.get("meta", {}), "results": results}
+               "set_meta": s.get("meta", {}), "results": results}
+    base = None
+    if getattr(args, "baseline", None):
+        bp = Path(args.baseline)
+        base = json.loads(bp.read_text(encoding="utf-8")) if bp.exists() else None
+    elif BASELINE_PATH.exists():
+        base = json.loads(BASELINE_PATH.read_text(encoding="utf-8"))
+    else:
+        base = _latest_report()
+    cmp = _compare(payload, base)
+    payload["comparison"] = cmp
+
+    print("\n" + "-" * 64)
+    print(f"准确性: pass={cnt['pass']} warn={cnt['warn']} fail={cnt['fail']} → 通过率 {acc}%")
+    print(f"耗时: avg={lat_stat['avg']}s p95={lat_stat['p95']}s max={lat_stat['max']}s")
+    print(f"均分(n={len(scored)}): " + " ".join(f"{k}={v}" for k, v in avg.items()))
+    if cmp.get("has_base"):
+        print(f"—— 对比基线 {cmp['base_ts']} ——")
+        print(f"  准确性 {cmp['acc_delta']:+.1f}pp | 耗时 avg {cmp['lat_avg_delta']:+.1f}s / p95 {cmp['lat_p95_delta']:+.1f}s")
+        if cmp["regressions"]:
+            print(f"  ⚠️ 退化(pass→fail): {cmp['regressions']}")
+        if cmp["improvements"]:
+            print(f"  ✅ 改进(→pass): {cmp['improvements']}")
+        print(f"  迭代结论: {cmp['verdict']}")
+    else:
+        print("（无基线，首次运行；用 --save-baseline 固定本次为基线）")
+
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
     (REPORT_DIR / f"eval-{ts}.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
 
     md = [f"# 架构回归评测 {ts}", "",
           f"- 评测集: {s.get('meta', {}).get('count', '?')} case（构建于 {s.get('meta', {}).get('built_at', '?')}）",
           f"- 生成模型: {os.getenv('QA_MODEL', 'qwen3.8-max')} 评审: {JUDGE_MODEL}",
-          f"- **准确性**: pass={cnt['pass']} / warn={cnt['warn']} / fail={cnt['fail']} → 通过率 **{acc}%** {delta}",
+          f"- **准确性**: pass={cnt['pass']} / warn={cnt['warn']} / fail={cnt['fail']} → 通过率 **{acc}%**",
           f"- **耗时**: avg={lat_stat['avg']}s / p95={lat_stat['p95']}s / max={lat_stat['max']}s",
           f"- 均分: " + " ".join(f"{k} {v}" for k, v in avg.items()), ""]
-    if regress:
-        md += [f"> ⚠️ 退化 case: {', '.join(regress)}", ""]
+    if cmp.get("has_base"):
+        md += [f"## 基线对比（vs {cmp['base_ts']}）", "",
+               f"- 准确性 **{cmp['acc_delta']:+.1f}pp** | 耗时 avg **{cmp['lat_avg_delta']:+.1f}s** / p95 **{cmp['lat_p95_delta']:+.1f}s**",
+               f"- 迭代结论: **{cmp['verdict']}**", ""]
+        if cmp["regressions"]:
+            md += [f"> ⚠️ 退化(pass→fail): {', '.join(cmp['regressions'])}", ""]
+        if cmp["improvements"]:
+            md += [f"> ✅ 改进(→pass): {', '.join(cmp['improvements'])}", ""]
     md += ["| case | 题型 | 判定 | 耗时 | coverage | 硬门 | 结论 |",
            "|---|---|---|---|---|---|---|"]
     for x in results:
@@ -433,6 +498,10 @@ def _report(results: list[dict], s: dict) -> None:
         md += ["**回答原文**：", "", "```", x.get("answer", "")[:1500], "```", ""]
     (REPORT_DIR / f"eval-{ts}.md").write_text("\n".join(md), encoding="utf-8")
     print(f"报告: {REPORT_DIR}/eval-{ts}.md")
+    if getattr(args, "save_baseline", False):
+        BASELINE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        BASELINE_PATH.write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(f"已固定为基线: {BASELINE_PATH}")
     sys.exit(0 if cnt["fail"] == 0 else 1)
 
 
@@ -504,6 +573,10 @@ def main():
     ap.add_argument("--limit", type=int, default=24, help="build/refresh 选取条数上限")
     ap.add_argument("--db", nargs="+", default=[str(DEFAULT_DB)],
                     help="qa.db 路径，可多个（本地 + 远端拷贝）合并去重")
+    ap.add_argument("--save-baseline", action="store_true",
+                    help="run 后把本次结果固定为基线（data/eval/baseline.json）")
+    ap.add_argument("--baseline", default=None,
+                    help="run 对比的基线文件（默认 baseline.json，无则上次报告）")
     args = ap.parse_args()
     {"build": cmd_build, "run": cmd_run, "refresh": cmd_refresh}[args.cmd](args)
 
