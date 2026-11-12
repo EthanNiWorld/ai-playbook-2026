@@ -968,6 +968,59 @@ def test_fx():
     check("汇率直接回答: 给出汇率与来源", "6.6712" in fx.direct_answer({"rate": 6.6712, "source": "新浪财经", "at": "2026-11-06T17:49:00+08:00"}))
 
 
+def test_vendor_report():
+    """供应商报告解析器：阻塞判定/证据提取/非阻塞排除/消息组装（离线合成 fixture）"""
+    from app import vendor_report as vr
+
+    fixture = (
+        '<div class="overview-item"><span class="overview-label">模型 ID</span>'
+        '<span class="overview-value">test-model</span></div>'
+        '<div class="overview-item"><span class="overview-label">平台 / 供应商</span>'
+        '<span class="overview-value">Aliyun(hk)</span></div>'
+        '<summary class="template-group-heading"><strong>标准模版</strong>'
+        '<span class="status bad">阻塞性 · 必须全部通过</span><span>通过 1 / 2</span></summary>'
+        '<div class="case-group-heading"><strong>缓存检测</strong><span>2 个用例</span></div>'
+        '<details class="case"><span class="name">用例A缓存</span>'
+        '<span class="status bad">未通过 · 通过率 0%</span>'
+        '<h5>请求体</h5><pre>{&quot;model&quot;:&quot;test-model&quot;,'
+        '&quot;prompt_cache_options&quot;:{&quot;ttl&quot;:&quot;1H&quot;}}</pre>'
+        '<h5>响应体</h5><pre>{&quot;usage&quot;:{&quot;prompt_tokens_details&quot;:{&quot;cached_tokens&quot;:0}}}</pre>'
+        '<h5>断言</h5><ul class="asserts"><li class="bad">[失败] cache_write_tokens 缺失</li></ul>'
+        '</details>'
+        '<details class="case"><span class="name">用例B通过</span>'
+        '<span class="status ok">通过 · 通过率 100%</span>'
+        '<h5>断言</h5><ul class="asserts"><li class="ok">[通过] http_status 200</li></ul>'
+        '</details>'
+        '<summary class="template-group-heading"><strong>思考开关</strong>'
+        '<span class="status ok">拓展能力 · 仅统计</span><span>通过 0 / 1</span></summary>'
+        '<details class="case"><span class="name">非阻塞思考</span>'
+        '<span class="status bad">未通过</span>'
+        '<h5>断言</h5><ul class="asserts"><li class="bad">[失败] reasoning_content 意外存在</li></ul>'
+        '</details>'
+    )
+    p = vr.parse_report(fixture)
+    check("报告解析: meta 模型ID", p["meta"].get("模型 ID") == "test-model")
+    check("报告解析: meta 平台", p["meta"].get("平台 / 供应商") == "Aliyun(hk)")
+    check("报告解析: 阻塞组计数 1/2", p["stats"]["blocking_passed"] == 1 and p["stats"]["blocking_total"] == 2)
+    check("报告解析: 仅阻塞组失败计入", p["stats"]["failure_count"] == 1)
+    check("报告解析: 失败用例名", p["blocking_failures"][0]["name"] == "用例A缓存")
+    check("报告解析: 非阻塞失败被排除", all(f["name"] != "非阻塞思考" for f in p["blocking_failures"]))
+    check("报告解析: 失败断言原文", "cache_write_tokens" in p["blocking_failures"][0]["failed_assertions"][0])
+    check("报告解析: 请求保留关键参数", "1H" in p["blocking_failures"][0]["request"] and "prompt_cache_options" in p["blocking_failures"][0]["request"])
+    check("报告解析: 响应保留 usage", "cached_tokens" in p["blocking_failures"][0]["response"])
+    bg = {g["name"]: g["blocking"] for g in p["groups"]}
+    check("报告解析: 阻塞标志正确", bg.get("标准模版") is True and bg.get("思考开关") is False)
+    check("报告解析: 概览含模型与计数", "test-model" in vr.summary_text(p) and "1/2" in vr.summary_text(p))
+    msgs = vr.build_messages(p)
+    check("报告解析: 消息组装 system+user", len(msgs) == 2 and msgs[0]["role"] == "system" and msgs[1]["role"] == "user")
+    check("报告解析: 方法论入 system", "三层核对" in msgs[0]["content"])
+    check("报告解析: 证据入 user", "用例A缓存" in msgs[1]["content"])
+    check("报告解析: 空报告零失败", vr.parse_report("")["stats"]["failure_count"] == 0)
+    only_nb = fixture.split('<summary class="template-group-heading"><strong>思考开关')[1]
+    only_nb = '<summary class="template-group-heading"><strong>思考开关' + only_nb
+    check("报告解析: 纯非阻塞报告零失败", vr.parse_report(only_nb)["stats"]["failure_count"] == 0)
+
+
 def main():
     print("=" * 56)
     print("阿里小可爱AI问答助手 — 离线自测套件")
@@ -988,6 +1041,7 @@ def main():
     test_pipeline_wiring()
     test_store_price_audit()
     test_fx()
+    test_vendor_report()
     print("-" * 56)
     print(f"结果: {PASS} 通过 / {FAIL} 失败")
     sys.exit(1 if FAIL else 0)

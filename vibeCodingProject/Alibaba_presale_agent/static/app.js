@@ -8,6 +8,8 @@ const sendBtn = document.getElementById("send");
 const stopBtn = document.getElementById("stop");
 const attachBtn = document.getElementById("attach");
 const fileInput = document.getElementById("fileInput");
+const reportBtn = document.getElementById("reportBtn");
+const reportInput = document.getElementById("reportInput");
 const attachBar = document.createElement("div");
 attachBar.id = "attachBar";
 attachBar.className = "attach-bar";
@@ -182,6 +184,7 @@ function syncButtons() {
   sendBtn.hidden = busy;
   sendBtn.disabled = busy || (!inputEl.value.trim() && !pendingImages.length);
   stopBtn.hidden = !busy;
+  reportBtn.disabled = busy;
   inputHint.innerHTML = busy
     ? "Enter 加入排队<span> · 当前回答结束后依次发送</span>"
     : "Enter 发送<span> · Shift + Enter 换行</span>";
@@ -609,6 +612,130 @@ async function ask(question, images) {
   }
 }
 
+/* ── 供应商测试报告上传 → 阻塞项定界分析 ── */
+const MAX_REPORT_MB = 3;
+
+function readAsText(file) {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => resolve(fr.result);
+    fr.onerror = reject;
+    fr.readAsText(file);
+  });
+}
+
+async function analyzeReport(file) {
+  if (!file) return;
+  if (!/\.html?$/i.test(file.name) && file.type !== "text/html") {
+    showStatus("请上传 HTML 格式的供应商测试报告");
+    return;
+  }
+  if (file.size > MAX_REPORT_MB * 1024 * 1024) {
+    showStatus("报告超过 " + MAX_REPORT_MB + "MB，请精简后重试");
+    return;
+  }
+  if (busy) {
+    showStatus("当前有回答正在生成，结束后再上传报告");
+    return;
+  }
+  let htmlText;
+  try {
+    htmlText = await readAsText(file);
+  } catch (e) {
+    showStatus("读取文件失败：" + e.message);
+    return;
+  }
+  busy = true;
+  controller = new AbortController();
+  syncButtons();
+  const welcomeEl = chatEl.querySelector(".msg.welcome");
+  if (welcomeEl) { welcomeEl.remove(); setEmptyState(false); }
+  addUserMsg("📄 上传测试报告：" + file.name);
+  const ui = addBotMsg();
+  let answerText = "";
+  let thinkText = "";
+  let thinkT0 = 0;
+  let thinkCollapsed = false;
+  let metaShown = false;
+  try {
+    const resp = await fetch("/api/report/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
+      body: JSON.stringify({ html: htmlText, filename: file.name }),
+    });
+    if (!resp.ok || !resp.body) {
+      let detail = "HTTP " + resp.status;
+      try { const j = await resp.json(); if (j.detail) detail = j.detail; } catch (e) {}
+      throw new Error(detail);
+    }
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const parts = buffer.split("\n\n");
+      buffer = parts.pop();
+      for (const part of parts) {
+        const line = part.trim();
+        if (!line.startsWith("data:")) continue;
+        let ev;
+        try { ev = JSON.parse(line.slice(5).trim()); } catch (e) { continue; }
+        if (ev.type === "meta") {
+          if (!metaShown && ev.summary) {
+            metaShown = true;
+            const md = document.createElement("div");
+            md.className = "report-meta";
+            md.textContent = ev.summary;
+            ui.bubble.parentNode.insertBefore(md, ui.bubble);
+          }
+        } else if (ev.type === "status") {
+          showStatus(ev.message || "");
+        } else if (ev.type === "think") {
+          if (!thinkText) { thinkT0 = performance.now(); ui.think.hidden = false; ui.think.open = true; }
+          thinkText += ev.text;
+          ui.thinkBody.textContent = thinkText;
+          if (nearBottom(ui.thinkBody, 60)) ui.thinkBody.scrollTop = ui.thinkBody.scrollHeight;
+          scrollBottom();
+        } else if (ev.type === "delta") {
+          if (thinkText && !thinkCollapsed) {
+            thinkCollapsed = true;
+            const secs = ((performance.now() - thinkT0) / 1000).toFixed(1);
+            ui.think.dataset.secs = secs;
+            ui.thinkTitle.textContent = "思考过程";
+            ui.thinkMeta.textContent = " · " + secs + "s（已收起，点击展开）";
+            ui.think.open = false;
+          }
+          answerText += ev.text;
+          ui.bubble.innerHTML = renderMd(answerText) + '<span class="cursor">▍</span>';
+          scrollBottom();
+        } else if (ev.type === "error") {
+          answerText += (answerText ? "\n\n" : "") + "❌ " + (ev.message || "分析失败，请重试。");
+        }
+      }
+    }
+    ui.bubble.innerHTML = renderMd(answerText || "（无输出）");
+  } catch (e) {
+    if (e && e.name === "AbortError") {
+      if (thinkText && !thinkCollapsed) { thinkCollapsed = true; ui.thinkTitle.textContent = "思考过程"; ui.thinkMeta.textContent = " · 已停止"; ui.think.open = false; }
+      ui.bubble.innerHTML = (answerText ? renderMd(answerText) : "") +
+        '<div class="stop-note">⏹ 已停止生成' + (answerText ? "，以上为已生成部分" : "") + "</div>";
+    } else {
+      ui.bubble.innerHTML = '<span class="error-text">❌ ' + e.message + "</span>";
+    }
+  } finally {
+    hideStatus();
+    busy = false;
+    controller = null;
+    syncButtons();
+    if (desktopQuery.matches) inputEl.focus();
+    scrollBottom();
+    drainQueue();
+  }
+}
+
 /* ── 语音输入（qwen-audio-3.1-asr-flash，实时分段识别）── */
 const micBtn = document.getElementById("mic");
 const MIC_MAX_S = 60;
@@ -836,6 +963,12 @@ attachBtn.addEventListener("click", () => fileInput.click());
 fileInput.addEventListener("change", () => {
   addImageFiles(fileInput.files);
   fileInput.value = "";
+});
+reportBtn.addEventListener("click", () => reportInput.click());
+reportInput.addEventListener("change", () => {
+  const f = reportInput.files && reportInput.files[0];
+  reportInput.value = "";
+  if (f) analyzeReport(f);
 });
 inputEl.addEventListener("paste", (e) => {
   const files = Array.from(

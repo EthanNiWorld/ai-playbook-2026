@@ -674,6 +674,20 @@ button:disabled { cursor: not-allowed; }
 }
 .attach-btn svg { width: 18px; height: 18px; }
 .attach-btn:hover { color: var(--accent-ink); border-color: #cf8c59; background: rgba(255, 106, 0, .05); }
+.report-btn { color: var(--accent-ink); }
+.report-btn:disabled { opacity: .4; cursor: not-allowed; }
+.report-btn:disabled:hover { color: var(--accent-ink); border-color: #dcd8ce; background: transparent; }
+/* 报告分析概览条（模型/平台/阻塞组通过情况） */
+.report-meta {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--muted);
+  background: rgba(255, 106, 0, .05);
+  border-left: 3px solid #ff6a00;
+  border-radius: 8px;
+}
 
 /* ── 语音输入（qwen-audio-3.1-asr-flash）── */
 .mic-btn {

@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import asr, guide, knowledge, pipeline, store
+from . import asr, guide, knowledge, llm, pipeline, store, vendor_report
 from .config import KB_SYNC_INTERVAL_HOURS, PROJECT_ROOT, get_admin_token, get_llm_config
 
 logging.basicConfig(
@@ -97,6 +97,16 @@ class AsrRequest(BaseModel):
 
 
 _MAX_AUDIO_B64 = 14 * 1024 * 1024  # base64 后 ≈10MB 音频上限
+
+
+class ReportRequest(BaseModel):
+    # 供应商测试报告 HTML 原文（前端 FileReader.readAsText 读入）。
+    # 仅做报告内证据的智能定界分析，不执行报告里的请求、不打真实端点。
+    html: str
+    filename: str = ""
+
+
+_MAX_REPORT_CHARS = 3 * 1024 * 1024  # HTML 原文 ≈3MB 上限
 
 
 # ──────────────────────────── 鉴权 ────────────────────────────
@@ -260,6 +270,76 @@ async def speech_to_text(req: AsrRequest):
     if result.get("error"):
         return {"ok": False, "error": result["error"]}
     return {"ok": True, "text": result.get("text", ""), "model": result.get("model", "")}
+
+
+# ──────────────────────────── 供应商报告定界分析 ────────────────────────────
+
+
+@app.post("/api/report/analyze")
+async def report_analyze(req: ReportRequest):
+    """上传供应商测试报告 HTML → 解析阻塞性失败用例 → 流式输出逐条技术定界。
+
+    事件类型与 /api/chat 对齐（meta/status/think/delta/done/error），前端复用渲染。
+    不做 DB 落库与反馈（报告分析是一次性技术结论，非售前问答）。
+    """
+    html_text = req.html or ""
+    if not html_text.strip():
+        raise HTTPException(status_code=400, detail="report is empty")
+    if len(html_text) > _MAX_REPORT_CHARS:
+        raise HTTPException(status_code=400, detail="report too large (max ~3MB)")
+    if "template-group-heading" not in html_text:
+        raise HTTPException(status_code=400, detail="不是可识别的供应商测试报告（缺少分组结构）")
+    parsed = vendor_report.parse_report(html_text)
+    st = parsed["stats"]
+    log.info(
+        "report analyze filename=%s model=%s blocking=%d/%d failures=%d",
+        (req.filename or "")[:120],
+        parsed["meta"].get("模型 ID", "?"),
+        st["blocking_passed"],
+        st["blocking_total"],
+        st["failure_count"],
+    )
+
+    async def event_gen():
+        try:
+            meta_ev = {
+                "type": "meta",
+                "summary": vendor_report.summary_text(parsed),
+                "stats": st,
+                "meta": parsed["meta"],
+            }
+            yield f"data: {json.dumps(meta_ev, ensure_ascii=False)}\n\n"
+            if not parsed["blocking_failures"]:
+                msg = "✅ 该报告阻塞性分组全部通过，没有需要定界的失败用例。"
+                nb = [g for g in parsed["groups"]
+                      if not g["blocking"] and g["passed"] < g["total"]]
+                if nb:
+                    msg += "\n\n非阻塞组未满足项（仅统计，不影响验收）：" + "；".join(
+                        f"{g['name']} {g['passed']}/{g['total']}" for g in nb)
+                yield f"data: {json.dumps({'type': 'delta', 'text': msg}, ensure_ascii=False)}\n\n"
+                yield f"data: {json.dumps({'type': 'done'}, ensure_ascii=False)}\n\n"
+                return
+            status_ev = {"type": "status",
+                         "message": f"正在定界 {st['failure_count']} 条阻塞失败用例…"}
+            yield f"data: {json.dumps(status_ev, ensure_ascii=False)}\n\n"
+            messages = vendor_report.build_messages(parsed)
+            async for kind, text in llm.stream_chat(
+                messages, enable_thinking=True, max_tokens=8192
+            ):
+                if kind == "think":
+                    yield f"data: {json.dumps({'type': 'think', 'text': text}, ensure_ascii=False)}\n\n"
+                elif kind == "text":
+                    yield f"data: {json.dumps({'type': 'delta', 'text': text}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'done'}, ensure_ascii=False)}\n\n"
+        except Exception as e:
+            log.exception("report analyze 异常")
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(
+        event_gen(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 # ──────────────────────────── 后台分析 ────────────────────────────
