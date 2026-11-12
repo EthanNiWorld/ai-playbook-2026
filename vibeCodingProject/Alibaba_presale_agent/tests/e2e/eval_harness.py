@@ -88,8 +88,9 @@ def _llm_json(client: OpenAI, prompt: str) -> dict:
             resp = client.chat.completions.create(
                 model=JUDGE_MODEL,
                 messages=[{"role": "user", "content": prompt}],
-                # 评审 prompt 较长，思考可吃 >8k tokens，预算不足会把正文挤空（实测 raw='{"'）
-                max_tokens=16000, temperature=0,
+                # 评审 prompt 较长，GLM-5.3 思考偶发吃 >16k tokens（实测 finish=length），
+                # cap 提到 24000 防截断；正常 case 用量不变，仅 outlier 受益
+                max_tokens=24000, temperature=0,
             )
             choice = resp.choices[0]
             raw = (choice.message.content or "").strip()
@@ -130,14 +131,40 @@ def _read_history(db_path: Path) -> list[dict]:
         ).fetchall()
     finally:
         conn.close()
-    return [dict(r) for r in rows]
+    src = Path(db_path).stem
+    out = []
+    for r in rows:
+        d = dict(r)
+        d["_src"] = src          # 来源库标签（local/remote-qa），跨库 id 会碰撞，需前缀区分
+        d["_db"] = str(db_path)
+        out.append(d)
+    return out
+
+
+def _read_merged(db_paths: list[str]) -> list[dict]:
+    """读多个 qa.db（本地 + 远端拷贝）并合并，每条带来源标签。"""
+    rows: list[dict] = []
+    for db in db_paths:
+        p = Path(db)
+        if not p.exists():
+            print(f"[跳过] 库不存在: {db}")
+            continue
+        part = _read_history(p)
+        print(f"  库 {p.name}: {len(part)} 条有效记录")
+        rows += part
+    return rows
 
 
 def _pick_candidates(rows: list[dict], limit: int) -> list[dict]:
-    """去重 + 优先级排序：踩/审计不符(回归硬case) > 官方核实 > 其他，覆盖各题型。"""
+    """跨库去重 + 优先级排序：踩/审计不符(回归硬case) > 官方核实 > 其他。
+
+    同问题跨库保留 created_at 最新一条；同优先级内新记录优先。
+    """
     seen: dict[str, dict] = {}
-    for r in rows:  # 升序遍历，同问题保留最新一条
-        seen[_norm_q(r["question"])] = r
+    for r in rows:
+        k = _norm_q(r["question"])
+        if k not in seen or (r.get("created_at") or "") > (seen[k].get("created_at") or ""):
+            seen[k] = r
     uniq = list(seen.values())
 
     def prio(r):
@@ -147,7 +174,8 @@ def _pick_candidates(rows: list[dict], limit: int) -> list[dict]:
             return 1
         return 2
 
-    uniq.sort(key=lambda r: (prio(r), -r["id"]))
+    uniq.sort(key=lambda r: r.get("created_at") or "", reverse=True)  # 新→旧
+    uniq.sort(key=prio)  # 稳定排序，同优先级内保持新记录优先
     return uniq[:limit]
 
 
@@ -184,18 +212,19 @@ def _save_set(s: dict) -> None:
 
 
 def cmd_build(args) -> None:
-    rows = _read_history(Path(args.db))
+    rows = _read_merged(args.db)
     cands = _pick_candidates(rows, args.limit)
-    print(f"历史 {len(rows)} 条 → 去重优先选取 {len(cands)} 条构建评测集")
+    print(f"合并 {len(rows)} 条 → 跨库去重优先选取 {len(cands)} 条构建评测集")
     client = _client()
     cases = []
     for i, r in enumerate(cands, 1):
-        print(f"[{i}/{len(cands)}] id={r['id']} {r['question'][:46]}")
+        print(f"[{i}/{len(cands)}] {r['_src']}#{r['id']} {r['question'][:46]}")
         anchor = _extract_anchor(client, r)
         ref_prices = sorted(set(PRICE_RE.findall(r["answer"]))) if r["price_status"] == "official" else []
         cases.append({
-            "id": f"h{r['id']}",
+            "id": f"{r['_src']}-{r['id']}",
             "question": r["question"],
+            "source": r["_src"],
             "source_answer_id": r["id"],
             "feedback": r.get("feedback") or "",
             "ref_price_status": r["price_status"],
@@ -204,18 +233,24 @@ def cmd_build(args) -> None:
             **anchor,
         })
         print(f"    type={anchor['type']} focus={anchor['focus'][:40]}")
+    sources = {}
+    for db in args.db:
+        part = [r for r in rows if r["_db"] == str(Path(db))]
+        sources[str(Path(db))] = {
+            "last_max_id": max((r["id"] for r in part), default=0),
+            "records": len(part),
+        }
     s = {
         "meta": {
             "built_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
-            "source_db": str(args.db),
-            "last_max_id": max((r["id"] for r in rows), default=0),
+            "sources": sources,
             "judge_model": JUDGE_MODEL,
             "count": len(cases),
         },
         "cases": cases,
     }
     _save_set(s)
-    print(f"\n评测集已生成: {SET_PATH}（{len(cases)} case）")
+    print(f"\n评测集已生成: {SET_PATH}（{len(cases)} case，来源 {len(sources)} 库）")
 
 
 def _run_judge(client: OpenAI, case: dict, answer: str, hard: dict) -> dict:
@@ -412,38 +447,53 @@ def _latest_report() -> dict | None:
 
 
 def cmd_refresh(args) -> None:
-    """自迭代：评判 last_max_id 之后的新记录，追加覆盖新题型的 case。"""
+    """自迭代：逐库评判 last_max_id 之后的新记录，追加覆盖新题型的 case。"""
     s = _load_set()
     if not s.get("cases"):
         print("评测集为空，先跑 build")
         sys.exit(2)
-    rows = _read_history(Path(args.db))
-    last_id = s.get("meta", {}).get("last_max_id", 0)
-    new = [r for r in rows if r["id"] > last_id]
+    meta = s.get("meta", {})
+    sources = meta.get("sources", {})
+    # 兼容旧单库格式 meta.last_max_id
+    rows = _read_merged(args.db)
+    new = []
+    for db in args.db:
+        key = str(Path(db))
+        last_id = sources.get(key, {}).get("last_max_id", meta.get("last_max_id", 0))
+        new += [r for r in rows if r["_db"] == key and r["id"] > last_id]
     existing = {_norm_q(c["question"]) for c in s["cases"]}
     fresh = [r for r in new if _norm_q(r["question"]) not in existing]
     fresh = _pick_candidates(fresh, args.limit)
     if not fresh:
-        print(f"无新增可评测问题（last_max_id={last_id}，新记录 {len(new)} 条均已覆盖）")
+        print(f"无新增可评测问题（新记录 {len(new)} 条均已覆盖）")
         return
-    print(f"新增 {len(new)} 条 → 去重后 {len(fresh)} 条待评判追加")
+    print(f"新增 {len(new)} 条 → 跨库去重后 {len(fresh)} 条待评判追加")
     client = _client()
     added = 0
     for i, r in enumerate(fresh, 1):
-        print(f"[{i}/{len(fresh)}] id={r['id']} {r['question'][:46]}")
+        print(f"[{i}/{len(fresh)}] {r['_src']}#{r['id']} {r['question'][:46]}")
         anchor = _extract_anchor(client, r)
         ref_prices = sorted(set(PRICE_RE.findall(r["answer"]))) if r["price_status"] == "official" else []
         s["cases"].append({
-            "id": f"h{r['id']}", "question": r["question"],
-            "source_answer_id": r["id"], "feedback": r.get("feedback") or "",
+            "id": f"{r['_src']}-{r['id']}", "question": r["question"],
+            "source": r["_src"], "source_answer_id": r["id"],
+            "feedback": r.get("feedback") or "",
             "ref_price_status": r["price_status"], "ref_price_numbers": ref_prices,
             "ref_latency_ms": r["latency_ms"], "added_by": "refresh", **anchor,
         })
         added += 1
         print(f"    + type={anchor['type']} focus={anchor['focus'][:40]}")
-    s["meta"]["last_max_id"] = max((r["id"] for r in rows), default=last_id)
-    s["meta"]["count"] = len(s["cases"])
-    s["meta"]["refreshed_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
+    for db in args.db:
+        key = str(Path(db))
+        part = [r for r in rows if r["_db"] == key]
+        prev = sources.get(key, {}).get("last_max_id", 0)
+        sources[key] = {"last_max_id": max((r["id"] for r in part), default=prev),
+                        "records": len(part)}
+    meta["sources"] = sources
+    meta.pop("last_max_id", None)
+    meta["count"] = len(s["cases"])
+    meta["refreshed_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
+    s["meta"] = meta
     _save_set(s)
     print(f"\n自迭代追加 {added} case，评测集现 {len(s['cases'])} case → {SET_PATH}")
 
@@ -452,7 +502,8 @@ def main():
     ap = argparse.ArgumentParser(description="评测集闭环：build/run/refresh")
     ap.add_argument("cmd", choices=["build", "run", "refresh"])
     ap.add_argument("--limit", type=int, default=24, help="build/refresh 选取条数上限")
-    ap.add_argument("--db", default=str(DEFAULT_DB), help="qa.db 路径（可指向远端拷贝）")
+    ap.add_argument("--db", nargs="+", default=[str(DEFAULT_DB)],
+                    help="qa.db 路径，可多个（本地 + 远端拷贝）合并去重")
     args = ap.parse_args()
     {"build": cmd_build, "run": cmd_run, "refresh": cmd_refresh}[args.cmd](args)
 
