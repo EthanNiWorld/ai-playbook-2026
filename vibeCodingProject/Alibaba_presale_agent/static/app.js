@@ -8,8 +8,6 @@ const sendBtn = document.getElementById("send");
 const stopBtn = document.getElementById("stop");
 const attachBtn = document.getElementById("attach");
 const fileInput = document.getElementById("fileInput");
-const reportBtn = document.getElementById("reportBtn");
-const reportInput = document.getElementById("reportInput");
 const attachBar = document.createElement("div");
 attachBar.id = "attachBar";
 attachBar.className = "attach-bar";
@@ -47,6 +45,10 @@ function fileToDataUrl(file) {
 
 function isImageFile(file) {
   return /^(image\/png|image\/jpeg|image\/webp)$/.test(file.type || "");
+}
+
+function isHtmlFile(file) {
+  return /\.html?$/i.test(file.name || "") || file.type === "text/html";
 }
 
 async function addImageFiles(files) {
@@ -184,7 +186,6 @@ function syncButtons() {
   sendBtn.hidden = busy;
   sendBtn.disabled = busy || (!inputEl.value.trim() && !pendingImages.length);
   stopBtn.hidden = !busy;
-  reportBtn.disabled = busy;
   inputHint.innerHTML = busy
     ? "Enter 加入排队<span> · 当前回答结束后依次发送</span>"
     : "Enter 发送<span> · Shift + Enter 换行</span>";
@@ -961,14 +962,12 @@ const composerEl = document.querySelector(".composer");
 composerEl.parentNode.insertBefore(attachBar, composerEl);
 attachBtn.addEventListener("click", () => fileInput.click());
 fileInput.addEventListener("change", () => {
-  addImageFiles(fileInput.files);
+  const files = Array.from(fileInput.files || []);
   fileInput.value = "";
-});
-reportBtn.addEventListener("click", () => reportInput.click());
-reportInput.addEventListener("change", () => {
-  const f = reportInput.files && reportInput.files[0];
-  reportInput.value = "";
-  if (f) analyzeReport(f);
+  const imgs = files.filter(isImageFile);
+  const htmls = files.filter(isHtmlFile);
+  if (imgs.length) addImageFiles(imgs);
+  if (htmls.length) analyzeReport(htmls[0]);
 });
 inputEl.addEventListener("paste", (e) => {
   const files = Array.from(
@@ -984,7 +983,11 @@ composerWrapEl.addEventListener("dragover", (e) => e.preventDefault());
 composerWrapEl.addEventListener("drop", (e) => {
   e.preventDefault();
   if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
-    addImageFiles(e.dataTransfer.files);
+    const files = Array.from(e.dataTransfer.files);
+    const imgs = files.filter(isImageFile);
+    const htmls = files.filter(isHtmlFile);
+    if (imgs.length) addImageFiles(imgs);
+    if (htmls.length) analyzeReport(htmls[0]);
   }
 });
 
