@@ -1046,6 +1046,13 @@ def test_vendor_report_generality():
     check("知识卡: 非穷举+厂商识别声明", "非穷举" in sp and "厂商识别" in sp)
     # 格式守卫：含标记但无有效分组 → groups 空（server 据此提示格式不识别）
     check("格式守卫: 残缺报告 groups 空", vr.parse_report('<summary class="template-group-heading">残缺</summary>')["groups"] == [])
+    # focus：用户随报告上传的补充关注点注入 user 消息
+    pmin = {"meta": {"模型 ID": "m"}, "stats": {"blocking_passed": 0, "blocking_total": 1, "failure_count": 1},
+            "blocking_failures": [{"name": "c", "top_group": "g", "sub_group": "s",
+                                   "failed_assertions": [], "request": "", "response": ""}], "groups": []}
+    mf = vr.build_messages(pmin, "重点看缓存命中")
+    check("focus: 注入用户关注点", "重点看缓存命中" in mf[1]["content"] and "用户补充关注点" in mf[1]["content"])
+    check("focus: 空 focus 不注入", "用户补充关注点" not in vr.build_messages(pmin)[1]["content"])
 
 
 def main():

@@ -33,6 +33,7 @@ const REASONS = ["价格不对/过期", "内容过时", "答非所问", "来源�
 const MAX_IMAGES = 4;
 const MAX_IMAGE_MB = 5;
 let pendingImages = []; // [{dataUrl, name, size}]
+let pendingReport = null; // {file, name, size} 暂存的 HTML 报告附件（随输入框文字一起发送）
 
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
@@ -79,11 +80,52 @@ function removePendingImage(i) {
   syncButtons();
 }
 
+// HTML 报告暂存为附件（与截图一致：先挂附件条，可输入补充文字，点发送才分析）
+function stageReport(file) {
+  if (!file) return;
+  if (!isHtmlFile(file)) {
+    showStatus("请上传 HTML 格式的供应商测试报告");
+    return;
+  }
+  if (file.size > MAX_REPORT_MB * 1024 * 1024) {
+    showStatus("报告超过 " + MAX_REPORT_MB + "MB，请精简后重试");
+    return;
+  }
+  pendingReport = { file: file, name: file.name, size: file.size };
+  renderAttachBar();
+  syncButtons();
+  showStatus("已附加报告「" + file.name + "」，可输入补充关注点后发送");
+}
+
+function removePendingReport() {
+  pendingReport = null;
+  renderAttachBar();
+  syncButtons();
+}
+
 function renderAttachBar() {
   attachBar.innerHTML = "";
-  if (!pendingImages.length) {
+  if (!pendingImages.length && !pendingReport) {
     attachBar.hidden = true;
     return;
+  }
+  if (pendingReport) {
+    const item = document.createElement("div");
+    item.className = "attach-item attach-report";
+    item.title = pendingReport.name;
+    const label = document.createElement("span");
+    label.className = "attach-report-name";
+    label.textContent = "📄 " + pendingReport.name;
+    item.appendChild(label);
+    const rm = document.createElement("button");
+    rm.type = "button";
+    rm.className = "attach-remove";
+    rm.textContent = "×";
+    rm.title = "移除报告「" + pendingReport.name + "」";
+    rm.setAttribute("aria-label", rm.title);
+    rm.addEventListener("click", removePendingReport);
+    item.appendChild(rm);
+    attachBar.appendChild(item);
   }
   pendingImages.forEach((img, i) => {
     const item = document.createElement("div");
@@ -184,7 +226,7 @@ function syncButtons() {
   newTopBtn.disabled = !canReset;
   // 生成中：发送按钮换成「停止」，输入框仍可用（回车入队）
   sendBtn.hidden = busy;
-  sendBtn.disabled = busy || (!inputEl.value.trim() && !pendingImages.length);
+  sendBtn.disabled = busy || (!inputEl.value.trim() && !pendingImages.length && !pendingReport);
   stopBtn.hidden = !busy;
   inputHint.innerHTML = busy
     ? "Enter 加入排队<span> · 当前回答结束后依次发送</span>"
@@ -432,6 +474,21 @@ function submit(text) {
   const fromInput = text == null;
   const q = (fromInput ? inputEl.value : text).trim();
   const imgs = fromInput ? pendingImages : [];
+  // 报告附件：随输入框文字一起发送（文字作为补充关注点），不立即触发
+  if (fromInput && pendingReport) {
+    if (busy) {
+      showStatus("当前有回答正在生成，结束后再发送报告");
+      return;
+    }
+    const rep = pendingReport;
+    inputEl.value = "";
+    inputEl.style.height = "auto";
+    pendingReport = null;
+    pendingImages = [];
+    renderAttachBar();
+    analyzeReport(rep.file, q);
+    return;
+  }
   if (!q && !imgs.length) return;
   if (fromInput) {
     inputEl.value = "";
@@ -625,7 +682,8 @@ function readAsText(file) {
   });
 }
 
-async function analyzeReport(file) {
+async function analyzeReport(file, focus) {
+  focus = (focus || "").trim();
   if (!file) return;
   if (!/\.html?$/i.test(file.name) && file.type !== "text/html") {
     showStatus("请上传 HTML 格式的供应商测试报告");
@@ -651,7 +709,7 @@ async function analyzeReport(file) {
   syncButtons();
   const welcomeEl = chatEl.querySelector(".msg.welcome");
   if (welcomeEl) { welcomeEl.remove(); setEmptyState(false); }
-  addUserMsg("📄 上传测试报告：" + file.name);
+  addUserMsg("📄 上传测试报告：" + file.name + (focus ? "\n补充关注：" + focus : ""));
   const ui = addBotMsg();
   let answerText = "";
   let thinkText = "";
@@ -663,7 +721,7 @@ async function analyzeReport(file) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       signal: controller.signal,
-      body: JSON.stringify({ html: htmlText, filename: file.name }),
+      body: JSON.stringify({ html: htmlText, filename: file.name, focus: focus }),
     });
     if (!resp.ok || !resp.body) {
       let detail = "HTTP " + resp.status;
@@ -967,7 +1025,7 @@ fileInput.addEventListener("change", () => {
   const imgs = files.filter(isImageFile);
   const htmls = files.filter(isHtmlFile);
   if (imgs.length) addImageFiles(imgs);
-  if (htmls.length) analyzeReport(htmls[0]);
+  if (htmls.length) stageReport(htmls[0]);
 });
 inputEl.addEventListener("paste", (e) => {
   const files = Array.from(
@@ -987,7 +1045,7 @@ composerWrapEl.addEventListener("drop", (e) => {
     const imgs = files.filter(isImageFile);
     const htmls = files.filter(isHtmlFile);
     if (imgs.length) addImageFiles(imgs);
-    if (htmls.length) analyzeReport(htmls[0]);
+    if (htmls.length) stageReport(htmls[0]);
   }
 });
 

@@ -310,8 +310,8 @@ REPORT_SYSTEM_PROMPT = """你是阿里云百炼（Model Studio）的售前技术
 - 不输出价格、不营销；聚焦协议兼容性与业务影响。"""
 
 
-def build_messages(parsed: dict) -> list[dict]:
-    """把解析证据组装成 LLM 消息"""
+def build_messages(parsed: dict, focus: str = "") -> list[dict]:
+    """把解析证据组装成 LLM 消息。focus 为用户随报告上传的补充关注点（可选）。"""
     meta = parsed.get("meta", {})
     st = parsed.get("stats", {})
     failures = parsed.get("blocking_failures", [])
@@ -347,6 +347,11 @@ def build_messages(parsed: dict) -> list[dict]:
         head + "\n以下是阻塞组失败用例的证据，请按方法论逐条定界（是否存在/是否影响使用/为什么），"
         "并给总体定界与客户口径建议：\n" + "\n".join(body)
     )
+    if focus and focus.strip():
+        user += (
+            "\n\n【用户补充关注点】" + focus.strip()[:500]
+            + "\n请在逐条定界的基础上，优先围绕该关注点展开说明。"
+        )
     return [
         {"role": "system", "content": REPORT_SYSTEM_PROMPT},
         {"role": "user", "content": user},

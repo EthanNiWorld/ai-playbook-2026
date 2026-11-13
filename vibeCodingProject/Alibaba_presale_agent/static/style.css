@@ -753,6 +753,18 @@ button:disabled { cursor: not-allowed; }
   cursor: pointer;
 }
 .attach-remove:hover { background: rgba(0, 0, 0, .8); }
+/* 报告附件 chip（区别于截图缩略图：自适应宽度 + 文件名） */
+.attach-report {
+  width: auto; max-width: 240px; height: 40px;
+  display: flex; align-items: center;
+  padding: 0 24px 0 10px;
+  border: 1px solid #dcd8ce; border-radius: 10px;
+  background: rgba(255, 106, 0, .05);
+}
+.attach-report-name {
+  font-size: 12px; color: var(--accent-ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
 .msg-images {
   display: flex;

@@ -104,6 +104,7 @@ class ReportRequest(BaseModel):
     # 仅做报告内证据的智能定界分析，不执行报告里的请求、不打真实端点。
     html: str
     filename: str = ""
+    focus: str = ""  # 用户随报告上传的补充关注点（可选，前端输入框文字）
 
 
 _MAX_REPORT_CHARS = 3 * 1024 * 1024  # HTML 原文 ≈3MB 上限
@@ -328,7 +329,7 @@ async def report_analyze(req: ReportRequest):
             status_ev = {"type": "status",
                          "message": f"正在定界 {st['failure_count']} 条阻塞失败用例…"}
             yield f"data: {json.dumps(status_ev, ensure_ascii=False)}\n\n"
-            messages = vendor_report.build_messages(parsed)
+            messages = vendor_report.build_messages(parsed, req.focus)
             async for kind, text in llm.stream_chat(
                 messages, enable_thinking=True, max_tokens=8192
             ):
