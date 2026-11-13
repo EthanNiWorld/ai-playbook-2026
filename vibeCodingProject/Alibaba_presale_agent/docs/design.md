@@ -2,7 +2,7 @@
 
 ## Context
 
-BD/SA 在客户现场需要快速回答百炼模型价格、模型选型、AI Agent 产品问题。本服务提供 Web 问答入口：知识来源为 GitHub 仓库 ai-playbook-2026 的 `alibaba-ai-hub/` 与 `knowledge/ai-general-notes/`；价格类问题必须联网核实；回答质量通过 👍/👎 反馈闭环，全部交付记录落库供后台分析迭代。
+BD/SA 在客户现场需要快速回答百炼模型价格、模型选型、AI Agent 产品问题。本服务提供 Web 问答入口：知识来源为 GitHub 仓库 ai-playbook-2026 的 `alibaba-ai-hub/` 与 `knowledge/ai-general-notes/`；价格类问题必须联网核实；回答质量通过 👍/👎 反馈闭环，全部交付记录落库供后台分析迭代。交付记录同时驱动「代码硬指标 + 跨厂商 LLM 评审 + 历史语料自迭代」的评测闭环（`tests/e2e/`），用于回归与诊断当前架构（见下文「评测与自迭代闭环」）。
 
 ## 核心设计决策
 
@@ -21,6 +21,7 @@ BD/SA 在客户现场需要快速回答百炼模型价格、模型选型、AI Ag
 | Markdown 渲染安全 | marked 输出后正则清除 script/on事件属性/javascript: 链接 | LLM 输出不可信输入，防 XSS；引入 DOMPurify 对本项目过重 |
 | 后台鉴权 | 可选 `ADMIN_TOKEN`（`X-Admin-Token` 头） | 公网域名暴露，stats/记录/同步接口必须可保护；不配置则仅限内网使用 |
 | 会话 | localStorage 生成 session_id + 最近 8 条历史注入 | 多轮上下文提升追问质量；不持久化对话状态，无状态服务便于水平扩展 |
+| 评测闭环 | 代码硬指标 + 跨厂商 GLM-5.3 评审 + 历史语料自迭代（build/run/refresh/diagnose） | 价格正确性由代码证据链硬门保证、表达由跨厂商 judge 评（避自评偏好）；评测集从真实交付增量自迭代；diagnose 重放定界，避免重复修已修好的问题 |
 
 ## 问答管线（pipeline.py）
 
@@ -72,13 +73,61 @@ feedback('up'|'down'|NULL), feedback_reason, feedback_at
 （回答表格价格是否都来自官方证据），后台「价格审计不符」卡片直接暴露疑似抄错/臆造的坏 case；
 点踩原因聚类定位知识库缺口。
 
+## 评测与自迭代闭环（tests/e2e/）
+
+回答质量不靠人工抽查，而是一条「代码硬指标 + 跨厂商 LLM 评审 + 历史语料自迭代」的闭环。两个脚本分工：`judge_quality.py` 提供分层评审判据与快速自检；`eval_harness.py` 复用其判据（`JUDGE_MODEL/RUBRIC/ask/hard_checks/verdict_of`），在其上构建可回归、可自迭代的评测集。
+
+### 分层判据（judge_quality.py）
+
+沿用项目「按出错成本分层」：
+
+- **代码层**（`hard_checks`，确定性、不依赖模型）：价格六列表格存在/列序、内部路径泄漏（`knowledge/`、`alibaba-ai-hub/`、`*.md`）、价格数字集合、表格外正文长度。
+- **GLM-5.3 表达层**（`RUBRIC` 四维 1-5 分）：structure / caliber / brevity / usability；eval 里另加 coverage（要点覆盖）。**绝不让 judge 用自身记忆判价格对错**——价格只来自定价页证据，judge 只评表达与交付。
+- **跨厂商**：qwen3.8-max 生成、glm-5.3 评审，规避自评偏好。
+- **判定优先级**（`verdict_of`）：代码硬失败（路径泄漏）> judge fail > 解析失败 warn > judge warn > 弱分 warn > pass。
+- **实测约束**：glm-5.3 在 workspace 端点强制思考（不能传 `enable_thinking=False`），`max_tokens` 给足（judge_quality 8000 / eval 24000）防思考挤空正文；系统元数据用 `<system_meta>` 标签隔离并声明「只评审 `<answer>` 内文本」，否则被当回答泄漏扣分。
+- **快速自检**：6 个固定 case（价格主/详情/幻觉诱导、对比、方案、规格），`judge_quality.py [n]`，落 `data/reports/quality-*`。
+
+### 评测集四命令（eval_harness.py）
+
+`build / run / refresh / diagnose`。语料来自 qa.db（本地 + ECS 远端拷贝，`--db` 多路径合并去重）。
+
+- **build**：跨库去重（`_norm_q` 去空格+尾标点）+ 优先级（踩/审计不符 > 官方核实 > 其他，新记录优先）选 case → GLM 提炼锚点（type / must_contain / must_avoid / focus，**不依赖具体价格数字**，避免官方调价造成假回归）→ `golden_set.json`（`meta.sources` 存每库游标 `last_max_id`）。
+- **run**：逐 case 回放当前架构 → 准确性硬门（仅 `type==price`：`price_status==official` 且 audit 非 mismatch；路径泄漏）+ GLM 评审（含 coverage）+ 耗时 avg/p95/max → 与基线对比（`--save-baseline` 固定 / `--baseline` 指定 / 默认上次报告）：准确性 pp delta + 耗时 delta + 逐 case 迁移 + 迭代结论（**硬门退化一票否决**；judge 退化提示复跑；准确性↑或持平且 p95↓=改进；耗时↑单独告警）。
+- **refresh（自迭代）**：读每库游标之后的新记录（排除 `judge-/replay-/diagnose-` 会话防自污染）→ 去重已覆盖题 → 提炼锚点追加 golden set → 推进游标。新题型随真实交付持续进入评测集，**评测集不是一次性快照**。
+- **diagnose（避免重复修已修好的问题）**：`_mine_problems` 跨记录聚合同题信号（踩/审计不符/中断/慢>120s；踩因留最新非空、慢取最大）→ `_replay` 用 `diagnose-*` 会话重放当前架构 → `_classify` 确定性自动判（审计是否复现、耗时 60/120s 阈值、反问看 clarify、爱情看有无工作引导尾巴），语义点踩标 🟡需人工并附重放答案 → 报告 ✅已解决 / 🟡改善需人工 / ❌仍存在。**只有重放仍复现的才是真优化目标**。
+
+### 远端语料合并（免 SSH）
+
+ECS 容器内 `/app/data/qa.db` → `sqlite3 VACUUM INTO` 一致性快照 → gzip → OSS 私有桶（云助手 RunCommand 触发，凭证走 `config.get_oss_config` 不回显）→ 本地 oss2 get 解压到 `data/eval/remote-qa.db`。与本地库合并去重，case id 加来源前缀防碰撞。
+
+### 闭环如何转起来
+
+```
+真实交付(👍/👎+踩因+审计+耗时) 落 qa.db
+  → refresh 把新题/坏 case 增量进评测集
+  → run 回归当前架构并与基线比(准确性+耗时)
+  → diagnose 挖历史坏 case 重放定界(已解决的不重复修)
+  → 修知识库/prompt/工具 → 再 run 验证改进
+  → --save-baseline 固定新基线
+```
+
+准确性优先、耗时并列，硬门退化一票否决。
+
+### 关键坑（实测）
+
+- `_read_history` 的 SELECT 必须含 `feedback_reason`，否则踩因恒空、diagnose 语义分类失效。
+- 会话排除须含 `judge-/replay-/diagnose-` 三类（评测/重放/诊断自身写入的记录），否则 refresh 自迭代污染。
+- 评测集与报告落 `data/eval`、`data/reports`（gitignore，含真实客户问题不入库）。
+- run 单轮独立回放（不带历史），依赖上下文的省略式追问复现会失真，build 后可人工剔除。
+
 ## 环境变量
 
 见 README 表格。全部路径动态推导（`Path(__file__)`），无硬编码绝对路径。
 
 ## 后续迭代方向
 
-- 反馈原因自动聚类（当前靠人工在后台浏览 + CSV 导出分析）
-- 点踩记录驱动知识库修复流程（坏 case → 补文档 → 验证）
+- 语义类点踩的自动定界（当前 diagnose 对语义踩标 🟡需人工、附重放答案待人工复核；确定性信号已自动判）
+- 评测集覆盖多轮上下文（当前 run 单轮独立回放，省略式追问复现失真）
 - 定价页结构化抽取（当前为文本窗口注入，模型多时精确度可再提升）
 - ADMIN_TOKEN 升级为完整登录态（多管理员场景）
