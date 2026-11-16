@@ -531,7 +531,7 @@
         <div class="mx-panel mx-p1">
           <div class="mx-group">
             <div class="mx-names">
-              <span><b>Q</b>wen3.8-Max</span><span><b>Q</b>wen3.8-27B<em>开源</em></span><span><b>Q</b>wen3.8-Flash</span>
+              <span><b>Q</b>wen4-Max</span><span><b>Q</b>wen3.8-27B<em>开源</em></span><span><b>Q</b>wen3.8-Flash</span>
             </div>
             <div class="mx-bar">Qwen · 自研旗舰</div>
           </div>
@@ -670,9 +670,9 @@
           </thead>
           <tbody>
             <tr>
-              <td><span class="model-name">Qwen3.8-Max</span><span class="badge badge-max">旗舰</span></td>
-              <td>代码工程 · 全栈开发<br>专业办公 · 复杂推理<br>长程 Agent · 图文理解</td>
-              <td>2.4T MoE 万亿参数 · 1M 上下文<br>文本+图像输入（VL，已实测）<br><span style="font-size:11px;color:var(--text-muted);">思考/非思考双模式 · 最大输出 128K · 官方自评仅次于 Fable 5 · 开源版本Qwen3.8-2.4T-A95B</span></td>
+              <td><span class="model-name">Qwen4-Max</span><span class="badge badge-max">旗舰</span></td>
+              <td>代码工程 · 全栈开发<br>专业办公 · 复杂推理<br>长程 Agent · 图文视频理解</td>
+              <td>2.4T MoE / 71B 激活 + 328B N-gram · 1M 上下文<br>文本+图像+视频输入 · 思考默认开启（low/high/xhigh）<br><span style="font-size:11px;color:var(--text-muted);">最大输出 131K（非思考）· 新加坡 $1.5/$4.5 · 任务成本较上代降约 60% · 2026-11-16 GA 取代 Qwen3.8-Max · 本体闭源，私有化选 Qwen3.8-27B</span></td>
             </tr>
             <tr>
               <td><span class="model-name">Qwen3.8-27B</span><span class="badge badge-plus">开源版本</span></td>
@@ -692,7 +692,7 @@
         <h4>选型口诀</h4>
         <ul>
           <li><strong>90% 客户</strong>用 <strong>Qwen3.8-Flash</strong> 就够了 — 成本敏感场景的最优解（IPC / 审校 / 大批量打标 / 高并发）</li>
-          <li>需要<strong>旗舰能力</strong>（重度代码 / 复杂推理 / 长程 Agent / 图文理解）→ <strong>Qwen3.8-Max</strong>，旗舰场景首选</li>
+          <li>需要<strong>旗舰能力</strong>（重度代码 / 复杂推理 / 长程 Agent / 图文视频理解）→ <strong>Qwen4-Max</strong>，旗舰场景首选</li>
           <li>要求<strong>开源与稳定版本镜像</strong>（私有化部署 / 数据合规 / 版本可控）→ <strong>Qwen3.8-27B</strong>，兼顾秒级响应对话 / 客服 / GUI Agent</li>
         </ul>
       </div>
@@ -772,7 +772,7 @@
         <div class="notice-icon">⚠️</div>
         <div>
           <h3>PTU / TPM 预留支持的模型</h3>
-          <p>支持 Qwen3.8-Max、Qwen3.8-Flash、Qwen3.8-27B、DeepSeek-V4.1-Flash 等核心模型（以控制台为准）。</p>
+          <p>支持 Qwen3.8-Max（存量）、Qwen3.8-Flash、Qwen3.8-27B、DeepSeek-V4.1-Flash 等核心模型（以控制台为准）；Qwen4-Max 新上架，预留支持情况以控制台为准。</p>
         </div>
       </div>
 
@@ -814,8 +814,8 @@
           <tbody>
             <tr>
               <td><span class="badge badge-max">旗舰推理</span></td>
-              <td class="model-name">qwen3.8-max</td>
-              <td>2.4T MoE 万亿参数，支持文本+图像输入（已实测），代码工程+专业办公+长程 Agent</td>
+              <td class="model-name">qwen4-max</td>
+              <td>2.4T MoE / 71B 激活 + 328B N-gram，文本+图像+视频输入，代码工程+专业办公+长程 Agent，任务成本较上代降约 60%（2026-11-16 GA，取代 qwen3.8-max）</td>
             </tr>
             <tr>
               <td><span class="badge badge-plus">推理</span></td>
