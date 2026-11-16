@@ -2,17 +2,17 @@
 
 > **AI 解决方案售前知识库** — 模型选型 · 竞品对比 · 行业方案 · 技术通识，一站式参考
 >
-> 最后更新：2026-11-12
+> 最后更新：2026-11-16
 
 <p align="center">
   <img src="https://img.shields.io/badge/覆盖厂商-15-blue?style=for-the-badge" alt="覆盖厂商 15 家：阿里云 + 14 家外部厂商">
-  <img src="https://img.shields.io/badge/结构化文档-107-orange?style=for-the-badge" alt="结构化文档 107 篇">
+  <img src="https://img.shields.io/badge/结构化文档-109-orange?style=for-the-badge" alt="结构化文档 109 篇">
   <img src="https://img.shields.io/badge/知识维度-4-green?style=for-the-badge" alt="知识维度 4 类：通识 · 产品 · 对比 · 方案">
   <img src="https://img.shields.io/badge/核心阵地-阿里云-purple?style=for-the-badge" alt="核心阵地：阿里云 MaaS · Coding · App · Infra">
-  <img src="https://img.shields.io/badge/最后更新-2026--11--12-lightgrey?style=for-the-badge" alt="最后更新 2026-11-12">
+  <img src="https://img.shields.io/badge/最后更新-2026--11--16-lightgrey?style=for-the-badge" alt="最后更新 2026-11-16">
 </p>
 
-<!-- 统计口径（2026-11-12 实测）：结构化文档 = alibaba-ai-hub/ 与 knowledge/ 下 *.md（排除 _ 开头模板与 .venv）= 45 + 62 = 107 篇；HTML/PNG 交付件不计入。修改门面数字前请用 find 重测，勿凭报告/印象自增 -->
+<!-- 统计口径（2026-11-13 实测）：结构化文档 = alibaba-ai-hub/ 与 knowledge/ 下 *.md（排除 _ 开头模板与 .venv）= 45 + 64 = 109 篇；HTML/PNG 交付件不计入。修改门面数字前请用 find 重测，勿凭报告/印象自增 -->
 
 <p align="center">
   <a href="index.md"><img src="https://img.shields.io/badge/📋-全局索引-blue?style=for-the-badge" alt="全局索引"></a>
@@ -94,7 +94,7 @@
 |------|-----------|
 | [百炼平台](alibaba-ai-hub/maas/overview.md) | UID 级限流、多账号扩 TPM（8.5× 实测）、deepseek-v4-flash 压测 |
 | [百炼安全合规](alibaba-ai-hub/maas/model_studio_security-compliance_cn.md) | SOC 2 / ISO 42001 / CMaaS / Geo-fencing，企业级安全应答 |
-| [Qwen3.8 系列](alibaba-ai-hub/maas/qwen.md) | Max（2.4T 旗舰）/ 3.8-27B（开源 Dense 视觉语言）/ 3.8-Flash（Next 架构轻量），1M / 262K 上下文 |
+| [Qwen 系列](alibaba-ai-hub/maas/qwen.md) | Qwen4-Max 🚩（2.4T/71B 激活旗舰，1M ctx，文本+图像+视频，任务成本较上代降约 60%）/ 3.8-27B（开源 Dense 视觉语言）/ 3.8-Flash（Next 架构轻量） |
 | [万相 Wan3.0](alibaba-ai-hub/maas/wan.md) | 30 秒长视频 All-in-One、文/图/音/视频/文档多模态输入（Wan2.7 主攻 LoRA 定制） |
 | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) | 企业级 AI Coding IDE，vs Claude Code / Trae 定位差异 |
 | [GPU 产品线选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) | 阿里云 GPU 全线产品对比 + 场景选型决策树 |
@@ -138,7 +138,7 @@
 
 | 层级 | 核心产品 | 快速入口 |
 |------|---------|---------|
-| 🧠 **MaaS 模型即服务** | 百炼 · Qwen3.8 · 向量与重排序 · Wan3.0 · Fun-Music | [百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [向量与重排序](alibaba-ai-hub/maas/qwen-embedding-rerank.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [Fun-Music](alibaba-ai-hub/maas/fun-music.md) · [售前工具](alibaba-ai-hub/maas/sales-tools/) |
+| 🧠 **MaaS 模型即服务** | 百炼 · Qwen4-Max · 向量与重排序 · Wan3.0 · Fun-Music | [百炼](alibaba-ai-hub/maas/overview.md) · [Qwen](alibaba-ai-hub/maas/qwen.md) · [向量与重排序](alibaba-ai-hub/maas/qwen-embedding-rerank.md) · [Wan](alibaba-ai-hub/maas/wan.md) · [Fun-Music](alibaba-ai-hub/maas/fun-music.md) · [售前工具](alibaba-ai-hub/maas/sales-tools/) |
 | ⌨️ **AI Coding** | Qoder（企业级 AI Coding） | [Qoder](alibaba-ai-hub/ai-coding/qoder.md) · [Qoder 架构分析](alibaba-ai-hub/ai-coding/qoder_survey_20260622.md) · [vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) |
 | 🤖 **AI 应用平台** | QwenWork · Claw · JVS Crew | [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [Claw](alibaba-ai-hub/ai-application/claw-family.md) · [JVS Crew](alibaba-ai-hub/ai-application/jvs-crew.md) |
 | ⚡ **AI Infra（存储 / 算力）** | GPU 选型 · AgenticFS | [GPU 选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [AgenticFS](alibaba-ai-hub/ai-infra/agenticfs.md) |
@@ -164,7 +164,7 @@ mindmap
       算子经济学 / Agent Native 存储
     点:厂商与产品
       阿里云 ☁️ 45 篇
-        MaaS: Qwen3.8 / Wan3.0
+        MaaS: Qwen4-Max / Wan3.0
         AI Coding: Qoder
         AI App: QwenWork / Claw
         AI Infra: GPU 选型 / AgenticFS
@@ -174,7 +174,7 @@ mindmap
       OpenAI
         GPT-6 Astra·Sol·Terra·Luna · Codex
       Google
-        Gemini 4 Carbon·Argon / 3.8 Flash · Vertex AI
+        Gemini 4 Carbon·Argon·Hydrogen / Orchestrator · Vertex AI · TPU 8tx/8i Max
       Microsoft AI
         MAI-Thinking-1 / MAI-Code-1-Flash
       Meta
@@ -186,7 +186,7 @@ mindmap
       月之暗面
         Kimi K3.1 Pro / K3：2.8T / 1M
       MiniMax
-        M3.1-Flash / M3 开源 / H3 视频 / Agent Team
+        M3.1-Flash / M3 开源 / H3-Image / H3 视频 / Agent Team
       字节跳动
         Doubao-Seed-2.1 Pro 0915 · Seedance 2.5
       腾讯混元
@@ -251,15 +251,15 @@ flowchart LR
 │   └── ai-industry-solutions/ ← 🟩 行业方案（企业AI平台 / 短剧出海 / IPC / 商业地产）
 ├── inbox/              ← 📥 原始素材暂存（处理后自动归档）
 ├── archive/            ← 🗄️ 已处理素材备份
-├── knowledge/          ← 🎯 结构化知识库（通识 + 他厂商，62 篇）
+├── knowledge/          ← 🎯 结构化知识库（通识 + 他厂商，64 篇）
 │   ├── ai-general-notes/   ← 🟦 AI 通识（30 篇：Agent / Harness / Prompt / 记忆 / ReAct / 增长飞轮 / Benchmark / RL 算法选型 / 开源定价套利 / 算子经济学 / Agent Native 存储 / 推理服务栈（vLLM/SGLang/Mooncake/EPD/Qwen3.8-27B 部署实测）/ 存储超级周期…）
-│   ├── google/             ← 🔵 Google（3 篇：MaaS / Platform）
+│   ├── google/             ← 🔵 Google（4 篇：MaaS / Platform / TPU）
 │   ├── anthropic/          ← 🔵 Anthropic（5 篇：MaaS / Coding / App）
 │   ├── openai/             ← 🔵 OpenAI（4 篇：公司分析 / GPT-6系列 / GPT-5系列 / Codex）
 │   ├── microsoft/          ← 🔵 Microsoft AI（1 篇：MAI 模型家族）
 │   ├── meta/               ← 🔵 Meta（1 篇：Muse 系列）
 │   ├── deepseek/           ← 🟣 DeepSeek（4 篇：公司分析 / V系列 / R系列 3 篇 md + 知识地图 HTML）
-│   ├── minimax/            ← 🟣 MiniMax（4 篇：公司分析 / 模型系列 / MSA论文 / Agent Team）
+│   ├── minimax/            ← 🟣 MiniMax（5 篇：公司分析 / M系列 / H系列 / MSA论文 / Agent Team）
 │   ├── moonshot/           ← 🟣 月之暗面（2 篇：公司分析 / Kimi K系列）
 │   ├── bytedance/          ← 🟣 字节跳动（2 篇：Doubao-Seed-2.1 / Seedance 系列）
 │   ├── zhipu/              ← 🟣 智谱 AI（2 篇：公司分析 / GLM系列）

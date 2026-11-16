@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-11-12
+> 最后更新：2026-11-16
 
 ## 目录
 
@@ -23,7 +23,7 @@
 
 | 我想找… | 文档 |
 |---------|------|
-| Qwen / 通义千问 / 3.8-Max / 3.8-27B / 3.8-Flash / 旗舰 | [Qwen](alibaba-ai-hub/maas/qwen.md) |
+| Qwen / 通义千问 / Qwen4-Max / 3.8-Max / 3.8-27B / 3.8-Flash / 旗舰 | [Qwen](alibaba-ai-hub/maas/qwen.md) |
 | Qwen Embedding / Rerank / 向量化 / 重排序 / RAG 检索 / 精排 | [Qwen 向量与重排序](alibaba-ai-hub/maas/qwen-embedding-rerank.md) |
 | 万相 / Wan / 视频生成 / 图生视频 | [万相](alibaba-ai-hub/maas/wan.md) |
 | Qwen-Audio-TTS / 语音合成 / TTS / 声音复刻 / 音频生成 / AudioGen / 多人播客 | [Qwen-Audio TTS](alibaba-ai-hub/maas/qwen-audio-tts.md) · [CosyVoice](alibaba-ai-hub/maas/cosyvoice.md)（前主推） |
@@ -60,7 +60,8 @@
 | Claude / Opus 5.5 / Sonnet 5.5 / Haiku 5.5 / Fable 5.2 / 分层定价 | [Claude API](knowledge/anthropic/claude-api.md) |
 | S-1 / 招股书 / 营收增速 / 毛利率 / NRR / 客户分层 / IPO | [Anthropic 公司分析](knowledge/anthropic/general_intro.md) ⭐ + [看板](knowledge/anthropic/general_intro.html) |
 | Claude Code / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) |
-| Gemini / Gemini 4 Carbon / Argon / 1M 输出上限 / Google / Computer Use | [Gemini](knowledge/google/maas/gemini.md) |
+| Gemini / Gemini 4 Carbon / Argon / Hydrogen / Orchestrator / 1M 输出上限 / Google / Computer Use | [Gemini](knowledge/google/maas/gemini.md) |
+| TPU / 8tx / 8i Max / 机密计算 / 长上下文 / Google 自研芯片 | [TPU 第八代](knowledge/google/ai-platform/tpu.md) |
 | GPT-6 / Astra / Sol / Terra / Luna / GPT-5 / ChatGPT / OpenAI / Codex | [GPT-6 系列](knowledge/openai/gpt-6-series.md) · [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
 | MAI / 微软自研 / Copilot 模型 | [MAI 模型家族](knowledge/microsoft/mai-models.md) |
 | Meta / Muse / Wonder / Ember / Muse Code | [Muse 系列](knowledge/meta/muse-series.md) |
@@ -72,6 +73,7 @@
 | Qwen vs Doubao / 豆包竞争分析 | [Qwen3.8-Max vs Doubao-Seed-2.1 Pro](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
 | Haiku 5.5 vs GPT-6 Luna / 小模型档 / Flash 档竞争 / 分段定价 / 前沿模型横向对比 | [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) |
 | MiniMax / M3 / M3.1-Flash / M3 Pro / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
+| H3-Image / 图像生成 / 4K / 开源图像 / MiniMax H 系列 | [H 系列](knowledge/minimax/h3-series.md) |
 | Kimi / 月之暗面 / Moonshot / K3 / K3.1 Pro | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
 | GLM / 智谱 / GLM-5.3 / GLM-5.3-Flash / FlashX / GLM-5.2 / 1M 上下文 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) |
 | Seedance / 字节视频生成 / AI 短剧 / 火山方舟 | [Seedance 系列](knowledge/bytedance/seedance-series.md) |
@@ -127,7 +129,7 @@
 **MaaS（模型即服务）**
 - [百炼平台](alibaba-ai-hub/maas/overview.md) — UID 级限流、多账号扩 TPM（8.5× 实测）、deepseek-v4-flash 压测
 - [百炼安全合规](alibaba-ai-hub/maas/model_studio_security-compliance_cn.md) — 算力隔离、SOC 2、ISO 42001、CMaaS、Geo-fencing、SLA
-- [Qwen](alibaba-ai-hub/maas/qwen.md) — 3.8-Max（旗舰，2.4T MoE / 1M ctx / TB 2.1 86.6，开源版 qwen3.8-2.4t-a95b 原生 262K 可扩展 ~1M）/ 3.8-27B（开源 Dense 视觉语言，GUI/视觉场景，可关思考）/ 3.8-Flash（新架构轻量，2026-08-26：125B/6B 激活 + 51B N-gram Embedding，GDN+QSA 混合注意力，1M ctx，¥0.8/¥2.7，取代 3.7-Flash）
+- [Qwen](alibaba-ai-hub/maas/qwen.md) — **Qwen4-Max 🚩（2026-11-16 GA 取代 3.8-Max：2.4T/71B 激活 + 328B N-gram，1M ctx，文本+图像+视频，Work360 52.69 / AA v5.0.1 43，任务成本降约 60%，SG $1.5/$4.5/缓存 $0.075，本体闭源）** / 3.8-27B（开源 Dense 视觉语言，GUI/视觉场景，可关思考）/ 3.8-Flash（Next 架构轻量，125B/6B 激活 + 51B N-gram，1M ctx，¥0.8/¥2.7）；3.8-Max 转存量（AA v5.0.1 重校准后 34，旧 v5=45 口径已修正）
 - [Qwen 向量与重排序](alibaba-ai-hub/maas/qwen-embedding-rerank.md) — qwen3.7-text-embedding（向量旗舰，256~2560 维）/ flash（1/4 价轻量）/ text-rerank（500 条候选精排），RAG 两阶段检索，含北京/新加坡定价与限流
 - [万相](alibaba-ai-hub/maas/wan.md) — 视频生成旗舰、首尾帧控制
 - [Qwen-Audio TTS](alibaba-ai-hub/maas/qwen-audio-tts.md) — 语音合成主推：3.1 三档（flash 实时交互型 TTS / plus 精品音色 / next 音频生成 AudioGen，兼做 TTS + 多 voice 播客）北京 + 新加坡双节点，声音复刻 / 设计 / 指令控制 / 标签控制
@@ -179,10 +181,11 @@
 
 **MaaS**
 - [Gemini Enterprise Agent Platform](knowledge/google/maas/overview.md)
-- [Gemini](knowledge/google/maas/gemini.md) — **4 Carbon（10/28，AA v5.0 = 60，曾榜首、现 Fable 5.2 登顶，Fairwind 受限）** / 4 Argon（9/30，🌟 1M 输出上限，Fairwind 受限）/ 3.1 Pro（公开可得旗舰）/ **3.8 Flash（workhorse：入门价 $0.75/$3.75 至 2026 年底）** / 3.5 Flash-Lite；3.5 Pro 确认搁置
+- [Gemini](knowledge/google/maas/gemini.md) — **4 Carbon 🚩（10/28 发布、11/10 公开 API，AA v5.0 = 60 曾榜首、现 Fable 5.2 登顶，入门 $2/$10）** / 4 Argon（9/30 发布、10/13 GA，🌟 1M 输出上限）/ **4 Hydrogen（11/12，workhorse：3.8 Flash 官方接棒者，AA 51/54，$1.50/$7.50 flat，免费 tier）** / 3.5 Flash-Lite / Omni Flash；3.8 Flash 与 3.1 Pro 移入历史（仍在售）；3.5 Pro 确认搁置；Fairwind 仅限无护栏 cyber 版
 
 **AI Platform**
 - [Vertex AI → Agent Platform](knowledge/google/ai-platform/vertex-ai.md) — 训练/部署/Agent
+- [TPU 第八代](knowledge/google/ai-platform/tpu.md) — 8t/8i/8tx/8i Max 四系统（一年四款史上首次），机密计算 + 长上下文双 die，8tx/8i Max 2027 上市（采访口径）
 
 ### Anthropic
 
@@ -217,6 +220,7 @@
 
 - 公司分析: [MiniMax 公司分析](knowledge/minimax/general_intro.md) — 2026.01 港股 IPO（00100.HK）、海螺 AI / Talkie 全球化、M1/M2/M2.7 开源混合注意力，**M2.7 自我进化（模型自驱动训练）**；2026 H1 营收 1.17 亿美元（+283.1%）、M3.1-Flash 已发布（09-27 Preview / 10-21 百炼）、M3 Pro/H3.1 仍路线图、H3 视频模型与 Music 3.0 开源
 - 模型系列: [M 系列](knowledge/minimax/minimax-series.md) — M1 / M2 / M2.7 / M3 / **M3.1-Flash（已发布，1M、五档思考，百炼 ¥1/¥4）**；M3 Pro（~3T）仍路线图 [⚠️ 待验证]
+- H 系列: [H 系列](knowledge/minimax/h3-series.md) — **H3-Image（11-10 开源图像旗舰，33.1B DiT、10s 内 4K、AA 双榜开放权重第一，$2.30/$1.50/$3.80）** / H3（视频）/ Music 3.0；H3.1 仍路线图
 - 技术论文: [MSA 稀疏注意力](knowledge/minimax/msa-sparse-attention.md) — 块级稀疏注意力架构（arXiv:2606.13392）、Kernel 设计、选择粒度 × 硬件对齐
 - Agent: [Agent Team](knowledge/minimax/agent-team.md) — Leader–Worker–Verifier 对抗制衡多 Agent 协作系统
 
