@@ -413,6 +413,16 @@ def extract_model_names(question: str) -> list[str]:
         if q2 == q:
             break
         q = q2
+    # ②-b qwen 家族 ".0" 小版本别名：qwen4 代起官方 ID 省略 ".0"
+    #    （qwen4-max 而非 qwen4.0-max）。不归一会拼出 qwen4-0-max 空壳详情页、
+    #    主表 _row_matches 也失配 → LLM 凭旧清单断言"尚未上架"（2026-11-16 事故）。
+    #    只处理 qwen + 档位后缀；wan 家族官方 ID 保留 .0（wan3.0-video），不动。
+    q = re.sub(
+        r"(?<![a-z])qwen(\d+)\.0(?=-(?:max|plus|flash|turbo))",
+        r"qwen\1",
+        q,
+        flags=re.IGNORECASE,
+    )
     # 生图线的档位后缀（"qwen image 2.1 pro" → qwen-image-2.1-pro）
     q = re.sub(
         rf"(qwen-(?:mt-)?image-[\d.]+)\s+({_TIER_ALT})(?![a-z])", r"\1-\2", q, flags=re.IGNORECASE
@@ -743,8 +753,10 @@ def _official_id(raw: str) -> str:
     discount"，直接拿来当标题会把营销标记写进模型名。
     """
     return re.split(
-        r"\s+(?:\d+%\s*batch|batch inference discount|context caching discount)",
+        r"\s+(?:\d+%\s*batch|batch inference discount|context caching discount"
+        r"|cache price \(per million tokens\))",
         (raw or "").strip(),
+        flags=re.IGNORECASE,
     )[0].strip()
 
 
@@ -760,6 +772,40 @@ def _row_matches(model_id: str, token: str) -> bool:
         return True
     parts = [p for p in token.lower().split("-") if p]
     return len(parts) > 1 and all(p in mid for p in parts)
+
+
+def _catalog_candidates(token: str, rows: list[dict], limit: int = 5) -> list[str]:
+    """官方页未直接命中时，从实时在售行目录召回相近官方 ID。
+
+    主定价页的行目录是「在售状态」的权威来源（新模型上架当天自动出现），
+    知识库/Prompt 记忆滞后时靠它给 LLM 重核线索，而不是任其断言"尚未上架"。
+    只召回候选、不带价格——价格仍必须走 verify_price 证据链。
+    匹配口径：同家族前缀 + 归一 key（去分隔符、".0" 别名）；有精确命中时只返回
+    精确命中（避免 qwen4.0-max 误带 preview），无精确命中才用互含召回候选；
+    快照版本号（-0902 / -2026-05-20 等）不占候选名额。
+    """
+    tok = (token or "").strip().lower()
+    if not tok or tok == "qwen":
+        return []
+    fam = re.match(r"[a-z]+", tok)
+    if not fam:
+        return []
+    variants = {tok, re.sub(r"\.0(?=-|$)", "", tok)}
+    keys = {_norm_model_key(v) for v in variants}
+    pairs: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for r in rows:
+        mid = _official_id(r["model_id"]).lower()
+        if not mid or mid in seen or not mid.startswith(fam.group(0)):
+            continue
+        if re.search(r"-\d{4}(?:-\d{2}-\d{2})?$", mid):
+            continue
+        seen.add(mid)
+        pairs.append((mid, _norm_model_key(mid)))
+    exact = [mid for mid, mk in pairs if mk in keys]
+    if exact:
+        return exact[:limit]
+    return [mid for mid, mk in pairs if any(k in mk or mk in k for k in keys)][:limit]
 
 
 def _media_rows_from_main(rows: list[dict], token: str) -> list[tuple]:
@@ -1169,10 +1215,16 @@ async def verify_price_for(model: str, competitor: str = "") -> dict:
 
     # 一级证据：官方定价页主表（详情页未命中时）
     html = await _get_pricing_html()
+    catalog_hints: list[str] = []
     if html and need_main_page_models:
         rows = _parse_pricing_rows(html)
+        unmatched: list[str] = []
         for m in need_main_page_models:
-            official_blocks.extend(_model_evidence(rows, m))
+            blocks = _model_evidence(rows, m)
+            if blocks:
+                official_blocks.extend(blocks)
+            else:
+                unmatched.append(m)
         text = _strip_tags(html)
         if not any("模型详情页定价" in b for b in official_blocks):
             # 详情页全未命中时才回退 v1 文本窗口
@@ -1195,11 +1247,22 @@ async def verify_price_for(model: str, competitor: str = "") -> dict:
                     "kind": "official",
                 }
             )
+        # 实时在售目录候选：官方页未直接命中时，从行目录召回相近官方 ID 供 LLM
+        # 用官方 ID 重核。在售状态以定价页为准，知识库/Prompt 滞后不得断言"尚未上架"。
+        if not official_blocks:
+            for m in unmatched:
+                cands = _catalog_candidates(m, rows)
+                if cands:
+                    catalog_hints.append(
+                        f"- `{m}` 未在官方定价页直接命中，实时在售目录中的相近官方 ID："
+                        + "、".join(f"`{c}`" for c in cands)
+                    )
 
     # 二级证据：搜索旁证。官方证据已就绪时跳过（官方页更权威，且 web_search 单次 12-14s，
-    # 跳过可把价格题核实耗时从 ~25s 降到秒级）；仅官方证据缺失时用作兜底
+    # 跳过可把价格题核实耗时从 ~25s 降到秒级）；仅官方证据缺失时用作兜底。
+    # 有目录候选时同样跳过：重核官方 ID 才是正路，搜索摘要只会引入第三方旧价。
     web_results = []
-    if not official_blocks:
+    if not official_blocks and not catalog_hints:
         queries = [f"{m} alibabacloud model studio pricing" for m in models]
         if not queries:
             queries = ["阿里云百炼 模型 定价 pricing"]
@@ -1278,6 +1341,14 @@ async def verify_price_for(model: str, competitor: str = "") -> dict:
             "若下方资料片段里出现与证据不一致的旧价/折扣价，直接忽略，不要说明、不要比对。\n"
             + "\n".join(official_blocks)
             + "\n\n"
+        )
+    if catalog_hints:
+        evidence_md += (
+            "### 官方在售目录候选（非价格证据，禁止据此报价）\n"
+            + "\n".join(catalog_hints)
+            + "\n若判断为同一模型的口语写法，请用官方 ID 重新调用 verify_price 核实；"
+            "候选不止一个且无法唯一确定时（如正式版与 preview），向用户说明或反问，"
+            "不得静默选一个报价；重核后仍未核到的，只说『未能核实』，不得断言『尚未上架』。\n"
         )
     if web_blocks:
         evidence_md += (

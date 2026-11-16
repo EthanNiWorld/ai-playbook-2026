@@ -136,6 +136,42 @@ def test_price_verifier_units():
           pv.extract_model_names("glm4.6多少钱") == ["glm-4.6"])
     check("官方 ID 剥标记: 折扣/缓存后缀不进模型名",
           pv._official_id("qwen3.8-max 50% batch inference discount context caching discount") == "qwen3.8-max")
+    # 2026-11-16 事故：qwen4-max 已上架，用户口语写 qwen4.0-max → slug 拼出
+    # qwen4-0-max 空壳页、主表也失配 → LLM 凭旧 Prompt 清单断言"尚未上架"并改报 qwen3.8-max。
+    check("模型名提取: 'qwen4.0-max' .0 别名归一",
+          pv.extract_model_names("qwen4.0-max价格") == ["qwen4-max"])
+    check("模型名提取: 'qwen4.0 max' 空格 + .0 别名",
+          pv.extract_model_names("qwen4.0 max价格") == ["qwen4-max"])
+    check("模型名提取: 'qwen4.0-max-preview' .0 别名带 preview",
+          pv.extract_model_names("qwen4.0-max-preview价格") == ["qwen4-max-preview"])
+    check("模型名提取: wan3.0 保留 .0（官方 ID 带 .0）",
+          pv.extract_model_names("wan3.0-video价格") == ["wan3.0-video"])
+    check("模型名提取: qwen3.8-max 不受 .0 规则影响",
+          pv.extract_model_names("qwen3.8-max价格") == ["qwen3.8-max"])
+    check("官方 ID 剥标记: Cache price 链接尾注不进模型名",
+          pv._official_id("qwen4-max Cache price (per million tokens)") == "qwen4-max")
+    # 实时在售目录候选召回（离线合成行，不联网）：知识库/Prompt 滞后时
+    # 给 LLM 重核线索，而不是任其断言"尚未上架"
+    cat_rows = [
+        {"model_id": "qwen4-max Cache price (per million tokens)"},
+        {"model_id": "qwen4-max-preview"},
+        {"model_id": "qwen3.8-max context caching discount"},
+        {"model_id": "qwen3.8-max-0902 context caching discount"},
+        {"model_id": "qwen3.7-max-2026-06-08"},
+        {"model_id": "deepseek-v4.1-flash"},
+    ]
+    check("目录候选: qwen4.0-max 召回 qwen4-max（.0 别名）",
+          pv._catalog_candidates("qwen4.0-max", cat_rows) == ["qwen4-max"])
+    check("目录候选: 裸版本号 qwen4.0 也能召回",
+          pv._catalog_candidates("qwen4.0", cat_rows) == ["qwen4-max", "qwen4-max-preview"])
+    check("目录候选: preview 问法精确命中 preview（不误带正式版）",
+          pv._catalog_candidates("qwen4-max-preview", cat_rows) == ["qwen4-max-preview"])
+    check("目录候选: 快照版本号不占名额",
+          pv._catalog_candidates("qwen3.8-max", cat_rows) == ["qwen3.8-max"])
+    check("目录候选: 跨家族不误召回",
+          pv._catalog_candidates("glm-5.3", cat_rows) == [])
+    check("目录候选: 泛化 token qwen 不召回",
+          pv._catalog_candidates("qwen", cat_rows) == [])
     # 产品（非百炼模型）定价题不走百炼校验（Qoder 事故：百炼回落证据会误导 LLM 把
     # model-pricing 链接安到产品头上）；产品定价交给知识库检索回答
     check("产品定价题不触发模型校验: qoder", not pv.is_price_question("qoder是怎么计费的"))

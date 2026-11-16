@@ -45,6 +45,8 @@ TOOLS = [
                 "跨云比价时填写 competitor 参数。"
                 "仅适用于百炼在售模型（qwen/wan/deepseek/kimi/glm/cosyvoice 等）；"
                 "Qoder/QoderWake/QwenWork 等席位订阅制产品不在百炼定价页，不要对它们调用。"
+                "返回证据若附「官方在售目录候选」，说明口语写法未直接命中："
+                "判断是否同一模型后用候选官方 ID 重新调用本工具核实，不得直接断言模型尚未上架。"
             ),
             "parameters": {
                 "type": "object",
