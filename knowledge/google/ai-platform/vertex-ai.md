@@ -1,6 +1,6 @@
 # Gemini Enterprise Agent Platform（原 Vertex AI）
 
-> 最后更新: 2026-05-31
+> 最后更新: 2026-11-13
 > 所属厂商: GCP
 > 产品类别: AI Platform
 > 状态: Published
@@ -84,7 +84,7 @@ Agent Platform 按 **Build → Scale → Govern → Optimize** 四层组织：
 | Agent 框架 | ADK 2.0（三种编排） | Semantic Kernel / AutoGen | 豆包 Agent 开发 |
 | 治理层 | Govern 四件套（最完整） | Responsible AI 工具 | 基础 |
 | 优化闭环 | Simulation+Evaluation+Observability+Optimizer | Prompt Flow 评估 | 基础监控 |
-| 自研芯片 | TPU 8t/8i 双芯 | 无 | 无 |
+| 自研芯片 | TPU 第八代四系统（8t/8i/8tx/8i Max），详见 [tpu.md](tpu.md) | 无 | 无 |
 | 低代码 | Agent Studio | Copilot Studio | Agent 开发平台 |
 | 数据+AI | BigQuery + Knowledge Catalog + Iceberg 联邦 | Fabric + Cosmos DB | 数据中台 |
 
@@ -96,4 +96,5 @@ Agent Platform 按 **Build → Scale → Govern → Optimize** 四层组织：
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-13 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20261113.md（TPU 条目）- 竞品对照表自研芯片行由「TPU 8t/8i 双芯」更新为第八代四系统口径，新建 [tpu.md](tpu.md) 专档承载完整规格/软件栈/原理 |
 | 2026-05-31 | 重写：Vertex AI→Gemini Enterprise Agent Platform 品牌迁移、四层架构、ADK 2.0、Agent 优化四件套 |

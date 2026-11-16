@@ -1,6 +1,6 @@
 # Claude Haiku 5.5 vs GPT-6 Luna 小型档竞争分析（含 2026-09/10 前沿模型横向对比）
 
-> 最后更新: 2026-10-09
+> 最后更新: 2026-11-13
 > 对比维度: 模型能力 / 定价策略 / 生态分发 / 对 Qwen Flash 档启示
 > 状态: Published
 
@@ -39,6 +39,8 @@
 | 缓存读 | 0.01 / 0.05 | [⚠️ 待补充] | 1 | ~0.20（90% off） | ~0.01（90% off） | 0.10 |
 | 独有能力 | Claude 系首个分层定价 / effort 下放 / computer use·browser use beta | AA 指数第一（58） | Critical cyber / 模型监督训练 / ARC-AGI-3 99.9% | 缓存×effort 解耦 / effort 含 none | 272K 分段 | 1M 输出 / 最低幻觉率 15% / 无护栏防御版 |
 | 访问 | 全平台 GA | 全平台 GA | 分阶段 + Daybreak | GA | GA（含 Free 桌面端） | **Fairwind 受限** |
+
+> ⚠️ 2026-11-13 更新：表中 Argon "Fairwind 受限"为 2026-10-09 快照。Argon 已于 10-13 公开 GA [⚠️ 第三方信源]、Carbon 11-10 开放公开 API（官方），Fairwind 现仅覆盖无护栏 cyber 版；Gemini 4 Hydrogen（11-12）已接棒 workhorse。详见 [Gemini](../../../knowledge/google/maas/gemini.md)。
 
 **AA Intelligence Index 座次**（截至 2026-10-09，第三方独立指数；注意该指数随新模型发布重新校准，Astra 发布时 v4.1.1 口径为 Fable 5.1 65.7 / Astra 61.2，与当前口径不可直接混用）：
 
@@ -108,6 +110,7 @@ Opus 5.5 (58) > Sonnet 5.5 (56) > Argon = Astra = Fable 5.1 (53) > GPT-6.1 Sol (
 三前沿厂商 + Meta（Muse Spark 1.3：DeepSWE 75.4%、$1.25/$4.25）在约五周内完成新世代发布：
 - 全部采用「**旗舰先行 → 小模型补位**」家族刷新节奏（Astra→Sol/Luna；Opus 5.5→Sonnet 5.5→Haiku 5.5；Argon 为 Gemini 4 首发）
 - 全部对最强 cyber 能力实施**受限访问**（OpenAI Daybreak / Google Fairwind / Anthropic Glasswing+CVP）并纳入美国政府自愿审查——前沿模型发布已从"全面 GA"结构性转为"**分阶段 + 可信计划**"
+  - ⚠️ 2026-11-13 修正：Google 随后已转向全面公开 GA（Argon 10-13 [⚠️ 第三方信源] / Carbon 11-10 API 开放），受限访问收窄至无护栏 cyber 变体——"分阶段 + 可信计划"的结构性判断已被 Google 实践部分推翻；OpenAI/Anthropic 当前状态 [⚠️ 待核实]
 - 命名体系从版本层级（Pro/Flash、Haiku/Sonnet）转向**代号体系**（Astra/Sol/Luna、Argon），模型从"参数档位"产品化为"角色分工"
 
 ## 参考资料
@@ -126,4 +129,5 @@ Opus 5.5 (58) > Sonnet 5.5 (56) > Argon = Astra = Fable 5.1 (53) > GPT-6.1 Sol (
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-13 | 时效修正（随 Gemini 4 Hydrogen 调研入库联动）：横向对比表 Argon "Fairwind 受限"快照与"行业结构信号"受限访问判断追加日期化修正注（Argon 10-13 GA [⚠️ 第三方信源] / Carbon 11-10 API 开放，Fairwind 仅限无护栏 cyber 版）；历史快照值保留不改 |
 | 2026-10-09 | 新建文档，提炼自四模型调研素材：Haiku 5.5 vs GPT-6 Luna 定价/能力/生态三维对位（≤100K 同价更聪明 vs >100K Luna 无对手）；六模型横向对比表 + AA 座次（截至 2026-10-09，双口径标注）；Qwen Flash 档五点售前启示；行业结构信号（分阶段发布+代号体系） |
