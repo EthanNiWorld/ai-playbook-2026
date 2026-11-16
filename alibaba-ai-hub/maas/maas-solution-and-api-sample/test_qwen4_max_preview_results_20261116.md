@@ -55,3 +55,35 @@
 
 - `max_tokens` 与 `max_completion_tokens` 等价，均限制**思考+回答总量**；沿用旧模型"仅为回答预留"的上限会导致输出提前截断
 - 多轮对话 `preserve_thinking` 默认开启，历史 assistant 消息须通过 `reasoning_content` 字段完整回传思考内容
+
+## 最大输出边界与注意点实测（test_qwen4_max_output_limits.py + temp_file/probe_qwen4_max_upper.py，新加坡端点）
+
+### 输出上限
+
+| 模式 | 文档上限 | 实测结论 |
+| --- | --- | --- |
+| 非思考（enable_thinking=False） | 131,072 | 参数无请求期校验，上限为生成期硬帽（未真实生成到顶验证，避免高额费用） |
+| 思考（默认） | 262,144（思考+回答共享） | 同上 |
+
+**关键发现：max_tokens 无请求期上限校验**——传 131,073 / 262,145 / 393,216 甚至 1,000,000 均被静默接受并正常返回，不报 400。越界值不会报错，只会按模型实际上限截断，**不能依赖 API 报错发现配置错误**。
+
+### 共享预算截断实证（迁移最大坑）
+
+| 用例 | 结果 |
+| --- | --- |
+| 思考开启 + max_tokens=64 | finish_reason=**length**，completion=64 全部为 reasoning_tokens，**正文为空字符串** |
+| 非思考 + max_tokens=64（对照） | finish_reason=stop，29 token 完整回答 |
+| xhigh + max_tokens=200 + 算术题 | 思考自适应压缩至 137 token，正文 58 token，finish_reason=stop（紧预算下思考会压缩而非必然截断，但不可依赖） |
+
+即：qwen3.8 代"max_tokens 只限正文"的经验完全失效，小预算 + 思考开启 = 正文静默消失。流式消费端必须读 finish_reason，否则无法感知截断。
+
+### 参数行为
+
+- `reasoning_effort` 与 `thinking_budget` **互斥**：同设返回 400 `invalid_parameter_error`（"cannot be set simultaneously"）
+- `reasoning_effort` low / medium / xhigh 均被接受；同一问题 reasoning_tokens 实测 low=20~26、medium=96、xhigh=262，档位确实影响思考长度（medium 按文档映射到 high）
+- 多轮历史 assistant **不带** reasoning_content（默认 preserve_thinking=true）实测**不报错**、正常回答；显式 preserve_thinking=False 也正常。官方"须完整回传"是质量建议而非硬校验，但纯文本历史的 Agent 建议显式关闭以符合协议语义
+
+### 成本注意点
+
+- 思考 token 计入输出计费（SG $4.5/1M）：xhigh 档同一简单问题输出 token 约为 low 档 5 倍，高频场景默认 high 档需评估成本，轻量任务建议显式传 low
+- 输出预算建议：思考模式按"思考+回答"共同预留（如 32K 起步），非思考模式可按纯回答预留
