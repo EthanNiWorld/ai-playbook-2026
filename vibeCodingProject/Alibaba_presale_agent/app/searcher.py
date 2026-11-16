@@ -85,7 +85,13 @@ async def _search_bailian(
         return []
     client = AsyncOpenAI(api_key=cfg["api_key"], base_url=cfg["base_url"])
     extra: dict = {"enable_search": True}
-    if thinking_budget:
+    search_max_tokens = 800
+    if cfg["model"].startswith("qwen4"):
+        # qwen4 代 max_tokens 含思考：800 会被思考吃光致正文空（搜索降级）；
+        # 思考预算参数换为 reasoning_effort（thinking_budget 为 qwen3 代口径）
+        extra["reasoning_effort"] = "low"
+        search_max_tokens = 4096
+    elif thinking_budget:
         extra["thinking_budget"] = int(thinking_budget)
     resp = await client.chat.completions.create(
         model=cfg["model"],
@@ -98,7 +104,7 @@ async def _search_bailian(
             }
         ],
         extra_body=extra,
-        max_tokens=800,
+        max_tokens=search_max_tokens,
     )
     msg = resp.choices[0].message
     content = (msg.content or "").strip()

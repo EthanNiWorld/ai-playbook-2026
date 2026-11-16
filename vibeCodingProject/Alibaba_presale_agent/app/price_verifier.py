@@ -894,19 +894,43 @@ def _parse_pricing_rows(html: str) -> list[dict]:
     positions = [p for p, _ in heads]
 
     rows: list[dict] = []
+    # 缓存子表归属：同地域内累积的主表行（页面每个 region 拆成多张主表，
+    # 子表跟在 region 最后一张表后，只认“最近一张主表”会漏挂新代际行）
+    cur_region: str | None = None
+    region_rows: list[dict] = []
     for tbl in re.finditer(r"<table[\s\S]*?</table>", html):
         idx = bisect.bisect_right(positions, tbl.start()) - 1
         region = heads[idx][1] if idx >= 0 else ""
+        if region != cur_region:
+            cur_region = region
+            region_rows = []
         trs = list(re.finditer(r"<tr[\s\S]*?</tr>", tbl.group(0)))
         if not trs:
             continue
         # 首行若含 "model" 视为表头
         first_cells = _cells(trs[0].group(0))
+        # 缓存子表（qwen4 代起缓存价独立成表，紧跟同地域主表之后）：
+        # 表头为 Cache write (5m)/Cache write (1h)/Explicit/implicit cache read，
+        # 无 Model ID 列；只适用于主表中 ID 格带 Cache price 链接的型号。
+        # 不接住它，缓存列就全是 "—"，LLM 会反过来断言"该模型无缓存计费项"（2026-11-16 实测）。
+        if any("cache write (5m)" in c.lower() for c in first_cells):
+            prices = re.findall(r"\$([\d.]+)", " ".join(c for tr in trs[1:] for c in _cells(tr.group(0))))
+            if len(prices) >= 3:
+                cp = {
+                    "write_5m": f"${prices[0]}",
+                    "write_1h": f"${prices[1]}",
+                    "read": f"${prices[2]}",
+                }
+                for r in region_rows:
+                    if "cache price (per million tokens)" in r["model_id"].lower():
+                        r["cache_prices"] = cp
+            continue
         header = (
             " ｜ ".join(c for c in first_cells if c)[:220]
             if any("model" in c.lower() for c in first_cells)
             else ""
         )
+        table_rows: list[dict] = []
         for tr in trs:
             cells = _cells(tr.group(0))
             if not cells:
@@ -919,15 +943,17 @@ def _parse_pricing_rows(html: str) -> list[dict]:
                 or not first.replace("context caching discount", "").strip()
             ):
                 continue  # 表头/说明行
-            rows.append(
-                {
-                    "region": region,
-                    "model_id": first,
-                    "cells": cells,
-                    "header": header,
-                    "header_cells": first_cells,  # 表头单元格序列（代码渲染表格的列映射依据）
-                }
-            )
+            row = {
+                "region": region,
+                "model_id": first,
+                "cells": cells,
+                "header": header,
+                "header_cells": first_cells,  # 表头单元格序列（代码渲染表格的列映射依据）
+            }
+            rows.append(row)
+            table_rows.append(row)
+        if header:
+            region_rows.extend(table_rows)
     log.info("定价页结构化解析: %d 行（含地域归属）", len(rows))
     return rows
 
@@ -995,6 +1021,7 @@ def _model_evidence(rows: list[dict], token: str) -> list[str]:
                 f"{display} · 官方定价页（按秒/按张计费 USD）", media
             )
             + id_note
+            + f"\n来源链接（回答时**直接引用此 URL**，不要自己拼接）：{PRICE_PAGE_URL}"
         ]
     sg = [r for r in hits if r["region"] == "Singapore"]
     bj = [r for r in hits if r["region"] == "China (Beijing)"]
@@ -1030,6 +1057,12 @@ def _model_evidence(rows: list[dict], token: str) -> list[str]:
         if not cache_in and roles.get("cache_input") is not None:
             cache_in = _first_price(_cell("cache_input"))
         cache_w = _first_price(cache_w_cell) if cache_w_cell else ""
+        # qwen4 代起缓存价在同地域主表后的独立子表（解析时挂到行上）：
+        # 读价进 Cache Input 列，写价按 5m/1h 两档进 Cache Write 列
+        cp = r.get("cache_prices")
+        if cp:
+            cache_in = cache_in or cp["read"]
+            cache_w = cache_w or f"{cp['write_5m']} (5m) / {cp['write_1h']} (1h)"
 
         notes = []
 
@@ -1088,6 +1121,9 @@ def _model_evidence(rows: list[dict], token: str) -> list[str]:
     block = _render_price_table(
         f"{display} · 官方定价页（每 1M tokens USD）", table_rows
     ) + id_note
+    # 主表路径同样附来源 URL：Prompt 硬约束"引用证据里的 URL、不得自拼"，
+    # 证据不给 URL 会让模型在思考里反复权衡（2026-11-16 实测）
+    block += f"\n来源链接（回答时**直接引用此 URL**，不要自己拼接）：{PRICE_PAGE_URL}"
     # 支持缓存折扣但主表未给命中单价（DeepSeek/Qwen 系常态）→ 附官方规则，防 LLM 臆造
     if has_cc and not any(r[2] != "—" for r in table_rows):
         i = _CACHE_RULE_POS.get("rule")

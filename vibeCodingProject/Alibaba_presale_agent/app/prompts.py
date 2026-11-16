@@ -15,7 +15,7 @@ OFFICIAL_PRICING_URL = "https://www.alibabacloud.com/help/en/model-studio/model-
 # 示例型号仅作格式示例，需随代际与 alibaba-ai-hub/maas/qwen.md 同步。
 MODEL_CLARIFY_TEXT = """你想问哪个模型的价格？告诉我型号，就能给到各地区的精确单价：
 
-- 语言模型：`qwen3.8-max 新加坡 多少钱`（不写地区时同时给新加坡与北京）
+- 语言模型：`qwen4-max 新加坡 多少钱`（不写地区时同时给新加坡与北京）
 - 视频 / 生图：`wan3.0 video 1080P 每秒多少钱`、`qwen-image-3.0-pro 每张多少钱`
 
 也可以直接说用途（比如「做长文档摘要」「做短视频素材」），我先帮你选型再报价格。"""

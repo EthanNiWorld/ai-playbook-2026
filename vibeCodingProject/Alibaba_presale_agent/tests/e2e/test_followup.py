@@ -59,7 +59,9 @@ print("=" * 60)
 a1, d1 = ask("deepseek-v4.1-flash 的价格是多少？")
 print(f"\n[1] deepseek price_status={d1.get('price_status')}")
 check("[1] official", d1.get("price_status") == "official", str(d1))
-check("[1] 忙闲分档 + Cache Input 填数", "$0.015" in a1 and "busy hours" in a1, a1[:200])
+# 缓存命中价以官方详情页现值为准（2026-11-16 核实 idle $0.003 / busy $0.006；
+# 旧断言 $0.015 为过期价，官方调价后须同步）
+check("[1] 忙闲分档 + Cache Input 填数", "$0.003" in a1 and "busy hours" in a1, a1[:200])
 
 a2, d2 = ask("qwen3.8 flash呢？")
 print(f"\n[2] qwen3.8 flash呢？ price_status={d2.get('price_status')}")

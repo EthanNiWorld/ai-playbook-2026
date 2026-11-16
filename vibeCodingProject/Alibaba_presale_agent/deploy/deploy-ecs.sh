@@ -102,7 +102,7 @@ if [ -z "$ADMIN_TOKEN" ]; then
   ADMIN_TOKEN="$(openssl rand -hex 16)"
   echo "  已自动生成后台口令 ADMIN_TOKEN=$ADMIN_TOKEN（请记下）"
 fi
-: "${QA_MODEL:=qwen3.8-max}"
+: "${QA_MODEL:=qwen4-max}"
 : "${KNOWLEDGE_REPO_URL:=$REPO_URL}"
 : "${KB_SYNC_INTERVAL_HOURS:=24}"
 : "${KB_AUTO_SYNC:=1}"

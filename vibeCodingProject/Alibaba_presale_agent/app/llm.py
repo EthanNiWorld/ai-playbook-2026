@@ -3,6 +3,7 @@ LLM 客户端 — DashScope OpenAI 兼容协议，流式输出（正文 + 思考
 """
 
 import logging
+import os
 
 from openai import AsyncOpenAI
 
@@ -25,7 +26,8 @@ async def stream_chat(
     messages: list[dict],
     tools: list[dict] | None = None,
     temperature: float = 0.3,
-    # 实测该端点 max_tokens 只约束正文不约束思考；近 7 天正文峰值 2306 字≈4000 token
+    # 实测该端点 max_tokens 只约束正文不约束思考（qwen3.8 代口径；qwen4 代
+    # 含思考，见函数内 qwen4 分支）；近 7 天正文峰值 2306 字≈4000 token
     # 已贴近 4096 上限，长回答尾部存在静默截断风险（pipeline 不读 finish_reason
     # 无法感知），放宽到 8192。max_tokens 是上限非目标，短回答零成本。
     max_tokens: int = 8192,
@@ -50,13 +52,25 @@ async def stream_chat(
     if not cfg["api_key"]:
         raise RuntimeError("未配置 DASHSCOPE_API_KEY，无法调用 LLM")
     client = _get_client()
+    extra: dict = {"enable_thinking": enable_thinking}
+    if cfg["model"].startswith("qwen4"):
+        # qwen4 代协议变化（2026-11-16 实测文档）：
+        # ① max_tokens 限制思考+回答总量（qwen3.8 只限正文），8192 会被思考
+        #    吃光导致正文静默截断，放宽到 32768；
+        # ② 多轮 preserve_thinking 默认开启、要求历史 assistant 带
+        #    reasoning_content，本服务历史为纯文本，必须显式关闭；
+        # ③ 思考档位用 reasoning_effort（默认 high 长考拖慢售前问答），
+        #    默认 low，可用 QA_REASONING_EFFORT 覆盖。
+        max_tokens = max(max_tokens, 32768)
+        extra["preserve_thinking"] = False
+        extra["reasoning_effort"] = os.getenv("QA_REASONING_EFFORT") or "low"
     kwargs: dict = dict(
         model=cfg["model"],
         messages=messages,
         stream=True,
         temperature=temperature,
         max_tokens=max_tokens,
-        extra_body={"enable_thinking": enable_thinking},
+        extra_body=extra,
     )
     if tools:
         kwargs["tools"] = tools

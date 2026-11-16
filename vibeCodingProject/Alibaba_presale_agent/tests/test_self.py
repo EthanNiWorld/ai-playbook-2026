@@ -172,6 +172,45 @@ def test_price_verifier_units():
           pv._catalog_candidates("glm-5.3", cat_rows) == [])
     check("目录候选: 泛化 token qwen 不召回",
           pv._catalog_candidates("qwen", cat_rows) == [])
+    # qwen4 代起缓存价独立成子表（紧跟同地域主表后）：不接住则缓存列全 "—"，
+    # LLM 会反断言"该模型无缓存计费项"（2026-11-16 追问事故）
+    cache_html = (
+        "<h2>Singapore</h2>"
+        "<table><tr><th>Model ID</th><th>Input price (per 1 million tokens)</th>"
+        "<th>Output price (per 1 million tokens)</th></tr>"
+        "<tr><td>qwen4-max Cache price (per million tokens)</td><td>$1.5</td><td>$4.5</td></tr></table>"
+        # 真实页面每个 region 拆多张主表，缓存子表跟在最后一张后：
+        # 中间插一张存量表，验证归属按 region 累积而非“最近一张主表”
+        "<table><tr><th>Model ID</th><th>Input price (per 1 million tokens)</th>"
+        "<th>Output price (per 1 million tokens)</th></tr>"
+        "<tr><td>qwen3.8-max context caching discount</td><td>$2</td><td>$6</td></tr></table>"
+        "<table><tr><th>Cache write (5m)</th><th>Cache write (1h)</th>"
+        "<th>Explicit/implicit cache read</th></tr>"
+        "<tr><td>$1.875</td><td>$3</td><td>$0.075</td></tr></table>"
+        "<h2>China (Beijing)</h2>"
+        "<table><tr><th>Model ID</th><th>Input price (per 1 million tokens)</th>"
+        "<th>Output price (per 1 million tokens)</th></tr>"
+        "<tr><td>qwen4-max Cache price (per million tokens)</td><td>$1.413</td><td>$4.24</td></tr></table>"
+        "<table><tr><th>Model ID</th><th>Input price (per 1 million tokens)</th>"
+        "<th>Output price (per 1 million tokens)</th></tr>"
+        "<tr><td>qwen3.8-max context caching discount</td><td>$1.65</td><td>$4.951</td></tr></table>"
+        "<table><tr><th>Cache write (5m)</th><th>Cache write (1h)</th>"
+        "<th>Explicit/implicit cache read</th></tr>"
+        "<tr><td>$1.767</td><td>$2.827</td><td>$0.071</td></tr></table>"
+    )
+    crows = pv._parse_pricing_rows(cache_html)
+    check("缓存子表: 读价挂到带 Cache price 链接的行",
+          crows[0].get("cache_prices", {}).get("read") == "$0.075")
+    check("缓存子表: 地域归属不跨表（Beijing 读价）",
+          next(r for r in crows if r["region"] == "China (Beijing)"
+               and r["model_id"].startswith("qwen4")).get("cache_prices", {}).get("read") == "$0.071")
+    cblock = pv._model_evidence(crows, "qwen4-max")[0]
+    check("缓存子表: 读价进 Cache Input 列（双节点）",
+          "$0.075" in cblock and "$0.071" in cblock)
+    check("缓存子表: 写价按 5m/1h 两档进 Cache Write 列",
+          "$1.875 (5m) / $3 (1h)" in cblock)
+    check("主表证据附来源 URL（Prompt 要求引用证据内 URL）",
+          "model-studio/model-pricing" in cblock)
     # 产品（非百炼模型）定价题不走百炼校验（Qoder 事故：百炼回落证据会误导 LLM 把
     # model-pricing 链接安到产品头上）；产品定价交给知识库检索回答
     check("产品定价题不触发模型校验: qoder", not pv.is_price_question("qoder是怎么计费的"))

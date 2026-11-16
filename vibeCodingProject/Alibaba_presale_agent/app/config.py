@@ -66,7 +66,7 @@ def get_llm_config() -> dict:
         "api_key": os.getenv("DASHSCOPE_API_KEY") or os.getenv("DASHSCOPE_API_KEY_INTL", ""),
         "base_url": os.getenv("DASHSCOPE_BASE_URL")
         or "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        "model": os.getenv("QA_MODEL") or "qwen3.8-max",
+        "model": os.getenv("QA_MODEL") or "qwen4-max",
     }
 
 
