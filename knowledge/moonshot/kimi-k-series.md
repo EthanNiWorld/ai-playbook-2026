@@ -1,6 +1,6 @@
 # Kimi K 系列模型
 
-> 最后更新: 2026-11-08
+> 最后更新: 2026-11-13
 > 所属厂商: 月之暗面（Moonshot AI）
 > 产品类别: MaaS
 
@@ -188,6 +188,7 @@
 
 | 限制项 | 具体值 | 说明 |
 |--------|--------|------|
+| 指定函数 tool_choice | 与思考开启不兼容 | Kimi 官方 API：思考开启时传 `{"type":"function","function":{"name":...}}` 返回 400（官方文档明示）；K3/K3.1 Pro 始终思考 → 官方 API 上该形态不可用，强制调用请用 `"required"` |
 | 上下文 | K2.x 为 256K tokens | K3 已达 1M；K2.x 不如 Qwen 系列的 1M 上下文 |
 | K3 思考模式 | 无法关闭 | 始终 max 档，轻量任务成本高 |
 | K3 联网搜索 | 更新中 | 近期不建议用于生产流程 |
@@ -217,6 +218,7 @@ Kimi K2 系列模型权重开源（block-fp8 格式），推荐推理引擎：
 
 | 日期 | 变更内容 |
 |------|---------|
+| 2026-11-13 | 补充 Kimi 官方 API 约束：指定函数 tool_choice 与思考开启不兼容（返回 400），K3 系列始终思考故官方 API 不可用该形态，强制调用用 `"required"` [来源: platform.kimi.com/docs/guide/use-tool-choice] |
 | 2026-11-08 | 校验修复（knowledge-verification-2026-11-08）：K3.1 Pro 权重状态由「承诺 11-04 前发布、尚未发布」改为已按期开放（百炼上新页 11-05 条目描述为 open-weight）；参数量补双口径（官方 3T 级 vs 精确 2.8T）；AA 仍标 Proprietary 注记为收录滞后，HF 发布日/许可证标待确认 |
 | 2026-11-03 | 校验修复+补研（knowledge-verification-2026-11-03）：新增 Kimi K3.1 Pro 并切为当前旗舰（2026-10-24，K3 后训练版；定价 $2/$10；官方/AA 双口径评测见正文；权重承诺 11-04 前发布、截至 11-03 未发布，AA 暂标闭源）；解除 109 天未更新状态 |
 | 2026-09-07 | 调研补充：区分 K3 官方托管 API 与开源权重的模态边界——开源权重（HF checkpoint）官方口径 Modality 仅 Text + Image、不支持视频输入（GitHub README Model Summary 表格 + vLLM day-0 "multimodal preprocessing (image-only)" + HF 仓库 py 源码级验证三重佐证），视频输入仅官方 API 可用（files API 上传 + `video_url` `ms://` 示例）；preprocessor_config.json 残留视频参数（sample_fps=8.0 等）+ vision tower 预留 4 帧时序 pos emb（init_pos_emb_time=4/sd2_tpool）确认架构留有视频口子但 processor 未开放；与百炼实测 k3 视频 400 结论一致 |

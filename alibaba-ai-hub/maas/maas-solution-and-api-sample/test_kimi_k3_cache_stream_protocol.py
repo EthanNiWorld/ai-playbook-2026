@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-kimi-k3.1-pro 阻塞性验收失败项实证脚本（对应 vendor-report-kimi-k3.1-pro-2026-11-12.html）
+kimi-k3.1-pro / kimi-k3 阻塞性验收失败项实证脚本（对应 vendor-report-kimi-k3.1-pro-2026-11-12.html）
 
 复测 4 条阻塞失败，用原始 HTTP 抓完整响应 JSON（含 SDK 会丢弃的厂商扩展字段）：
   F1/F2 缓存：cache_write_tokens 字段是否返回？重复长前缀 cached_tokens 是否 >0（缓存真生效）？
@@ -9,10 +9,27 @@ kimi-k3.1-pro 阻塞性验收失败项实证脚本（对应 vendor-report-kimi-k
 
 密钥从仓库根 .env 安全解析（不在 shell 层 source，不回显）。端点默认北京 workspace 专属网关，
 与报告 Aliyun(hk) 同属阿里云 compatible-mode 协议层。可用 TEST_BASE_URL/TEST_API_KEY 覆盖。
+
+实测结论（2026-11-13，北京 workspace 端点，前缀约2477 token，间隔12s/10s）：
+  kimi-k3.1-pro：
+    F1/F2 cache_write_tokens 缺失，无 Msh-* 响应头（仅 x-dashscope-usage-cached-tokens）；
+          首次 cached_tokens=0 → 12s 后重放=2048 → 再重放=2048，隐式缓存真生效；
+          显式 implicit+5m 被 200 接受
+    F3    '1H'/'1h'/'5m'/'30m'/'' 全部 200（私有参数不校验）→ 复现报告用例5失败
+    F4    不带 include_usage：usage 内嵌末块 choices[0]、顶层 null → 复现用例7失败；
+          带 include_usage=true：标准末块 choices=[] + 顶层 usage → 断言可通过
+  kimi-k3：
+    F1/F2 与 k3.1-pro 一致（cache_write_tokens 缺失；0→2048→2048 隐式缓存生效）
+    F3    不同！'1H'/'30m'/'' → 400（PromptCacheOptions.ttl literal 校验），'1h'/'5m' → 200
+          → 报告用例5唯一断言（'1H' 应 400）在 k3 上可通过；若另断言宽容降级（30m/'' 期望 200）则 k3 反而失败
+    F4    与 k3.1-pro 一致（不带 include_usage 复现失败，带上即通过）
+  定界：用例3/4 依赖 Moonshot 私有扩展（百炼网关不透出），且报告前缀仅约1182 token
+  低于隐式缓存命中门槛，属测试设计假阴性；用例7 缺 stream_options 前提，非模型协议缺陷。
 """
 import os
 import json
 import time
+import uuid
 import httpx
 
 # ---- 安全加载 .env（仅 KEY=VALUE 行，覆盖式）----
@@ -34,11 +51,12 @@ MODEL = os.getenv("TEST_MODEL", "kimi-k3.1-pro")
 URL = BASE_URL + "/chat/completions"
 HDR = {"Authorization": "Bearer " + API_KEY, "Content-Type": "application/json"}
 
-# 固定长前缀（>1000 token），两轮字节级一致以触发缓存
+# 固定长前缀（约2600 token，≥2048 命中门槛），两轮字节级一致以触发缓存；
+# 每次运行加随机 nonce，避免旧缓存干扰"首次写入"语义（2026-11-12 探针实测教训）
 _PARA = ("The sea has always been a mirror in which people see both their smallness and their ambition. "
          "Long before charts and compasses, sailors read the water the way farmers read the sky, gathering "
          "meaning from the color of a wave, the temperature of a current, the flight of a distant bird. ")
-PREFIX = "Reading edition: cacheProbe2026\n\n" + (_PARA * 28)
+PREFIX = f"Reading edition: cacheProbe2026-{uuid.uuid4().hex[:8]}\n\n" + (_PARA * 40)
 
 
 def _post(payload, tries=4):
@@ -58,6 +76,13 @@ def _usage(r):
         return {"_raw": r.text[:300]}
 
 
+def _cache_headers(r):
+    """报告用例3/4还断言 Msh-Usage-Cache-Write-Tokens-* 响应头，一并抓证。"""
+    hits = {k: v for k, v in r.headers.items()
+            if "cache" in k.lower() or k.lower().startswith("msh")}
+    return hits or "（无任何 cache/Msh-* 响应头）"
+
+
 def test_cache():
     print("\n========== F1/F2 缓存：字段存在性 + 是否真生效 ==========")
     base = {"model": MODEL, "max_completion_tokens": 64, "reasoning_effort": "low",
@@ -69,14 +94,15 @@ def test_cache():
     print("  usage =", json.dumps(u1, ensure_ascii=False))
     print("  prompt_tokens_details =", json.dumps(u1.get("prompt_tokens_details", {}), ensure_ascii=False))
     print("  >> cache_write_tokens 字段存在?", "cache_write_tokens" in u1.get("prompt_tokens_details", {}))
-    time.sleep(6)
+    print("  >> 缓存相关响应头:", _cache_headers(r1))
+    time.sleep(12)  # ≥10s，规避写入延迟假阴性
     r2 = _post(base)  # 同前缀重放
     u2 = _usage(r2)
     print(f"[轮2 同前缀重放] status={r2.status_code}")
     print("  usage =", json.dumps(u2, ensure_ascii=False))
     ct = u2.get("prompt_tokens_details", {}).get("cached_tokens", 0)
     print(f"  >> cached_tokens={ct}  → 缓存{'生效(命中>0)' if ct and ct > 0 else '未命中(=0)'}")
-    time.sleep(4)
+    time.sleep(10)
     r2b = _post(base)  # 再重放一次
     ct2 = _usage(r2b).get("prompt_tokens_details", {}).get("cached_tokens", 0)
     print(f"[轮2b 再次重放] cached_tokens={ct2}")
@@ -90,7 +116,7 @@ def test_ttl_case():
     base = {"model": MODEL, "max_completion_tokens": 32, "reasoning_effort": "low",
             "messages": [{"role": "system", "content": PREFIX},
                          {"role": "user", "content": "hi"}]}
-    for ttl in ["1H", "1h", "5m", "30m"]:
+    for ttl in ["1H", "1h", "5m", "30m", ""]:
         r = _post({**base, "prompt_cache_options": {"mode": "implicit", "ttl": ttl}})
         print(f"  ttl={ttl!r:8} → status={r.status_code}  {'(接受)' if r.status_code == 200 else '(拒绝)'}")
         if r.status_code != 200:
