@@ -486,7 +486,8 @@ async def _cached_fetch(key: str, url: str) -> str:
 
 # 详情页 Billing Item 行（长项优先；可选括号修饰词支持忙/闲时段写法，如 "Input (Idle hours) 0.141"）
 _BILLING_ITEM_RE = re.compile(
-    r"(Explicit Cache Creation|Explicit Cache Read|Input\(Implicit Cache[^)]*\)|"
+    r"(Explicit Cache Creation|Explicit Cache Read|Explicit Cache Hit"
+    r"|Input\(Implicit Cache[^)]*\)|"
     r"Input\(Batch File\)|Input\(Batch Chat\)|Output\(Batch File\)|Output\(Batch Chat\)"
     r"|Input|Output)\s*(\([^)]*\))?\s+\$?([\d.]+)",
     re.IGNORECASE,
@@ -528,6 +529,11 @@ def _parse_model_pricing(text: str) -> dict:
             # kimi 详情页写法 "Input (cache hit) 0.184" → 缓存命中价，归入 Cache Input 列
             if base == "input" and "cache hit" in qual.lower():
                 base, qual = "input(implicit cache)", ""
+            # 开源线详情页把显式缓存读取价写作 "Explicit Cache Hit"
+            # （qwen3.8-2.4t-a95b 实测），与 Explicit Cache Read 同一计费项，
+            # 不归一会静默丢价（2026-11-17）
+            if base == "explicit cache hit":
+                base = "explicit cache read"
             key = base + (f"|{qual.lower()}" if qual else "")
             if key not in items:  # 同名取首个（区域段内不会重复）
                 items[key] = "$" + m.group(3)
@@ -806,6 +812,42 @@ def _catalog_candidates(token: str, rows: list[dict], limit: int = 5) -> list[st
     if exact:
         return exact[:limit]
     return [mid for mid, mk in pairs if any(k in mk or mk in k for k in keys)][:limit]
+
+
+def _resolve_official_ids(raw: str, rows: list[dict]) -> list[str]:
+    """目录优先的型号裁决：原始串对实时在售行目录匹配出官方 ID。
+
+    正则白名单（extract_model_names）降级为口语归一工具，不再裁决 ID
+    合法性——-27b / -2.4t-a95b 这类参数量后缀会被白名单削成 qwen3.8，
+    家族前缀在主表"假命中"同族合并行，证据块非空又绕过了目录候选
+    兜底（2026-11-17 事故：两个开源型号报价"未能核实"、缓存价全缺）。
+    行目录是在售 ID 的权威来源：新命名形态上架当天自动识别，零维护。
+    目录为空（抓取失败）时整体退回旧正则路径，不吞不改。
+    """
+    tok = (raw or "").strip().lower()
+    if not tok or not rows:
+        return extract_model_names(raw) or ([tok] if tok else [])
+    cat: dict[str, str] = {}
+    for r in rows:
+        mid = _official_id(r.get("model_id", "")).lower()
+        if mid:
+            cat.setdefault(mid, _norm_model_key(mid))
+    # 原始串变体：原样 + ".0" 别名（qwen4.0-max → qwen4-max；wan 官方 ID
+    # 保留 .0，原样变体保证命中，别名变体只增不减）
+    variants = {tok, re.sub(r"\.0(?=[\s-]|$)", "", tok)}
+    raw_keys = {_norm_model_key(v) for v in variants}
+    hits = [mid for mid, mk in cat.items() if any(mk in rk for rk in raw_keys)]
+    # 最长匹配优先：qwen3.8-27b 命中时不再单独保留其前缀型号
+    # （qwen-image 与 qwen-image-2.1-pro 同理）
+    hits = [
+        m
+        for m in hits
+        if not any(m != o and _norm_model_key(m) in _norm_model_key(o) for o in hits)
+    ]
+    if hits:
+        return sorted(set(hits))
+    # 目录未收录（竞品/未上架/笔误）：退回口语归一，下游目录候选/搜索兜底
+    return extract_model_names(raw) or [tok]
 
 
 def _media_rows_from_main(rows: list[dict], token: str) -> list[tuple]:
@@ -1166,8 +1208,8 @@ async def verify_price_for(model: str, competitor: str = "") -> dict:
 
     与旧 verify_prices（已删）的区别：型号与竞品由调用方（LLM 工具调用）
     显式给出，不再从问题文本做正则提取——意图理解交给模型，证据链留在
-    代码。型号归一复用 extract_model_names，归一失败时用原词当 token
-    直接匹配主表（不猜、不吞）。
+    代码。型号裁决目录优先（_resolve_official_ids）：先对实时在售行目录
+    匹配官方 ID，正则仅做口语归一兜底（不猜、不吞）。
 
     返回:
         {
@@ -1181,10 +1223,13 @@ async def verify_price_for(model: str, competitor: str = "") -> dict:
           "checked_at":  核实时间 ISO
         }
     """
-    models = extract_model_names(model)
-    if not models:
-        token = (model or "").strip().lower()
-        models = [token] if token else []
+    # ⓪ 目录优先：主定价页每次核价本来就要抓（6h TTL 缓存），提前到此处
+    #    零额外网络开销；先用实时在售行目录裁决官方 ID，再取价格证据。
+    #    正则白名单不再裁决 ID，防 -27b / -2.4t-a95b 等新后缀被削成家族
+    #    前缀后"假命中"同族合并行（2026-11-17 事故）。
+    html = await _get_pricing_html()
+    rows = _parse_pricing_rows(html) if html else []
+    models = _resolve_official_ids(model, rows)
 
     checked_at = datetime.now().astimezone().isoformat(timespec="seconds")
     sources: list[dict] = []
@@ -1249,11 +1294,10 @@ async def verify_price_for(model: str, competitor: str = "") -> dict:
         if not got:
             need_main_page_models.append(m)
 
-    # 一级证据：官方定价页主表（详情页未命中时）
-    html = await _get_pricing_html()
+    # 一级证据：官方定价页主表（详情页未命中时；html/rows 已在 ⓪ 步
+    # 抓取解析，此处直接复用，不重复请求）
     catalog_hints: list[str] = []
     if html and need_main_page_models:
-        rows = _parse_pricing_rows(html)
         unmatched: list[str] = []
         for m in need_main_page_models:
             blocks = _model_evidence(rows, m)

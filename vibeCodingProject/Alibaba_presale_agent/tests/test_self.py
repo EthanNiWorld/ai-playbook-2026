@@ -172,6 +172,53 @@ def test_price_verifier_units():
           pv._catalog_candidates("glm-5.3", cat_rows) == [])
     check("目录候选: 泛化 token qwen 不召回",
           pv._catalog_candidates("qwen", cat_rows) == [])
+    # 目录优先裁决（2026-11-17 事故）：参数量后缀 -27b / -2.4t-a95b 被正则
+    # 白名单削成 qwen3.8，家族前缀"假命中"主表合并行又绕过候选兜底。
+    # ID 裁决前移到实时行目录，正则降级为口语归一兜底。
+    os_rows = cat_rows + [
+        {"model_id": "qwen3.8-2.4t-a95b context caching discount"},
+        {"model_id": "qwen3.8-27b context caching discount"},
+        {"model_id": "qwen3.8-flash"},
+    ]
+    check("目录裁决: qwen3.8-27b 全串命中（不被削成 qwen3.8）",
+          pv._resolve_official_ids("qwen3.8-27b", os_rows) == ["qwen3.8-27b"])
+    check("目录裁决: qwen3.8-2.4t-a95b 全串命中",
+          pv._resolve_official_ids("qwen3.8-2.4t-a95b", os_rows) == ["qwen3.8-2.4t-a95b"])
+    check("目录裁决: 口语空格写法 'qwen3.8 27b'",
+          pv._resolve_official_ids("qwen3.8 27b", os_rows) == ["qwen3.8-27b"])
+    check("目录裁决: 汉字紧贴最长匹配优先",
+          pv._resolve_official_ids("qwen3.8-27b价格", os_rows) == ["qwen3.8-27b"])
+    check("目录裁决: 多模型句各自命中",
+          pv._resolve_official_ids("qwen3.8-27b和qwen3.8-flash价格差多少", os_rows)
+          == ["qwen3.8-27b", "qwen3.8-flash"])
+    check("目录裁决: .0 别名 qwen4.0-max → qwen4-max",
+          pv._resolve_official_ids("qwen4.0-max", os_rows) == ["qwen4-max"])
+    check("目录裁决: preview 精确命中不误带正式版",
+          pv._resolve_official_ids("qwen4-max-preview", os_rows) == ["qwen4-max-preview"])
+    check("目录裁决: 目录未收录退回口语归一（竞品/未上架）",
+          pv._resolve_official_ids("glm-5.3", os_rows) == ["glm-5.3"])
+    check("目录裁决: 空目录降级正则路径",
+          pv._resolve_official_ids("qwen3.8 max", []) == ["qwen3.8-max"])
+    check("目录裁决: 泛化 qwen 不命中目录",
+          pv._resolve_official_ids("qwen", os_rows) == ["qwen"])
+    # 开源线详情页把显式缓存读取价写作 "Explicit Cache Hit"（a95b 实测），
+    # 不归一会静默丢价；Input (Cache Hit) 则归隐式命中列
+    hit_text = (
+        "original pricing for model API calls. "
+        "Singapore Billing Item Price (USD) Unit "
+        "Input 2 Per 1M tokens Output 6 Per 1M tokens "
+        "Input (Cache Hit) 0.25 Per 1M tokens "
+        "Explicit Cache Creation 2.5 Per 1M tokens "
+        "Explicit Cache Hit 0.17 Per 1M tokens "
+        "Rate Limits dynamic"
+    )
+    hp = pv._parse_model_pricing(hit_text)
+    check("详情页缓存别名: Explicit Cache Hit 归一为读取价",
+          hp.get("Singapore", {}).get("explicit cache read") == "$0.17")
+    check("详情页缓存别名: Input (Cache Hit) 归隐式命中",
+          hp.get("Singapore", {}).get("input(implicit cache)") == "$0.25")
+    hev = pv._detail_evidence("qwen3.8-2.4t-a95b", "https://example.com", hp)
+    check("详情页缓存别名: 读取价进备注列", "显式缓存读取 $0.17" in hev[0])
     # qwen4 代起缓存价独立成子表（紧跟同地域主表后）：不接住则缓存列全 "—"，
     # LLM 会反断言"该模型无缓存计费项"（2026-11-16 追问事故）
     cache_html = (
