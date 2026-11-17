@@ -1,6 +1,6 @@
 # 通义千问 (Qwen)
 
-> 最后更新: 2026-11-16
+> 最后更新: 2026-11-17
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 
@@ -79,106 +79,42 @@
 - Batch 口径矛盾：help.aliyun 能力表六节点均"批量推理不支持"，但国际站定价页列北京 Batch File 价（$0.707/$2.12），实测报告记"批量仅北京支持" [⚠️ 待核实]
 - 绝对智能非第一梯队（AA 43 vs Fable 5.2 65），最难科研/推理任务勿过度承诺；Work360 为自建基准
 
-### Qwen3.8-Max（上代旗舰，存量）
+### Qwen3.8-Max（上代旗舰，存量，已被 Qwen4-Max 取代）
 
-> 📌 已被 **Qwen4-Max** 取代（2026-11-16 GA），API 仍可调用，仅建议存量项目使用；新项目旗舰场景选 Qwen4-Max。
+> 📌 2026-11-16 被 Qwen4-Max 取代，API 仍可调用（含 `qwen3.8-max-0902` 快照，同价），仅建议存量项目使用；新项目旗舰场景选 Qwen4-Max。
 
-- **模型**：Qwen3.8-Max
-- **公司**：阿里云
-- **时间**：2026 年 7 月 19 日（预览版上线）；正式版已上线百炼（2026-08-03 核实定价页已收录）
-- **尺寸**：总参数 **2.4T（2.4 万亿）**，MoE 架构；激活参数未公开
-- **上下文**：**1M tokens**，最大输出 **128K tokens** [来源: 百炼控制台模型页，2026-08-03 用户截图]
-- **输入模态**：文本 + 图像（2026-08-03 API 实测确认，图片描述准确）[来源: alibaba-ai-hub/maas/maas-solution-and-api-sample/test_qwen38_max.py]；视频支持待确认
-- **模式**：思考与非思考模式均支持
-- **定价**：见下方「定价（API）」章节。
-- **限流**：RPM 15,000 / TPM 2,000,000（200 万）[来源: 百炼控制台模型页截图]
-- **开源**：Qwen3.8 系列开源版 **qwen3.8-2.4t-a95b** 已于 2026-08-12 上线百炼国际站（2.4T 总参 / 激活 95B，**原生 262K 上下文、可扩展约 1M**；GPQA Diamond 92.6 / PaperBench 93.0 / OSWorld 86.1，CodeArena 全球 #4）[来源: help.aliyun.com 上新页，2026-08-14 核实]；架构详见下方「Qwen3.8-2.4T-A95B 开源版」小节；qwen3.8-max 本体是否开放权重官方未明确
-- **场景**：代码工程（全栈开发、代码重构、漏洞批量修复）、专业办公（Office 工作流、文档免转换直读、数据分析）、复杂推理、长程 Agent、多语言创作
-- **特点**：Qwen 首款万亿级参数模型；官方自评"仅次于 Fable 5"——⚠️ 该表述仅官方自评，无第三方背书。**AA 口径更新（2026-11-16）**：v5.0.1 重校准后实测 **34**（#51/81，已标记 deprecated，AA 建议改用 Qwen4 Max）；旧记录 v5=45（2026-11-08）为过期口径，与 Qwen4-Max 的 43（v5.0.1）跨版本不可比。AA 指数随新模型发布重校准，跨时间引用需注明口径
+- **规格**：2.4T MoE（Qwen 首款万亿级参数模型）；1M 上下文 / 最大输出 128K；文本+图像输入（2026-08-03 实测确认，视频未确认——视频需求改选 Qwen4-Max）；思考/非思考双模式；RPM 15,000 / TPM 2M
+- **上线**：2026-07-19 预览、2026-08-03 正式版；定价见「定价（API）」章节；开源权重版为 a95b（见下节）
+- **AA 口径（2026-11-16）**：v5.0.1 = **34**（#51/81，已标记 deprecated，AA 建议改用 Qwen4 Max）；旧记录 v5=45 为过期口径，跨版本不可比。官方"仅次于 Fable 5"仅自评，无第三方背书
+- **迭代意义**：首次万亿参数 + 首次 Max 级开源；其 GDN 混合注意力 / MTP 设计直接演进为 3.8-Flash-Next 与 Qwen4 的 Next 架构
 
-**API 实测记录**（2026-08-03，新加坡节点，标准后付费 API Key）[来源: alibaba-ai-hub/maas/maas-solution-and-api-sample/test_qwen38_max.py]：
-- 纯文本与图像输入均调用成功，图片描述准确（VL 能力确认）
-- 知识截止日期、技术报告均未公开
-- 视频输入、GUI Agent 等视觉专项能力待实测
+**代际基准锚点**（官方发布时口径，TB 2.1 时代）：
 
-**Benchmark（Qwen 官方博客，vs 同期旗舰）** [来源: qwen.ai/blog?id=qwen3.8，2026-08-17 合并]：
+| 基准 | Qwen3.8-Max | Qwen3.7-Max |
+|------|------------|-------------|
+| Terminal-Bench 2.1 | **86.6** | 74.5 |
+| PaperBench | **93.0** | — |
+| SWE-bench Pro | 67.7 | 60.6 |
+| DeepSWE 1.1 | 56.6 | 21.6 |
+| FrontierSWE | 73.5 | 40.7 |
+| GPQA Diamond | 92.6 | 92.4 |
 
-| 基准 | Qwen3.8-Max | Opus 4.8 | Fable 5 | GPT 5.6 Sol (max) | Qwen3.7-Max |
-|------|------------|----------|---------|-------------------|-------------|
-| Terminal-Bench 2.1 | **86.6** | 84.6 | 84.6 | 88.8 | 74.5 |
-| PaperBench | **93.0** | 80.3 | — | 90.5 | — |
-| SWE-bench Pro | 67.7 | — | **80.0** | 64.6 | 60.6 |
-| DeepSWE 1.1 | 56.6 | — | **70.0** | 73.0 | 21.6 |
-| FrontierSWE | 73.5 | 70.0 | **88.8** | — | 40.7 |
-| GPQA Diamond | 92.6 | — | — | — | 92.4 |
-| CodeArena | 全球 #4 | — | — | — | — |
+> 📐 两模型均早于 TB 4.0 发布、无官方 4.0 分数，按全库规则不换算不补算；本表仅内部可比，不得与新模型 TB 4.0 分数混排。同期竞品对照（Opus 4.8 / Fable 5 / GPT 5.6 Sol）见 [Qwen3.8 官方博客](https://qwen.ai/blog?id=qwen3.8) 与 [benchmark-coding-agentic.md](../../knowledge/ai-general-notes/benchmark-coding-agentic.md)。
 
-**相对前代（Qwen3.7-Max）的差异化**：
-- 参数量首次突破万亿（2.4T）
-- 系列开源版已兑现：qwen3.8-2.4t-a95b（2026-08-12 上线；vs 3.7-Max 闭源 API only）
-- 定位从"长时自主 Agent + 数学竞赛推理"转向"代码工程 + 专业办公"，对应 Qoder + QoderWork 两条产品线的高 ARPU 场景
+### Qwen3.8-2.4T-A95B 开源版（存量，2026-08-12 上线）
 
-### Qwen3.8-Max-0902 快照（2026-09-02 上线）
+- **定位**：Qwen3.8-Max 的开源权重版（HF: Qwen/Qwen3.8-2.4T-A95B），**Qwen 首款 Max 级开源模型**；许可证 HF "other"（非标准 Apache/MIT，商用前需确认）
+- **架构要点**：2.4T 总参 / 95B 激活，92 层；512 experts（每 token 10 routed + 1 shared，激活约 2.1%）；GDN : Gated Attention = 3:1 混合注意力 + MTP 多步训练——**Next 架构的直接前身**；原生 262K 上下文可扩展 ~1M（1M 为 API 托管版默认配置）；213 个 safetensors 分片须全量加载 VRAM，自部署门槛极高（vLLM / SGLang / TokenSpeed）[来源: mindstudio.ai 解析 + NVIDIA NeMo 模型页]
+- **与 API 版（3.8-Max）差异**：无视觉输入、无内置工具、上下文原生 262K
+- **思考模式（百炼实测 2026-08-27）**：百炼端点 `enable_thinking` 仅接受 True、`/no_think` 无效 → **托管版无法关闭思考**（与官方"混合思考"文档分类不符，以实测为准；自部署不受此限）；曲线方案 `thinking_budget` 设极小值（budget=1 思考仅约 3 字符）；`reasoning_effort` 实测有效但官方支持列表未列 a95b，与 budget **互斥**（同时设置报错）
+- **实测脚本与数据**：`maas-solution-and-api-sample/test_qwen38_a95b_thinking_switch.py` + 同名 `_results_20260827.md`（含闭源版 effort↔budget 互转映射规则与 10 用例完整数据）
+- **迭代意义**：Max 级开源被视为生态策略转向——开源建壁垒，API 版以视觉/内置工具/1M 上下文增值；至 Qwen4 代旗舰回归闭源，**私有化旗舰短期仅此一款可选**
 
-- **模型**：qwen3.8-max-0902（别名 qwen3.8-max-2026-09-02），Qwen3.8-Max 的最新能力快照
-- **上线**：2026-09-02，国际站/全球节点均已上线 [来源: help.aliyun.com 上新页，2026-09-17 核实]
-- **定价**：与稳定版一致，统一见下方「定价（API）」章节。
-- **能力三维升级**（官方口径）：
-  1. **编码深度突破**：工程级项目理解与长程自主开发能力增强
-  2. **协作智能体**：多工具调度与协作能力增强
-  3. **视觉理解精进**：图表推理、文档解析能力提升
-- **快照演进**：稳定版别名 `qwen3.8-max` → `qwen3.8-max-0902`（2026-09-02）
+### Qwen3.8-27B 开源 Dense 版（当前主推，2026-08-17 上线）
 
-### Qwen3.8-2.4T-A95B 开源版（2026-08-12 上线）
-
-- **模型**：Qwen3.8-2.4T-A95B（HuggingFace: Qwen/Qwen3.8-2.4T-A95B）
-- **定位**：Qwen3.8-Max 的开源权重版本，**Qwen 首款 Max 级开源模型**
-- **上线**：2026-08-12，百炼国际站 [来源: help.aliyun.com 上新页]
-- **许可证**：HuggingFace "other" 许可（非标准 Apache/MIT，商用前需确认）[来源: huggingface.co/Qwen/Qwen3.8-2.4T-A95B]
-- **架构细节** [来源: mindstudio.ai 技术解析 + NVIDIA NeMo 模型页]：
-  - 总参数 **2.4T**，激活参数 **95B** / token；92 层，hidden dim 8192
-  - MoE：**512 experts**，每 token 10 routed + 1 shared，expert intermediate dim 2048
-  - **混合注意力**（交替模式）：23 组 × (3× Gated DeltaNet + MoE → 1× Gated Attention + MoE)
-    - Gated DeltaNet 层：128 linear attention heads（values）+ 16 heads（Q/K），head dim 128
-    - Gated Attention 层：64 Q heads + 4 KV heads，head dim 256，RoPE dim 64
-  - MTP（multi-token prediction）多步训练，提升生成质量
-  - 上下文：**原生 262,144 tokens，可扩展至约 1,010,000 tokens**（1M 为 API 托管版默认配置，开源版需自行扩展）
-  - 权重格式：safetensors，213 个分片；兼容 vLLM / SGLang / TokenSpeed 自部署
-  - 特性参数：`reasoning_effort`（可调推理深度）、`preserve_thinking`（跨轮保留推理上下文）
-- **思考模式（百炼 API 实测，2026-08-27）**：百炼端点上 `enable_thinking` **仅接受 True**——传 False 时专属端点与公共端点均报错 `The value of the enable_thinking parameter is restricted to True.`；`/no_think` 提示词软开关亦无效 → **百炼托管的 qwen3.8-2.4t-a95b 实际按仅思考模式运行，无法关闭思考**（与官方"深度思考模型用法"文档的"混合思考模式"分类不符，以 API 实测为准；自部署 vLLM 版不受此限）。曲线方案：`thinking_budget` 有效，设极小值可将思考压至极短再输出回复（实测 budget=1 时思考仅 2 字符），实测脚本 `maas-solution-and-api-sample/test_qwen38_a95b_thinking_switch.py`
-- **思考长度控制：`thinking_budget` vs `reasoning_effort`（实测，2026-08-27，10 用例套件）**：两参数单独使用在 a95b 上均有效，定位不同——
-  - `thinking_budget`（int）：思考 Token **硬上限**，粒度精确（实测 budget=1→思考均值 3 字符，近似关闭；1024→均值 100 字符，较基线 -43%）；官方 API 参考明确适用于 Qwen3.8 系列，推荐首选
-  - `reasoning_effort`（string 档位）：推理**力度软引导**，低→中→高呈单调梯度（三轮实测：low 均值 106 / medium 134 / high 306 字符，基线 175；low 较基线 -40% 且方差极小）；注意官方 API 参考的 reasoning_effort 支持列表仅明文覆盖 qwen3.8-max/flash，未列开源版 a95b（实测有效但无官方背书）
-  - **两参数互斥（实测同样适用 a95b）**：同时设置报错 `'reasoning_effort' and 'thinking_budget' cannot be set simultaneously`；`reasoning_effort=none` 也被拒（报错同 enable_thinking=False，印证 none→enable_thinking=False 映射生效）
-  - **闭源版互转规则（官方文档，max/flash）**：reasoning_effort 未设时 budget 自动映射档位（0~4096→low，4097~16384→medium，16385~262144→xhigh），档位未设时自动映射 budget（low→4096，medium→16384，xhigh→262144）；均未设时默认 budget=131072 / effort=xhigh [来源: help.aliyun.com/zh/model-studio/qwen-api-via-dashscope]
-  - 完整实测数据与脚本：`maas-solution-and-api-sample/test_qwen38_a95b_thinking_switch.py` + `maas-solution-and-api-sample/test_qwen38_a95b_thinking_switch_results_20260827.md`
-
-**开源版 vs API 托管版（Qwen3.8-Max）差异**：
-
-| 维度 | 开源版 (A95B) | API 版 (Max) |
-|------|--------------|-------------|
-| 上下文 | 原生 262K，可扩展 ~1M | 默认 1M |
-| 最大输出 | 未公开 | 128K |
-| 视觉输入 | ❌ 无 | ✅ 文本+图像 |
-| 非思考模式 | ✅ 仅自部署可关；百炼端点强制思考（实测） | ✅ |
-| 内置工具 | ❌ | ✅ |
-| 部署方式 | vLLM / SGLang 自部署 | 百炼 API |
-
-> **架构设计解读**（素材分析）：① Gated DeltaNet 线性注意力在长序列上 FLOPs 增长更慢，是 262K 原生上下文的效率基础；每隔 3 层插入一层标准注意力保留全局信息捕捉能力。② 512 experts 超高稀疏度——每 token 仅激活 11/512 ≈ 2.1% experts，2.4T 参数的推理成本接近 95B dense 模型；代价是全量权重须加载到 VRAM（213 个分片），自部署门槛极高。③ 首次 Max 级开源被视为生态策略转向：开源建壁垒，API 版以视觉/内置工具/1M 上下文作增值差异。
-
-### Qwen3.8-27B 开源 Dense 版（2026-08-17 上线）
-
-- **模型**：Qwen3.8-27B（27B Dense 原生视觉语言模型）
-- **上线**：2026-08-17，百炼国际站 [来源: help.aliyun.com 上新页]
-- **定位**：相较 3.6-27B 重点提升文本和视觉模态下的编程和办公场景能力，可靠地端到端完成复杂任务
-- **可用端点（实测，2026-08-27）**：CN 专属端点 / 国际站 BJ / 国际站 SG 三端点均可调用
-- **思考模式（百炼 API 实测，2026-08-27，10 用例三端点交叉验证）**：**真正的混合思考模式，可以关闭思考**——
-  - `enable_thinking=False` ✅ 完全生效（思考 0 字符，模型直接回复），三端点行为一致；与官方文档分类一致（vs a95b 与文档不符）
-  - 默认不传参数时开启思考（实测均值 357 字符）
-  - `reasoning_effort=none` ✅ 等价关闭（映射生效且被允许）
-  - `thinking_budget`（budget=1024→思考均值 148 字符）与 `reasoning_effort`（low→均值 121 字符）均有效；两参数互斥规则同样适用（同时设置报错）
-  - `/no_think` 软开关未实现完全关闭（思考仍输出，与去异常后对照组相当），有硬开关后无实用价值
-  - 完整实测数据与脚本：`maas-solution-and-api-sample/test_qwen38_27b_thinking_switch.py` + `maas-solution-and-api-sample/test_qwen38_27b_thinking_switch_results_20260827.md`
+- **定位**：27B Dense 原生视觉语言模型，相较 3.6-27B 重点提升文本/视觉模态下的编程与办公端到端能力；百炼 CN 专属 / 国际站 BJ / SG 三端点实测可用（2026-08-27）
+- **思考模式（实测，10 用例三端点交叉验证）**：**真混合思考，可关闭**——`enable_thinking=False` 完全生效（思考 0 字符，三端点一致，与官方文档分类一致），`reasoning_effort=none` 等价关闭；默认开启思考；`thinking_budget` / `reasoning_effort` 均有效且互斥（同时设置报错）；`/no_think` 软开关不能完全关闭，有硬开关后无实用价值
+- **实测脚本与数据**：`maas-solution-and-api-sample/test_qwen38_27b_thinking_switch.py` + 同名 `_results_20260827.md`（含 Qwen3.8 系列思考模式横向对比表）
 
 ### Qwen3.8-Flash / Qwen3.8-Flash-Next（2026-08-26 发布）
 
@@ -202,18 +138,18 @@
 - **边界与注意**：① "超越 Opus 4.6" 为 SWE-bench Pro 等 agent 编码分项，非全面领先（新京报同文亦有"性能与 Qwen3.7-Plus 接近"表述）；② OSWorld 2.0 binary 仅 19.4，GUI 执行类场景勿过度承诺；③ "6B 激活"≠部署小——125B 权重 + 51B n-gram 表 + 视觉组件均占内存，全精度 agentic 实验用 GB300 NVL72 整柜；④ 开源权重为架构预览，Qwen4 正式版结构可能微调
 - **定价**：见下方「定价（API）」章节
 
-### Qwen3.7 系列（历史/存量，已退出主推）
 
-> API 仍可调用，仅供存量项目核对；定价不再展开，实际账单以百炼控制台和官方定价页为准。新项目迁移路径：**旗舰/通用多模态 → Qwen4-Max；GUI/视觉 → Qwen3.8-27B；低成本快速 → Qwen3.8-Flash**。
+## 系列迭代思路与方向
 
-| 模型 | 原定位与关键规格 | 当前状态 |
-|------|------------------|----------|
-| **Qwen3.7-Max** | 上代旗舰；1M 上下文、最大输出 64K；面向长时 Agent、Agentic Coding 与数学推理 | 已由 Qwen3.8-Max 取代；关键对照数据保留在上方 Benchmark 表 |
-| **Qwen3.7-Plus** | 多模态智能体；1M 上下文，支持文本、图像、视频与屏幕截图；面向 GUI/CLI 和视觉编码 | 已退出主推；GUI/视觉改选 Qwen3.8-27B，通用多模态改选 Qwen3.8-Max |
-| **Qwen3.7-Flash** | 原生视觉语言快速档；面向 IPC、审校与大批量打标 | 已由 Qwen3.8-Flash 取代 |
+> 3.7 → 3.8 → Qwen4 的演进主线，供选型与趋势判断；各代规格与实测详见上方专章。
 
-- **Qwen3.7-Plus 历史专项数据**（第三方口径，仅供存量对照）：ScreenSpot Pro 79.0%、AndroidWorld 81.0%、OSWorld-Verified 73.3%；OmniDocBench 1.5 91.4%、OCR-Bench-V2 70.7%；Deep-Planning 62.3%、MCP-Mark 58.7%。stable 版未独立复测。
-- **Qwen3.7-Max 其他历史记录**：35 小时自主编码（1,158 次工具调用）；HLE 41.4、HMMT 2026 97.1%、IMOAnswerBench 90.0%。TB / SWE / GPQA 对照统一见上方 Qwen3.8-Max Benchmark 表。
+| 维度 | 迭代轨迹 | 方向判断 |
+|------|----------|----------|
+| 架构 | 3.8-Max/a95b 首用 GDN 混合注意力 → 3.8-Flash-Next 补齐 QSA + Gated Residual + N-gram Embedding + Muon（Next 架构四件套）→ Qwen4-Max 旗舰尺度兑现 | "开源预览先行、旗舰随后"打法延续（Qwen3-Next → 3.5/3.8 → Flash-Next → Qwen4）；容量与计算解耦（N-gram 查表）是核心降本路线 |
+| 效率与成本 | 激活 95B→71B（总参维持 2.4T）、token 效率提升、Flash 训练成本仅 3.7-Plus 的 1/9 | 任务级降本有架构内禀基础非纯补贴；缓存地板价（Qwen4-Max 命中价=输入价 5%）定向补贴 agentic 高前缀复用流量、锁定百炼生态 |
+| 档位分工 | 3.7 代 Max/Plus/Flash 三档 → 3.8 代 Plus 退出主推、由开源 27B Dense 承接 GUI/视觉 → Qwen4 代 Max 补齐视频、通用多模态不再分流 | Plus 档被"开源 Dense + 轻量 MoE"夹击取代；旗舰向全模态 + 长程 Agent 收敛 |
+| 开源策略 | 3.8 代首次 Max 级开源（a95b）→ Qwen4 本体闭源、小尺寸将陆续开源（时间/型号未公布） | 开源建生态壁垒、API 以全模态/内置工具/1M 上下文增值；私有化旗舰短期仅 a95b，关键销售差异 |
+| 能力范式 | 文本/代码 → 多模态理解 → 长程自主 Agent + Live Delivery 迭代交付 | 交付物从文本转向专业软件工件；qwen4 起 max_tokens 语义变更（限思考+回答总量）是旧项目迁移主要坑 |
 
 ## 核心能力与限制
 
@@ -225,7 +161,7 @@
 | **Agentic Coding** | 面向工程级项目理解、长程自主开发与多工具协作；Qwen4-Max 新增 Live Delivery 迭代交付；定量数据见 Qwen4-Max Benchmark |
 | **超长上下文** | Qwen4-Max / 3.8-Max / Flash API 默认 1M tokens，适合大型代码仓库和长文档 |
 | **多模态智能体** | Qwen3.8-27B 承接 GUI/视觉场景，Qwen4-Max 承接通用多模态（文本+图像+视频）；Qwen3.8-Flash 支持文本、图像与视频输入 |
-| **数学与复杂推理** | 当前主推 Qwen4-Max；上代竞赛数学纪录收敛至 Qwen3.7 历史小节 |
+| **数学与复杂推理** | 当前主推 Qwen4-Max；上代基准锚点见存量模型小节 |
 | **多语言** | 覆盖 55 种语言，支持多语言创作与翻译 |
 | **开源生态** | Qwen3.8-2.4T-A95B、Qwen3.8-27B 与 Qwen3.8-Flash-Next 覆盖旗舰、Dense 视觉与轻量架构预览；Qwen4-Max 本体闭源，小尺寸模型将陆续开源（时间/型号未公布） |
 
@@ -295,8 +231,6 @@
 - [阿里云国际站模型定价](https://www.alibabacloud.com/help/en/model-studio/model-pricing)
 - [百炼模型定价](https://help.aliyun.com/zh/model-studio/model-pricing)
 - [百炼模型上下架与更新](https://help.aliyun.com/zh/model-studio/newly-released-models)
-- [Qwen3.7-Plus 官方博客](https://qwen.ai/blog?id=qwen3.7-plus)（历史模型）
-- [Qwen3.7-Plus 第三方 Benchmark 汇总](https://www.qubrid.com/blog/qwen37-plus-is-now-available-on-qubrid-ai)（历史模型）
 - [Computer Use AI 全球排名](https://benchlm.ai/best/computer-use)
 - [Agentic LLM 参考](https://artificialanalysis.ai/models?intelligence=coding-index)
 - [通义千问官网](https://tongyi.aliyun.com)
@@ -306,26 +240,28 @@
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-17 | 瘦身：压缩存量模型小节（3.8-Max/A95B 收敛为要点+代际基准锚点，27B 精简实测细节），新增「系列迭代思路与方向」演进表；修复 Qwen3.7 历史小节悬空引用，清理历史参考链接；9 月及以前 Changelog 移入折叠区并压缩 |
+| 2026-11-17 | Qwen3.8-Max Benchmark 表对齐全库 TB 4.0 统一口径规则：新增 TB 4.0 行（五模型均早于 4.0 发布、无官方分数，不换算不补算，全"—"），TB 2.1 行标注发布时口径，表下补口径隔离警告（与 qwen-vs-hy 对比表同款处理） |
 | 2026-11-16 | 用户要求删除 qwen4-max-preview 预览版信息（预览期至 11-25 后下线，无长期保留价值）：时间行/迁移注意/边界标注/参考资料四处清理，保留 qwen4.0-max 无效名提示与 393K 口径矛盾警示 |
-| 2026-11-16 | 合并：inbox Qwen4-Max 发布调研 - 新增「Qwen4-Max」小节（2026-11-16 GA 取代 3.8-Max：2.4T/71B 激活 + 328B N-gram、Next 架构旗舰兑现、独创性分级表、Work360 52.69 vs 47.74、AA v5.0.1 43 vs 34、任务成本 -58%/-67%、Live Delivery、闭源+小尺寸开源路线图、迁移坑与 Batch/393K 口径矛盾标注）；主推表旗舰切换 Qwen4-Max 🚩，3.8-Max 转存量并修正 AA 口径（v5=45 过期 → v5.0.1=34 deprecated）；定价表新增 Qwen4-Max 行（SG $1.5/$4.5/缓存 $0.075）；竞品对照表切换 Qwen4-Max；核心能力/限制/适用场景/迁移路径同步 |
+| 2026-11-16 | 合并：inbox Qwen4-Max 发布调研 - 新增 Qwen4-Max 专章并切换主推/定价/竞品/场景；3.8-Max 转存量并修正 AA 过期口径（v5→v5.0.1 重校准，跨版本不可比）；Batch/393K 口径矛盾标注待核实 |
 | 2026-11-10 | 定价与历史内容精简：API 定价仅保留 Qwen3.8 代，竞品对照改用 Qwen3.8-Max；合并 Qwen3.7 系列为历史存量小节，删除重复的 Plus vs Max 选型详解，保留迁移路径与关键历史数据 |
 | 2026-11-08 | 校验修复（knowledge-verification-2026-11-08）：解除 Qwen3.8-Max「AA 尚未复测」过期表述——AA 已收录 v5 = 45（低于 Carbon/Opus 5.5/Astra/GPT-6.1 Sol/K3.1 Pro），官方「仅次于 Fable 5」自评加座次对照与口径提醒 |
-| 2026-11-05 | 主推口径修正（用户明确）：**Qwen3.7-Plus 退出主推**（3.8 代无 Plus 继任者，官方销售指南 0930 起已以 Qwen3.8-27B 替代）；主推表置换为 Qwen3.8-Max / Qwen3.8-27B / Qwen3.8-Flash，Plus 小节改「存量在售，已退出主推」，系列定位/核心能力/适用场景/选型一句话同步改写；定价与 benchmark 数据保留供存量项目核对 |
-| 2026-09-17 | 校验修复（knowledge-verification-2026-09-17）+ 合并：新增「Qwen3.8-Max-0902 快照」小节（2026-09-02 上线国际站/全球，编码深度/协作智能体/视觉理解三维升级，$2/$6 同稳定版）+ 主推表/定价表同步；Qwen3.7-Flash 国际站 USD 定价公布——三档阶梯 $0.030/$0.130（≤32K）、$0.100/$0.400（≤256K）、$0.200/$0.800（≤1M）+ Batch 5 折，解除"未公布"口径；a95b/27b 缓存列改"支持缓存折扣（单价未公开）"并补北京价 $1.65/$4.951、$0.424/$1.696；删除 3.8-Flash 行"免费额度 1M tokens"营销残留；修复 deepseek-v-series.md 断链（../../../ → ../../）；Changelog 主表最早 2 条（2026-08-03）移入折叠区 |
-| 2026-09-02 | 压缩历史模型内容：Qwen3.7-Max 小节精简为要点式（关键基准/35h 标志事件/快照演进保留关键值，定价细节收敛至定价表，详细对照已由 Qwen3.8-Max Benchmark 表 3.7-Max 列承载）；「Plus vs Max 场景选型详解」压缩为「Plus vs Max 场景选型（3.7 代结论）」（Plus 视觉专项 benchmark 表保留，3.7-Max 占优维度与速度对比压为摘要）；系列定位分工压缩；适用场景表推荐由 3.7-Max 切换至 3.8-Max |
-| 2026-09-02 | 合并：inbox Qwen3.8-Flash 调研 - 新增「Qwen3.8-Flash / Qwen3.8-Flash-Next」小节（2026-08-26 发布：125B/6B 激活 + 51B N-gram Embedding、GDN+QSA 混合注意力、Gated Residual、Muon 优化器、训练成本 1/9、SWE-bench Pro 62.5、Anthropic 协议兼容、Qwen Community 1.0 许可、Next 架构为 Qwen4 雏形）；主推表 Flash 层换代 Qwen3.7-Flash → Qwen3.8-Flash；定价表新增 3.8-Flash 行（新加坡 $0.15/$0.47，国内 ¥0.8/¥2.7/缓存 ¥0.1）；适用场景表同步 |
-| 2026-09-01 | 路径修复：`api-sample` 目录已重命名为 `maas-solution-and-api-sample`，同步更新本文全部实测脚本引用路径（9 处，含来源标注与 Changelog 历史记录中的路径） |
-| 2026-08-27 | 新增「Qwen3.8-27B 开源 Dense 版」小节（2026-08-17 上线，27B VL Dense）；API 实测（10 用例三端点交叉验证）：**27b 可关闭思考**——enable_thinking=False 完全生效（思考 0 字符，CN 专属/国际站 BJ/SG 三端点一致），默认开启思考，reasoning_effort=none 等价关闭，thinking_budget/reasoning_effort 均有效且互斥；与 a95b（仅思考模式）形成同系列内行为分化；新增脚本 `maas-solution-and-api-sample/test_qwen38_27b_thinking_switch.py` + 结果文件 `maas-solution-and-api-sample/test_qwen38_27b_thinking_switch_results_20260827.md`（含 Qwen3.8 系列思考模式横向对比表） |
-| 2026-08-27 | API 实测（10 用例套件）：百炼端点（专属+公共均验证）qwen3.8-2.4t-a95b 的 `enable_thinking` 仅接受 True（传 False 报 invalid_parameter_error），`/no_think` 软开关无效，实际按仅思考模式运行——修正差异表"非思考模式"开源版口径（自部署可关、百炼托管不可关）；实测 `thinking_budget`（budget=1 思考压至均值 3 字符）与 `reasoning_effort`（low/medium/high 梯度 106/134/306 字符）均有效；**新发现：两参数互斥规则同样适用 a95b**（同时设置报错），`effort=none` 被拒印证 none→enable_thinking=False 映射生效；补录闭源版互转映射规则（low↔4096/medium↔16384/xhigh↔262144，默认 131072/xhigh）；新增实测脚本 `maas-solution-and-api-sample/test_qwen38_a95b_thinking_switch.py` + 结果文件 `maas-solution-and-api-sample/test_qwen38_a95b_thinking_switch_results_20260827.md` |
-| 2026-08-17 | 合并：inbox 四模型调研 - 新增「Qwen3.8-2.4T-A95B 开源版」小节（92 层混合注意力架构 / 512 experts / 原生 262K 可扩展 ~1M / 许可证 "other" / vs API 版差异表）+ Qwen3.8-Max 官方 benchmark 五模型对比表；修正开源版上下文口径（1M → 原生 262K 可扩展，1M 为 API 版默认配置）；竞品定价表 DS-V4-Pro 行更新为 2026-08-16 峰谷定价 |
-| 2026-08-14 | 校验修复：开源状态解除待确认——Qwen3.8 系列开源版 qwen3.8-2.4t-a95b 2026-08-12 上线国际站（2.4T 总参/激活 95B，1M ctx，GPQA 92.6/PaperBench 93.0/OSWorld 86.1），max 本体开源仍未明确；qwen3.7-flash 国际站已上线（上新页 2026-07-21），USD 定价暂未公布；Changelog 折叠 6 条 |
-| 2026-08-03 | 清理 Qwen3.6-* 系列残留信息（历史模型标注、竞争力对比、限制表、私有化部署场景、参考链接），Changelog 历史记录保留 |
+| 2026-11-05 | 主推口径修正（用户明确）：**Qwen3.7-Plus 退出主推**（3.8 代无 Plus 继任者，官方销售指南 0930 起已以 Qwen3.8-27B 替代）；主推表/系列定位/核心能力/适用场景同步改写 |
 
 <details>
-<summary>历史早期记录（2026-04 ~ 2026-08）</summary>
+<summary>历史早期记录（2026-04 ~ 2026-09）</summary>
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-09-17 | 校验修复+合并：新增 3.8-Max-0902 快照小节；Qwen3.7-Flash 国际站 USD 阶梯定价公布解除"未公布"；a95b/27b 补北京价与缓存口径；删免费额度营销残留；修复 deepseek-v-series 断链 |
+| 2026-09-02 | 压缩 Qwen3.7-Max 历史内容与 Plus vs Max 选型详解；适用场景推荐切换 3.8-Max |
+| 2026-09-02 | 合并：inbox Qwen3.8-Flash 调研 - 新增 Flash/Flash-Next 专章（Next 架构首发），主推/定价/场景同步换代 |
+| 2026-09-01 | 路径修复：api-sample 重命名为 maas-solution-and-api-sample，全文脚本引用同步 |
+| 2026-08-27 | 新增 27B 专章；实测确认 27b 可关思考（三端点一致），与 a95b 仅思考形成系列内行为分化 |
+| 2026-08-27 | 实测 a95b 百炼端点仅思考模式（enable_thinking 仅 True），budget/effort 有效且互斥；补录闭源版互转映射 |
+| 2026-08-17 | 合并：四模型调研 - 新增 A95B 开源版专章与 3.8-Max 官方五模型 benchmark 表；修正开源版上下文口径 |
+| 2026-08-14 | 校验修复：a95b 开源上线解除待确认；3.7-flash 国际站上线、USD 定价未公布 |
+| 2026-08-03 | 清理 Qwen3.6-* 系列残留信息（历史标注/对比/限制表/参考链接） |
 | 2026-08-03 | 补录 qwen3.8-max 新加坡节点 USD 定价（控制台截图：输入 $2/输出 $6/缓存命中 $0.25，最大输出 128K，RPM 15000/TPM 200万）；定价表切换为 USD 主口径；修正 3.7-Max 缓存命中价："输入价 10%"（$0.25）→ 实际 $0.5（控制台核实，用户确认），3.8-Max 缓存价仅为 3.7-Max 一半 |
 | 2026-08-03 | Qwen3.8-Max 正式版转正：定价已公布（中文定价页：新加坡 ¥14.988/¥44.965、北京/全球 ¥12/¥36，Batch 半价、缓存折扣、100万 Token 免费额度）；删除 Preview 预览版相关章节与信息，Qwen3.8-Max 升为主推旗舰（取代 Qwen3.7-Max）；API 实测确认支持文本+图像输入（VL）；国际站 USD 定价页尚未收录 |
 | 2026-07-30 | 校验修复：定价切换为国际站新加坡节点标准（Max $2.5/$7.5 限时 5 折、Plus $0.4/$1.6 限时 8 折）；Flash 解除待官方验证（上新页 2026-07-21 确认，官方定位原生视觉语言，新加坡未上架）；Kimi K3 2026-07-27 已兑现开源；Changelog 折叠最早 2 条 |
