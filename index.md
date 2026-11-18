@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-11-16
+> 最后更新：2026-11-18
 
 ## 目录
 
@@ -62,16 +62,15 @@
 | Claude Code / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) |
 | Gemini / Gemini 4 Carbon / Argon / Hydrogen / Orchestrator / 1M 输出上限 / Google / Computer Use | [Gemini](knowledge/google/maas/gemini.md) |
 | TPU / 8tx / 8i Max / 机密计算 / 长上下文 / Google 自研芯片 | [TPU 第八代](knowledge/google/ai-platform/tpu.md) |
-| GPT-6 / Astra / Sol / Terra / Luna / GPT-5 / ChatGPT / OpenAI / Codex | [GPT-6 系列](knowledge/openai/gpt-6-series.md) · [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
+| GPT-6 / GPT-6.2 / Astra / Sol / Terra / Luna / GPT-5 / ChatGPT / OpenAI / Codex | [GPT-6 系列](knowledge/openai/gpt-6-series.md) · [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
 | MAI / 微软自研 / Copilot 模型 | [MAI 模型家族](knowledge/microsoft/mai-models.md) |
 | Meta / Muse / Wonder / Ember / Muse Code | [Muse 系列](knowledge/meta/muse-series.md) |
 | DeepSeek / R1 / V4 / 开源 | [DeepSeek](knowledge/deepseek/general_intro.md) ⭐ |
-| Hy3 / Hy4 / 腾讯混元 / Hunyuan | [混元系列](knowledge/tencent/hunyuan.md) |
+| Hy3 / Hy4 / Hy4 flash / 腾讯混元 / Hunyuan | [混元系列](knowledge/tencent/hunyuan.md) |
 | MiMo / 小米 / V2.6 / 全模态 | [MiMo 系列](knowledge/xiaomi/mimo-series.md) |
 | StepFun / 阶跃星辰 / Step 5 Preview / Step 3.7 Flash / AI+终端 | [StepFun](knowledge/stepfun/general_intro.md) · [Step 系列](knowledge/stepfun/step-series.md) |
 | Qwen vs Hy4 / 混元竞争分析 | [Qwen3.8-Max / 27B vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) |
 | Qwen vs Doubao / 豆包竞争分析 | [Qwen3.8-Max vs Doubao-Seed-2.1 Pro](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
-| Haiku 5.5 vs GPT-6 Luna / 小模型档 / Flash 档竞争 / 分段定价 / 前沿模型横向对比 | [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) |
 | MiniMax / M3 / M3.1-Flash / M3 Pro / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
 | H3-Image / 图像生成 / 4K / 开源图像 / MiniMax H 系列 | [H 系列](knowledge/minimax/h3-series.md) |
 | Kimi / 月之暗面 / Moonshot / K3 / K3.1 Pro | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
@@ -175,7 +174,6 @@
 - [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) — 企业级 vs 个人开发者定位差异
 - [Qwen3.8-Max / 27B vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) — 旗舰+开源双档 vs 1M视觉+Computer Use
 - [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先（对 260628 版）+ Batch 输出成本优势 vs Agent/GUI 公开数据；双方当前版均 1M
-- [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) — 前沿小模型档竞争 + 2026-09/10 前沿模型横向对比 + Qwen Flash 档启示
 
 ### Google
 
@@ -197,7 +195,7 @@
 ### OpenAI
 
 - 公司分析: [OpenAI 公司分析](knowledge/openai/general_intro.md) — GPT-6 系列、ChatGPT、Native Computer Use
-- 模型系列: [GPT-6 系列](knowledge/openai/gpt-6-series.md) — 🚩 **Astra（旗舰，🌟 前代模型监督训练 + 首个 Critical 级 cyber + Daybreak 门控，$10/$50）** / **Sol（workhorse，$2/$10 永久价，缓存×effort 解耦）** / **Luna（轻量，272K 分段 $0.10/$0.50）** / **6.1 Terra（10-26 性价比档回归）** / 6.1 Sol 点更新；[GPT-5 系列](knowledge/openai/gpt-5-series.md) — 历史世代（5.5 GA / 5.6 Sol·Terra·Luna 已被 GPT-6 取代）
+- 模型系列: [GPT-6 系列](knowledge/openai/gpt-6-series.md) — 🚩 **GPT-6.2 Astra（11-17 接任旗舰，$8/$40、cached $0.40，AA v5.0.1=62 总榜第二仅次 Fable 5.2，官方称每任务成本 < GPT-6 Astra 1/3，token 效率主引擎）** / **GPT-6.2 Sol（workhorse，$2/$10 同价 +2 分 AA 57，FrontierCode 2.0 近 Astra 成本 1/5）** / **Luna（轻量，272K 分段 $0.10/$0.50）** / **6.1 Terra（10-26 性价比档回归）**；GPT-6 Astra（🌟 前代模型监督训练 + 首个 Critical 级 cyber + Daybreak 门控）/ 6.1 Sol 已被 6.2 接替转上一代；[GPT-5 系列](knowledge/openai/gpt-5-series.md) — 历史世代（5.5 GA / 5.6 Sol·Terra·Luna 已被 GPT-6 取代）
 - AI Coding: [Codex](knowledge/openai/codex.md) — 多形态 AI 编程 Agent 平台（CLI/IDE/Web/桌面），多 Agent 编排
 
 ### Microsoft AI (MAI)
@@ -241,7 +239,7 @@
 
 ### 腾讯混元（Tencent Hunyuan）
 
-- 模型: [混元系列](knowledge/tencent/hunyuan.md) — 🚩 **Hy4（2026-11-04 正式版，首次视觉理解 + Computer Use，¥6/¥18，权重未放出）** / Hy3（295B/21B，¥1/¥4，开源可自部署，价格碾压）/ Hy4 preview（历史，Apache 2.0 可自部署）
+- 模型: [混元系列](knowledge/tencent/hunyuan.md) — 🚩 **Hy4（2026-11-04 正式版，首次视觉理解 + Computer Use，¥6/¥18，权重未放出）** / **Hy4 flash（2026-11-16，224B/12B，多模态 + 1M，¥0.5/¥2，系列最低 API 价档）** / Hy3（295B/21B，¥1/¥4，开源可自部署）/ Hy4 preview（历史，Apache 2.0 可自部署）
 
 ### 小米 MiMo（Xiaomi MiMo）
 
@@ -263,7 +261,6 @@
 - [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) ⭐ — 企业级 vs 个人开发者定位差异
 - [Qwen3.8-Max / 27B vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) — 旗舰+开源双档 vs 1M视觉+Computer Use，SA 打法建议
 - [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先（TB 2.1 +15.6、SWE-Pro +10.2，对 260628 版）+ Batch 输出成本优势 vs Agent/GUI 公开数据；双方当前版均 1M
-- [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) — 2026-09/10 前沿模型横向对比 + 小型档竞争（≤100K 同价更聪明 vs >100K Luna 无对手）+ Qwen Flash 档五点启示
 
 ---
 

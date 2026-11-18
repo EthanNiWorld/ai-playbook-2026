@@ -2,14 +2,14 @@
 
 > **AI 解决方案售前知识库** — 模型选型 · 竞品对比 · 行业方案 · 技术通识，一站式参考
 >
-> 最后更新：2026-11-16
+> 最后更新：2026-11-18
 
 <p align="center">
   <img src="https://img.shields.io/badge/覆盖厂商-15-blue?style=for-the-badge" alt="覆盖厂商 15 家：阿里云 + 14 家外部厂商">
   <img src="https://img.shields.io/badge/结构化文档-109-orange?style=for-the-badge" alt="结构化文档 109 篇">
   <img src="https://img.shields.io/badge/知识维度-4-green?style=for-the-badge" alt="知识维度 4 类：通识 · 产品 · 对比 · 方案">
   <img src="https://img.shields.io/badge/核心阵地-阿里云-purple?style=for-the-badge" alt="核心阵地：阿里云 MaaS · Coding · App · Infra">
-  <img src="https://img.shields.io/badge/最后更新-2026--11--16-lightgrey?style=for-the-badge" alt="最后更新 2026-11-16">
+  <img src="https://img.shields.io/badge/最后更新-2026--11--18-lightgrey?style=for-the-badge" alt="最后更新 2026-11-18">
 </p>
 
 <!-- 统计口径（2026-11-13 实测）：结构化文档 = alibaba-ai-hub/ 与 knowledge/ 下 *.md（排除 _ 开头模板与 .venv）= 45 + 64 = 109 篇；HTML/PNG 交付件不计入。修改门面数字前请用 find 重测，勿凭报告/印象自增 -->
@@ -40,7 +40,7 @@
 **🔀 竞品对比**
 > SA 打法建议 + 差异化分析
 
-[Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) · [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md)
+[Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md)
 
 </td>
 </tr>
@@ -128,7 +128,7 @@
 | [GLM 系列](knowledge/zhipu/glm-series.md) | GLM-5.3 / 5.3-Flash 开源 SOTA，Terminal-Bench 3.0 28.3 开源第一，1M 上下文 |
 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) | K3.1 Pro（10-24 后训练旗舰，$2/$10，权重已按期开放）/ K3 2.8T / 1M 上下文，K3 系已全部开源 |
 | [Claude API](knowledge/anthropic/claude-api.md) | Fable 5.2（最高能力档，AA v5.0.1 榜首）+ Claude 5.5 家族（Opus 5.5 $4/$20 / Sonnet 5.5 / Haiku 5.5 分层定价 $0.10/$0.50），护栏从领域级下沉到任务阶段级 |
-| [GPT-6 系列](knowledge/openai/gpt-6-series.md) | Astra（🌟 前代模型监督训练 + 首个 Critical 级 cyber）/ Sol / 6.1 Terra（性价比档）/ Luna（272K 分段 $0.10/$0.50），1.05M 上下文 |
+| [GPT-6 系列](knowledge/openai/gpt-6-series.md) | 🚩 GPT-6.2 Astra（11-17 接任旗舰，$8/$40，AA v5.0.1=62 总榜第二，token 效率主引擎）/ GPT-6.2 Sol（$2/$10）/ 6.1 Terra（性价比档）/ Luna（272K 分段 $0.10/$0.50），1M+ 上下文 |
 
 ---
 
@@ -143,7 +143,7 @@
 | 🤖 **AI 应用平台** | QwenWork · Claw · JVS Crew | [QwenWork](alibaba-ai-hub/ai-application/qwen-work.md) · [Claw](alibaba-ai-hub/ai-application/claw-family.md) · [JVS Crew](alibaba-ai-hub/ai-application/jvs-crew.md) |
 | ⚡ **AI Infra（存储 / 算力）** | GPU 选型 · AgenticFS | [GPU 选型](alibaba-ai-hub/ai-infra/gpu-product-line.md) · [AgenticFS](alibaba-ai-hub/ai-infra/agenticfs.md) |
 | 🛡️ **AI 安全** | AI 安全护栏（LLM 输入输出防护） | [AI 安全护栏](alibaba-ai-hub/ai-guardrails/ai-guardrails.md) |
-| 🥊 **竞品对比** | vs Trae · vs Hy4 · vs Doubao · Haiku vs Luna | [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) · [Haiku 5.5 vs GPT-6 Luna](alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md) |
+| 🥊 **竞品对比** | vs Trae · vs Hy4 · vs Doubao | [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) · [Qwen vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) · [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
 
 > 💡 **重点推荐**：[企业自建 AI 平台方案](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) — Higress AI 网关 + 灵骏 GPU + 百炼 Fallback 全栈方案
 
@@ -172,7 +172,7 @@ mindmap
       Anthropic
         Fable 5.2 / Opus 5.5 / Sonnet 5.5 / Haiku 5.5 · Claude Code
       OpenAI
-        GPT-6 Astra·Sol·Terra·Luna · Codex
+        GPT-6.2 Astra·Sol / Terra·Luna · Codex
       Google
         Gemini 4 Carbon·Argon·Hydrogen / Orchestrator · Vertex AI · TPU 8tx/8i Max
       Microsoft AI
@@ -190,7 +190,7 @@ mindmap
       字节跳动
         Doubao-Seed-2.1 Pro 0915 · Seedance 2.5
       腾讯混元
-        Hy4 正式版 / Hy3
+        Hy4 正式版 / Hy4 flash / Hy3
       小米 MiMo
         V2.6 Flash / Pro
       阶跃星辰
@@ -264,7 +264,7 @@ flowchart LR
 │   ├── bytedance/          ← 🟣 字节跳动（2 篇：Doubao-Seed-2.1 / Seedance 系列）
 │   ├── zhipu/              ← 🟣 智谱 AI（2 篇：公司分析 / GLM系列）
 │   ├── stepfun/            ← 🟣 阶跃星辰（2 篇：公司分析 / Step 系列）
-│   ├── tencent/            ← 🟣 腾讯混元（1 篇：混元系列 Hy4 / Hy3）
+│   ├── tencent/            ← 🟣 腾讯混元（1 篇：混元系列 Hy4 / Hy4 flash / Hy3）
 │   ├── xiaomi/             ← 🟣 小米 MiMo（1 篇：MiMo 系列）
 │   └── ant/                ← 🟣 蚂蚁百灵（1 篇：Ling 系列）
 ├── vibeCodingProject/  ← 🧪 实验代码（Demo 脚本、CHM 查看器）

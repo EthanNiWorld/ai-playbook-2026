@@ -1,15 +1,15 @@
 # 混元（腾讯 Hunyuan）模型系列
 
-> 最后更新: 2026-11-06
+> 最后更新: 2026-11-18
 > 所属厂商: 腾讯（Tencent Hunyuan）
 > 产品类别: MaaS
 > 状态: Published
 
 <!-- SUMMARY_START -->
 **定位**: 腾讯混元旗舰 MoE 系列，以"生产力场景 Co-design + 加量不加价的性价比"为主线；preview 阶段 Apache 2.0 开源，正式版权重尚未放出
-**当前主推**: Hy4（2026-11-04 正式版，首次视觉理解 + Computer Use，1M 上下文）；上一代正式版 Hy3（2026-07-06，295B/21B，256K）；Hy4 preview 已降为历史版本
-**适用**: 带图分析 / 复杂图表与文档、长文档与跨文件长程 Agent（Hy4）、办公协作与金融研究（WorkBuddy 83.18、金融众测开源第一）、专业软件操作（Blender / CAD）
-**不适用**: 私有化部署与自部署（正式版权重未放出，仅 API）、高并发轻量档（Hy4 Flash 未发布）、跨模型横比 benchmark（口径不可比）、构造型前沿数学（Hy-FrontierMath T5 仅 13.0）
+**当前主推**: Hy4（2026-11-04 正式版，首次视觉理解 + Computer Use，1M 上下文）+ Hy4 flash（2026-11-16，224B/12B，多模态 + 1M，系列最低 API 价档）；上一代正式版 Hy3（2026-07-06，295B/21B，256K，开源可自部署）；Hy4 preview 已降为历史版本
+**适用**: 带图分析 / 复杂图表与文档、长文档与跨文件长程 Agent（Hy4）、高并发日常办公 / PPT / 深度搜索 / 文档处理（Hy4 flash）、办公协作与金融研究（WorkBuddy 83.18、金融众测开源第一）、专业软件操作（Blender / CAD）
+**不适用**: 私有化部署与自部署（Hy4 / Hy4 flash 权重均未放出，仅 API；可自部署仅 Hy3 / Hy4 preview）、跨模型横比 benchmark（口径不可比）、构造型前沿数学（Hy-FrontierMath T5 仅 13.0）
 <!-- SUMMARY_END -->
 
 ## 当前主推模型
@@ -17,11 +17,12 @@
 | 模型 | 定位 | 上下文 | 特点 | 推出时间 |
 |------|------|--------|------|----------|
 | **Hy4** 🚩 | 现役旗舰（正式版） | 1M | 首次视觉理解 + Computer Use、Co-design 全场景、等价同价 | 2026-11-04 |
+| **Hy4 flash** | 轻量性价比档（正式版） | 1M | 224B/12B（含 64B Engram）、多模态、解码 >150 tok/s、系列最低 API 价 | 2026-11-16 |
 | **Hy3** | 上一代正式版（轻量性价比档） | 256K | 295B/21B、异构专家 + 快慢思考融合、Apache 2.0 | 2026-07-06 |
 | Hy4 preview | 历史版本（已被正式版取代） | 1M | 770B/49B、Gated DSA + IndexCache + iHC、Apache 2.0 已开源 | 2026-08-28 |
 | Hy3-preview | 历史版本（已被 Hy3 取代） | 256K | 异构专家 + P-Penalty Loss | 2026-04-22 |
 
-> 📌 **代际状态（2026-11-06 核实）**：Hy4 正式版已于 2026-11-04 发布并在腾讯云 TokenHub / OpenRouter 上线，**但模型权重与 system card 仍在"计划开源"状态**，当前只能 API 调用。Hy4 Flash 官方称计划近期发布，届时才补上轻量档。
+> 📌 **代际状态（2026-11-18 核实）**：Hy4 正式版 2026-11-04 发布；**Hy4 flash 2026-11-16 发布**，补上轻量高并发档。两者权重与 system card 均在"计划开源"状态，当前只能 API 调用；可下载的 Hy4 系架构仍只有 preview（Apache 2.0）。
 
 ## Hy4（正式版）
 
@@ -36,7 +37,7 @@
 | 新增能力 | **Computer Use（首次）**：命令行 + 图形界面双通道 |
 | 权重状态 | ⚠️ **尚未放出**：官方称"计划开源模型权重"、system card"近期发布"；Agent Arena 标注 Currently proprietary |
 | 获取渠道 | 腾讯云 TokenHub（OpenAI 兼容）、OpenRouter / Hermes / OpenCode、WorkBuddy / CodeBuddy、元宝、ima、企业微信"大圆" |
-| 后续规划 | Hy4 Flash（主打性价比，近期发布）；QQ、王者荣耀、和平精英、微信读书、腾讯新闻陆续接入 |
+| 后续规划 | Hy4 flash 已于 2026-11-16 发布（见下方专章）；QQ、王者荣耀、和平精英、微信读书、腾讯新闻陆续接入 |
 
 > ⚠️ **一个高频误读**：11-04 发生的是"发新模型 + 上 API"，**不是放权重**。preview 阶段 Apache 2.0 已开源，正式版权重仍在"计划"状态；传播口径里的"开源模型第一"属能力定位与市场分类，不是法律意义上的授权状态。
 
@@ -89,6 +90,44 @@
 - 结合 **Hyra 2.0** 研发框架优化同架构小模型的预训练基础设施，自动训练出的 Jev 在多项评测中优于官方版本。
 - 同步开源单细胞表征模型 **HyCell** 与物理场模型 **HyPDE**（这两个是开源资产，与 Hy4 权重无关）。
 - 第三方 Agent Arena（11-04）：总榜 #14、8.5K+ 会话、净提升 +4.7%、进入 Pareto 前沿，任务成本 $0.55/task，并注明"权重放出后"才与 Kimi K3.1 Pro 并列为开源第一。
+
+## Hy4 flash（轻量性价比档，2026-11-16）
+
+### 基本信息
+
+| 项 | 值 |
+|---|---|
+| 发布时间 | 2026-11-16（距 Hy4 正式版 11-04 仅 12 天） |
+| 总参数 / 激活 | **224B（含 64B Engram 参数）/ 12B** |
+| 上下文 | 1M |
+| 多模态 | 支持多模态输入（含视觉理解） |
+| 权重状态 | ⚠️ **尚未放出**：官方称"计划开源"并承诺高频迭代 |
+| 获取渠道 | 腾讯云 TokenHub、WorkBuddy、元宝、企业微信、QQ、ima、Marvis；OpenRouter 即将接入 |
+| 官方选型建议 | 大部分日常任务（深度搜索、文档处理、PPT 生成、简单前端展示、Computer Use）推荐 flash；长程软件工程等复杂任务推荐 Hy4 |
+
+### 架构与工程选择（官方口径）
+
+| 环节 | 做法 | 量化效果 |
+|---|---|---|
+| 预训练 | 混合注意力 + LatentMoE + Engram | KV cache 仅为 Hy3 的 **1/24**、Hy4 的 **1/6** |
+| 后训练 | 自蒸馏 Hy4 + 强化学习 | 端到端任务平均输出 token **-50%** |
+| 推理 | Megakernel + 4bit 量化 + DFly | 解码速度 **>150 tokens/s** |
+| 评测 | 自建 WorkIndex（内部）+ 人类盲测 | 面向交付质量 / 单轮输出长度 / 任务耗时，而非公开榜单分数 |
+
+### 效果与成本（厂商口径）
+
+- **综合效果略优于 Hy4 preview（770B/49B）**——注意是"略优"，卖点在成本与速度而非能力代际跃升。
+- **WorkIndex**（8 个内部评测集：PPT 制作 / PPT 编辑与人机共写 / Markdown 人机共写 / 文档编辑 / 表格修复 / 音视频处理 / 视觉理解）：单任务成本为 Hy4 preview 的 **1/13**、Hy4 的 **1/20**、DeepSeek-V4.1-Flash-1017（Max 档、高峰时段价）的 **1/8**。
+- **盲测**：85 位 WorkBuddy 内部用户 × 27 类 259 个日常任务，用户满意度**接近 Claude Haiku 5.5**（未超越），单任务成本为参评模型中最低、任务耗时最短。
+- ⚠️ **口径隔离**：官方另附 7 个公开 agent 评测集（DeepSWE、ProgramBench、Terminal-Bench 4.0、APEX-Agents、AutomationBench、HLE、OSWorld 2.1），但分数为图片形式、本文未逐项转录；WorkIndex 与盲测均为**内部闭集，不可外部复现、不可跨模型直比**。截至 2026-11-18 未见 Artificial Analysis 等第三方指数收录。
+
+### 已知限制
+
+| 限制 | 说明 |
+|---|---|
+| 权重未放出 | 仅 API，不能自部署；许可证未知 |
+| 内部评测为主 | WorkIndex + 内部盲测不可外部复现；公开 bench 分数未转录，选型须自行压测 |
+| 能力上限 | 官方定位日常任务档；长程软件工程等复杂任务仍需 Hy4；盲测满意度仅"接近"Haiku 5.5 |
 
 ## Hy4 preview（历史版本，2026-08-28）
 
@@ -210,22 +249,22 @@
 | MRCR（长对话理解） | 42.9% | 75.1% | 长程交互中复杂意图保持 |
 | 跨脚手架标准差 | — | ≤4% | SWE-bench Verified 在 CodeBuddy/Cline/KiloCode 上 |
 
-## 代际演进（Hy3 → Hy4 preview → Hy4）
+## 代际演进（Hy3 → Hy4 preview → Hy4 / Hy4 flash）
 
-| 维度 | Hy3 | Hy4 preview | Hy4（正式版） |
-|---|---|---|---|
-| 总参 / 激活 | 295B / 21B | 770B / 49B | 官方未单列，渠道沿用 770B / 49B |
-| 上下文 | 256K | 1M | 1M（输入 960K / 输出 64K） |
-| 注意力 | GQA（64 查询头 / 8 KV 头） | Gated DSA + IndexCache | 官方未重申，沿用 preview 架构 |
-| 多模态 | 纯文本 | 纯文本 | **首次支持图像输入** |
-| 电脑操作 | 无 | 无 | **首次支持 Computer Use** |
-| 默认推理强度 | no_think | high（思维链） | high（思维链） |
-| 研发闭环 | 无 | 参与推理栈优化，吞吐 +31.8% | Hyra 2.0 + Jev / HyCell / HyPDE |
-| 权重开放 | Apache 2.0 | Apache 2.0（已开源） | ⚠️ 未放出，官方称"计划开源" |
-| 定价（国内） | ¥1 / ¥4 | ¥6 / ¥18 | ¥6 / ¥18（加量不加价） |
-| 主评测 | TB 2.1 71.7 / DeepSWE 28.0 | TB 2.1 85.4 / DeepSWE 64.3 | 见上方 Benchmark 节（更换基准，不可拼接） |
+| 维度 | Hy3 | Hy4 preview | Hy4（正式版） | Hy4 flash（轻量档） |
+|---|---|---|---|---|
+| 总参 / 激活 | 295B / 21B | 770B / 49B | 官方未单列，渠道沿用 770B / 49B | 224B（含 64B Engram）/ 12B |
+| 上下文 | 256K | 1M | 1M（输入 960K / 输出 64K） | 1M |
+| 注意力 | GQA（64 查询头 / 8 KV 头） | Gated DSA + IndexCache | 官方未重申，沿用 preview 架构 | 混合注意力 + LatentMoE + Engram |
+| 多模态 | 纯文本 | 纯文本 | **首次支持图像输入** | 支持多模态输入 |
+| 电脑操作 | 无 | 无 | **首次支持 Computer Use** | 支持（官方推荐日常场景） |
+| 默认推理强度 | no_think | high（思维链） | high（思维链） | 官方未披露 |
+| 研发闭环 | 无 | 参与推理栈优化，吞吐 +31.8% | Hyra 2.0 + Jev / HyCell / HyPDE | 自蒸馏 Hy4 + RL（输出 token -50%） |
+| 权重开放 | Apache 2.0 | Apache 2.0（已开源） | ⚠️ 未放出，官方称"计划开源" | ⚠️ 未放出，官方称"计划开源" |
+| 定价（国内） | ¥1 / ¥4 | ¥6 / ¥18 | ¥6 / ¥18（加量不加价） | ¥0.5 / ¥2 |
+| 主评测 | TB 2.1 71.7 / DeepSWE 28.0 | TB 2.1 85.4 / DeepSWE 64.3 | 见上方 Benchmark 节（更换基准，不可拼接） | WorkIndex（内部闭集） |
 
-> 演进逻辑：Hy3 走"小激活 + 极致性价比"，Hy4 转向"大容量 + 长上下文 + 生产力上限"，价格带整体上移；正式版在价格不变的前提下补上视觉与 Computer Use，但把"权重开放"从既成事实退回为计划项。
+> 演进逻辑：Hy3 走"小激活 + 极致性价比"，Hy4 转向"大容量 + 长上下文 + 生产力上限"，价格带整体上移；正式版在价格不变的前提下补上视觉与 Computer Use，但把"权重开放"从既成事实退回为计划项。Hy4 flash 则以 12B 激活 + Engram 补回轻量高并发档，把 API 价格下限拉到 ¥0.5/¥2（低于 Hy3），形成"flash 日常档 + Hy4 上限档"双档格局。
 
 ## 核心能力与限制
 
@@ -237,7 +276,8 @@
 | Computer Use | 命令行 + GUI 双通道，针对 Blender / CAD 等专业软件专项训练 |
 | 长程 coding / 终端任务 | 1M 上下文支撑跨文件长程开发与多轮工具调用，DeepSWE / SWE-Marathon 均为 10 分以上量级提升 |
 | 生产力 Co-design | CodeBuddy / WorkBuddy 真实任务数据回流，办公 / 游戏 / 金融 / 安全专家共建语料 |
-| Agent 工具调用 | APEX-Agents 等工作型 Agent 基准为量级提升；Hy3 仍可作轻量工具调用档 |
+| Agent 工具调用 | APEX-Agents 等工作型 Agent 基准为量级提升；Hy4 flash 为轻量高并发档 |
+| 轻量高并发日常档 | Hy4 flash：12B 激活 + KV cache 压缩 + 解码 >150 tok/s，单任务成本为 Hy4 的 1/20（WorkIndex 内部口径） |
 | 研发流程自我优化 | Hy4 结合 Hyra 2.0 优化同架构小模型预训练，产出 Jev 与 HyCell / HyPDE |
 | 开源可自部署（仅 Hy3 / Hy4 preview） | Apache 2.0；preview 轻量版 214GB 可异构集群推理 |
 
@@ -245,12 +285,12 @@
 
 | 限制项 | 说明 |
 |--------|------|
-| **权重未放出** | Hy4 正式版目前只有 API，不能自部署、无许可证可查；可自部署的旗舰仍是 Hy4 preview |
+| **权重未放出** | Hy4 正式版与 Hy4 flash 均只有 API，不能自部署、无许可证可查；可自部署的旗舰仍是 Hy4 preview |
 | 构造型数学弱 | Hy-FrontierMath T5 仅 13.0，与前沿闭源模型差一个量级 |
 | 高难度知识推理 | HLE 类指标仍落后 GLM / Kimi 一档（正式版未单独披露 HLE 新值，preview 口径 55.4） |
 | 办公自动化专项 | AutomationBench（preview）仅 32.1；正式版改用 WorkBuddy 内部评测，两者不可直比 |
 | 独立验证缺位 | 无 Artificial Analysis 等第三方指数，官方 Bench 附录又存在多套 harness 与脚注，选型须自行压测 |
-| 轻量档缺位 | 最小仍为 295B/21B，Hy4 Flash 未发布；高并发轻任务无对应价位 |
+| flash 能力上限 | Hy4 flash 官方定位日常任务档，长程软件工程等复杂任务仍需 Hy4；盲测满意度仅"接近"Claude Haiku 5.5，且 WorkIndex 为内部闭集 |
 | 幻觉口径不统一 | 12.95%→7.2% 与 15.76%→5.45% 两个官方渠道口径并存，对外引用须注明来源 |
 | 过度推理 | 默认 high 推理强度，复杂任务长思考、过度自我验证，token 账单偏高 |
 
@@ -261,9 +301,11 @@
 | **Hy4**（国内刊例） | ¥6 | ¥18 | ¥0.3 | 腾讯云 TokenHub，与 preview 同价 |
 | **Hy4**（海外刊例） | ≈$0.90 | ≈$2.70 | ≈$0.045 | 官方英文稿 approx 口径 |
 | **Hy4 preview**（国内 / 海外） | ¥6 / $0.834 | ¥18 / $2.501 | ¥0.3 / $0.042 | 已被正式版取代，仅历史参考 |
-| **Hy3** | ¥1 | ¥4 | ¥0.25 | 统一固定价，系列最低价档 |
+| **Hy4 flash**（国内刊例） | ¥0.5 | ¥2 | ¥0.02 | 系列最低价档；TokenHub 限时按目录价 50% 结算（至 2026-11-30 12:00 北京时间） |
+| **Hy4 flash**（海外刊例） | ≈$0.070 | ≈$0.281 | ≈$0.003 | 官方英文稿 approx 口径 |
+| **Hy3** | ¥1 | ¥4 | ¥0.25 | 统一固定价；API 单价已高于 Hy4 flash，优势在开源可自部署 |
 
-> 定价来源：[Hy4 官方英文新闻稿](https://www.tencent.com/tencent-launches-hy4-joining-the-ranks-of-the-worlds-leading-open-source-ai-models/)（海外刊例）+ 官方中文发布页（国内），核实日期 2026-11-06。⚠️ 第三方平台上实际挂价可能低于刊例（OpenRouter 当前显示 $0.417 / $1.251，与官方同期折扣同步），对外报价前必须回查官方页当期值。
+> 定价来源：[Hy4 官方英文新闻稿](https://www.tencent.com/tencent-launches-hy4-joining-the-ranks-of-the-worlds-leading-open-source-ai-models/)（海外刊例）+ 官方中文发布页（国内），核实日期 2026-11-06；Hy4 flash 来自 [官方英文新闻稿](https://www.tencent.com/tencent-launches-hy4-flash-to-power-high-speed-cost-efficient-ai-deployment-for-everyday-workflows/) + 新浪/快科技报道 + [TokenHub 模型价格页](https://cloud.tencent.com/document/product/1823/130055)折扣说明，核实日期 2026-11-18。⚠️ 第三方平台上实际挂价可能低于刊例（OpenRouter 当前显示 $0.417 / $1.251，与官方同期折扣同步），对外报价前必须回查官方页当期值。
 
 ## 适用场景
 
@@ -276,15 +318,17 @@
 | 长文档 / 跨文件长程 coding | Hy4 | 1M 上下文（输入 960K），Hy3 仅 256K |
 | 办公协作与金融研究 | Hy4 | WorkBuddy 83.18、金融众测开源第一，且有外部 iRaB 交叉 |
 | 游戏 / 前端原型 | Hy4 | GameDev +19.1%、GameLogic +9.8%，已适配 UE / Unity / Godot |
-| 私有化部署 / 预算敏感 | Hy3 | Apache 2.0、¥1/¥4，系列唯一低价档 |
+| 高并发日常任务（摘要/抽取/分类/办公） | Hy4 flash | ¥0.5/¥2、解码 >150 tok/s、12B 激活，单任务成本为 Hy4 的 1/20（内部口径） |
+| 深度搜索 / 文档处理 / PPT 生成 / 简单前端 | Hy4 flash | 官方推荐日常档；复杂长程任务再升级 Hy4 |
+| 私有化部署 / 预算敏感 | Hy3 | Apache 2.0、¥1/¥4，唯一可自部署的低价档（API 最低价档已是 Hy4 flash） |
 | 旗舰能力自部署 | Hy4 preview | 正式版权重未放，preview 是当前唯一可下载的 Hy4 系架构 |
 
 ### ❌ 不适用
 
 | 场景 | 原因 |
 |------|------|
-| 需要自部署 Hy4 正式版 | 权重与 system card 尚未放出，许可证未知 |
-| 高并发轻量任务（摘要/抽取/分类） | 无小模型档，Hy4 Flash 未发布，单价与时延均不占优 |
+| 需要自部署 Hy4 正式版 / Hy4 flash | 权重与 system card 均尚未放出，许可证未知 |
+| 长程软件工程等复杂任务用 flash 降本 | 官方明确此类任务推荐 Hy4；flash 综合效果仅"略优于 preview"，上限低于 Hy4 |
 | 构造型前沿数学 / 定理发现 | Hy-FrontierMath T5 13.0，仅适用流程型科研辅助 |
 | 跨模型榜单横比选型 | 官方 Bench 附录存在多种 harness 与内部自建任务集，分数不可跨模型直比 |
 | 需要第三方背书的采购决策 | 暂无 AA 等独立指数，建议先做 shadow 压测 |
@@ -320,10 +364,14 @@
 
 ## 关键技术论文
 
-[⚠️ 待补充]——Hy4 正式版的模型权重与 system card 均未放出（官方称近期发布），暂无技术报告；preview 阶段亦无公开技术报告；Hy3 的架构与训练细节以官方发布页与 GitHub README 为准。
+[⚠️ 待补充]——Hy4 正式版与 Hy4 flash 的模型权重均未放出（官方称计划开源），暂无技术报告；preview 阶段亦无公开技术报告；Hy3 的架构与训练细节以官方发布页与 GitHub README 为准。
 
 ## 参考资料
 
+- [Hy4 flash 官方英文新闻稿](https://www.tencent.com/tencent-launches-hy4-flash-to-power-high-speed-cost-efficient-ai-deployment-for-everyday-workflows/)（2026-11-16，规格 / 海外定价 / WorkIndex 与盲测 / 开源计划）
+- [Hy4 flash 官方发布页](https://hy.tencent.ai/research/hy4-flash)（JS 渲染，正文经英文稿交叉）
+- [新浪科技：Hy4 flash 正式发布报道](https://finance.sina.com.cn/tech/roll/2026-11-16/doc-iniyxcif2487771.shtml)（快科技，发布日期与国内定价）
+- [腾讯云 TokenHub 模型价格](https://cloud.tencent.com/document/product/1823/130055)（flash 限时 5 折说明，至 2026-11-30）
 - [Hy4 官方发布页](https://hunyuan.tencent.com/research/hy4)（2026-11-04，视觉 / Computer Use / 定价 / Bench 附录；JS 渲染，正文经搜索快照与英文稿交叉）
 - [Hy4 官方英文新闻稿](https://www.tencent.com/tencent-launches-hy4-joining-the-ranks-of-the-worlds-leading-open-source-ai-models/)（海外定价、权重"计划开源"、安全边界与场景数据）
 - [OpenRouter: tencent/hy4](https://openrouter.ai/tencent/hy4)（第三方平台挂价与上下文）
@@ -347,6 +395,7 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-18 | **新增 Hy4 flash（2026-11-16 发布）**：轻量性价比档专章（224B/12B 含 64B Engram、多模态 + 1M、>150 tok/s、¥0.5/¥2、WorkIndex 与盲测口径）；主推表 / 代际演进 / 定价 / 场景联动，清除"Hy4 Flash 未发布"过期表述；信源为官方英文稿 + 新浪/快科技交叉 |
 | 2026-11-06 | **Hy4 正式版增量升级**：主推切至 Hy4（11-04 GA，首次视觉 + Computer Use），新增正式版专章；preview 降为历史版本；补入权重仍在"计划开源"状态、定价与 Bench 口径差异；信源以官方英文稿与 Bench 附录第三方转录交叉 |
 | 2026-07-08 | Hy3 正式版（2026-07-06 发布）全面更新：Benchmark、生产可靠性、Co-design 方法论、API 定价、业务接入。**文件重命名**：hy3-preview.md → hy3.md |
 | 2026-06-11 | 初始创建：Hy3-preview 产品知识提炼 |
