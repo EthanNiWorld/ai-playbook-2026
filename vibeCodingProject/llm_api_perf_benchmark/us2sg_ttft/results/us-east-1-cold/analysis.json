@@ -1,0 +1,99 @@
+{
+  "n_success": 100,
+  "residual_ms": {
+    "mean": -27.1,
+    "stddev": 95.7,
+    "min": -514.6,
+    "max": 11.5
+  },
+  "upload_mbps": {
+    "mean": 1.33,
+    "min": 1.06,
+    "max": 1.37
+  },
+  "correlations": {
+    "ttft_vs_rtt_mean": 0.114,
+    "ttft_vs_rtt_max": 0.07,
+    "ttft_vs_upload_est": 0.961,
+    "upload_vs_rtt_mean": 0.128
+  },
+  "quartile_drift": [
+    {
+      "idx_range": "1-25",
+      "ttft_p50_ms": 7511.5,
+      "ttft_mean_ms": 7636.3,
+      "up_mbps_mean": 1.32
+    },
+    {
+      "idx_range": "26-50",
+      "ttft_p50_ms": 7510.7,
+      "ttft_mean_ms": 7554.6,
+      "up_mbps_mean": 1.33
+    },
+    {
+      "idx_range": "51-75",
+      "ttft_p50_ms": 7510.8,
+      "ttft_mean_ms": 7532.7,
+      "up_mbps_mean": 1.33
+    },
+    {
+      "idx_range": "76-100",
+      "ttft_p50_ms": 7510.2,
+      "ttft_mean_ms": 7542.7,
+      "up_mbps_mean": 1.33
+    }
+  ],
+  "ttft_hist_500ms": {
+    "7000": 21,
+    "7500": 73,
+    "8000": 5,
+    "9500": 1
+  },
+  "top5_slowest": [
+    {
+      "idx": 14,
+      "ttft_ms": 9514.4,
+      "upload_est_ms": 9504.0,
+      "residual_ms": 10.4,
+      "rtt_mean": 230.3,
+      "rtt_max": 236.5,
+      "up_mbps": 1.06
+    },
+    {
+      "idx": 89,
+      "ttft_ms": 8384.8,
+      "upload_est_ms": 8541.0,
+      "residual_ms": -156.2,
+      "rtt_mean": 240.1,
+      "rtt_max": 290.0,
+      "up_mbps": 1.18
+    },
+    {
+      "idx": 41,
+      "ttft_ms": 8141.1,
+      "upload_est_ms": 8215.0,
+      "residual_ms": -73.9,
+      "rtt_mean": 231.4,
+      "rtt_max": 237.3,
+      "up_mbps": 1.23
+    },
+    {
+      "idx": 51,
+      "ttft_ms": 8106.6,
+      "upload_est_ms": 8471.0,
+      "residual_ms": -364.4,
+      "rtt_mean": 233.5,
+      "rtt_max": 241.3,
+      "up_mbps": 1.19
+    },
+    {
+      "idx": 72,
+      "ttft_ms": 8058.3,
+      "upload_est_ms": 8169.0,
+      "residual_ms": -110.7,
+      "rtt_mean": 231.2,
+      "rtt_max": 235.9,
+      "up_mbps": 1.23
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "n_success": 100,
+  "residual_ms": {
+    "mean": -117.9,
+    "stddev": 115.6,
+    "min": -477.7,
+    "max": 10.7
+  },
+  "upload_mbps": {
+    "mean": 1.35,
+    "min": 0.97,
+    "max": 1.49
+  },
+  "correlations": {
+    "ttft_vs_rtt_mean": -0.076,
+    "ttft_vs_rtt_max": -0.036,
+    "ttft_vs_upload_est": 0.985,
+    "upload_vs_rtt_mean": -0.092
+  },
+  "quartile_drift": [
+    {
+      "idx_range": "1-25",
+      "ttft_p50_ms": 7045.8,
+      "ttft_mean_ms": 7220.2,
+      "up_mbps_mean": 1.37
+    },
+    {
+      "idx_range": "26-50",
+      "ttft_p50_ms": 7509.4,
+      "ttft_mean_ms": 7199.7,
+      "up_mbps_mean": 1.38
+    },
+    {
+      "idx_range": "51-75",
+      "ttft_p50_ms": 7510.4,
+      "ttft_mean_ms": 7668.8,
+      "up_mbps_mean": 1.31
+    },
+    {
+      "idx_range": "76-100",
+      "ttft_p50_ms": 7509.6,
+      "ttft_mean_ms": 7371.2,
+      "up_mbps_mean": 1.35
+    }
+  ],
+  "ttft_hist_500ms": {
+    "6500": 33,
+    "7000": 13,
+    "7500": 47,
+    "8000": 2,
+    "9500": 4,
+    "10000": 1
+  },
+  "top5_slowest": [
+    {
+      "idx": 79,
+      "ttft_ms": 10245.6,
+      "upload_est_ms": 10399.1,
+      "residual_ms": -153.5,
+      "rtt_mean": 229.8,
+      "rtt_max": 242.6,
+      "up_mbps": 0.97
+    },
+    {
+      "idx": 71,
+      "ttft_ms": 9512.5,
+      "upload_est_ms": 9503.0,
+      "residual_ms": 9.5,
+      "rtt_mean": 231.3,
+      "rtt_max": 236.0,
+      "up_mbps": 1.06
+    },
+    {
+      "idx": 54,
+      "ttft_ms": 9512.2,
+      "upload_est_ms": 9503.0,
+      "residual_ms": 9.2,
+      "rtt_mean": 230.4,
+      "rtt_max": 236.6,
+      "up_mbps": 1.06
+    },
+    {
+      "idx": 70,
+      "ttft_ms": 9512.1,
+      "upload_est_ms": 9502.0,
+      "residual_ms": 10.1,
+      "rtt_mean": 230.2,
+      "rtt_max": 242.6,
+      "up_mbps": 1.06
+    },
+    {
+      "idx": 17,
+      "ttft_ms": 9511.6,
+      "upload_est_ms": 9502.0,
+      "residual_ms": 9.6,
+      "rtt_mean": 231.8,
+      "rtt_max": 235.8,
+      "up_mbps": 1.06
+    }
+  ]
+}

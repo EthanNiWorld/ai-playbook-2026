@@ -1,0 +1,3 @@
+# 临时云资源运维状态（实例/VPC ID，资源已释放，不入库）
+state_*.json
+state.json

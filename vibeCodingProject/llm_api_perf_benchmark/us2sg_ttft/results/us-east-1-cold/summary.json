@@ -1,0 +1,81 @@
+{
+  "start_utc": "2026-11-18T07:28:26.614656+00:00",
+  "end_utc": "2026-11-18T07:42:48.378830+00:00",
+  "endpoint": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+  "model": "deepseek-v4.1-flash",
+  "cold_mode": true,
+  "prompt_tokens_approx": 200610,
+  "payload_bytes": 1258968,
+  "samples": 100,
+  "success": 100,
+  "failures": 0,
+  "cached_tokens_values": [
+    0
+  ],
+  "ttft_ms": {
+    "n": 100,
+    "mean": 7566.6,
+    "stddev": 264.7,
+    "min": 7321.2,
+    "max": 9514.4,
+    "p50": 7510.7,
+    "p75": 7512.2,
+    "p90": 7817.3,
+    "p99": 8396.1
+  },
+  "ttfb_ms": {
+    "n": 100,
+    "mean": 474.2,
+    "stddev": 9.0,
+    "min": 457.0,
+    "max": 493.2,
+    "p50": 473.0,
+    "p75": 481.7,
+    "p90": 484.6,
+    "p99": 492.1
+  },
+  "upload_est_ms": {
+    "n": 100,
+    "mean": 7593.6,
+    "stddev": 316.0,
+    "min": 7354.0,
+    "max": 9504.0,
+    "p50": 7501.5,
+    "p75": 7502.0,
+    "p90": 8027.7,
+    "p99": 8550.6
+  },
+  "tcp_ms": {
+    "n": 100,
+    "mean": 230.8,
+    "stddev": 4.3,
+    "min": 222.8,
+    "max": 240.6,
+    "p50": 229.6,
+    "p75": 234.8,
+    "p90": 235.4,
+    "p99": 240.6
+  },
+  "tls_ms": {
+    "n": 100,
+    "mean": 241.9,
+    "stddev": 4.6,
+    "min": 232.8,
+    "max": 251.4,
+    "p50": 241.7,
+    "p75": 245.3,
+    "p90": 247.7,
+    "p99": 250.7
+  },
+  "rtt_tcp_connect_ms": {
+    "n": 1176,
+    "mean": 232.9,
+    "stddev": 31.2,
+    "min": 221.3,
+    "max": 1282.4,
+    "p50": 230.8,
+    "p75": 235.6,
+    "p90": 236.8,
+    "p99": 242.4
+  }
+}
