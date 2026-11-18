@@ -1,6 +1,7 @@
 # DeepSeek（深度求索）公司分析报告
 
-> **数据时效说明**：以下数据综合截至 2026 年 5 月的最新公开披露。DeepSeek 截至发稿仍为未上市公司，且历史上从未接受外部融资（首轮融资正在进行中），因此财务数据极度有限，主要基于媒体估算与第三方推测，**使用前请务必交叉验证**。文中已标注可信度分级。
+> 最后更新: 2026-11-18
+> **数据时效说明**：以下数据综合截至 2026 年 5 月的最新公开披露（模型矩阵已同步 deepseek-v-series.md 2026-10-19 / deepseek-r-series.md 2026-11-05 口径，含 V4.1-Flash-1017 与 R 系列下架）。DeepSeek 截至发稿仍为未上市公司，且历史上从未接受外部融资（首轮融资正在进行中），因此财务数据极度有限，主要基于媒体估算与第三方推测，**使用前请务必交叉验证**。文中已标注可信度分级。
 
 ## 一、公司概况
 
@@ -85,12 +86,15 @@ DeepSeek（全称：杭州深度求索人工智能基础技术研究有限公司
 | **DeepSeek-V2** | 2024.05 | 236B MoE（21B 激活）| 首次引入 **MLA + DeepSeekMoE**，引发国产大模型"价格战"，被称为"价格屠夫"[reference:11] |
 | **DeepSeek-V3** | 2024.12 | 671B MoE（37B 激活）| 训练成本仅 **557 万美元**，开源 SOTA，与 GPT-4o/Claude 3.5 同台竞技[reference:12] |
 | **DeepSeek-V3-0324** | 2025.03.25 | 同上 | 借鉴 R1 推理能力增强 |
-| **DeepSeek-V3.2** | 2025.12.01 | 同上 | V3 系列最终版 |
-| **DeepSeek-V4-Pro** | **2026.04.24** | **1.6T MoE（49B 激活）** | 全能旗舰，**开源 SOTA**，Agentic Coding 超越 Sonnet 4.5，接近 Opus 4.6[reference:13] |
-| **DeepSeek-V4-Flash** | **2026.04.24** | 284B MoE（13B 激活）| 极致高效轻量版 |
+| **DeepSeek-V3.2** | 2025.12.01 | 同上 | V3 系列最终版；已于 2026.07.24 下线（见 9.4） |
+| **DeepSeek-V4-Pro** | Preview 2026.04.24 / **GA 2026.08.13** | **1.6T MoE（49B 激活）** | 全能旗舰（上代），开源 SOTA，Agentic Coding 超越 Sonnet 4.5；GA 后继续在售、计费不变[reference:13] |
+| **DeepSeek-V4-Flash** | 2026.04.24（0731 快照） | 284B MoE（13B 激活）| 极致高效轻量版；官方侧已于 2026-09-10 下线，旧名路由至 V4.1 Flash |
+| **DeepSeek-V4.1-Flash** | 2026.09.10 | 552B CED 非对称 MoE（Prefill 8B / Decode 16B 激活） | 全新架构：PD 分离下沉到模型结构层，原生视觉理解，官方称全面超越 V4-Pro |
+| **DeepSeek-V4.1-Flash-1017** 🚩 | 2026.10.17 | 同上（架构完全继承） | 当前旗舰：后训练重做（自反馈 RL），reasoning_effort 连续 1~100，帕累托改进 |
 
-- V4 全系列支持 **1M 上下文**，均支持思考模式（含 reasoning_effort 参数）[reference:14]
+- V4 全系列支持 **1M 上下文**（V4.1 最大输出 384K），均支持思考模式（含 reasoning_effort 参数）[reference:14]
 - V4 明确与 **华为芯片** 合作[reference:13]
+- 定价（峰谷分时）、基准与架构细节统一见 [V 系列](deepseek-v-series.md)，本节不重复
 
 **R 系列（推理专项）**
 
@@ -99,6 +103,8 @@ DeepSeek（全称：杭州深度求索人工智能基础技术研究有限公司
 | **DeepSeek-R1** | **2025.01.20** | 纯强化学习（RL）自主激发推理能力，**GRPO 算法**，开源 MIT 许可，引发"DeepSeek 时刻"[reference:0] |
 | **DeepSeek-R1-0528** | 2025.05.28 | 上下文 128K，幻觉率降低 45–50%，接近 o3 / Gemini 2.5 Pro |
 | **R2**（传闻中）| 2026 年 | 下一代推理模型 [⚠️ 待验证] |
+
+> 📌 **R 系列已退出商用托管**：按百炼上线公告，deepseek-v3 / r1 全系列已于 **2026-10-10 下架**，仅开源权重（MIT）自托管可用；商用推理改选 V4.1-Flash-1017 / V4-Pro GA，见 [R 系列](deepseek-r-series.md)。
 
 **其他模型线**
 
@@ -119,10 +125,7 @@ DeepSeek（全称：杭州深度求索人工智能基础技术研究有限公司
 ### 5.3 API 开放平台（api.deepseek.com）
 
 - 面向开发者与企业的 API 服务
-- **定价极具竞争力**（被称为"价格屠夫"）：
-  - V4-Pro（2.5 折特惠）：输入 0.25 元/百万 Token（缓存命中）、3 元/百万 Token（未命中）[reference:15]
-  - V4-Flash 更便宜：输入缓存 **0.02 元/百万 Token**[reference:16]
-  - 约为 Claude Opus 4.6 的 **1/5 价格**[reference:17]
+- **定价极具竞争力**（被称为"价格屠夫"），当前为峰谷分时定价；V4.1-Flash 缓存命中价极低、并发额度 2500（V4-Pro 为 500）；具体价格与折扣以官方定价页为准，见 [V 系列定价章节](deepseek-v-series.md)
 - 被第三方大量接入（阿里百炼、火山引擎、AWS Bedrock 等均上架 DeepSeek 模型）
 
 ---
@@ -221,7 +224,8 @@ DeepSeek（全称：杭州深度求索人工智能基础技术研究有限公司
 ### 9.1 2026 年关键变化
 
 - **首轮融资即将落地**：估值 100–500 亿美元，拟筹 3 亿+ 美元，标志从"纯研究机构"向"有资本平台支撑的研究机构"转变[reference:3][reference:20]
-- **V4 发布**：1.6T 参数旗舰 + 284B 轻量版双线发布，1M 上下文成为标配[reference:14]
+- **V4 发布与 GA**：1.6T 参数旗舰 + 284B 轻量版双线发布（2026.04），1M 上下文成为标配；V4-Pro 于 2026.08.13 GA[reference:14]
+- **V4.1 架构换代**：V4.1-Flash（2026.09.10，CED 非对称 MoE + 原生视觉）与 1017 快照（2026.10.17，后训练重做 + effort 连续可调）接棒当前旗舰；V4-Flash 旧版下线，R 系列百炼下架（2026.10.10）
 - **明确与华为合作**：推进国产芯片路线，降低对 Nvidia H800 的依赖[reference:13]
 - **沉默期结束**：从 V3.2（2025.12）到 V4（2026.04）间隔近 5 个月，是公司最长沉默期[reference:23]
 - **Agentic 能力跃迁**：V4-Pro Agentic Coding 达到开源 SOTA，从"语言模型"走向"Agent 基座"[reference:13]
@@ -236,80 +240,27 @@ DeepSeek（全称：杭州深度求索人工智能基础技术研究有限公司
 5. **竞争白热化**：Qwen、GLM-5、MiniMax-M3 等国产同业持续逼近，国际上 Claude/GPT 仍是标杆
 6. **Agent 产品化能力短板**：V4 模型能力强，但此前完全依赖第三方 Harness（DeepSeek-TUI、Deep Code CLI 等）定义用户体验；现在自建 Harness 团队，面临从"模型公司"到"产品公司"的组织能力转型挑战[reference:32]
 
-### 9.3 V4 vs V3.2：Agent 场景的选型差异
+### 9.3 V3.2 → V4-Flash → V4.1：历史迁移与当前选型
 
-V4 不是 V3.2 的常规升级，而是针对 Agent 长链路工作流的**定向修复**。在 AI Coding / 多 Agent 协作场景下，V4 的优势具有结构性意义。
+> 📌 本节仅保留迁移口径。V3.2 与 V4-Flash 均已退出 DeepSeek 官方托管 API，不再作为现行托管选项；开放权重自托管与官方 API 可用性需分开判断。完整架构、历史 Benchmark 与部署细节见 [V 系列](deepseek-v-series.md)。
 
-**官方明确点名的 Agent 集成**（来自 DeepSeek 官方发布页[reference:28]）：
-> *"DeepSeek-V4 is seamlessly integrated with leading AI agents like Claude Code, OpenClaw & OpenCode."*
+| 模型 | 官方托管状态 | 当前定位 |
+|------|--------------|----------|
+| **DeepSeek-V3.2** | `deepseek-chat` / `deepseek-reasoner` 于 **2026-07-24** 后完全退役且不可访问[reference:28] | 仅可作为开放权重自托管与研究选项，不推荐用于新托管项目 |
+| **DeepSeek-V4-Flash（0731）** | 官方侧于 **2026-09-10** 下线，旧模型名由 V4.1-Flash 承接 | 历史迁移中间代，不作为新项目目标 |
+| **DeepSeek-V4.1-Flash-1017** 🚩 | 当前旗舰 | Agent、Coding、多模态与通用托管任务的首选 |
+| **DeepSeek-V4-Pro（GA）** | 持续在售的上代全能旗舰 | 需要其特定能力或兼容现有工作流时选用 |
 
-**V3.2 在 Agent 场景的具体缺陷**（来自 HuggingFace 技术分析[reference:29]）：
-> V3.2 在多轮工具调用中保留推理痕迹，但**遇到新的 user message 时会清空**。多轮 Agent 工作流中模型会丢失累积推理状态，必须从头重建。
+**当前选型**：
+- **AI Coding / 多 Agent 协作 / OpenClaw 生态**：优先 V4.1-Flash-1017；V4 系列针对跨 user turn 推理保留、工具调用与真实工具环境训练做了定向修复[reference:28][reference:29]。
+- **纯对话 / 短链路 RAG / 一次性指令任务**：使用 V4.1-Flash 的非思考模式，不再将 V3.2 作为官方 API 选项推荐。
+- **开源自托管 / 历史研究**：可评估 V3.2 / V3 的 MIT 权重，但不得将自托管可用性表述为官方 API 仍在售。
 
-**V4 三项 Agent 专项设计（针对已知失败模式的定向修复）**：
+**TPM 迁移注意事项**：thinking tokens 计入 output tokens 并消耗 TPM。由 V3.2 迁移时不能直接沿用原吞吐估算；无需推理的场景应按当前模型文档关闭 thinking，Agent / 复杂推理场景需重新评估 TPM 预算。
 
-| 修复点 | V3.2 问题 | V4 方案 |
-|------|------|------|
-| 跨 turn 推理保留 | 新 user message 清空推理记录 | 含工具调用的对话中跨 user turn 保留完整推理链 |
-| 工具调用格式 | JSON-in-string，嵌套转义易失败 | `\|DSML\|` 特殊 token + XML schema，区分 string / 结构化参数 |
-| Agent 训练范式 | 合成数据为主 | DSec RL 沙盒（Rust + Firecracker），真实工具环境强化学习 |
+### 9.4 历史迁移资料索引
 
-**1M 上下文的计算效率（V4-Pro vs V3.2，相同硬件）**：
-
-| 指标 | V3.2 | V4-Pro |
-|------|:---:|:---:|
-| 1M tokens 单 token 推理 FLOPs | 100% | **27%** |
-| KV Cache 内存占用 | 100% | **10%** |
-
-意义：1M 上下文不是"堆容量"，而是以更低成本跑更长 Agent 链路（每轮工具调用 I/O 都追加到上下文）。
-
-**Agent Benchmark（V4-Pro-Max，来自 V4 技术报告）**：
-
-| Benchmark | V4-Pro-Max | Claude Sonnet 4.5 | Claude Opus 4.6-Max |
-|-----------|:---:|:---:|:---:|
-| SWE Verified | 80.6 | — | 80.8 |
-| MCPAtlas Public | 73.6 | — | 73.8 |
-| Terminal Bench 2.0 | 67.9 | — | — |
-| 内部 R&D Coding（PyTorch/CUDA/Rust/C++）| 67% | 47% | 70% |
-
-**选型结论**：
-- **AI Coding / 多 Agent 协作 / OpenClaw 生态等 Agent 场景** → 选 V4（V3.2 在跨 user turn 推理上有架构性硬伤）
-- **纯对话 / 短链路 RAG / 一次性指令任务** → V3.2 仍可用，且推理成本更低
-
-### 9.4 V4-Flash：V3.2 的官方继任者与 TPM 迁移注意事项
-
-**V4-Flash 是 V3.2 的官方直接替代**（来自 DeepSeek 官方发布页[reference:28]）：
-> *"deepseek-chat & deepseek-reasoner will be fully retired and inaccessible after Jul 24th, 2026. (Currently routing to deepseek-v4-flash non-thinking/thinking)."*
-
-DeepSeek 已将 `deepseek-chat`（之前路由到 V3.2）自动切换路由到 V4-Flash。V4-Pro 是"升档"（旗舰级），不是"替代"。
-
-**为什么 13B 激活参数能替代 37B**：
-
-| 维度 | V3.2 | V4-Flash | V4-Pro |
-|------|:---:|:---:|:---:|
-| 参数总量 | 671B | 284B | 1.6T |
-| 激活参数 | 37B | **13B** | 49B |
-| 定位 | 通用日常 | 通用日常（继任者） | 旗舰/Agent 重场景 |
-| 定价档位 | 中低 | 中低（同档） | 高 |
-
-V4-Flash 的 CSA+HCA 混合注意力架构使得单 token FLOPs 降到 V3.2 的 10%、KV Cache 降到 7%[reference:29]，用架构效率换激活参数量，实现"小排量新引擎超越大排量旧引擎"。
-
-**TPM 迁移陷阱：thinking mode 的隐性 Token 成本**：
-
-百炼平台上 V4-Flash 与 V3.2 的默认 TPM 配额均为 1,200,000（模型独立限流）[reference:30]，提额操作数值上 1:1 平移。
-
-但 **V4-Flash 默认开启 thinking mode**[reference:31]，thinking tokens 计入 output tokens 消耗 TPM：
-
-| 模式 | 每个请求 output 构成 | 50M TPM 实际可用业务吞吐 |
-|------|------|------|
-| V3.2（无 thinking）| 回复 tokens 100% | 基准 100% |
-| V4-Flash **non-thinking** | 回复 tokens 100% | ≈ 100%（与 V3.2 相当）|
-| V4-Flash **thinking（默认）** | thinking + 回复 | **下降 50-80%**（thinking 通常占 2-5×）|
-
-**迁移建议**：
-- 不需要推理的场景：显式设置 `reasoning_effort: "none"` 关闭 thinking，保持与 V3.2 等效吞吐
-- Agent / 复杂推理场景：保持 thinking 默认，但需重新评估 TPM 预算（实际吐量约为名义配额的 20-50%）
-- V3.2 将于 **2026.07.24 完全下线**，迁移窗口明确
+V3.2 的 Agent 缺陷、V4 的三项定向修复、1M 上下文效率对比，以及 V4-Flash 的架构与历史 Benchmark，统一收录于 [V 系列](deepseek-v-series.md)，本节不再重复。
 
 ### 9.5 DSpark：V4 推理加速模块（2026-06-27）
 
@@ -342,7 +293,28 @@ DSpark 是 DeepSeek 联合北京大学开源的推测解码（Speculative Decodi
 
 ---
 
-## 十一、DeepSeek 核心论文与影响力分析
+## 十一、DeepSeek 技术演进与研究影响力
+
+### 模型技术创新演进
+
+> 独创性分级：🌟 首创 / 🔧 组合创新 / ⚙️ 工程优化 / 📋 跟进对齐（口径同 ai-native-expert「新模型发布分析框架」）。官方宣称的"首个"均标注"官方称"。架构与基准细节见 [deepseek-v-series.md](deepseek-v-series.md)，本节只做提炼与研判。
+
+| 版本 | 时间 | 核心技术创新 | 独创性 | 能力/成本影响 |
+|------|------|-------------|--------|--------------|
+| **DeepSeek-V2** | 2024.05 | MLA（KV-Cache 低秩压缩）+ DeepSeekMoE（细粒度专家 + 共享专家池）首次合体 | 🌟 首创 | 推理显存大降，引发国产"价格战"；MLA 被 Kimi K2 等多个后续模型采用 |
+| **DeepSeek-V3** | 2024.12 | 671B MoE 训练效率工程（557 万美元训练成本） | ⚙️ 工程优化 | 开源 SOTA 对标 GPT-4o，永久改写行业训练成本预期 |
+| **DeepSeek-R1** | 2025.01 | GRPO 纯 RL 自主激发推理能力（无需 SFT 监督数据） | 🌟 首创 | "DeepSeek 时刻"；证明推理能力可经 RL 涌现，行业跟进复现 |
+| **DeepSeek-V4** | 2026.04 | Agent 定向修复：跨 turn 推理保留 + DSML 工具调用格式 + DSec RL 沙盒（真实工具环境） | 🔧 组合创新 | 1M 上下文 FLOPs 降至 V3.2 的 27%、KV Cache 10%；Agentic Coding 开源 SOTA |
+| **DSpark** | 2026.06 | 半自回归生成 + 置信度调度验证的推测解码框架（联合北大） | 🔧 组合创新（推测解码赛道已有 Eagle3 等先例） | V4-Flash/Pro 同 checkpoint 吞吐 +51%–52%，MIT 开源 |
+| **V4.1-Flash** | 2026.09 | CED 非对称 MoE：Prefill/Decode 分离从部署层下沉到模型结构层（输入激活 8B / 输出 16B）；原生视觉 | 🔧 组合创新（架构自研变体，无行业首例独立佐证不标 🌟） | KV 压缩相对初代累计 437×，兑换并发 2500 与极低缓存价；官方称全面超越 V4-Pro |
+| **V4.1-Flash-1017** | 2026.10 | 架构完全继承 + 后训练重做：自反馈 RL（模型自己造任务的正反馈飞轮）+ reasoning_effort 连续 1~100 | 🔧 组合创新 + ⚙️ 工程优化 | API 单价未降、帕累托改进全来自每任务消耗更少；从补全代码到交付完整项目 |
+
+### 技术方向研判
+
+- **技术主线**：架构效率（MLA/MoE，V2）→ 训练成本革命（V3）→ 纯 RL 推理涌现（R1）→ Agent 定向修复（V4）→ PD 分离下沉结构层（V4.1 CED）→ 后训练自反馈飞轮（1017）。"算力不是壁垒，架构创新才是"从口号演化为逐代可验证的路线
+- **持续押注**：注意力/KV 压缩（累计 437×）、低激活比 MoE（21B→37B→13B→8B/16B 非对称）、MIT 开源、自研推理栈（PTX 级优化 + DSpark 集成）
+- **路线转向**：①从参数规模扩张（1.6T V4-Pro）转向架构效率（552B CED 官方称超越 V4-Pro）——"小排量新引擎超越大排量旧引擎"；②降本从降价促销转向"每任务消耗更少"的帕累托改进（1017 单价一分未降，无补贴回调风险）；③R 系列并入 V 系思考模式后退出商用托管，推理专项不再独立产品线；④从模型提供商走向 Agent 产品公司（Harness 团队，见 9.1）
+- **差异化定位**：极致性价比 + 架构创新输出（MLA/MoE 被同业采用）+ 开源信仰；与智谱"同基座后训练 Scaling"、月之暗面"超大稀疏 MoE + 长程 Agent"形成分野；风险点是硬知识短板（HLE 落后头部闭源）与商业化悖论（见 9.2）
 
 ### 核心研究脉络
 
@@ -409,10 +381,14 @@ DeepSeek 的研究主线为 **"架构创新 → 效率革命 → 推理能力涌
 | **2026.05.08** | 融资估值传闻升至 **500 亿美元** | 约 3400 亿人民币[reference:3] |
 | **2026.05** | **组建 Harness 团队**，公开招募 Agent Harness PM + R&D 工程师 | 内部对标 Claude Code，项目工作名 "Code Harness"[reference:32] |
 | **2026.06.27** | 联合北大开源 **DSpark** 推测解码框架 + **DeepSpec** 代码库 | V4-Flash/Pro 推理吞吐 +51%–52%，MIT 许可 |
+| **2026.08.13** | **V4-Pro GA** | 官方确认 9-14 后继续提供 API、计费不变 |
+| **2026.09.10** | 发布 **V4.1-Flash**（CED 非对称 MoE + 原生视觉） | V4-Flash 旧版同日下线，旧名路由至 V4.1 |
+| **2026.10.10** | deepseek-v3 / r1 全系列百炼下架 | R 系列仅开源权重自托管可用 |
+| **2026.10.17** | **V4.1-Flash-1017** 快照三端切换 | 架构继承 + 后训练重做，effort 连续 1~100，当前旗舰 |
 
 ---
 
-*最后更新：2026 年 6 月 9 日 | 基于公开报道与技术报告整理*
+*最后更新：2026 年 11 月 18 日 | 基于公开报道与技术报告整理（模型矩阵与技术演进同步 deepseek-v-series.md 2026-10-19 / r-series 2026-11-05 口径；财务/融资数据仍截至 2026-05）*
 
 ## Changelog
 | 日期 | 变更内容 |
@@ -422,6 +398,8 @@ DeepSeek 的研究主线为 **"架构创新 → 效率革命 → 推理能力涌
 | 2026-05-27 | 合并 ai-native-expert 沉淀：新增 9.4「V4-Flash：V3.2 的官方继任者与 TPM 迁移注意事项」，含官方路由切换证据、thinking mode TPM 陷阱、迁移建议；新增 reference 30-31 |
 | 2026-06-09 | 新增：§4.1 PM 文化转变注释、§9.1 Harness 团队组建、§9.2 Agent 产品化能力短板挑战、里程碑表追加 2026.05 Harness 团队条目；新增 reference 32-33 |
 | 2026-06-30 | 新增 §9.5「DSpark：V4 推理加速模块」：半自回归 + 置信度调度，V4-Flash/Pro 吞吐 +51%–52%，DeepSpec 开源；里程碑表追加 2026.06.27 DSpark 条目 |
+| 2026-11-18 | 校验修复：收敛 V3.2/V4-Flash 历史迁移内容，现行选型切换至 V4.1 系列并保留 TPM 口径提醒 |
+| 2026-11-18 | 同步+回填：产品矩阵补 V4-Pro GA / V4.1-Flash / 1017（当前旗舰），V3.2/V4-Flash 下线与 R 系列百炼下架注记；API 定价改指向系列文档（去除过期促销价）；第十一章按新模板回填两子节并更名；里程碑补 4 条 |
 
 ## 参考来源
 
