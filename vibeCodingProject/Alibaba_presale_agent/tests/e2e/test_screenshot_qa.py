@@ -80,7 +80,7 @@ a, d, s, st, ms = ask(q, "e2e-shot-1", images=[img])
 print(f"\n[1] {q}  （{ms / 1000:.1f}s）")
 check("[1] 模型从截图识别并调用 verify_price（stage=tool）", "tool" in st, str(st))
 check("[1] official 证据", d.get("price_status") == "official", str(d))
-check("[1] 回答含官方价格表（Singapore 双节点口径）", "Singapore" in a and "China (Beijing)" in a, a[:300])
+check("[1] 默认仅含 Singapore 官方价格表", "Singapore" in a and "China (Beijing)" not in a, a[:300])
 check("[1] 审计通过（价格逐字来自官方证据）", d.get("price_audit") in ("ok", ""), str(d))
 check("[1] 回答的是截图中的模型 qwen3.8-max", "qwen3.8-max" in a.lower(), a[:200])
 
@@ -102,6 +102,7 @@ check("[2] 历史图片重发后模型仍能定位型号（重调 verify_price�
       d2.get("price_status") == "official", f"{d2} {a2[:200]}")
 check("[2] 回答含新加坡节点输出价（图片/历史推断成功）",
       ("Singapore" in a2 or "新加坡" in a2) and "$6" in a2, a2[:300])
+check("[2] 明确新加坡时不附北京", "China (Beijing)" not in a2, a2[:300])
 check("[2] 审计通过", d2.get("price_audit") in ("ok", ""), str(d2))
 
 # [3] 纯文本回归（images 空数组不影响旧链路）

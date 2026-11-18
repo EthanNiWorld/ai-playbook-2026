@@ -6,7 +6,7 @@
 （qwen3-8-27b / qwen3-8-2-4t-a95b）实际存在且缓存价齐全。
 修复：ID 裁决前移到实时在售行目录（_resolve_official_ids），正则降级为口语
 归一兜底；详情页补 Explicit Cache Hit → explicit cache read 别名。
-覆盖：全串/口语写法裁决 / 详情页双节点缓存价 / 用量拆分计价不再拒答。
+覆盖：全串/口语写法裁决 / 默认 Singapore 缓存价与显式节点用量计价。
 运行: .venv/bin/python tests/e2e/test_param_suffix_models.py
 """
 import json

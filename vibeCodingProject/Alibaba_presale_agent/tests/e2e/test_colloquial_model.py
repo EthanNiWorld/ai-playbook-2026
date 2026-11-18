@@ -1,7 +1,7 @@
 """端到端口语模型名验证（需服务已启动：run.py --port 8000）
 事故回归：'kimi k3.1 pro的价格' 曾因口语写法提取不到模型名，
 回退挪用历史里的 deepseek 证据 → 前端显示"deepseek 详情页已核实"却拒答 kimi 价格。
-覆盖：口语归一 / 家族词守卫（不挪用历史模型）/ 双节点价格表。
+覆盖：口语归一 / 家族词守卫（不挪用历史模型）/ 默认 Singapore 单节点价格表。
 运行: .venv/bin/python tests/e2e/test_colloquial_model.py
 """
 import json
@@ -66,7 +66,7 @@ check("[2] official（口语名归一后联网核实）", d2.get("price_status")
 check("[2] sources 是 kimi-k3.1-pro 详情页", "kimi-k3.1-pro" in src_text, src_text[:300])
 check("[2] sources 不再挪用 deepseek（事故表象）", "deepseek" not in src_text.lower(), src_text[:300])
 check("[2] 回答含 Singapore 分表", "Singapore" in a2 and "$" in a2, a2[:300])
-check("[2] 回答含 China (Beijing) 分表", "China (Beijing)" in a2, a2[:300])
+check("[2] 默认不附 China (Beijing) 分表", "China (Beijing)" not in a2, a2[:300])
 check("[2] 不再输出拒答话术（事故表象）", "暂未能联网核实" not in a2, a2[:200])
 
 # [3] 家族词守卫：提了 glm 却抽不出型号时，不得挪用历史 kimi 的证据

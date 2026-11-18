@@ -33,7 +33,7 @@ TOOLS = [
         "function": {
             "name": "verify_price",
             "description": (
-                "联网核实阿里云百炼模型的官方定价（双节点 USD）。"
+                "联网核实阿里云百炼模型的官方定价（默认 Singapore；明确北京时仅 Beijing）。"
                 "凡涉及具体模型价格的问题必须先调用，严禁凭记忆或凭截图报价。"
             ),
             "parameters": {

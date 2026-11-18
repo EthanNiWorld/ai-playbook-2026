@@ -159,6 +159,29 @@ _REGIONS = (
 )
 _REGION_RE = re.compile("|".join(re.escape(r) for r in _REGIONS))
 
+
+def _normalize_region(region: str = "") -> str:
+    """工具入参的地域别名 → 官方分表名；未指定/不识别时返回空串。"""
+    value = (region or "").strip().lower()
+    aliases = {
+        "singapore": "Singapore",
+        "新加坡": "Singapore",
+        "新加坡节点": "Singapore",
+        "ap-southeast-1": "Singapore",
+        "china (beijing)": "China (Beijing)",
+        "beijing": "China (Beijing)",
+        "北京": "China (Beijing)",
+        "北京节点": "China (Beijing)",
+        "cn-beijing": "China (Beijing)",
+    }
+    return aliases.get(value, "")
+
+
+def _selected_regions(region: str = "") -> tuple:
+    """输出单节点：默认 Singapore；用户明确提到北京时才选 China (Beijing)。"""
+    return (_normalize_region(region) or "Singapore",)
+
+
 # 首格像模型 ID 的行才入库（排除表头/说明行）
 _ROW_MODEL_RE = re.compile(r"^[a-z][a-z0-9._-]{2,40}", re.IGNORECASE)
 _ROW_SKIP_KW = ("model", "note", "region", "deployment", "scope", "quota", "item")
@@ -580,14 +603,19 @@ def _render_price_table(title: str, rows: list[tuple]) -> str:
     return "\n".join(lines)
 
 
-def _detail_evidence(model_id: str, page_url: str, pricing: dict) -> list[str]:
+def _detail_evidence(
+    model_id: str, page_url: str, pricing: dict, region: str = ""
+) -> list[str]:
     """模型详情页 → 标准价格表（代码渲染）。
 
     按 qualifier（idle/busy hours）拆行；显式缓存读取与 Batch 档价进备注列；
     详情页未提供的计费项（如 DeepSeek 系无 Explicit Cache Creation）填 “—”。
     """
     rows: list[tuple] = []
-    for region, items in pricing.items():
+    for region_name in _selected_regions(region):
+        items = pricing.get(region_name)
+        if not items:
+            continue
         # 按时段 qualifier 分组：input|idle hours 与 output|idle hours 同行
         groups: dict[str, dict] = {}
         order: list[str] = []
@@ -605,7 +633,7 @@ def _detail_evidence(model_id: str, page_url: str, pricing: dict) -> list[str]:
             # 口径：Batch 折扣/批次价一律忽略，不进备注
             rows.append(
                 (
-                    f"{region} · {qual}" if qual else region,
+                    f"{region_name} · {qual}" if qual else region_name,
                     g.get("input", "—"),
                     g.get("input(implicit cache)", "—"),
                     g.get("output", "—"),
@@ -613,6 +641,8 @@ def _detail_evidence(model_id: str, page_url: str, pricing: dict) -> list[str]:
                     "；".join(notes) or "—",
                 )
             )
+    if not rows:
+        return []
     return [
         _render_price_table(
             f"{model_id} · 模型详情页定价（每 1M tokens USD · 权威）", rows
@@ -751,15 +781,15 @@ def _render_media_table(title: str, rows: list[tuple]) -> str:
     return "\n".join(lines)
 
 
-def _media_evidence(model_id: str, media: dict) -> list[str]:
+def _media_evidence(model_id: str, media: dict, region: str = "") -> list[str]:
     """详情页分辨率分档价 → 按秒/按张计费表。
 
     图片模型有输入图/输出图两个价：**单价列取输出图价**（用户问“每张多少钱”），
     输入图价放备注，不能混为一谈（qwen-image-3.0 输入 $0.003 vs 输出 $0.04）。
     """
     rows: list[tuple] = []
-    for region in _REGIONS:
-        items = media.get(region, [])
+    for region_name in _selected_regions(region):
+        items = media.get(region_name, [])
         input_by_res = {res: p for res, kind, p in items if kind == "输入图"}
         outputs = [it for it in items if it[1] in ("输出图", "视频")]
         if not outputs:  # 只有输入价等异常情况：原样给出，不吞数据
@@ -768,7 +798,7 @@ def _media_evidence(model_id: str, media: dict) -> list[str]:
             note = "—"
             if kind == "输出图" and res in input_by_res:
                 note = f"输入图 {input_by_res[res]}"
-            rows.append((model_id, region, res or "—", price, note))
+            rows.append((model_id, region_name, res or "—", price, note))
     if not rows:
         return []
     return [_render_media_table(f"{model_id} · 模型详情页定价（按秒/按张计费）", rows)]
@@ -782,7 +812,8 @@ def _official_id(raw: str) -> str:
     """
     return re.split(
         r"\s+(?:\d+%\s*batch|batch inference discount|context caching discount"
-        r"|cache price \(per million tokens\))",
+        r"|context cache (?:enjoys|offers) a discount"
+        r"|cache (?:unit )?price \(per million tokens\))",
         (raw or "").strip(),
         flags=re.IGNORECASE,
     )[0].strip()
@@ -1033,9 +1064,9 @@ def _col_roles(header_cells: list[str]) -> dict:
         cl = c.lower()
         if "deployment scope" in cl or cl.strip() in ("scope", "region"):
             roles.setdefault("scope", i)
-        elif "input price" in cl:
+        elif "input" in cl and "price" in cl and "cache" not in cl:
             roles.setdefault("input", i)
-        elif "output price" in cl:
+        elif "output" in cl and "price" in cl and "cache" not in cl:
             roles.setdefault("output", i)
         elif "cached input" in cl or "cache hit" in cl:
             roles.setdefault("cache_input", i)
@@ -1049,14 +1080,18 @@ def _first_price(cell: str) -> str:
     return m.group(0) if m else ""
 
 
-def _model_evidence(rows: list[dict], token: str) -> list[str]:
-    """某模型 → 标准价格表（代码渲染；Singapore 主口径 + China (Beijing) 第二参考，均给）。
+def _model_evidence(rows: list[dict], token: str, region: str = "") -> list[str]:
+    """某模型 → 单节点标准价格表（默认 Singapore；明确北京时仅 China (Beijing)）。
 
     按表头列映射取数，杜绝 LLM 渲染时的跨 scope 挪用（此前 US scope 的 $2
     曾被当成 Singapore·International 价）。busy/idle 双价同格的行拆为两行，
     同 region 同 scope 同价的重复行合并。
     """
-    hits = [r for r in rows if _row_matches(r["model_id"], token)]
+    selected_regions = _selected_regions(region)
+    hits = [
+        r for r in rows
+        if r["region"] in selected_regions and _row_matches(r["model_id"], token)
+    ]
     if not hits:
         return []
 
@@ -1087,9 +1122,7 @@ def _model_evidence(rows: list[dict], token: str) -> list[str]:
             + id_note
             + f"\n来源链接（回答时**直接引用此 URL**，不要自己拼接）：{PRICE_PAGE_URL}"
         ]
-    sg = [r for r in hits if r["region"] == "Singapore"]
-    bj = [r for r in hits if r["region"] == "China (Beijing)"]
-    selected = sg + bj or hits[:4]
+    selected = hits
 
     table_rows: list[tuple] = []
     all_rows: list[tuple[tuple, bool]] = []  # (六元组行, 是否带 scope 标注)
@@ -1101,7 +1134,14 @@ def _model_evidence(rows: list[dict], token: str) -> list[str]:
         # 口径：Batch 折扣/批次价一律忽略——带折扣标记的行整行剔除（避免把折扣后价格当常规价）
         if re.search(r"\d+%\s*batch|batch inference discount", first):
             continue
-        cc = "context caching discount" in first
+        cc = any(
+            marker in first
+            for marker in (
+                "context caching discount",
+                "context cache enjoys a discount",
+                "context cache offers a discount",
+            )
+        )
         has_cc = has_cc or cc
         roles = _col_roles(r.get("header_cells") or [])
 
@@ -1115,7 +1155,7 @@ def _model_evidence(rows: list[dict], token: str) -> list[str]:
 
         # kimi 系：Cached input 数值内嵌在输入价单元格
         cache_in = ""
-        mi = re.search(r"Cached input:\s*\$([\d.]+)", input_cell, re.I)
+        mi = re.search(r"(?:Cached input|Cache hit input):\s*\$([\d.]+)", input_cell, re.I)
         if mi:
             cache_in = f"${mi.group(1)}"
         if not cache_in and roles.get("cache_input") is not None:
@@ -1131,12 +1171,12 @@ def _model_evidence(rows: list[dict], token: str) -> list[str]:
         notes = []
 
         # busy/idle 双价在同一格（DeepSeek 系）→ 拆两行
-        busy_i = re.search(r"Busy hours:\s*\$([\d.]+)", input_cell, re.I)
-        idle_i = re.search(r"Idle hours:\s*\$([\d.]+)", input_cell, re.I)
+        busy_i = re.search(r"(?:Busy hours:?\s*|Peak\s*)\$([\d.]+)", input_cell, re.I)
+        idle_i = re.search(r"(?:Idle hours:?\s*|Off-peak\s*)\$([\d.]+)", input_cell, re.I)
         variants: list[tuple[str, str, str]] = []
         if busy_i and idle_i:
-            busy_o = re.search(r"Busy hours:\s*\$([\d.]+)", output_cell, re.I)
-            idle_o = re.search(r"Idle hours:\s*\$([\d.]+)", output_cell, re.I)
+            busy_o = re.search(r"(?:Busy hours:?\s*|Peak\s*)\$([\d.]+)", output_cell, re.I)
+            idle_o = re.search(r"(?:Idle hours:?\s*|Off-peak\s*)\$([\d.]+)", output_cell, re.I)
             variants = [
                 ("busy hours", f"${busy_i.group(1)}", f"${busy_o.group(1)}" if busy_o else ""),
                 ("idle hours", f"${idle_i.group(1)}", f"${idle_o.group(1)}" if idle_o else ""),
@@ -1225,7 +1265,7 @@ def _find_windows(page_text: str, token: str, width: int = 300, max_windows: int
 # ──────────────────── 校验主入口 ────────────────────
 
 
-async def verify_price_for(model: str, competitor: str = "") -> dict:
+async def verify_price_for(model: str, competitor: str = "", region: str = "") -> dict:
     """工具入口：给定型号（口语写法可）与可选竞品厂商，产出价格证据块。
 
     与旧 verify_prices（已删）的区别：型号与竞品由调用方（LLM 工具调用）
@@ -1253,6 +1293,7 @@ async def verify_price_for(model: str, competitor: str = "") -> dict:
     rows = _parse_pricing_rows(html) if html else []
     models = _resolve_official_ids(model, rows)
 
+    selected_region = _normalize_region(region) or "Singapore"
     checked_at = datetime.now().astimezone().isoformat(timespec="seconds")
     sources: list[dict] = []
     official_blocks: list[str] = []
@@ -1282,37 +1323,41 @@ async def verify_price_for(model: str, competitor: str = "") -> dict:
             media = _parse_media_pricing(text)
             if media:
                 model_id = _id_from_slug(slug)
-                official_blocks.append(
-                    f"#### {model_id} · 模型详情页定价（按秒/按张计费 · 权威）\n"
-                    f"来源链接（回答时**直接引用此 URL**，不要自己拼接）：{url}"
-                )
-                official_blocks.extend(_media_evidence(model_id, media))
-                sources.append(
-                    {
-                        "title": f"{model_id} 模型详情页（分辨率分档价 · 权威）",
-                        "url": url,
-                        "kind": "official",
-                    }
-                )
-                got = True
-                if not bare_version:
-                    break
-                continue
+                media_blocks = _media_evidence(model_id, media, selected_region)
+                if media_blocks:
+                    official_blocks.append(
+                        f"#### {model_id} · 模型详情页定价（按秒/按张计费 · 权威）\n"
+                        f"来源链接（回答时**直接引用此 URL**，不要自己拼接）：{url}"
+                    )
+                    official_blocks.extend(media_blocks)
+                    sources.append(
+                        {
+                            "title": f"{model_id} 模型详情页（分辨率分档价 · 权威）",
+                            "url": url,
+                            "kind": "official",
+                        }
+                    )
+                    got = True
+                    if not bare_version:
+                        break
+                    continue
             pricing = _parse_model_pricing(text)
             if pricing:
-                official_blocks.append(
-                    f"#### {m} · 模型详情页定价（权威，优先于主定价页）"
-                )
-                official_blocks.extend(_detail_evidence(m, url, pricing))
-                sources.append(
-                    {
-                        "title": f"{m} 模型详情页（含缓存价 · 权威）",
-                        "url": url,
-                        "kind": "official",
-                    }
-                )
-                got = True
-                break
+                detail_blocks = _detail_evidence(m, url, pricing, selected_region)
+                if detail_blocks:
+                    official_blocks.append(
+                        f"#### {m} · 模型详情页定价（权威，优先于主定价页）"
+                    )
+                    official_blocks.extend(detail_blocks)
+                    sources.append(
+                        {
+                            "title": f"{m} 模型详情页（含缓存价 · 权威）",
+                            "url": url,
+                            "kind": "official",
+                        }
+                    )
+                    got = True
+                    break
         if not got:
             need_main_page_models.append(m)
 
@@ -1322,7 +1367,7 @@ async def verify_price_for(model: str, competitor: str = "") -> dict:
     if html and need_main_page_models:
         unmatched: list[str] = []
         for m in need_main_page_models:
-            blocks = _model_evidence(rows, m)
+            blocks = _model_evidence(rows, m, selected_region)
             if blocks:
                 official_blocks.extend(blocks)
             else:
@@ -1435,8 +1480,13 @@ async def verify_price_for(model: str, competitor: str = "") -> dict:
 
     evidence_md = ""
     if official_blocks:
+        region_rule = (
+            f"本次报价节点为 {selected_region}：只输出该 Region 的证据行，正文结论与所有成本测算"
+            "只能使用这些价格；不得补充其他 Region，也不得跨 Region 取价或错标地域。\n"
+        )
         evidence_md += (
-            "### 官方定价页证据（权威 — 具体价格数字仅可引用此处）\n"
+            region_rule
+            + "### 官方定价页证据（权威 — 具体价格数字仅可引用此处）\n"
             "输出规则：证据块里的「表格部分」（表头行 + 数据行）必须逐字原样输出，"
             "不得改写列名/行序/“—”占位，不得增删行列或自行重组表格；\n"
             "证据块的 `####` 标题行仅供你定位，**不要复制到回答里**；但题目下方的来源 URL 请直接引用，不要自己拼接或改动；\n"
@@ -1522,6 +1572,42 @@ def _table_usd_amounts(md: str) -> set[str]:
     return out
 
 
+def _explicit_sum_amounts(answer: str, allowed: set[str]) -> set[str]:
+    """放行表格中有明确加法算式的合计，并迭代支持“各模型小计 → 总计”。
+
+    只有同一行内出现至少两个已认可加数、一个目标和，且数值确实相等时才放行；
+    没有算式的陌生金额仍按臆造价格处理。重复扫描让后续总计可引用前面的小计。
+    """
+    derived: set[str] = set()
+    lines = [
+        line for line in answer.splitlines()
+        if line.lstrip().startswith("|") and "+" in line
+    ]
+    for _ in range(len(lines) + 1):
+        changed = False
+        known = allowed | derived
+        for line in lines:
+            amounts = [
+                _norm_amount(m.group(1)) for m in _ANSWER_PRICE_RE.finditer(line)
+            ]
+            if len(amounts) < 3:
+                continue
+            for i, target in enumerate(amounts):
+                if target in known:
+                    continue
+                addends = amounts[:i] + amounts[i + 1:]
+                if not all(a in known for a in addends):
+                    continue
+                expected = sum(float(a) for a in addends)
+                actual = float(target)
+                if abs(actual - expected) <= max(1e-5, 1e-4 * expected):
+                    derived.add(target)
+                    changed = True
+        if not changed:
+            break
+    return derived
+
+
 # 竞品定价页的价格常写成纯数字（单位“USD / million tokens”放在表头），
 # 回答里模型会补上 $，因此 extra 白名单需额外收录这些纯数字单元格。
 # 只认“被两个竖线夹住的纯数字格”（如 | 0.003 |），避免把型号里的 4.1、1017 当价。
@@ -1579,6 +1665,7 @@ def audit_answer_prices(
         | _table_usd_amounts(extra_md)
         | _extra_decimal_amounts(extra_md)
     )
+    derived_sums = _explicit_sum_amounts(answer, allowed)
     rates = _discount_rates(question) | _discount_rates(answer)
     allowed_f = {float(a) for a in allowed}
 
@@ -1591,6 +1678,8 @@ def audit_answer_prices(
         return False
 
     mismatched = sorted(
-        p for p in answer_prices if p not in allowed and not _derived(float(p))
+        p
+        for p in answer_prices
+        if p not in allowed and p not in derived_sums and not _derived(float(p))
     )
     return {"checked": True, "mismatched": mismatched}

@@ -3,10 +3,12 @@
 背景（2026-11-09 线上两条点踩，id=64 / id=66）：
 1. 上一轮给了 deepseek-v4.1-flash 价格表，用户追问「China (Beijing) · US是什么意思？」，
    系统把 US 当成术语长篇解释却不给该节点价格 → 答非所问。修复：表格追问也触发
-   价格校验，并在 prompt 里注入"先解释字段、再按双节点口径给价格"的锚定。
+   价格校验，并在 prompt 里注入"先解释字段、再按所选节点给价格"的锚定。
 2. 用户问「缓存 cache input 价格是不是和腾讯云一样了」，旧链路只抓阿里云官方页，
    竞品价格从未进证据池 → 系统绕圈。修复：识别竞品后额外检索第三方报价，作为
    「竞品价格（第三方信源）」证据块，且不参与阿里云报价、不算价格审计 mismatch。
+3. 地域输出统一为单节点：默认仅 Singapore；用户明确提到北京时仅 China (Beijing)。
+   多模型成本测算只取该节点，显式加法合计不再误报审计。
 
 运行: .venv/bin/python tests/e2e/test_price_followup_competitor.py
 """
@@ -71,7 +73,7 @@ def main():
     low = answer.lower()
     check("先解释币种含义（US/USD = 美元）", "usd" in low or "美元" in answer, answer[:200])
     check("给出该节点价格（北京 $0.141）", "0.141" in answer, answer[:200])
-    check("双节点口径（同时含 Singapore）", "singapore" in low, answer[:200])
+    check("明确北京时只给北京（不附 Singapore）", "singapore" not in low, answer[:300])
     check("不是停留在术语解释（含价格表格）", "|" in answer and "$" in answer, answer[:200])
     check("未整体拒答", "暂未能联网核实" not in answer, answer[:200])
     check("price_status=official", done.get("price_status") == "official", str(done))
@@ -81,8 +83,8 @@ def main():
     print("[2] 跨云比价：缓存 cache input 与腾讯云对比")
     answer2, done2, sources2 = ask("看看缓存cache input 价格是不是和腾讯云一样了", history)
     low2 = answer2.lower()
-    check("阿里云缓存价给出（$0.015 / $0.014）",
-          "0.015" in answer2 or "0.014" in answer2, answer2[:200])
+    check("阿里云缓存价给出（当前官方价 $0.003 / $0.006）",
+          "0.003" in answer2 or "0.006" in answer2, answer2[:200])
     check("触及竞品（腾讯云）", "腾讯云" in answer2 or "tencent" in low2, answer2[:200])
     check(
         "竞品价采用美金（USD）口径，与阿里云可直接对比",
@@ -103,6 +105,34 @@ def main():
           str(done2))
     web_sources = [s for s in sources2 if s.get("kind") == "web"]
     print(f"    （本次竞品检索到 {len(web_sources)} 条第三方来源，网络抖动时可能为 0）")
+
+    # ── 场景 3：指定节点 + 多模型成本汇总（后台 id=176 同类事故）──
+    print("[3] 北京节点双模型成本汇总")
+    answer3, done3, _ = ask(
+        "qwen3.8-max 和 kimi-k3.1-pro 按北京节点计算，每个模型都是输入 100 万 "
+        "tokens、输出 100 万 tokens，一共多少钱？",
+        session="e2e-beijing-multimodel-cost",
+    )
+    check("指定节点official", done3.get("price_status") == "official", str(done3))
+    check("明确北京时仅输出 Beijing 数据行",
+          "| China (Beijing)" in answer3 and "| Singapore" not in answer3, answer3[:500])
+    check("成本只按北京单价计算（合计 $18.049）", "$18.049" in answer3, answer3[-1200:])
+    check("显式成本合计不触发审计 mismatch",
+          done3.get("price_audit") in ("ok", ""), str(done3))
+
+    # ── 场景 4：未指定节点时默认仅 Singapore ──
+    print("[4] 默认 Singapore 双模型成本汇总")
+    answer4, done4, _ = ask(
+        "qwen3.8-max 和 kimi-k3.1-pro 每个模型输入 100 万 tokens、输出 100 万 tokens，"
+        "一共多少钱？",
+        session="e2e-default-singapore-multimodel-cost",
+    )
+    check("默认节点official", done4.get("price_status") == "official", str(done4))
+    check("未指定节点时仅输出 Singapore",
+          "| Singapore" in answer4 and "China (Beijing)" not in answer4, answer4[:500])
+    check("默认按新加坡单价计算（合计 $20）", "$20" in answer4, answer4[-1000:])
+    check("默认节点成本合计审计通过",
+          done4.get("price_audit") in ("ok", ""), str(done4))
 
     print("-" * 56)
     print(f"结果: {PASS} 通过 / {FAIL} 失败")

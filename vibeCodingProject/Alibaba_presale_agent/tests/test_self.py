@@ -107,6 +107,8 @@ def test_price_verifier_units():
     block = pv._media_evidence("wan3.0-video-prime", media)[0]
     check("视频证据表: 只含模型/分辨率/单价，无 token 列",
           "分辨率" in block and "输入价格" not in block and "$0.28/秒" in block)
+    check("视频证据表: 默认仅 Singapore",
+          "Singapore" in block and "China (Beijing)" not in block)
     # 口语空格/前缀写法归一（'kimi k3.1 pro' 曾因提取失败回退挪用历史模型）
     check("模型名提取: 'kimi k3.1 pro'→'kimi-k3.1-pro'",
           pv.extract_model_names("kimi k3.1 pro的价格呢？") == ["kimi-k3.1-pro"])
@@ -252,8 +254,17 @@ def test_price_verifier_units():
           next(r for r in crows if r["region"] == "China (Beijing)"
                and r["model_id"].startswith("qwen4")).get("cache_prices", {}).get("read") == "$0.071")
     cblock = pv._model_evidence(crows, "qwen4-max")[0]
-    check("缓存子表: 读价进 Cache Input 列（双节点）",
-          "$0.075" in cblock and "$0.071" in cblock)
+    cblock_bj = pv._model_evidence(crows, "qwen4-max", "China (Beijing)")[0]
+    check("节点选择: 默认主表仅 Singapore",
+          "| Singapore" in cblock and "China (Beijing)" not in cblock)
+    check("节点选择: 北京主表仅 Beijing",
+          "| China (Beijing)" in cblock_bj and "Singapore" not in cblock_bj)
+    check("节点选择: 中文别名等价归一",
+          pv._model_evidence(crows, "qwen4-max", "北京节点")[0] == cblock_bj)
+    check("缓存子表: 默认只带 Singapore 读价",
+          "$0.075" in cblock and "$0.071" not in cblock)
+    check("缓存子表: 北京只带 Beijing 读价",
+          "$0.071" in cblock_bj and "$0.075" not in cblock_bj)
     check("缓存子表: 写价按 5m/1h 两档进 Cache Write 列",
           "$1.875 (5m) / $3 (1h)" in cblock)
     check("主表证据附来源 URL（Prompt 要求引用证据内 URL）",
@@ -293,6 +304,11 @@ def test_table_render_and_followup():
         },
     }
     tb = pv._detail_evidence("m1", "", pricing)[0]
+    tb_bj = pv._detail_evidence("m1", "", pricing, "China (Beijing)")[0]
+    check("节点选择: 详情页默认仅 Singapore",
+          "| Singapore" in tb and "China (Beijing)" not in tb)
+    check("节点选择: 详情页指定北京仅 Beijing",
+          "| China (Beijing)" in tb_bj and "Singapore" not in tb_bj)
     check(
         "表头列序固定（Cache Write 在 Output 右侧）",
         "| Region | 输入价格 (Input) | 缓存输入价格 (Cache Input) "
@@ -302,8 +318,8 @@ def test_table_render_and_followup():
           "| Singapore | $2 | $0.25 | $6 | $2.5 | 显式缓存读取 $0.17 |" in tb)
     check("Batch 批次价不进备注（口径：一律忽略）", "Batch" not in tb)
     check("busy/idle 按 qualifier 拆行",
-          "| China (Beijing) · idle hours | $1.6 | $0.2 | $4.8 | — | — |" in tb
-          and "| China (Beijing) · busy hours | $1.65 | $0.206 | $4.951 | — | — |" in tb)
+          "| China (Beijing) · idle hours | $1.6 | $0.2 | $4.8 | — | — |" in tb_bj
+          and "| China (Beijing) · busy hours | $1.65 | $0.206 | $4.951 | — | — |" in tb_bj)
 
     hist = [
         {"role": "user", "content": "deepseek-v4.1-flash 的价格是多少？"},
@@ -336,29 +352,36 @@ def test_price_parsing_offline():
         check("包含 Singapore 分表", "Singapore" in regions)
         check("包含 China (Beijing) 分表", "China (Beijing)" in regions)
 
-        # 代码渲染表格：deepseek 双节点忙闲分档（价格与 region/scope 严格对齐）
+        # 代码渲染表格：默认只出 Singapore，显式北京才出 Beijing。
         ds_block = pv._model_evidence(rows, "deepseek-v4.1-flash")
+        ds_bj = pv._model_evidence(rows, "deepseek-v4.1-flash", "China (Beijing)")[0]
         check("deepseek-v4.1-flash 证据非空", len(ds_block) > 0)
         tb = ds_block[0] if ds_block else ""
         check("deepseek Singapore 忙时 $0.3（region/scope 归属正确）",
               "| Singapore · International · busy hours | $0.3 |" in tb, tb[:160])
-        check("deepseek Beijing 忙时 $0.283",
-              "China (Beijing) · Global · busy hours | $0.283" in tb)
+        check("deepseek 默认不带 Beijing", "China (Beijing)" not in tb)
+        check("deepseek 指定北京忙时 $0.283 且不带 Singapore",
+              "China (Beijing) · Global · busy hours | $0.283" in ds_bj
+              and "Singapore" not in ds_bj)
         check("deepseek Cache Input 主表未单列填 —（附官方规则）",
               "官方规则节选" in tb)
 
-        # kimi: Cached input 拆列 + 跨 scope 不挪用 + BJ 重复表合并
+        # kimi: 默认 Singapore；指定北京后拆缓存列并合并重复表。
         k_tb = pv._model_evidence(rows, "kimi-k3.1-pro")[0]
-        check("kimi Cache Input 拆列 $0.184（Global 档）", "| $1.837 | $0.184 |" in k_tb)
+        k_bj = pv._model_evidence(rows, "kimi-k3.1-pro", "China (Beijing)")[0]
+        check("kimi 北京 Cache Input 拆列 $0.184（Global 档）", "| $1.837 | $0.184 |" in k_bj)
         check("kimi US scope 价不挪用（International = $2）",
               "| Singapore · International | $2 | $0.2 |" in k_tb, k_tb[:160])
-        check("kimi BJ 重复表结构合并",
-              sum(1 for l in k_tb.splitlines() if l.startswith("| China (Beijing)")) == 2)
+        check("kimi 默认不带 Beijing", "China (Beijing)" not in k_tb)
+        check("kimi BJ 重复表结构合并且不附带 Singapore",
+              sum(1 for l in k_bj.splitlines() if l.startswith("| China (Beijing)")) == 2
+              and "Singapore" not in k_bj)
 
-        # qwen3.8-flash: Beijing 多 scope 分档行保留
-        q_tb = pv._model_evidence(rows, "qwen3.8-flash")[0]
+        # qwen3.8-flash: 显式北京时多 scope 分档行保留
+        q_tb = pv._model_evidence(rows, "qwen3.8-flash", "China (Beijing)")[0]
         check("qwen3.8-flash BJ 多行分档保留",
-              sum(1 for l in q_tb.splitlines() if l.startswith("| China (Beijing)")) >= 2)
+              sum(1 for l in q_tb.splitlines() if l.startswith("| China (Beijing)")) >= 2
+              and "Singapore" not in q_tb)
         check("qwen3.8-flash batch 折扣行整行忽略", "Batch" not in q_tb, q_tb[:300])
 
         # 2026-11-09 事故：口语 token 作证据标题 → LLM 照抄并断言"模型 ID 是 kimi-k3.1"。
@@ -567,6 +590,23 @@ def test_price_audit():
     r4 = pv.audit_answer_prices(prose, official)
     check("审计: 正文成本测算($200)与人民币(¥)不误报",
           r4["checked"] and r4["mismatched"] == [], str(r4))
+
+    # 多模型成本题：显式加法小计与总计是合法派生值，不是新的官方单价。
+    # 总计行允许引用前面已验证的小计；没有算式或算错仍必须报 mismatch。
+    cost_official = official + "| kimi-k3.1-pro | China (Beijing) | $1.837 | $0.184 | $9.611 | — | — |\n"
+    cost_answer = cost_official + (
+        "| qwen3.8-max | $1.65 + $4.951 | **$6.601** |\n"
+        "| kimi-k3.1-pro | $1.837 + $9.611 | **$11.448** |\n"
+        "| 合计 | $6.601 + $11.448 | **$18.049** |"
+    )
+    r_sum = pv.audit_answer_prices(cost_answer, cost_official)
+    check("审计: 显式加法小计与多模型总计不误报",
+          r_sum["checked"] and r_sum["mismatched"] == [], str(r_sum))
+    r_sum_bad = pv.audit_answer_prices(cost_answer.replace("$18.049", "$18.06"), cost_official)
+    check("审计: 加法算错仍被揪出", "18.06" in r_sum_bad["mismatched"], str(r_sum_bad))
+    r_no_formula = pv.audit_answer_prices(official + "| 合计 | **$18.049** |", cost_official)
+    check("审计: 无算式的陌生合计仍被揪出",
+          "18.049" in r_no_formula["mismatched"], str(r_no_formula))
 
     # web 旁证价不作数：只喂官方证据，回答里的 web 价应被揪出
     r5 = pv.audit_answer_prices("| Singapore | $9.99 | — | — | — | — |", official)

@@ -38,7 +38,7 @@ TOOLS = [
         "function": {
             "name": "verify_price",
             "description": (
-                "联网核实阿里云百炼模型的官方定价（Singapore/China (Beijing) 双节点 USD）。"
+                "联网核实阿里云百炼模型的官方定价（国际站 USD）。默认只返回 Singapore；用户明确提到北京时只返回 China (Beijing)。"
                 "凡是涉及任何具体模型的价格/计费/多少钱的问题（含追问、对比），必须先调用本工具"
                 "取得证据再回答，严禁凭记忆报价。用户追问上一轮价格表里的字段或节点"
                 "（如「China (Beijing) 那行多少」「cache input 是什么」）时，对同一型号重新调用。"
@@ -54,6 +54,11 @@ TOOLS = [
                     "model": {
                         "type": "string",
                         "description": "模型名，用户原话即可（口语写法如 kimi k3.1 pro、wan3.0 video 也能归一）",
+                    },
+                    "region": {
+                        "type": "string",
+                        "enum": ["Singapore", "China (Beijing)"],
+                        "description": "报价节点：用户明确提到北京时填 China (Beijing)；未指定或提到新加坡时填 Singapore（也可留空，默认 Singapore）。只返回所选节点",
                     },
                     "competitor": {
                         "type": "string",
@@ -288,8 +293,9 @@ async def execute_tool(name: str, arguments: str) -> dict:
         competitor = str(args.get("competitor", "") or "").strip()
         if competitor not in COMPETITORS:
             competitor = ""
+        region = str(args.get("region", "") or "").strip()
         try:
-            ev = await price_verifier.verify_price_for(model, competitor)
+            ev = await price_verifier.verify_price_for(model, competitor, region)
         except Exception as e:
             log.exception("verify_price 执行失败")
             return {"content": f"价格核实失败（{e}）。请说明暂未能联网核实，"
