@@ -133,7 +133,8 @@ function renderAttachBar() {
     const thumb = document.createElement("img");
     thumb.src = img.dataUrl;
     thumb.alt = img.name || "截图";
-    thumb.title = img.name || "截图";
+    thumb.title = "点击预览「" + (img.name || "截图") + "」";
+    thumb.addEventListener("click", () => openImagePreview(img.dataUrl, img.name));
     item.appendChild(thumb);
     const rm = document.createElement("button");
     rm.type = "button";
@@ -280,6 +281,43 @@ function syncSidebar() {
 
 /* ── 消息渲染 ── */
 
+/* 图片预览浮层：截图是 data:URL，window.open 会被浏览器拦截（顶层禁止
+   data: 导航），点击缩略图没反应。改为页内 lightbox：默认适配窗口，
+   点图片切换原始尺寸（可滚动看表格细节），点背景 / × / Esc 关闭。 */
+function openImagePreview(src, name) {
+  const old = document.querySelector(".img-lightbox");
+  if (old) old.remove();
+  const box = document.createElement("div");
+  box.className = "img-lightbox";
+  const im = document.createElement("img");
+  im.src = src;
+  im.alt = name || "截图预览";
+  im.title = "点击切换 原始尺寸 / 适配窗口";
+  im.addEventListener("click", (e) => {
+    e.stopPropagation();
+    box.classList.toggle("is-actual");
+  });
+  const close = document.createElement("button");
+  close.type = "button";
+  close.className = "img-lightbox-close";
+  close.textContent = "×";
+  close.title = "关闭预览（Esc）";
+  close.setAttribute("aria-label", close.title);
+  box.appendChild(im);
+  box.appendChild(close);
+  const onKey = (e) => {
+    if (e.key === "Escape") shut();
+  };
+  const shut = () => {
+    document.removeEventListener("keydown", onKey);
+    box.remove();
+  };
+  box.addEventListener("click", shut);
+  close.addEventListener("click", shut);
+  document.addEventListener("keydown", onKey);
+  document.body.appendChild(box);
+}
+
 function addUserMsg(text, images) {
   const div = document.createElement("div");
   div.className = "msg user";
@@ -294,9 +332,8 @@ function addUserMsg(text, images) {
       const im = document.createElement("img");
       im.src = src;
       im.alt = "截图";
-      im.addEventListener("click", () => {
-        window.open(src, "_blank", "noopener");
-      });
+      im.title = "点击放大预览";
+      im.addEventListener("click", () => openImagePreview(src));
       strip.appendChild(im);
     });
     bubble.appendChild(strip);

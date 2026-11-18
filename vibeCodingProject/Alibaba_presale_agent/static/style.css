@@ -738,6 +738,7 @@ button:disabled { cursor: not-allowed; }
   object-fit: cover;
   border-radius: 10px;
   border: 1px solid #dcd8ce;
+  cursor: zoom-in;
 }
 .attach-remove {
   position: absolute;
@@ -779,3 +780,51 @@ button:disabled { cursor: not-allowed; }
   border: 1px solid rgba(0, 0, 0, .08);
   cursor: zoom-in;
 }
+
+/* 图片预览浮层（截图为 data:URL，window.open 被拦截，改页内 lightbox） */
+.img-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: rgba(20, 18, 14, .78);
+  backdrop-filter: blur(2px);
+  cursor: zoom-out;
+  overflow: auto;
+}
+.img-lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, .45);
+  cursor: zoom-in;
+}
+/* 原始尺寸模式：长表格可横竖滚动看细节 */
+.img-lightbox.is-actual {
+  display: block;
+  padding: 48px 32px;
+}
+.img-lightbox.is-actual img {
+  max-width: none;
+  max-height: none;
+  margin: 0 auto;
+  display: block;
+  cursor: zoom-out;
+}
+.img-lightbox-close {
+  position: fixed;
+  top: 16px; right: 20px;
+  width: 36px; height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .16);
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.img-lightbox-close:hover { background: rgba(255, 255, 255, .32); }
