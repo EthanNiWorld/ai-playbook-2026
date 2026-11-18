@@ -1177,6 +1177,176 @@ def test_vendor_report_generality():
     check("focus: 空 focus 不注入", "用户补充关注点" not in vr.build_messages(pmin)[1]["content"])
 
 
+def test_ecs_price():
+    """ECS 服务器询价：归一/请求结构/证据渲染/快路径排除（不联网）"""
+    print("[19] ECS 服务器询价")
+    from app import ecs_price as ep
+    from app import price_verifier as pv
+    from app import tools
+
+    # 型号/地域归一
+    check("ECS 型号归一: 补 ecs. 前缀", ep.normalize_instance("g9i.large") == "ecs.g9i.large")
+    check("ECS 型号归一: 大写/裸金属", ep.normalize_instance("ECS.EBMG9AE.48XLARGE") == "ecs.ebmg9ae.48xlarge")
+    check("ECS 型号归一: 缺规格段拒绝", ep.normalize_instance("g9i") is None)
+    check("ECS 地域归一: 乌兰察布", ep.normalize_region("乌兰察布") == ("cn-wulanchabu", "华北6（乌兰察布）"))
+    check("ECS 地域归一: 香港/HK/id", ep.normalize_region("HK")[0] == "cn-hongkong" and ep.normalize_region("cn-hongkong")[0] == "cn-hongkong")
+    check("ECS 地域归一: 未知拒绝", ep.normalize_region("火星") is None)
+
+    # 地域动态兜底：纯函数匹配 + mock 拉取（不联网）
+    entries = [("ap-southeast-8", "马来西亚（柔佛州）"),
+               ("ap-southeast-3", "马来西亚（吉隆坡）"),
+               ("ap-southeast-7", "泰国（曼谷）")]
+    check("ECS 动态地域: id 精确命中", ep._match_region("ap-southeast-7", entries) == ("ap-southeast-7", "泰国（曼谷）"))
+    check("ECS 动态地域: 包含匹配 曼谷", ep._match_region("曼谷", entries) == ("ap-southeast-7", "泰国（曼谷）"))
+    check("ECS 动态地域: 多命中返候选不猜", ep._match_region("马来西亚", entries) == entries[:2])
+    check("ECS 动态地域: 未命中返 None", ep._match_region("火星", entries) is None)
+
+    # getCommodity 地域表解析：POC/单测地域过滤
+    sample = {"data": {"components": {"vm_region_no": {"vm_region_no": [
+        {"value": "ap-southeast-8", "text": "马来西亚（柔佛州）"},
+        {"value": "cn-wulanchabu-acdr-ut-1", "text": "China (Ulanqab) POC"},
+        {"value": "ap-southeast-7-oxs", "text": "Thailand (Bangkok) OXS"},
+        {"value": "", "text": "脏数据"},
+    ]}}}}
+    check("ECS 地域解析: 正常抽取+POC/OXS/脏数据过滤",
+          ep._parse_region_entries(sample) == [("ap-southeast-8", "马来西亚（柔佛州）")])
+    check("ECS 地域解析: 空响应不炸", ep._parse_region_entries({}) == [])
+
+    fetch_calls = []
+
+    async def fake_fetch(client):
+        fetch_calls.append(1)
+        return entries
+    orig_fetch = ep._fetch_region_entries
+    ep._fetch_region_entries = fake_fetch
+    ep._region_entries, ep._region_cache_ts = [], 0.0
+    try:
+        async def resolve(raw):
+            return await ep._resolve_region_dynamic(raw, None)
+        check("ECS 动态兜底: 静态未命中→拉取匹配", asyncio.run(resolve("曼谷")) == ("ap-southeast-7", "泰国（曼谷）"))
+        check("ECS 动态兜底: 缓存生效不重拉", asyncio.run(resolve("柔佛州"))[0] == "ap-southeast-8" and len(fetch_calls) == 1)
+        try:
+            asyncio.run(resolve("马来西亚"))
+            check("ECS 动态兜底: 多命中招 LookupError", False)
+        except LookupError as e:
+            check("ECS 动态兜底: 多命中招 LookupError", "吉隆坡" in str(e) and "柔佛" in str(e))
+        try:
+            asyncio.run(resolve("火星"))
+            check("ECS 动态兜底: 真不存在招 LookupError", False)
+        except LookupError as e:
+            check("ECS 动态兜底: 真不存在招 LookupError", "未找到" in str(e))
+    finally:
+        ep._fetch_region_entries = orig_fetch
+        ep._region_entries, ep._region_cache_ts = [], 0.0
+
+    # 请求结构两个必踩坑：family 属性 + vm_os 组件
+    body = ep._build_body("ecs.g9i.large", "cn-wulanchabu", 1, 0)
+    comps = {c["componentCode"]: c for c in body["configurations"][0]["components"]}
+    it_props = {p["code"]: p["value"] for p in comps["instance_type"]["instanceProperty"]}
+    check("ECS 请求: instance_type_family 必带", it_props.get("instance_type_family") == "ecs.g9i")
+    check("ECS 请求: vm_os 组件必带", "vm_os" in comps)
+    check("ECS 请求: 默认无盘", "systemdisk" not in comps)
+    check("ECS 请求: 含盘时带 systemdisk",
+          "systemdisk" in {c["componentCode"] for c in ep._build_body("ecs.g9i.large", "cn-wulanchabu", 1, 40)["configurations"][0]["components"]})
+
+    # 证据渲染（mock 询价与规格目录，不联网）：数字与审计白名单闭环
+    async def fake_query(client, instance, region_id, duration, disk_gib):
+        base = {"instance_type": 32.29 if duration == 1 else 271.25}
+        if disk_gib:
+            base["systemdisk"] = 6.69 if duration == 1 else 74.28
+        return base
+
+    async def fake_catalog(client):
+        return {"ecs.g9i.large": {"cpuCoreCount": 2, "memorySize": "8",
+                                   "physicalProcessorModel": "Intel(R) Xeon(R) 6982P-C"}}
+    orig, orig_cat = ep._query_one, ep._fetch_spec_catalog
+    ep._query_one, ep._fetch_spec_catalog = fake_query, fake_catalog
+    try:
+        r = asyncio.run(ep.query_ecs_price("g9i.large", "乌兰察布"))
+        md = r.get("evidence_md", "")
+        check("ECS 证据: 月度刊例价 $32.29 两位小数", "$32.29" in md and "$32.290" not in md)
+        check("ECS 证据: 年度成本×12 代码预算", "$387.48" in md)
+        check("ECS 证据: 配置列换行 vCPU/内存+CPU型号", "2 vCPU / 8 GiB<br>Intel Xeon 6982P-C" in md)
+        check("ECS 证据: 规格与地域换行", "ecs.g9i.large<br>华北6（乌兰察布）" in md)
+        check("ECS 证据: 四列表头", "| 规格 · 地域 | 配置 | 月度刊例价 | 年度成本（×12） |" in md)
+        check("ECS 证据: 包年实付与折合月价入说明", "$271.25" in md and "$22.60" in md)
+        check("ECS 证据: 附计算器链接", ep.CALCULATOR_URL in md)
+        check("ECS 证据: sources 为 official", r["sources"][0]["kind"] == "official")
+        audit = pv.audit_answer_prices(md, md)
+        check("ECS 审计: 逐字搬运无 mismatch", audit["checked"] and not audit["mismatched"])
+        r_disk = asyncio.run(ep.query_ecs_price("ecs.g9i.large", "乌兰察布", 40))
+        check("ECS 证据: 含盘合计代码预算", "$38.98" in r_disk["evidence_md"])
+    finally:
+        ep._query_one, ep._fetch_spec_catalog = orig, orig_cat
+    # 配置列：目录优先，缺失时后缀降级，判不出不猜
+    amd = {"cpuCoreCount": 8, "memorySize": "16", "physicalProcessorModel": "AMD EPYC 9T95 192-Core"}
+    check("ECS 配置列: 目录含 AMD 型号换行", ep._spec_cell("ecs.c9ae.2xlarge", amd) == "8 vCPU / 16 GiB<br>AMD EPYC 9T95 192-Core")
+    check("ECS 配置列: 小数内存去尾零", ep._spec_cell("ecs.t1.xsmall", {"cpuCoreCount": 1, "memorySize": "0.5"}).startswith("1 vCPU / 0.5 GiB"))
+    check("ECS 配置列: 目录缺失降级倚天", "倚天" in ep._spec_cell("ecs.c8y.4xlarge", None))
+    check("ECS 配置列: 未知后缀不猜厂商", ep._spec_cell("ecs.sn1ne.large", None) == "—")
+    err = asyncio.run(ep.query_ecs_price("bad-spec", "乌兰察布"))
+    check("ECS 错误路径: 非法型号不联网直接引导", "error" in err)
+
+    # 快路径排除守卫（正负例成对：ECS 题不被缺型号反问劫持，本职反问不受影响）
+    check("ECS 守卫: 入口 chip 问法不反问", not pv.needs_model_clarify("乌兰察布 ecs.g9i.large 服务器包月多少钱？"))
+    check("ECS 守卫: 裸规格口语不反问", not pv.needs_model_clarify("g9i.large 乌兰察布多少钱"))
+    check("ECS 守卫: 泛问服务器不反问", not pv.needs_model_clarify("阿里云服务器多少钱"))
+    check("分享守卫: 报价出链接不反问", not pv.needs_model_clarify("把刚才两个报价生成一个可转发的链接，方便我发给客户"))
+    check("ECS 守卫: 模型缺型号仍反问", pv.needs_model_clarify("新加坡节点模型价格是多少"))
+    check("ECS 守卫: 百炼计费仍反问", pv.needs_model_clarify("百炼怎么收费"))
+
+    # 工具注册
+    names = {t["function"]["name"] for t in tools.TOOLS}
+    check("ECS 工具: schema 已注册", "get_ecs_price" in names)
+    schema = next(t["function"] for t in tools.TOOLS if t["function"]["name"] == "get_ecs_price")
+    check("ECS 工具: 必填 instance_type+region", set(schema["parameters"]["required"]) == {"instance_type", "region"})
+    check("ECS 工具: 状态提示已配", "ECS" in tools.status_of("get_ecs_price"))
+
+    # ECS 分享卡片：汇总计算/换行渲染/全链路 mock（不联网不传 OSS）
+    from app import share_card as sc
+    mk = lambda inst, label, c1, c12, qty: {
+        "ok": True, "instance": inst, "region_label": label,
+        "spec": "2 vCPU / 8 GiB<br>Intel", "compute1": c1, "compute12": c12,
+        "avg12": round(c12 / 12, 2), "disk1": 0.0, "disk_gib": 0, "quantity": qty}
+    quote = sc.build_ecs_quote_md([mk("ecs.a.large", "柔佛", 100.0, 800.0, 17),
+                                   mk("ecs.b.large", "乌兰察布", 50.0, 400.0, 12)])
+    check("ECS 卡片: 月度总计代码计算", "$2,300.00" in quote)
+    check("ECS 卡片: 年度总计×12", "$27,600.00" in quote)
+    check("ECS 卡片: 台数总计", "**29**" in quote)
+    check("ECS 卡片: 包年实付汇总入说明", "$18,400.00" in quote)
+    card = sc.render_ecs_card(quote, "2026-11-18 12:00")
+    check("ECS 卡片: <br> 还原为真换行", "<br>Intel" in card and "&lt;br&gt;" not in card)
+    check("ECS 卡片: 不附模型限流备注", "TPM" not in card)
+
+    async def fake_struct(it, reg, disk=0):
+        if it == "bad":
+            return {"ok": False, "error": "规格无法识别"}
+        return mk(it, "柔佛", 100.0, 800.0, 1)
+    orig_struct = ep.query_ecs_price_struct
+    orig_cfg, orig_put = sc.get_oss_config, sc._put_and_sign
+    ep.query_ecs_price_struct = fake_struct
+    sc.get_oss_config = lambda: {"key_id": "x", "key_secret": "y", "prefix": "t/",
+                                 "bucket": "b", "endpoint": "e"}
+    sc._put_and_sign = lambda cfg, key, h: ("https://example.com/card", "2026-11-19 12:00")
+    try:
+        r = asyncio.run(sc.make_ecs_share_link([
+            {"instance_type": "ecs.a.large", "region": "柔佛", "quantity": 17}]))
+        check("ECS 卡片链路: 返回 url 与条目", r.get("url") == "https://example.com/card"
+              and "×17" in r["items"][0])
+        r2 = asyncio.run(sc.make_ecs_share_link([
+            {"instance_type": "ecs.a.large", "region": "柔佛"},
+            {"instance_type": "bad", "region": "柔佛"}]))
+        check("ECS 卡片链路: 任一条失败整体不出卡", "error" in r2 and "未生成卡片" in r2["error"])
+    finally:
+        ep.query_ecs_price_struct = orig_struct
+        sc.get_oss_config, sc._put_and_sign = orig_cfg, orig_put
+    share_schema = next(t["function"] for t in tools.TOOLS
+                        if t["function"]["name"] == "make_price_share_link")
+    check("ECS 卡片工具: ecs_items 已注册且不强制 model",
+          "ecs_items" in share_schema["parameters"]["properties"]
+          and "required" not in share_schema["parameters"])
+
+
 def main():
     print("=" * 56)
     print("阿里小可爱AI问答助手 — 离线自测套件")
@@ -1199,6 +1369,7 @@ def main():
     test_fx()
     test_vendor_report()
     test_vendor_report_generality()
+    test_ecs_price()
     print("-" * 56)
     print(f"结果: {PASS} 通过 / {FAIL} 失败")
     sys.exit(1 if FAIL else 0)

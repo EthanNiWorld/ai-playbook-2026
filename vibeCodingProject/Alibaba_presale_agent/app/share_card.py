@@ -61,8 +61,10 @@ a{color:#ff6a00;word-break:break-all}
 
 
 def _md_inline(s: str) -> str:
-    """行内 markdown → HTML：转义优先，再处理 **加粗**、`代码`、裸 URL。"""
+    """行内 markdown → HTML：转义优先，再处理 **加粗**、`代码`、裸 URL；
+    证据表格单元格内的 <br> 换行（ECS 四列表）转义后还原为真换行。"""
     s = html.escape(s)
+    s = s.replace("&lt;br&gt;", "<br>")
     s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
     s = re.sub(r"`(.+?)`", r"<code>\1</code>", s)
     s = re.sub(r"(https?://[^\s<>]+)", r'<a href="\1">\1</a>', s)
@@ -145,6 +147,103 @@ def render_price_card(models: list[str], official_md: str, checked_at: str) -> s
 
 def oss_configured(cfg: dict) -> bool:
     return bool(cfg["key_id"] and cfg["key_secret"])
+
+
+def build_ecs_quote_md(results: list[dict]) -> str:
+    """多条结构化询价结果（含 quantity）→ 合并报价 markdown：
+    单价/小计/年度小计全部代码计算，多台数多地域带总计行。"""
+    from .ecs_price import _usd
+
+    rows, total_qty, total_m, total_y_official = [], 0, 0.0, 0.0
+    for r in results:
+        qty = max(1, int(r.get("quantity") or 1))
+        unit = r["compute1"] + r["disk1"]
+        sub_m = round(unit * qty, 2)
+        sub_y = round(sub_m * 12, 2)
+        total_qty += qty
+        total_m += sub_m
+        total_y_official += (r["compute12"] + r["disk1"] * 12) * qty
+        spec = r["spec"]
+        if r["disk_gib"] > 0:
+            spec += f"<br>含系统盘 {r['disk_gib']}GiB"
+        rows.append(
+            f"| {r['instance']}<br>{r['region_label']} | {spec} | {qty} "
+            f"| {_usd(unit)} | {_usd(sub_m)} | {_usd(sub_y)} |"
+        )
+    rows.append(
+        f"| **总计** | — | **{total_qty}** | — "
+        f"| **{_usd(round(total_m, 2))} /月** | **{_usd(round(total_m * 12, 2))} /年** |"
+    )
+    return (
+        "#### ECS 报价汇总（国际站 USD · 包年包月 · 列表价）\n"
+        "| 规格 · 地域 | 配置 | 数量 | 月度单价 | 月度小计 | 年度小计（×12） |\n"
+        "|---|---|---|---|---|---|\n"
+        + "\n".join(rows)
+        + f"\n\n说明：月度单价为纯算力刊例价（含所列系统盘时已计入），不含数据盘/带宽/流量；"
+        f"年度小计为月度小计×12（列表价口径，未含时长折扣）；"
+        f"按官方包年时长折扣实付约 {_usd(round(total_y_official, 2))}/年。"
+        f"以上为国际站匿名 USD 列表价（不含账号/商务折扣），"
+        f"核对入口：https://www.alibabacloud.com/zh/pricing-calculator?/commodity/vm_intl"
+    )
+
+
+def render_ecs_card(quote_md: str, checked_at: str) -> str:
+    """ECS 报价 markdown → 自包含 HTML 卡片（无外部资源，不附模型限流备注）。"""
+    body = md_to_html(quote_md)
+    title = "阿里云 ECS 服务器报价"
+    return f"""<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{html.escape(title)}</title><style>{_CARD_CSS}</style></head><body>
+<div class="card">
+<div class="brand">阿里云 ECS · 服务器报价卡片</div>
+<h1>{html.escape(title)}</h1>
+<div class="meta">价格口径：官方定价计算器询价接口（国际站 USD 列表价） · 核实时间 {html.escape(checked_at)}</div>
+{body}
+<div class="foot">价格为核实时点的官方列表价，如有调整以官方定价页为准。<br>
+本卡片由「阿里小可爱」生成 · 链接 24 小时内有效，过期后请重新生成。</div>
+</div>
+</body></html>"""
+
+
+async def make_ecs_share_link(items: list[dict]) -> dict:
+    """ECS 报价分享：逐条重新询价（不经 LLM 转手）→ 合并卡片 → OSS 24h 链接。
+
+    items: [{instance_type, region, quantity?, system_disk_gib?}]，最多 8 条。
+    任一条询价失败则整体失败（不出带缺口/错价的卡片）。
+    返回 {"url", "expires_at", "items"} 或 {"error"}。
+    """
+    cfg = get_oss_config()
+    if not oss_configured(cfg):
+        return {"error": "分享卡片功能未配置（缺少 oss_AccessKey_ID / oss_AccessKey_key 环境变量）"}
+
+    from . import ecs_price
+
+    items = [it for it in (items or []) if isinstance(it, dict)][:8]
+    if not items:
+        return {"error": "缺少 ECS 报价条目（ecs_items），每条需含 instance_type 与 region。"}
+    results = await asyncio.gather(*[
+        ecs_price.query_ecs_price_struct(
+            str(it.get("instance_type", "")), str(it.get("region", "")),
+            int(it.get("system_disk_gib") or 0))
+        for it in items
+    ])
+    errors = [r["error"] for r in results if not r.get("ok")]
+    if errors:
+        return {"error": "以下条目询价失败，未生成卡片：" + "；".join(errors)}
+    for r, it in zip(results, items):
+        r["quantity"] = it.get("quantity") or 1
+
+    checked_at = datetime.now().strftime("%Y-%m-%d %H:%M")
+    card_html = render_ecs_card(build_ecs_quote_md(results), checked_at)
+    key = f"{cfg['prefix']}ecs-quote-{datetime.now():%Y%m%d%H%M}-{uuid.uuid4().hex[:6]}.html"
+    try:
+        url, expires_at = await asyncio.to_thread(_put_and_sign, cfg, key, card_html)
+    except Exception as e:
+        log.warning("ECS 分享卡片上传失败: %s", e)
+        return {"error": f"卡片上传 OSS 失败：{e}"}
+    descs = [f"{r['instance']}@{r['region_label']}×{r['quantity']}" for r in results]
+    log.info("ECS 报价分享卡片已生成: %s（%s）", key, ",".join(descs))
+    return {"url": url, "expires_at": expires_at, "items": descs}
 
 
 async def make_share_link(model: str) -> dict:

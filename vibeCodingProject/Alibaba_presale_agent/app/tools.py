@@ -15,7 +15,7 @@ import json
 import logging
 from datetime import datetime
 
-from . import fx, price_verifier, rate_limits, share_card, tpm_calc
+from . import ecs_price, fx, price_verifier, rate_limits, share_card, tpm_calc
 from .searcher import web_search
 
 log = logging.getLogger("tools")
@@ -113,21 +113,36 @@ TOOLS = [
         "function": {
             "name": "make_price_share_link",
             "description": (
-                "生成一份可转发给客户的价格分享卡片链接（HTML，含官方定价与 TPM/RPM 限流信息，"
-                "24 小时内有效）。仅在用户明确要求“生成链接/发我一个链接/可转发的报价页”时调用；"
-                "普通价格问答（用户没要链接）不要调用。"
-                "model 填用户所问的模型名（原话即可）；同一轮已调过 verify_price 时仍需本工具重新核实，"
-                "因为卡片内容必须由代码从官方页重新抽取，不经模型转手。"
+                "生成一份可转发给客户的价格分享卡片链接（HTML，24 小时内有效）。"
+                "仅在用户明确要求“生成链接/发我一个链接/可转发的报价页”时调用；"
+                "普通价格问答（用户没要链接）不要调用。两类报价二选一："
+                "①百炼模型报价传 model（用户原话即可）；②ECS 服务器报价传 ecs_items"
+                "（从对话历史提取每条的规格/地域/台数，含多地域多台数汇总）。"
+                "同一轮已调过查价工具仍需本工具重新核实，"
+                "因为卡片内容必须由代码从官方接口重新抽取，不经模型转手。"
             ),
             "parameters": {
                 "type": "object",
                 "properties": {
                     "model": {
                         "type": "string",
-                        "description": "模型名，用户原话即可（口语写法也能归一）",
+                        "description": "百炼模型名，用户原话即可（口语写法也能归一）；与 ecs_items 二选一",
+                    },
+                    "ecs_items": {
+                        "type": "array",
+                        "description": "ECS 报价条目列表（最多 8 条）；与 model 二选一",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "instance_type": {"type": "string", "description": "实例规格，如 ecs.c9ae.4xlarge"},
+                                "region": {"type": "string", "description": "地域，中文/英文/region id 均可"},
+                                "quantity": {"type": "number", "description": "台数，默认 1"},
+                                "system_disk_gib": {"type": "number", "description": "可选系统盘 GiB，用户明确要求含盘时填"},
+                            },
+                            "required": ["instance_type", "region"],
+                        },
                     },
                 },
-                "required": ["model"],
             },
         },
     },
@@ -183,6 +198,37 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "get_ecs_price",
+            "description": (
+                "查询阿里云 ECS 服务器（含弹性裸金属）国际站官方 USD 列表价（包年包月，"
+                "纯算力价不含存储，自动附包月/包年两档）。凡问服务器/ECS/实例规格的价格"
+                "（如「ecs.g9i 乌兰察布包月多少钱」「ebmg9ae.48xlarge 香港价格」），"
+                "必须先调用本工具，严禁凭记忆报价。不适用于百炼模型 token 价格"
+                "（那用 verify_price）。用户没说地域时先反问地域，不要猜。"
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "instance_type": {
+                        "type": "string",
+                        "description": "实例规格，用户原话即可（如 ecs.g9i.large、g9i.large、ebmg9ae.48xlarge）",
+                    },
+                    "region": {
+                        "type": "string",
+                        "description": "地域，中文/英文/官方 region id 均可（如 乌兰察布、香港、柔佛、cn-hongkong），支持官方在售全部地域；命中多个时工具会返回候选，据此向用户确认",
+                    },
+                    "system_disk_gib": {
+                        "type": "number",
+                        "description": "可选系统盘容量（GiB，ESSD AutoPL）；用户明确要含盘报价时填，否则不填（纯算力口径）",
+                    },
+                },
+                "required": ["instance_type", "region"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "search_web",
             "description": (
                 "联网搜索时效性信息（如竞品最新定价、新发布产品）。"
@@ -208,6 +254,7 @@ _TOOL_STATUS = {
     "make_price_share_link": "🔗 生成价格分享卡片...",
     "get_current_time": "🕒 获取当前时间...",
     "estimate_tpm_cost": "📊 TPM/成本测算...",
+    "get_ecs_price": "🖥️ 查询 ECS 官方列表价...",
     "search_web": "🔍 联网搜索...",
 }
 
@@ -277,9 +324,25 @@ async def execute_tool(name: str, arguments: str) -> dict:
             }
 
     if name == "make_price_share_link":
+        ecs_items = args.get("ecs_items")
+        if isinstance(ecs_items, list) and ecs_items:
+            try:
+                r = await share_card.make_ecs_share_link(ecs_items)
+            except Exception as e:
+                log.exception("make_ecs_share_link 执行失败")
+                return {"content": f"ECS 分享卡片生成失败（{e}）。请向用户致歉并说明稍后再试。"}
+            if r.get("error"):
+                return {"content": f"ECS 分享卡片生成失败：{r['error']}。请向用户说明并提供官方定价计算器链接。"}
+            items_desc = "、".join(r.get("items", []))
+            return {
+                "content": (
+                    f"ECS 报价分享卡片已生成（{items_desc}，有效期至 {r['expires_at']}）\n"
+                    f"链接（必须原样完整输出给用户，不要截断/改写/重新拼接）：\n{r['url']}"
+                )
+            }
         model = str(args.get("model", "")).strip()
         if not model:
-            return {"content": "缺少 model 参数。请提供用户所问的模型名。"}
+            return {"content": "缺少 model 或 ecs_items 参数。百炼模型报价传 model，ECS 服务器报价传 ecs_items。"}
         try:
             r = await share_card.make_share_link(model)
         except Exception as e:
@@ -346,6 +409,32 @@ async def execute_tool(name: str, arguments: str) -> dict:
             "kind": "official",
         }
         return {"content": tpm_calc.format_md(r), "sources": [src]}
+
+    if name == "get_ecs_price":
+        instance = str(args.get("instance_type", "")).strip()
+        region = str(args.get("region", "")).strip()
+        if not instance or not region:
+            return {"content": "缺少 instance_type 或 region 参数。请向用户确认实例规格与地域后再调用。"}
+        try:
+            disk = int(args.get("system_disk_gib") or 0)
+        except (TypeError, ValueError):
+            disk = 0
+        try:
+            r = await ecs_price.query_ecs_price(instance, region, disk)
+        except Exception as e:
+            log.exception("get_ecs_price 执行失败")
+            r = {"error": f"询价失败（{e}）。请勿凭记忆报价，"
+                          f"引导用户到官方定价计算器核对：{ecs_price.CALCULATOR_URL}"}
+        if "error" in r:
+            return {"content": r["error"]}
+        # 证据计入 official 白名单：与 verify_price 同轮混用时（模型+服务器混合题）
+        # 输出侧审计不会把 ECS 价格误判 mismatch；前端「已联网核实」徽章同样成立。
+        return {
+            "content": r["evidence_md"],
+            "sources": r["sources"],
+            "price_status": "official",
+            "official_md": r["evidence_md"],
+        }
 
     if name == "search_web":
         query = str(args.get("query", "")).strip()[:200]
