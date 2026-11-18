@@ -49,13 +49,21 @@ def resolve_source_root() -> tuple[str, Path]:
 
 
 def _run_git(args: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess:
-    return subprocess.run(
-        ["git", *args],
-        cwd=cwd,
-        capture_output=True,
-        text=True,
-        timeout=180,
-    )
+    try:
+        return subprocess.run(
+            ["git", *args],
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+    except subprocess.TimeoutExpired:
+        # 超时按普通 git 失败返回（returncode!=0），保住“git 失败只降级”不变量：
+        # 否则异常穿透 ensure_knowledge，启动索引构建被跳过（线上 kb_chunks=0 事故，
+        # 2026-11-18 境内 ECS 拉 GitHub 超时实测）。
+        return subprocess.CompletedProcess(["git", *args], 124, "", "git 命令超时（180s）")
+    except OSError as e:
+        return subprocess.CompletedProcess(["git", *args], 127, "", str(e))
 
 
 def _kb_meta_path() -> Path:

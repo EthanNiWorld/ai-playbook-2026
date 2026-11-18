@@ -1346,6 +1346,27 @@ def test_ecs_price():
           "ecs_items" in share_schema["parameters"]["properties"]
           and "required" not in share_schema["parameters"])
 
+    # git 超时降级守卫：TimeoutExpired 不得穿透 ensure_knowledge 跳过索引构建
+    # （线上 kb_chunks=0 事故回归）
+    from app import knowledge as kn
+    import subprocess as sp
+    orig_run = kn.subprocess.run
+    def raise_timeout(*a, **kw):
+        raise sp.TimeoutExpired(cmd="git pull", timeout=180)
+    kn.subprocess.run = raise_timeout
+    try:
+        r = kn._run_git(["pull", "--ff-only"])
+        check("git 守卫: 超时转普通失败不抛异常", r.returncode == 124 and "超时" in r.stderr)
+    finally:
+        kn.subprocess.run = orig_run
+    def raise_oserr(*a, **kw):
+        raise OSError("git not found")
+    kn.subprocess.run = raise_oserr
+    try:
+        check("git 守卫: OSError 转普通失败", kn._run_git(["status"]).returncode == 127)
+    finally:
+        kn.subprocess.run = orig_run
+
 
 def main():
     print("=" * 56)
