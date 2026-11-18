@@ -1295,6 +1295,19 @@ def test_ecs_price():
     check("ECS 守卫: 模型缺型号仍反问", pv.needs_model_clarify("新加坡节点模型价格是多少"))
     check("ECS 守卫: 百炼计费仍反问", pv.needs_model_clarify("百炼怎么收费"))
 
+    # 检索门控：纯 ECS 询价不检索 maas（无关引用噪声），混合题/新话题仍检索
+    from app import pipeline as pl
+    h_ecs = [{"role": "user", "content": "乌兰察布 ecs.g9i.large 服务器包月多少钱？"},
+             {"role": "assistant", "content": "$32.29/月"}]
+    check("ECS 门控: 裸规格询价不检索", pl.is_ecs_price_only("g9i.4xlarge 新加坡多少钱"))
+    check("ECS 门控: chip 问法不检索", pl.is_ecs_price_only("乌兰察布 ecs.g9i.large 服务器包月多少钱？"))
+    check("ECS 门控: 省略追问不检索", pl.is_ecs_price_only("那香港的 ebmg9ae.48xlarge 呢？", h_ecs))
+    check("ECS 门控: 报价出链接不检索", pl.is_ecs_price_only("把刚才两个报价生成一个可转发的链接", h_ecs))
+    check("ECS 门控: 模型价格仍检索", not pl.is_ecs_price_only("qwen3.8-max 多少钱", h_ecs))
+    check("ECS 门控: 模型话题仍检索", not pl.is_ecs_price_only("视频模型多少钱", h_ecs))
+    check("ECS 门控: 混合题仍检索", not pl.is_ecs_price_only("ECS 上部署大模型怎么选，多少钱"))
+    check("ECS 门控: 非价格 ECS 题仍检索", not pl.is_ecs_price_only("ecs.g9i 支持哪些地域"))
+
     # 工具注册
     names = {t["function"]["name"] for t in tools.TOOLS}
     check("ECS 工具: schema 已注册", "get_ecs_price" in names)

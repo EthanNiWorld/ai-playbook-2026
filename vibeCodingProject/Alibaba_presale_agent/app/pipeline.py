@@ -24,7 +24,9 @@ from .config import REPO_BROWSE_URL, get_llm_config
 from .knowledge import get_index, search_with_models
 from .llm import stream_chat
 from .price_verifier import (
+    _ECS_CONTEXT_RE,
     _STOCK_CONTEXT_RE,
+    PRICE_KEYWORDS_RE,
     audit_answer_prices,
     extract_model_names,
     is_price_question,
@@ -80,6 +82,35 @@ def is_domain_question(question: str, history: list | None = None) -> bool:
         if h.get("role") == "user" and _hit(str(h.get("content", ""))[:300]):
             return True
     return False
+
+# ECS 纯询价题不检索本地知识库：实例价格只能来自 get_ecs_price 确定性直查，
+# maas 资料帮不上忙，BM25 反而靠“价格/多少钱”等高频词召出无关模型文档并
+# 展示为参考来源（用户 2026-11-18 截图反馈）。混合题仍检索：含型号名或
+# 模型话题词（“ECS 上部署大模型怎么选”）说明还要知识库答能力/选型部分。
+_NON_ECS_TOPIC_RE = re.compile(
+    r"模型|百炼|token|视频|图像|生图|语音|tts|asr|限流|并发|吞吐|部署|训练|微调|"
+    r"上下文|agent|智能体|llm|rag|embedding",
+    re.IGNORECASE,
+)
+
+
+def is_ecs_price_only(question: str, history: list | None = None) -> bool:
+    """是否为纯 ECS 服务器询价会话（含省略式追问/报价出链接），命中则跳过本地知识检索。
+
+    上下文窗口判定：本轮 + 最近两条 user 轮里同时出现 ECS 语境与价格意图
+    即命中（“那香港的 ebmg9ae.48xlarge 呢？”本轮无价格词、靠上一轮 chip
+    问法补齐）。型号名/模型话题词是硬排除：混合题与新话题仍检索。"""
+    q = question or ""
+    if extract_model_names(q) or _NON_ECS_TOPIC_RE.search(q):
+        return False
+    recent = [str(h.get("content", ""))[:300]
+              for h in (history or []) if h.get("role") == "user"][-2:]
+    recent.append(q)
+    return bool(
+        any(_ECS_CONTEXT_RE.search(t) for t in recent)
+        and any(PRICE_KEYWORDS_RE.search(t) for t in recent)
+    )
+
 
 MAX_CHUNKS = 6          # 注入知识库片段数
 CHUNK_CHARS = 1500       # 每个片段截断长度
@@ -203,7 +234,7 @@ async def stream_answer(
     # 无关片段，参考来源区也因此不再展示凭单字噪声匹配出来的假链接）──
     yield {"type": "status", "stage": "retrieving", "message": "🔍 检索资料..."}
     chunks = []
-    if is_domain_question(question, history):
+    if is_domain_question(question, history) and not is_ecs_price_only(question, history):
         chunks = search_with_models(
             question, extract_model_names(question), top_k=MAX_CHUNKS
         )
