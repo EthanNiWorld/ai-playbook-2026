@@ -30,6 +30,7 @@
 - **输入模态**：文本 + 图像 + **视频**（Max 档首次官方确认视频；AA 仅测 text+image，视频待独立验证），输出文本
 - **思考**：默认开启（`enable_thinking=true`）；`reasoning_effort` low / **high（默认）** / xhigh（minimal→low、medium→high、max→xhigh）；`preserve_thinking` 默认开启；`thinking_budget` 默认 131072。⚠️ 默认 effort 由 3.8 系 xhigh 降为 high，对比测试须对齐档位
 - **工具与协议**：FC（含并行）/ 联网搜索 / 前缀补全 / JSON Object+Schema / 思维链摘要与加密 / 显式（TTL 5m/1h）+隐式缓存；OpenAI Chat Completions + Responses / Anthropic Messages / DashScope 四协议
+- **联网搜索**（2026-11-18 实测）：兼容模式 `extra_body={"enable_search": True, "search_options": {"forced_search"/"enable_citation"/"enable_source": True}, "thinking_budget": 1024}`（budget 与 effort 互斥；限思考防长考超时）；原生 DashScope 走 **multimodal-generation** 路径（text-generation 报 url error），`search_info` 须 `enable_source=True` 才返回；workspace 专属域名仅支持 compatible-mode。脚本：`maas-solution-and-api-sample/test_qwen4_max_web_search.py`
 - **限流**：TPM 5M（3.8-Max 为 2M）[来源: qianwenai.com/models/qwen4-max]
 - **开源**：**本体闭源**（AA 确认权重未开放）；官方称 Qwen4 系列小尺寸模型将陆续开源（时间/型号未公布）——vs 3.8 代有 Max 级开源版 a95b，**私有化客户短期无 Qwen4 旗舰选项**，关键销售差异
 - **入口**：百炼/QwenCloud API、Qwen Studio、QwenWork、Qoder
@@ -240,6 +241,7 @@
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-18 | 联网搜索实测：兼容模式 enable_search+search_options 生效（SG），原生走 multimodal-generation 路径、search_info 须 enable_source；新增 test_qwen4_max_web_search.py |
 | 2026-11-17 | 瘦身：压缩存量模型小节（3.8-Max/A95B 收敛为要点+代际基准锚点，27B 精简实测细节），新增「系列迭代思路与方向」演进表；修复 Qwen3.7 历史小节悬空引用，清理历史参考链接；9 月及以前 Changelog 移入折叠区并压缩 |
 | 2026-11-17 | Qwen3.8-Max Benchmark 表对齐全库 TB 4.0 统一口径规则：新增 TB 4.0 行（五模型均早于 4.0 发布、无官方分数，不换算不补算，全"—"），TB 2.1 行标注发布时口径，表下补口径隔离警告（与 qwen-vs-hy 对比表同款处理） |
 | 2026-11-16 | 用户要求删除 qwen4-max-preview 预览版信息（预览期至 11-25 后下线，无长期保留价值）：时间行/迁移注意/边界标注/参考资料四处清理，保留 qwen4.0-max 无效名提示与 393K 口径矛盾警示 |
