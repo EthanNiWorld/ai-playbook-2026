@@ -1,6 +1,6 @@
 # 混元（腾讯 Hunyuan）模型系列
 
-> 最后更新: 2026-11-18
+> 最后更新: 2026-11-20
 > 所属厂商: 腾讯（Tencent Hunyuan）
 > 产品类别: MaaS
 > 状态: Published
@@ -301,11 +301,11 @@
 | **Hy4**（国内刊例） | ¥6 | ¥18 | ¥0.3 | 腾讯云 TokenHub，与 preview 同价 |
 | **Hy4**（海外刊例） | ≈$0.90 | ≈$2.70 | ≈$0.045 | 官方英文稿 approx 口径 |
 | **Hy4 preview**（国内 / 海外） | ¥6 / $0.834 | ¥18 / $2.501 | ¥0.3 / $0.042 | 已被正式版取代，仅历史参考 |
-| **Hy4 flash**（国内刊例） | ¥0.5 | ¥2 | ¥0.02 | 系列最低价档；TokenHub 限时按目录价 50% 结算（至 2026-11-30 12:00 北京时间） |
+| **Hy4 flash**（国内刊例） | ¥0.5 | ¥2 | ¥0.02 | 系列最低价档 |
 | **Hy4 flash**（海外刊例） | ≈$0.070 | ≈$0.281 | ≈$0.003 | 官方英文稿 approx 口径 |
 | **Hy3** | ¥1 | ¥4 | ¥0.25 | 统一固定价；API 单价已高于 Hy4 flash，优势在开源可自部署 |
 
-> 定价来源：[Hy4 官方英文新闻稿](https://www.tencent.com/tencent-launches-hy4-joining-the-ranks-of-the-worlds-leading-open-source-ai-models/)（海外刊例）+ 官方中文发布页（国内），核实日期 2026-11-06；Hy4 flash 来自 [官方英文新闻稿](https://www.tencent.com/tencent-launches-hy4-flash-to-power-high-speed-cost-efficient-ai-deployment-for-everyday-workflows/) + 新浪/快科技报道 + [TokenHub 模型价格页](https://cloud.tencent.com/document/product/1823/130055)折扣说明，核实日期 2026-11-18。⚠️ 第三方平台上实际挂价可能低于刊例（OpenRouter 当前显示 $0.417 / $1.251，与官方同期折扣同步），对外报价前必须回查官方页当期值。
+> 定价来源：[Hy4 官方英文新闻稿](https://www.tencent.com/tencent-launches-hy4-joining-the-ranks-of-the-worlds-leading-open-source-ai-models/)（海外刊例）+ 官方中文发布页（国内），核实日期 2026-11-06；Hy4 flash 来自 [官方英文新闻稿](https://www.tencent.com/tencent-launches-hy4-flash-to-power-high-speed-cost-efficient-ai-deployment-for-everyday-workflows/) + 新浪/快科技报道 + [TokenHub 模型价格页](https://cloud.tencent.com/document/product/1823/130055)，核实日期 2026-11-18。⚠️ 第三方平台实际挂价可能低于刊例，对外报价前必须回查官方页当期值。
 
 ## 适用场景
 
@@ -360,7 +360,6 @@
 2. **能力"够用"且持续进步**：SWE-bench Verified 从 preview 的 74.4% 提升到 78.0%
 3. **开源可自部署**：295B MoE 仅 21B 激活，Apache 2.0 免费商用
 4. **Co-design 飞轮**：腾讯多元产品矩阵提供真实反馈 → 模型优化 → 反哺所有产品
-5. **限免策略**：两周限免建立使用惯性，结束后留存率高
 
 ## 关键技术论文
 
@@ -371,7 +370,7 @@
 - [Hy4 flash 官方英文新闻稿](https://www.tencent.com/tencent-launches-hy4-flash-to-power-high-speed-cost-efficient-ai-deployment-for-everyday-workflows/)（2026-11-16，规格 / 海外定价 / WorkIndex 与盲测 / 开源计划）
 - [Hy4 flash 官方发布页](https://hy.tencent.ai/research/hy4-flash)（JS 渲染，正文经英文稿交叉）
 - [新浪科技：Hy4 flash 正式发布报道](https://finance.sina.com.cn/tech/roll/2026-11-16/doc-iniyxcif2487771.shtml)（快科技，发布日期与国内定价）
-- [腾讯云 TokenHub 模型价格](https://cloud.tencent.com/document/product/1823/130055)（flash 限时 5 折说明，至 2026-11-30）
+- [腾讯云 TokenHub 模型价格](https://cloud.tencent.com/document/product/1823/130055)
 - [Hy4 官方发布页](https://hunyuan.tencent.com/research/hy4)（2026-11-04，视觉 / Computer Use / 定价 / Bench 附录；JS 渲染，正文经搜索快照与英文稿交叉）
 - [Hy4 官方英文新闻稿](https://www.tencent.com/tencent-launches-hy4-joining-the-ranks-of-the-worlds-leading-open-source-ai-models/)（海外定价、权重"计划开源"、安全边界与场景数据）
 - [OpenRouter: tencent/hy4](https://openrouter.ai/tencent/hy4)（第三方平台挂价与上下文）
@@ -395,6 +394,7 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-20 | 校验修复：清理限时促销/免费额度等营销性信息，定价保留官方标准列表价口径 |
 | 2026-11-18 | **新增 Hy4 flash（2026-11-16 发布）**：轻量性价比档专章（224B/12B 含 64B Engram、多模态 + 1M、>150 tok/s、¥0.5/¥2、WorkIndex 与盲测口径）；主推表 / 代际演进 / 定价 / 场景联动，清除"Hy4 Flash 未发布"过期表述；信源为官方英文稿 + 新浪/快科技交叉 |
 | 2026-11-06 | **Hy4 正式版增量升级**：主推切至 Hy4（11-04 GA，首次视觉 + Computer Use），新增正式版专章；preview 降为历史版本；补入权重仍在"计划开源"状态、定价与 Bench 口径差异；信源以官方英文稿与 Bench 附录第三方转录交叉 |
 | 2026-07-08 | Hy3 正式版（2026-07-06 发布）全面更新：Benchmark、生产可靠性、Co-design 方法论、API 定价、业务接入。**文件重命名**：hy3-preview.md → hy3.md |

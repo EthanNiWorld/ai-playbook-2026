@@ -1,6 +1,6 @@
 # MiniMax M 系列模型
 
-> 最后更新: 2026-11-11
+> 最后更新: 2026-11-20
 > 所属厂商: MiniMax（稀宇科技）
 > 产品类别: MaaS
 > 状态: Published
@@ -147,9 +147,9 @@
 | GPT-5.5 | $7.50/M tokens | $22.50/M tokens | — |
 
 > M3 按**单次请求的上下文长度**分档计价：请求上下文 ≤512K tokens 按低档价计，512K–1M 按高档价计（约 2 倍），并非两个价格并存。[来源: finance.sina.com.cn]
-> M3 发布时（2026.06.01）曾有“限时 7 天 5 折”活动，现已结束（历史口径）。支持 thinking / non-thinking 两种模式，共享定价。[来源: minimaxi.com/blog/minimax-m3]
+> M3 支持 thinking / non-thinking 两种模式，共享定价。[来源: minimaxi.com/blog/minimax-m3]
 > M3（¥4.2）价格约为 Claude Opus 4.8（$5 ≈ ¥36）的 **约 1/8**，M2.7 时代相对 Opus 4.6 为 1/15。
-> M3 国际定价：MiniMax 官方平台 M3-Priority 永久5折价 $0.45/$1.80（≤512K），512K–1M 区间 $0.90/$3.60 [来源: api.minimax.chat]；OpenRouter 标准 M3 临时5折 $0.30/$1.20（原价 $0.60/$2.40，2026-06-14 核实；10-26 第三方仍报同价，当前是否延续未确证·观察项）[来源: openrouter.ai/minimax/minimax-m3]。
+> M3 国际定价：MiniMax 官方平台 M3-Priority 档 $0.45/$1.80（≤512K），512K–1M 区间 $0.90/$3.60 [来源: api.minimax.chat]；OpenRouter 标准 M3 $0.60/$2.40（2026-06-14 核实）[来源: openrouter.ai/minimax/minimax-m3]。
 
 ## 市场表现
 
@@ -198,6 +198,7 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-20 | 校验修复：清理限时促销/免费额度等营销性信息，定价保留官方标准列表价口径 |
 | 2026-11-11 | 校验修复（knowledge-verification-2026-11-11）：M3.1-Flash 官方平台价经 minimax.io 博客摘要多源确证，解除“官方 403 待核实”并补缓存价；补“新加坡节点未上架”标注；M3 限时 7 天 5 折活动改历史口径；OpenRouter 临时5折当前状态标观察项；Changelog 折叠最早 1 条 |
 | 2026-11-03 | 校验修复+补研（knowledge-verification-2026-11-03）：新增 M3.1-Flash 小节并转为已发布（09-27 Preview / 10-21 百炼 API，规格定价见正文）；M3 Pro / H3.1 保留路线图；厂商背景限制行同步 |
 | 2026-09-02 | 校验修复（knowledge-verifier 2026-09-02 报告）：修正"非百炼"限制表述——M2.5 已上架百炼（北京节点）；H3 视频模型与 8 月动态已由同日合并写入 [公司分析](general_intro.md)，本文件不再重复 |

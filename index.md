@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-11-18
+> 最后更新：2026-11-20
 
 ## 目录
 
@@ -179,7 +179,7 @@
 
 **MaaS**
 - [Gemini Enterprise Agent Platform](knowledge/google/maas/overview.md)
-- [Gemini](knowledge/google/maas/gemini.md) — **4 Carbon 🚩（10/28 发布、11/10 公开 API，AA v5.0 = 60 曾榜首、现 Fable 5.2 登顶，入门 $2/$10）** / 4 Argon（9/30 发布、10/13 GA，🌟 1M 输出上限）/ **4 Hydrogen（11/12，workhorse：3.8 Flash 官方接棒者，AA 51/54，$1.50/$7.50 flat，免费 tier）** / 3.5 Flash-Lite / Omni Flash；3.8 Flash 与 3.1 Pro 移入历史（仍在售）；3.5 Pro 确认搁置；Fairwind 仅限无护栏 cyber 版
+- [Gemini](knowledge/google/maas/gemini.md) — **4 Carbon 🚩（10/28 发布、11/10 公开 API，AA v5.0 = 60 曾榜首、现 Fable 5.2 登顶，标准 $4/$20）** / 4 Argon（9/30 发布、10/13 GA，🌟 1M 输出上限）/ **4 Hydrogen（11/12，workhorse：3.8 Flash 官方接棒者，AA 51/54，$1.50/$7.50 flat）** / 3.5 Flash-Lite / Omni Flash；3.8 Flash 与 3.1 Pro 移入历史（仍在售）；3.5 Pro 确认搁置；Fairwind 仅限无护栏 cyber 版
 
 **AI Platform**
 - [Vertex AI → Agent Platform](knowledge/google/ai-platform/vertex-ai.md) — 训练/部署/Agent

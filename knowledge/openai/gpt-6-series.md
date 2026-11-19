@@ -1,6 +1,6 @@
 # OpenAI GPT-6 系列模型
 
-> 最后更新: 2026-11-18
+> 最后更新: 2026-11-20
 > 所属厂商: OpenAI
 > 产品类别: MaaS
 > 状态: Published
@@ -23,7 +23,7 @@
 
 > 📌 **被接替的上一代（GPT-6 世代内）**：**GPT-6 Astra**（2026.09.02/03 旗舰）已被 GPT-6.2 Astra 接任、**GPT-6 Sol**（2026.09.22 workhorse）已被 Sol 线（6.1→6.2）接任——仍可调用，不建议新项目选用，原专章保留作历史参考。**GPT-6.1 Sol**（2026.09.29 DevDay 点更新：$2/$10 同价、cached $0.10/M（比 Sol cached 再 -50%）、coding-deception 降至 2.1%、AA 指数 55 v5 口径）亦已被 GPT-6.2 Sol 接替，详见下文章节。
 
-> 📌 **历史模型**（GPT-6 世代前）：**GPT-5.6 Sol/Terra/Luna**（2026.06.26 有限预览，Sol 已于 08-21 降价至 $4/$20 促销价）/ GPT-5.5（2026.04.23 GA）及更早——已被 GPT-6 世代取代（Terra 档在 GPT-6 首发未复现，2026-10-26 已由 6.1 Terra 补位），详见 [GPT-5 系列](gpt-5-series.md)。
+> 📌 **历史模型**（GPT-6 世代前）：**GPT-5.6 Sol/Terra/Luna**（2026.06.26 有限预览，Sol 曾于 08-21 官方降价）/ GPT-5.5（2026.04.23 GA）及更早——已被 GPT-6 世代取代（Terra 档在 GPT-6 首发未复现，2026-10-26 已由 6.1 Terra 补位），详见 [GPT-5 系列](gpt-5-series.md)。
 
 ### GPT-6 Astra（旗舰，已被 GPT-6.2 Astra 接任）🌟
 
@@ -31,7 +31,7 @@
 
 - **模型 ID**：`gpt-6-astra`（OpenAI API + Amazon Bedrock 同名 + Microsoft Azure）；2026 年 9 月 2/3 日发布
 - **上下文**：**1.05M tokens（1M 可用）**，最大输出 128K tokens
-- **定价**：**$10 输入 / $50 输出 / cached $1 / cache write $12.50**；Fast mode 2.5× 速度、2× 价格；与 Anthropic Fable 5.1 同价、为 GPT-5.6 Sol 促销价（$4/$20）的 2.5×
+- **定价**：**$10 输入 / $50 输出 / cached $1 / cache write $12.50**；Fast mode 2.5× 速度、2× 价格；与 Anthropic Fable 5.1 同价、为 GPT-5.6 Sol 降价后价格（$4/$20）的 2.5×
 - **训练**：史上最大训练 run——**10 万+ GPU（Stargate Texas）**；白宫自愿审查框架下获批发布
 - **首发阵容**：发布时仅 Astra / Astra Pro（明确"无 Sol/Luna/Terra 等价物"），09-22 才补齐中低档
 - **官方定位**："the world's most intelligent and aligned model"；Greg Brockman："not unreasonable to feel that we are now in the AGI era"
@@ -53,7 +53,7 @@
 
 #### 成本归因
 
-- $10/$50 为**旗舰溢价策略而非降本**（GPT-5.6 Sol 促销价的 2.5×、Argon 入门价 5×）；OpenAI 叙事转向 **price-per-task**（token 效率提升 + 任务耗时 -47%），但 AA 实测 Astra $3.26/task 仍高于 Argon 入门价 $1.99——溢价能否被效率抵消，第三方数据尚不支持（The New Stack 同判）
+- $10/$50 为**旗舰溢价策略而非降本**（GPT-5.6 Sol 降价后价格的 2.5×）；OpenAI 叙事转向 **price-per-task**（token 效率提升 + 任务耗时 -47%），但 AA 实测 Astra $3.26/task 仍高于 Argon 促销期 $1.99——溢价能否被效率抵消，第三方数据尚不支持（The New Stack 同判）
 - ZDR 向合格 API 客户开放、测试 Private Safety Processing——数据政策与 Anthropic Opus 线对齐
 
 ### GPT-6 Sol 与 GPT-6 Luna（中低档补位）
@@ -229,6 +229,7 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-20 | 校验修复：清理限时促销/免费额度等营销性信息，定价保留官方标准列表价口径 |
 | 2026-11-18 | 清理：移除已删除竞品文档的场景链接，避免断链 |
 | 2026-11-18 | 合并：新增 GPT-6.2 Astra/Sol 专章并接任主推，GPT-6 Astra / Sol / 6.1 Sol 转上一代（原专章保留）；定价/场景/参考资料同步。官方发布页仍 403（经官方社区公告一手交叉）；6.2 上下文/最大输出/知识截止/none 档/Ultrafast 关系待核实。同日精简：6.2 数据去重收敛至专章（汇总表改指引）、Changelog 按规范压缩 |
 | 2026-11-08 | 校验修复：AA v5 指数刷新并标查询日期；官方定价页仍 403，Terra 折算价待核实维持 |
