@@ -17,7 +17,7 @@ python run.py &          # 独立终端启动，或按 README 用 docker compose
 
 .venv/bin/python tests/e2e/test_followup.py    # 追问链：基线价格问 → 「呢？」→「价格。」
 .venv/bin/python tests/e2e/test_colloquial_model.py  # 口语模型名：'kimi k3.1 pro' 归一 / 家族词守卫不挪用历史模型
-.venv/bin/python tests/e2e/test_qwen4_alias.py  # qwen4 .0 别名：'qwen4.0-max' 归一 / 在售目录候选→LLM 重核闭环 / 不断言尚未上架
+.venv/bin/python tests/e2e/test_qwen4_alias.py  # qwen4 .0 别名 / 在售目录候选重核 / SG+BJ 缓存读写价与地域隔离
 .venv/bin/python tests/e2e/test_param_suffix_models.py  # 参数量后缀：27b/a95b 目录优先裁决 / 详情页缓存价 / 用量拆分计价不拒答
 .venv/bin/python tests/e2e/test_product_pricing.py  # 产品定价：Qoder 等非百炼模型产品不注入百炼回落证据
 .venv/bin/python tests/e2e/test_price_followup_competitor.py  # 表格追问 + 竞品比价 + 单节点成本汇总（默认 SG / 明确北京仅 BJ）
@@ -35,7 +35,7 @@ python run.py &          # 独立终端启动，或按 README 用 docker compose
 |---|---|---|
 | `test_followup.py` | 服务 + 有效 `DASHSCOPE_*` | 向 `data/qa.db` 写入回答记录 |
 | `test_colloquial_model.py` | 服务 + 有效 `DASHSCOPE_*` | 向 `data/qa.db` 写入回答记录 |
-| `test_qwen4_alias.py` | 服务 + 有效 `DASHSCOPE_*` | 向 `data/qa.db` 写 3 条回答记录 |
+| `test_qwen4_alias.py` | 服务 + 有效 `DASHSCOPE_*` | 向 `data/qa.db` 写 5 条回答记录 |
 | `test_param_suffix_models.py` | 服务 + 有效 `DASHSCOPE_*` | 向 `data/qa.db` 写 4 条回答记录 |
 | `test_product_pricing.py` | 服务 + 有效 `DASHSCOPE_*` | 向 `data/qa.db` 写入回答记录 |
 | `test_price_followup_competitor.py` | 服务 + 有效 `DASHSCOPE_*` | 向 `data/qa.db` 写入 4 条回答记录；竞品比价需联网搜索 |

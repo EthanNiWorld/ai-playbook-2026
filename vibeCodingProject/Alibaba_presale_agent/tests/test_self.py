@@ -263,12 +263,40 @@ def test_price_verifier_units():
           pv._model_evidence(crows, "qwen4-max", "北京节点")[0] == cblock_bj)
     check("缓存子表: 默认只带 Singapore 读价",
           "$0.075" in cblock and "$0.071" not in cblock)
+    check("qwen4-max: Singapore Cache Input 列必须取到 $0.075",
+          "| Singapore | $1.5 | $0.075 | $4.5 |" in cblock)
     check("缓存子表: 北京只带 Beijing 读价",
           "$0.071" in cblock_bj and "$0.075" not in cblock_bj)
+    check("qwen4-max: Beijing Cache Input 列必须取到 $0.071",
+          "| China (Beijing) | $1.413 | $0.071 | $4.24 |" in cblock_bj)
     check("缓存子表: 写价按 5m/1h 两档进 Cache Write 列",
           "$1.875 (5m) / $3 (1h)" in cblock)
     check("主表证据附来源 URL（Prompt 要求引用证据内 URL）",
           "model-studio/model-pricing" in cblock)
+    check("缓存子表: 无缓存链接的 qwen3.8 主行不误挂",
+          all("cache_prices" not in r for r in crows if r["model_id"].startswith("qwen3.8")))
+    check("官方 ID: Cache unit price 尾注同样剥离",
+          pv._official_id("qwen4-max Cache unit price (per million tokens)") == "qwen4-max")
+
+    # 2026-11-18 id=179：官方将 Cache write 改为 Cache creation、Cache price 改为
+    # Cache unit price。两处匹配独立，必须覆盖完整的 2×2 新旧文案组合。
+    for main_label in ("Cache price", "Cache unit price"):
+        for sub_label in ("Cache write", "Cache creation"):
+            variant_html = cache_html.replace("Cache price", main_label).replace("Cache write", sub_label)
+            vrows = pv._parse_pricing_rows(variant_html)
+            sg = next(r for r in vrows if r["region"] == "Singapore" and r["model_id"].startswith("qwen4"))
+            bj = next(r for r in vrows if r["region"] == "China (Beijing)" and r["model_id"].startswith("qwen4"))
+            case = f"{main_label} × {sub_label}"
+            check(f"缓存别名矩阵: {case} 双节点挂接",
+                  sg.get("cache_prices") == {"write_5m": "$1.875", "write_1h": "$3", "read": "$0.075"}
+                  and bj.get("cache_prices") == {"write_5m": "$1.767", "write_1h": "$2.827", "read": "$0.071"})
+            sg_block = pv._model_evidence(vrows, "qwen4-max", "Singapore")[0]
+            bj_block = pv._model_evidence(vrows, "qwen4-max", "China (Beijing)")[0]
+            check(f"缓存别名矩阵: {case} 证据不跨地域",
+                  "$0.075" in sg_block and "$1.875 (5m) / $3 (1h)" in sg_block
+                  and "$0.071" not in sg_block
+                  and "$0.071" in bj_block and "$1.767 (5m) / $2.827 (1h)" in bj_block
+                  and "$0.075" not in bj_block)
     # 产品（非百炼模型）定价题不走百炼校验（Qoder 事故：百炼回落证据会误导 LLM 把
     # model-pricing 链接安到产品头上）；产品定价交给知识库检索回答
     check("产品定价题不触发模型校验: qoder", not pv.is_price_question("qoder是怎么计费的"))

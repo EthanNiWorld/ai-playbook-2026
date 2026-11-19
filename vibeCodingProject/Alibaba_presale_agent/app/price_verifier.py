@@ -1005,10 +1005,13 @@ def _parse_pricing_rows(html: str) -> list[dict]:
         # 首行若含 "model" 视为表头
         first_cells = _cells(trs[0].group(0))
         # 缓存子表（qwen4 代起缓存价独立成表，紧跟同地域主表之后）：
-        # 表头为 Cache write (5m)/Cache write (1h)/Explicit/implicit cache read，
-        # 无 Model ID 列；只适用于主表中 ID 格带 Cache price 链接的型号。
-        # 不接住它，缓存列就全是 "—"，LLM 会反过来断言"该模型无缓存计费项"（2026-11-16 实测）。
-        if any("cache write (5m)" in c.lower() for c in first_cells):
+        # 表头新旧文案为 Cache write/Cache creation，主行链接为 Cache price/Cache unit price。
+        # 无 Model ID 列；只适用于主表中 ID 格带缓存价格链接的型号。
+        # 任一别名漏配都会让缓存列全是 "—"（2026-11-18 id=179 实测）。
+        if any(
+            re.search(r"cache (?:write|creation) \(5m\)", c, re.IGNORECASE)
+            for c in first_cells
+        ):
             prices = re.findall(r"\$([\d.]+)", " ".join(c for tr in trs[1:] for c in _cells(tr.group(0))))
             if len(prices) >= 3:
                 cp = {
@@ -1017,7 +1020,11 @@ def _parse_pricing_rows(html: str) -> list[dict]:
                     "read": f"${prices[2]}",
                 }
                 for r in region_rows:
-                    if "cache price (per million tokens)" in r["model_id"].lower():
+                    if re.search(
+                        r"cache (?:unit )?price \(per million tokens\)",
+                        r["model_id"],
+                        re.IGNORECASE,
+                    ):
                         r["cache_prices"] = cp
             continue
         header = (

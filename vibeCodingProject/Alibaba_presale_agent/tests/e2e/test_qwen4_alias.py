@@ -63,7 +63,8 @@ check("[1] Singapore 价 $1.5/$4.5", "$1.5" in a1 and "$4.5" in a1, a1[:300])
 check("[1] 默认仅 Singapore 表", "Singapore" in a1 and "China (Beijing)" not in a1, a1[:300])
 check("[1] 不断言尚未上架（事故表象）", "尚未上架" not in a1 and "未上架" not in a1, a1[:300])
 check("[1] 官方 ID 不带 Cache price 尾注", "Cache price" not in a1, a1[:300])
-check("[1] 缓存读价入表（$0.075，不再全 —）", "$0.075" in a1, a1[:400])
+check("[1] Cache Input 列取到 $0.075（不得为 —）",
+      "| Singapore · International | $1.5 | $0.075 | $4.5 |" in a1, a1[:500])
 check("[1] 缓存写价 5m 档入表（$1.875）", "$1.875" in a1, a1[:400])
 
 # [2] 官方 ID 直问（回归：正常路径不受影响）
@@ -87,6 +88,15 @@ print(f"\n[4] 缓存追问 price_status={d4.get('price_status')}")
 check("[4] official", d4.get("price_status") == "official", str(d4))
 check("[4] 给出缓存读价 $0.075", "$0.075" in a4, a4[:300])
 check("[4] 不断言无缓存计费项（事故表象）", "没有单列缓存" not in a4 and "未公布单独的缓存" not in a4, a4[:300])
+
+# [5] 显式北京节点：同一缓存子表按地域挂接，不带 Singapore，不写“—”
+a5, d5, s5 = ask("那北京节点呢？缓存读写分别是多少？")
+print(f"\n[5] 北京缓存追问 price_status={d5.get('price_status')}")
+check("[5] official", d5.get("price_status") == "official", str(d5))
+check("[5] 仅输出 Beijing", "China (Beijing)" in a5 and "Singapore" not in a5, a5[:400])
+check("[5] 北京 Cache Input 列取到 $0.071（不得为 —）",
+      "| China (Beijing) · Global | $1.413 | $0.071 | $4.24 |" in a5, a5[:500])
+check("[5] 北京缓存写价两档 $1.767/$2.827", "$1.767" in a5 and "$2.827" in a5, a5[:400])
 
 print("-" * 60)
 print(f"结果: {PASS} 通过 / {FAIL} 失败")
