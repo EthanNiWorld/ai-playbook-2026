@@ -1,22 +1,22 @@
 # 前沿模型路线差异与选型框架
 
-> 最后更新: 2026-06-15
+> 最后更新: 2026-11-20
 > 领域: AI Engineering / 模型选型
 > 状态: Published
 
 <!-- SUMMARY_START -->
 **一句话说明**: 前沿模型的「Agent 能力」不是单一维度，而是至少三个正交轴：**时间尺度（能跑多久）、模态融合（能理解多少种输入）、泛化广度（能覆盖多少领域）**
 **核心价值**: 选型时不应问「谁最强」，应问「我的任务在哪个轴上最需要极致」
-**相关产品**: [Claude API](../anthropic/claude-api.md), [Qwen](../../alibaba-ai-hub/maas/qwen.md), [GPT-5 系列](../openai/gpt-5-series.md)
+**相关产品**: [Claude API](../anthropic/claude-api.md), [Qwen](../../alibaba-ai-hub/maas/qwen.md), [GPT-6 系列](../openai/gpt-6-series.md)
 <!-- SUMMARY_END -->
 
 ## 是什么
 
-2026 年中期，前沿模型厂商的「Agent 能力」叙事出现显著分化。不再是简单的 Benchmark 分数竞争，而是围绕不同技术路线的战略定位差异：
+2026 年，前沿模型厂商的「Agent 能力」叙事出现显著分化。不再是简单的 Benchmark 分数竞争，而是围绕不同技术路线的战略定位差异：
 
-- **Claude Fable 5**（Anthropic，2026.06.09）：长时异步自主执行 + 主动自验证
-- **Qwen3.7-Max**（阿里云，2026.05）：原生多模态 + Agent 推理闭环
-- **GPT-5.5**（OpenAI，2026.04.23）：agentic coding + 通用推理
+- **Claude Fable 5.2**（Anthropic，2026.11.09）：长时异步自主执行 + 主动自验证
+- **Qwen4-Max**（阿里云，2026.11.16）：原生多模态（文本+图像+视频）+ Agent 推理闭环
+- **GPT-6.2 Astra**（OpenAI，2026.11.17）：agentic coding + 通用推理
 
 ## 核心原理
 
@@ -26,17 +26,17 @@
 
 | 轴 | 定义 | 代表厂商 | 代表能力 |
 |------|------|----------|----------|
-| **时间尺度**（能跑多久） | 单次任务的持续有效工作时长 | Anthropic（Fable 5） | 连续工作数天，主动自验证 |
-| **模态融合**（能理解多少种输入） | 原生支持多少种输入模态的统一推理 | 阿里云（Qwen3.7-Max） | 视觉→推理→行动原生闭环 |
-| **泛化广度**（能覆盖多少领域） | 跨领域通用能力的一致性 | OpenAI（GPT-5.5） | 全量从头训练，跨领域泛化 |
+| **时间尺度**（能跑多久） | 单次任务的持续有效工作时长 | Anthropic（Fable 5.2） | 连续工作数天，主动自验证 |
+| **模态融合**（能理解多少种输入） | 原生支持多少种输入模态的统一推理 | 阿里云（Qwen4-Max） | 视觉→推理→行动原生闭环 |
+| **泛化广度**（能覆盖多少领域） | 跨领域通用能力的一致性 | OpenAI（GPT-6.2 Astra） | 全量从头训练，跨领域泛化 |
 
-> 三个轴正交而非递进：一个模型可以在时间尺度上极致但不支持多模态（如 GLM-5.1），也可以多模态闭环但泛化广度有限。
+> 三个轴正交而非递进：一个模型可以在时间尺度上极致但不支持多模态（如 GLM-5.3，纯文本），也可以多模态闭环但泛化广度有限。
 
 ### 关键认知框架
 
 #### 洞察 1：时间尺度正在成为新的核心竞争力
 
-- **现象**：Fable 5 定位 days-long 自主执行；GLM-5.1 达到 8 小时级长程任务；Kimi K2.6 支持 13 小时长周期编码
+- **现象**：Fable 5.2 定位 days-long 自主执行（预发布曾 30 小时形式化证明费马大定理）；GLM-5.2/5.3 延续长程任务路线（Solid 1M 上下文，官方 demo 单次任务 88 万+ tokens 交付）；Kimi K2.6 支持 13 小时长周期编码
 - **本质**：模型从"按次调用的工具"变成"按天计费的员工"，Token 消耗量和客单价天壤之别
 - **可迁移场景**：企业选型 Agent 时，应评估"任务典型持续时间"是否匹配模型的"有效工作时长"
 
@@ -50,20 +50,24 @@
 
 #### 洞察 3：自验证能力是时间尺度轴的隐含前提
 
-模型能长时间工作的前提是**能自我判断工作质量**，否则会积累错误。Fable 5 的自验证行为（写测试、Vision 比对、定时自检）是支撑天级自主执行的基础设施。详见 [长程任务](long-horizon-task.md)。
+模型能长时间工作的前提是**能自我判断工作质量**，否则会积累错误。Fable 5.2 的自验证行为（写测试、Vision 比对、定时自检）是支撑天级自主执行的基础设施。详见 [长程任务](long-horizon-task.md)。
 
 ## 各厂商路线对照
 
-| 维度 | Claude Fable 5 | Qwen3.7-Max | GPT-5.5 | GLM-5.1 |
+| 维度 | Claude Fable 5.2 | Qwen4-Max | GPT-6.2 Astra | GLM-5.3 |
 |------|---------------|-------------|--------|---------|
-| 时间尺度 | 天（days-long） | 小时级 | 分钟～小时级 | 8 小时（单次任务） |
-| 核心能力 | 持续自主 + 自验证 | 视觉→推理→行动闭环 | 通用推理 + agentic coding | 策略切换 + 工程交付 |
-| 验证机制 | 内置主动自检（写测试/Vision 比对/定时自检） | 多模态比对（Vision 校验） | 推理链自洽（Extended Thinking） | Benchmark 日志分析 + 初步自我评估 |
-| 开源 | ❌ 闭源 | ❌ | ❌ | ✅ MIT |
-| 输入价格 $/M | $10.00 | $2.50（5 折 $1.25） | $5.00 | $0.98 |
-| 输出价格 $/M | $50.00 | $7.50（5 折 $3.75） | $30.00 | $3.08 |
+| 时间尺度 | 天（days-long） | 小时级 | 分钟～小时级 | 长程任务开源 SOTA（Solid 1M 上下文） |
+| 核心能力 | 持续自主 + 自验证 | 视觉→推理→行动闭环（图/视频） | 通用推理 + agentic coding + 专业交付物 | 后训练 Scaling + 编程/安全涌现 |
+| 验证机制 | 内置主动自检（写测试/Vision 比对/定时自检） | 多模态比对（Vision 校验） | 推理链自洽（effort 多档推理） | Benchmark 日志分析 + 初步自我评估 |
+| 开源 | ❌ 闭源 | ❌（Qwen4 代暂无 Max 级开源版） | ❌ | ✅ MIT（2026-08-28 已开放权重） |
+| 输入价格 $/M | $8.00 | $1.50 | $8.00 | $1.40 |
+| 缓存输入 $/M | $0.16 | $0.075 | $0.40 | [⚠️ 待补充] |
+| 输出价格 $/M | $40.00 | $4.50 | $40.00 | $4.40 |
 
-> 详细产品分析见各厂商对应文档：[Claude API](../anthropic/claude-api.md) · [Qwen](../../alibaba-ai-hub/maas/qwen.md) · [GPT-5 系列](../openai/gpt-5-series.md) · [GLM 系列](../zhipu/glm-series.md)
+> 价格口径：Fable 5.2 / GPT-6.2 Astra 为厂商官方列表价（2026-11 核实）；Qwen4-Max / GLM-5.3 为百炼国际站（新加坡）价。
+> 缓存输入均为缓存命中（cache read / cached input）单价：Fable 5.2 按 AA 口径 98% 折扣推算（官方 cache 单价待核实）；Qwen4-Max 为隐式缓存命中价（= 输入价 5%）；GPT-6.2 Astra 为官方 cached input 价（95% 折扣）；GLM-5.3 百炼国际站 USD 缓存价待核实（2026-11-20 定价页抓取失败），bigmodel 官方缓存命中 **¥2**/百万 tokens（= 输入价 ¥8 的 25%，缓存存储限时免费，2026-11-20 核实）。
+
+> 详细产品分析见各厂商对应文档：[Claude API](../anthropic/claude-api.md) · [Qwen](../../alibaba-ai-hub/maas/qwen.md) · [GPT-6 系列](../openai/gpt-6-series.md) · [GLM 系列](../zhipu/glm-series.md)
 
 ## 最佳实践
 
@@ -71,42 +75,43 @@
 
 ```
 任务典型持续时间？
-├── 天级（大规模迁移/长期项目）→ 优先看时间尺度轴 → Claude Fable 5
-├── 小时级（工程开发/系统优化）→ 看时间尺度 + 性价比 → GLM-5.1 / Fable 5
-└── 分钟级（问答/单次编码）→ 看泛化广度 → GPT-5.5 / Qwen3.7-Max
+├── 天级（大规模迁移/长期项目）→ 优先看时间尺度轴 → Claude Fable 5.2
+├── 小时级（工程开发/系统优化）→ 看时间尺度 + 性价比 → GLM-5.3 / Fable 5.2
+└── 分钟级（问答/单次编码）→ 看泛化广度 → GPT-6.2 Astra / Qwen4-Max
 
 是否需要多模态输入？
-├── 是（文档/视觉密集型）→ 优先看模态融合轴 → Qwen3.7-Max / Fable 5
+├── 是（文档/视觉密集型）→ 优先看模态融合轴 → Qwen4-Max / Fable 5.2
 └── 否 → 其他轴优先
 
 是否需要开源/自部署？
-├── 是 → GLM-5.1（MIT）/ DeepSeek V4
+├── 是 → GLM-5.3（MIT）/ DeepSeek V4
 └── 否 → 闭源 API 均可
 ```
 
 ### 可迁移场景
 
 - **企业 Agent 采购**：先定义任务的「三轴需求画像」，再匹配模型，避免" Benchmark 分数最高但场景不匹配"的选型失误
-- **模型组合策略**：对于复杂项目，可组合使用不同轴的极致模型（如 Fable 5 做架构迁移 + Qwen3.7-Max 做文档处理 + GPT-5.5 做通用分析）
+- **模型组合策略**：对于复杂项目，可组合使用不同轴的极致模型（如 Fable 5.2 做架构迁移 + Qwen4-Max 做文档处理 + GPT-6.2 Astra 做通用分析）
 
 ## 常见误区
 
 | 误区 | 事实 |
 |------|------|
 | "SWE-Bench Pro 分数最高的就是最好的 Agent 模型" | SWE-Bench Pro 只测操作执行力，不测持续工作时长、多模态理解或自验证能力 |
-| "贵的模型一定更强" | GLM-5.1 输入价仅 $0.98/M，但在 8 小时级长程任务上超越多数更贵模型 |
+| "贵的模型一定更强" | GLM-5.3 输入价 $1.40/M（约为 Fable 5.2 的 1/6），Terminal-Bench 3.0 28.3 居开源第一，单位智能价格显著低于闭源旗舰 |
 | "所有前沿模型都在做同一件事" | 三家路线差异底层是商业基因决定，不存在"谁抄谁" |
 
 ## 参考资料
 
-- [Anthropic - Claude Fable 5](https://www.anthropic.com/claude/fable)
-- [Anthropic - Fable 5 Prompting Guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5)
-- [Qwen 官方博客](https://qwen.ai/blog?id=qwen3.7)
-- [OpenAI - GPT-5.5](https://openai.com/index/introducing-gpt-5-5/)
-- [智谱 GLM-5.1 研究文档](https://www.zhipuai.cn/zh/research/157)
+- [Anthropic - Claude Fable 5.2](https://www.anthropic.com/claude/fable)
+- [Qwen4-Max 官方文档](https://help.aliyun.com/zh/model-studio/qwen4-max)
+- [OpenAI - GPT-6.2 Astra & Sol 官方社区公告](https://community.openai.com/t/gpt-6-2-astra-and-sol-are-now-available/1417531)
+- [智谱 GLM-5.3 研究文档](https://www.zhipuai.cn/zh/research/162)
 
 ## Changelog
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-20 | 基准型号统一升级至当前主推旗舰：Fable 5→5.2、Qwen3.7-Max→Qwen4-Max、GPT-5.5→GPT-6.2 Astra、GLM-5.1→GLM-5.3；对照表价格/缓存输入/开源状态、决策树、组合策略、误区表与参考资料同步重算（Qwen4 代 Max 本体闭源、GLM 长程口径由「8 小时」改为 Solid 1M 长程任务路线） |
 | 2026-06-15 | 新建：提炼前沿模型三正交轴选型框架（时间尺度 × 模态融合 × 泛化广度），含路线差异分析与选型决策树 |
+| 2026-11-20 | 校验修复：清理限时促销/免费额度等营销性信息，定价保留官方标准列表价口径 |
