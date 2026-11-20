@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+
+# 运行产物：output/ 下所有文件（生成的视频/图片/日志/report）全部忽略
+output/
+output/**
+org_file/**
+*.log
+.env

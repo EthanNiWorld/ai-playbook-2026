@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#fcfbf9"/>
+<title>短剧工场 · 北京节点 demo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230d0d0d'/%3E%3Cpath d='M12 9l10 7-10 7z' fill='%23ff6a00'/%3E%3C/svg%3E"/>
+<link rel="stylesheet" href="/static/style.css?v=20261120d"/>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-name">短剧工场</span>
+    </div>
+    <div class="brand-sub">百炼 · 北京节点流水线 demo</div>
+
+    <div class="sidebar-note">
+      <span class="sidebar-note-title">一条流水线，一部短剧</span>
+      <p>剧本分镜 → 海报剧照 →<br/>质量验收 → 图生视频 →<br/>生成式编辑 → 字幕擦除。</p>
+    </div>
+
+    <ol id="stageList" class="stage-list">
+      <li data-stage="1">剧本分镜 <em>qwen4-max</em></li>
+      <li data-stage="2">海报 / 剧照 <em>qwen-image-3.0-pro</em></li>
+      <li data-stage="3">质量验收 <em>qwen4-max 多模态</em></li>
+      <li data-stage="4">图生视频 <em>wan3.0-video-prime</em></li>
+      <li data-stage="5">生成式编辑 <em>wan2.7-videoedit</em></li>
+      <li data-stage="6">字幕擦除 / 剪辑 <em>IMS</em></li>
+    </ol>
+
+    <div class="foot">
+      <span class="foot-label">模型可用性已实测</span>
+      <p>qwen4-max · qwen-image-3.0-pro<br/>wan3.0-video-prime · wan2.7-videoedit<br/>均在北京节点调通</p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-brand">
+        <span class="topbar-title">短剧生产流水线
+          <span class="topbar-sub">北京 · cn-beijing · workspace 端点</span>
+        </span>
+      </div>
+      <div class="topbar-actions">
+        <span id="healthBadge" class="badge" title="服务与凭证状态">检测中…</span>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <section class="card composer-card">
+        <div class="composer-row">
+          <label class="field grow">
+            <span class="field-label">短剧主题</span>
+            <input id="theme" type="text" value="都市逆袭短剧" placeholder="例如：古装甜宠复仇"/>
+          </label>
+          <label class="field">
+            <span class="field-label">场景数</span>
+            <select id="scenes">
+              <option value="1" selected>1 场</option>
+              <option value="2">2 场</option>
+              <option value="3">3 场</option>
+            </select>
+          </label>
+          <label class="field manual-field" title="分镜/图像/验收/视频四步后暂停，人工确认再继续；勾掉则全自动一次跑到底">
+            <span class="field-label">打磨模式（每步确认）</span>
+            <label class="checkbox"><input type="checkbox" id="manual" checked/><span>分镜 → 剧照 → 验收 → 视频每步等我确认</span></label>
+          </label>
+          <button id="runBtn" class="btn primary">🚀 开始生产</button>
+          <button id="resumeBtn" class="btn" hidden title="从上次中断的 checkpoint 继续：已完成步骤跳过，已提交的异步任务凭 task_id 续轮询">♻️ 续跑上次任务</button>
+        </div>
+        <p class="hint">控制 qwen4-max 分镜（含每场视频时长建议）→ 图像生成 → 视频生成 → 编辑，全程真实调用北京节点模型。网络中断后可从 checkpoint 断点续跑。</p>
+      </section>
+
+      <section class="card status-card" id="statusCard" hidden>
+        <div class="status-line">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">准备中…</span>
+          <span class="status-time" id="statusTime"></span>
+        </div>
+      </section>
+
+      <section class="card confirm-card" id="confirmCard" hidden>
+        <div class="card-head">
+          <h2>⏸️ 人工确认 · <span id="confirmStep"></span></h2>
+          <span class="muted">打磨模式：确认后再继续下一步</span>
+        </div>
+        <p class="confirm-tip" id="confirmTip"></p>
+        <div id="confirmPreview" class="confirm-preview"></div>
+        <textarea id="storyboardEditor" class="storyboard-editor" spellcheck="false"
+                  hidden title="可直接修改分镜 JSON（改剧名/台词/时长建议等），点确认后按新分镜继续"></textarea>
+        <p class="confirm-err" id="confirmErr" hidden></p>
+        <div class="confirm-actions">
+          <button id="confirmGo" class="btn primary">✅ 确认，继续下一步</button>
+          <button id="confirmRedo" class="btn">🔁 重新生成本步</button>
+          <button id="confirmAbort" class="btn danger">⛔ 终止（保留进度，可续跑）</button>
+        </div>
+      </section>
+
+      <section class="card" id="logCard" hidden>
+        <div class="card-head">
+          <h2>运行日志</h2>
+          <button class="btn ghost small" id="toggleLog">收起</button>
+        </div>
+        <pre id="log" class="log" aria-live="polite"></pre>
+      </section>
+
+      <section class="card" id="mediaCard" hidden>
+        <div class="card-head"><h2>生成产物</h2><span class="muted" id="mediaCount"></span></div>
+        <div id="gallery" class="gallery"></div>
+        <div id="videoWrap" class="video-wrap" hidden>
+          <video id="videoPlayer" controls playsinline preload="metadata"></video>
+          <div class="video-caption" id="videoCaption"></div>
+        </div>
+      </section>
+
+      <section class="card" id="reportCard" hidden>
+        <div class="card-head"><h2>生产报告</h2></div>
+        <div id="reportBody" class="report-body"></div>
+      </section>
+
+      <section class="card" id="historyCard">
+        <div class="card-head">
+          <h2>历史执行记录</h2>
+          <span class="muted">点击回看历史产物（图片/视频/报告）</span>
+          <button class="btn ghost small" id="refreshRuns">刷新</button>
+        </div>
+        <div id="runsList" class="runs-list"></div>
+      </section>
+    </div>
+  </main>
+</div>
+<script src="/static/app.js?v=20261120g"></script>
+</body>
+</html>

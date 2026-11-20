@@ -1,0 +1,8 @@
+requests>=2.31
+pillow>=10.0
+fastapi>=0.110
+uvicorn>=0.29
+
+# IMS 真实模式（--ims-real）需要，Mock 模式无需安装：
+# alibabacloud_ice20201109
+# alibabacloud_tea_openapi
