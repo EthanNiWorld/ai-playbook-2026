@@ -34,8 +34,10 @@ BASE_URL = f"https://{WORKSPACE_ID}.cn-beijing.maas.aliyuncs.com/api/v1"
 # TTS 主推：qwen-audio-3.1-tts-plus（精品音色 / 内容制作，支持声音复刻 + 声音设计 + 指令控制）
 # 同族另有 qwen-audio-3.1-tts-flash（实时交互）与 qwen-audio-3.1-tts-next（音频生成，参数范式不同）
 TARGET_MODEL = "qwen-audio-3.1-tts-plus"
-QWEN_AUDIO_ASR_MODEL = "qwen-audio-3.0-asr-flash-filetrans"
-QWEN_AUDIO_ASR_FLASH_MODEL = "qwen-audio-3.0-asr-flash"
+# ASR 主推：qwen-audio-3.1-asr-flash 系列（3.1 代际，2026-11 起主推）
+# flash 为同步多模态接口（≤5分钟/≤2GB），filetrans 为异步任务接口（≤12小时/≤2GB）
+QWEN_AUDIO_ASR_MODEL = "qwen-audio-3.1-asr-flash-filetrans"
+QWEN_AUDIO_ASR_FLASH_MODEL = "qwen-audio-3.1-asr-flash"
 # 声音设计提示词优化所用大模型（走标准 DashScope 端点）
 QWEN_CHAT_MODEL = "qwen3.8-max"
 
@@ -688,13 +690,15 @@ def asr_transcribe(audio_file, audio_url, model, use_standard_endpoint=False):
 
 
 def qwen_audio_asr_transcribe(audio_file, audio_url):
-    """Qwen-Audio ASR：固定使用 qwen-audio-3.0-asr-flash-filetrans，走标准 DashScope 端点"""
+    """Qwen-Audio ASR：固定使用 qwen-audio-3.1-asr-flash-filetrans，走标准 DashScope 端点"""
     return asr_transcribe(audio_file, audio_url, QWEN_AUDIO_ASR_MODEL, use_standard_endpoint=True)
 
 
 def qwen_audio_flash_asr_transcribe(audio_file, audio_url):
-    """Qwen-Audio-3.0-ASR-Flash：同步多模态 HTTP 接口（不支持 SDK），
+    """Qwen-Audio-3.1-ASR-Flash：同步多模态 HTTP 接口（不支持 SDK），
     走 workspace 专属域名 multimodal-generation/generation，音频支持 URL 或 Base64 Data URI。
+    3.1 代际响应不含 choices 字段，识别文本在 output.text（润色后全文）；
+    开启说话人分离时另有 output.sentences（本 Demo 默认不开分离）。
     """
     file_url = ""
     oss_url = ""
@@ -776,7 +780,16 @@ def qwen_audio_flash_asr_transcribe(audio_file, audio_url):
 
         data = resp.json()
         raw_json = json.dumps(data, ensure_ascii=False, indent=2)
-        text = data.get("output", {}).get("text", "")
+        output = data.get("output", {})
+        text = output.get("text", "")
+        # 3.1 代际兼容：output.text 为润色后全文；为空时回退单句/多句结构
+        if not text:
+            sentence = output.get("sentence", {})
+            text = sentence.get("text", "") if isinstance(sentence, dict) else ""
+        if not text:
+            sentences = output.get("sentences", [])
+            if sentences:
+                text = "".join(s.get("text", "") for s in sentences)
         rid = data.get("request_id", "") or "未知"
 
         return rid, text or "(未识别到文本)", raw_json, oss_url, preview_path
@@ -806,10 +819,10 @@ CSS = """
 }
 """
 
-with gr.Blocks(title="TTS (Qwen-Audio 3.1-tts-plus) & ASR (Qwen-Audio 3.0-ASR) Demo", css=CSS, theme=gr.themes.Soft()) as app:
+with gr.Blocks(title="TTS (Qwen-Audio 3.1-tts-plus) & ASR (Qwen-Audio 3.1-ASR) Demo") as app:
     gr.Markdown(
         """
-        # 🎙️ TTS (Qwen-Audio 3.1-tts-plus) & ASR (Qwen-Audio 3.0-ASR) Demo
+        # 🎙️ TTS (Qwen-Audio 3.1-tts-plus) & ASR (Qwen-Audio 3.1-ASR) Demo
         ### 声音复刻 · 声音设计 · 语音合成 · 语音识别
         """,
     )
@@ -1097,7 +1110,7 @@ with gr.Blocks(title="TTS (Qwen-Audio 3.1-tts-plus) & ASR (Qwen-Audio 3.0-ASR) D
             outputs=[asr_audio_select],
         )
 
-    # ===== Tab 6: Qwen-Audio ASR（后台模型 qwen-audio-3.0-asr-flash-filetrans）=====
+    # ===== Tab 6: Qwen-Audio ASR（后台模型 qwen-audio-3.1-asr-flash-filetrans）=====
     with gr.Tab("🎙️ Qwen-Audio ASR Filetrans") as qwen_asr_tab:
         gr.Markdown(
             f"""
@@ -1180,7 +1193,7 @@ with gr.Blocks(title="TTS (Qwen-Audio 3.1-tts-plus) & ASR (Qwen-Audio 3.0-ASR) D
             outputs=[qwen_asr_audio_select],
         )
 
-    # ===== Tab 7: Qwen-Audio ASR Flash（后台模型 qwen-audio-3.0-asr-flash，同步多模态接口）=====
+    # ===== Tab 7: Qwen-Audio ASR Flash（后台模型 qwen-audio-3.1-asr-flash，同步多模态接口）=====
     with gr.Tab("⚡ Qwen-Audio ASR Flash（主推）") as flash_asr_tab:
         gr.Markdown(
             f"""
@@ -1265,4 +1278,5 @@ with gr.Blocks(title="TTS (Qwen-Audio 3.1-tts-plus) & ASR (Qwen-Audio 3.0-ASR) D
 
 
 if __name__ == "__main__":
-    app.launch(server_name="0.0.0.0", server_port=7860, share=False)
+    # Gradio 6.0 起 theme / css 须在 launch() 传入，不再放在 Blocks 构造器
+    app.launch(server_name="0.0.0.0", server_port=7860, share=False, css=CSS, theme=gr.themes.Soft())

@@ -151,7 +151,7 @@
 - Qwen-Audio-ASR HTTP API：https://help.aliyun.com/zh/model-studio/qwen-audio-asr-http-api
 - 模型页：qwen-audio-3.1-asr-flash / -flash-filetrans / -flash-streaming / -flash-message（help.aliyun.com/zh/model-studio/qwen-audio-3-1-asr-flash*）
 - 技术报告：Qwen-Audio-3.1-ASR Technical Report（arXiv 2610.28711）
-- 本地实测：cosyvoice_demo（3.0 代际，北京节点 workspace 域名 + 标准 DashScope 端点）
+- 本地实测：cosyvoice_demo（2026-11-20 起已升级 3.1 代际，北京节点 workspace 域名 + 标准 DashScope 端点）
 
 ## Changelog
 | 日期 | 变更内容 |

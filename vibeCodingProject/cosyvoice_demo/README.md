@@ -2,7 +2,7 @@
 
 基于阿里云百炼平台的语音全链路 Demo，集成 **声音复刻**、**声音设计**、**语音合成 (TTS)** 和 **语音识别 (ASR)** 四大能力。
 
-> TTS 引擎已由 CosyVoice v3.5-plus 替换为 **qwen-audio-3.1-tts-plus**（Qwen-Audio-TTS 3.1 系列精品档）；ASR 主推 qwen-audio-3.0-asr-flash，fun-asr 仅作存量对照保留。
+> TTS 引擎已由 CosyVoice v3.5-plus 替换为 **qwen-audio-3.1-tts-plus**（Qwen-Audio-TTS 3.1 系列精品档）；ASR 主推 qwen-audio-3.1-asr-flash 系列（3.1 代际，2026-11-20 升级），fun-asr 仅作存量对照保留。
 
 ## 功能概览
 
@@ -12,8 +12,8 @@
 | 🎨 声音设计 | 文字描述生成音色，支持 AI 优化提示词 | `qwen-audio-3.1-tts-plus` + `qwen3.8-max` |
 | 🔊 语音合成 | 系统音色 / 自定义音色 + 文本 → 合成语音 | `qwen-audio-3.1-tts-plus` |
 | 📋 音色管理 | 查询 / 详情 / 删除自定义音色 | — |
-| ⚡ Qwen-Audio ASR Flash（主推） | 上传音频或 URL → 识别为文字（同步接口） | `qwen-audio-3.0-asr-flash` |
-| 🎙️ Qwen-Audio ASR Filetrans | 上传音频或 URL → 识别为文字（异步任务） | `qwen-audio-3.0-asr-flash-filetrans` |
+| ⚡ Qwen-Audio ASR Flash（主推） | 上传音频或 URL → 识别为文字（同步接口） | `qwen-audio-3.1-asr-flash` |
+| 🎙️ Qwen-Audio ASR Filetrans | 上传音频或 URL → 识别为文字（异步任务） | `qwen-audio-3.1-asr-flash-filetrans` |
 | 🎧 ASR 语音识别（存量） | 异步转写对照 | `fun-asr` |
 
 ## 模型说明
@@ -21,6 +21,7 @@
 - **qwen-audio-3.1-tts-plus**：3.1 系列精品档，4 个 v3.1 旗舰系统音色（`longanlingxin_v3.1` / `xunanchuan_v3.1` / `longanhuan_v3.1` / `longanfengyue_v3.1`），支持声音复刻、声音设计、free-style 指令与 `[laughing]` / `[crying]` 等标签控制；无 3.0 系列的 500+ 复刻基础音色库（需要时改用 `qwen-audio-3.0-tts-plus`）。
 - 同系列另有 `qwen-audio-3.1-tts-flash`（实时交互、首包更低）与 `qwen-audio-3.1-tts-next`（音频生成 AudioGen，参数范式为 `text_prompt`，与本 Demo 的 `text` / `voice` 不同）。
 - **音色与模型强绑定**：不得跨模型复用 voice_id。本 Demo 仅展示属于当前模型的自定义音色，旧 CosyVoice 音色已自动隐藏，需重新复刻/设计。
+- **qwen-audio-3.1-asr-flash**（同步，≤5 分钟/≤2GB）与 **qwen-audio-3.1-asr-flash-filetrans**（异步，≤12 小时/≤2GB）：3.1 代际按输入+输出 Token 计费，响应不含 `choices` 字段（识别文本在 `output.text`）；新增说话人分离、原生转写润色、热词等能力（本 Demo 未开启分离，默认开启词级时间戳）。
 
 ## 核心特性
 
@@ -106,9 +107,11 @@ cosyvoice_demo/
 |------|------|
 | Qwen-Audio 3.1 TTS 合成（SDK WebSocket） | `wss://{WorkspaceId}.cn-beijing.maas.aliyuncs.com/api-ws/v1/inference` |
 | 音色复刻 / 声音设计 / 音色管理（HTTP） | `{WorkspaceId}.cn-beijing.maas.aliyuncs.com/api/v1/services/audio/tts/customization` |
+| qwen-audio-3.1-asr-flash 同步识别（HTTP 多模态） | `{WorkspaceId}.cn-beijing.maas.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation` |
+| qwen-audio-3.1-asr-flash-filetrans 异步转写（SDK） | 标准 DashScope 端点 `https://dashscope.aliyuncs.com/api/v1` |
 | qwen3.8-max 提示词优化 | `https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions` |
 
-> ⚠️ Workspace 专属域名仅支持 TTS / 音色管理相关 API，通用 LLM 模型（如 qwen3.8-max）与 qwen-audio ASR 模型必须使用标准 DashScope 端点。
+> ⚠️ Workspace 专属域名仅支持 TTS / ASR 同步识别 / 音色管理相关 API，通用 LLM 模型（如 qwen3.8-max）与 ASR 异步转写模型必须使用标准 DashScope 端点。
 
 ## 依赖
 
