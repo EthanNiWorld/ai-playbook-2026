@@ -393,6 +393,19 @@ systemctl enable nginx >/dev/null 2>&1 || true
 systemctl reload nginx
 ok "nginx 已生效（80 → 127.0.0.1:$PORT，SSE 不缓冲，100r/m 限流）"
 
+# 443 自愈守卫：证书在而站点配置丢 443 段时，5 分钟内自动恢复（幂等安装）
+# 背景：2026-11-20 重跑部署曾把 443 段覆盖掉，HTTPS 整站不可用数小时无人知晓
+if [ -f "$INSTALL_DIR/deploy/nginx-443-guard.sh" ]; then
+  install -m 700 "$INSTALL_DIR/deploy/nginx-443-guard.sh" /usr/local/sbin/nginx-443-guard.sh
+  cat > /etc/cron.d/apa-443-guard <<'CRON'
+*/5 * * * * root /usr/local/sbin/nginx-443-guard.sh
+CRON
+  chmod 644 /etc/cron.d/apa-443-guard
+  ok "443 自愈守卫已安装（cron.d 每 5 分钟，日志 /var/log/apa-443-guard.log）"
+else
+  warn "仓库中未找到 deploy/nginx-443-guard.sh，跳过自愈守卫安装"
+fi
+
 # ─────────────────────────────── 10. 健康检查 ───────────────────────────────
 log "健康检查（首次启动需建索引，最多等 90 秒）"
 CHUNKS=0
