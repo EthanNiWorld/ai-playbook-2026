@@ -131,11 +131,11 @@
 
 | 底座模型 | 定位 | 上下文 | 新加坡 USD（输入/输出） | 龙虾场景适配 |
 |------|------|:---:|------|------|
-| **Qwen3.8-Max** | 旗舰（文本+图像），2.4T MoE | 1M | $2 / $6（缓存命中 $0.25） | 默认首选：复杂推理 + 重度编码 + 长程 Agent；TB 2.1 86.6、SWE-Pro 67.7 |
+| **Qwen3.8-Max** | 旗舰（文本+图像），2.4T MoE | 1M | $2 / $6（缓存命中 $0.25） | 默认首选：复杂推理 + 重度编码 + 长程 Agent；TB 4.0 26.97%、SWE-Pro 67.7 |
 | **Qwen3.8-27B** | 开源 Dense 视觉语言（GUI/视觉场景） | 262K | $0.5 / $3（北京 $0.424/$1.696） | GUI/CLI 操作 + 视觉编码首选：27B Dense 原生视觉，混合思考可关闭（实测） |
 | **Qwen3.8-Flash** | 轻量快速（Next 新架构） | 1M | $0.15 / $0.47 | 高并发轻量 Agent：TPM 5M，OpenAI + Anthropic 双协议（可直接接 Claude Code） |
 | **DeepSeek-V4.1-Flash-1017** | 开源 Agent 专精，552B MoE（Prefill 8B / Decode 16B 激活） | 1M | 闲时 $0.15 / $0.6，峰时 $0.3 / $1.2 | 多 Agent 协作主力：DeepSWE 77.0、reasoning_effort 连续 1~100、并发额度 2500 |
-| **DeepSeek-V4-Pro GA** | 全能旗舰，1.6T MoE（49B 激活） | 1M | 闲时 $0.66 / $1.98，峰时 $1.32 / $3.96 | 质量优先的生产 Agent：TB 2.1 87.9（厂商自报）、HLE w/ tools 60.0 |
+| **DeepSeek-V4-Pro GA** | 全能旗舰，1.6T MoE（49B 激活） | 1M | 闲时 $0.66 / $1.98，峰时 $1.32 / $3.96 | 质量优先的生产 Agent：TB 4.0 6.67%（官方榜单）、HLE w/ tools 60.0 |
 
 > Qwen3.7-Plus（2026-11-05 已退出主推，GUI/视觉改选 3.8-27B）/ Qwen3.7-Max / Qwen3.7-Flash / DeepSeek-V4-Flash（0731 快照）/ DeepSeek-V3.2 均为已换代、已下线或已退出主推的模型，不列入底座候选。
 
@@ -158,7 +158,7 @@ DeepSeek V4 官方发布页明确点名 OpenClaw 集成：
 | 思考控制 | reasoning_effort 连续 1~100（low=50 / high=75 / max=100） | 三级 low / high / max | Flash 可停在 60~80 档，省近一半 token 预算 |
 | 原生视觉 | ✔ 单模型直吃图 | 未标注（视觉需独立 vision 版） | 端侧 Agent 免接视觉子模型 |
 | 最大输出 | 384K | 384K | 长报告 / 长代码输出无截断 |
-| 关键基准 | TB 4.0 42.3、DeepSWE 77.0、HLE 42.6 | TB 2.1 87.9、DeepSWE 62.7、HLE w/ tools 60.0 | ⚠️ TB 4.0 与 TB 2.1 为不同 harness 版本，分数不可直接比较 |
+| 关键基准 | TB 4.0 42.3（自报；官方榜单 40.00）、DeepSWE 77.0、HLE 42.6 | TB 4.0 6.67%（官方榜单）/ 14.14%（Vals）、DeepSWE 62.7、HLE w/ tools 60.0 | ⚠️ 两者均为 TB 4.0，但自报值与官方榜单/不同 harness 差 2–7 分，不可混比 |
 | 并发额度 | 2500 | 500 | 多 Agent 扇出时 Flash 并发上限是 Pro 的 5 倍 |
 | 许可 | MIT 开源 | 未明示 | Flash 可私有化部署，适配企业内网 Agent |
 

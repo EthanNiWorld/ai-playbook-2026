@@ -34,25 +34,24 @@
 | 层级 | 定位 | 最佳场景 |
 |------|------|----------|
 | **Sol** | 旗舰推理 | 长程 Agent 编程、生物安全研究、网络安全分析 |
-| **Sol Ultra** | Sol 高算力模式 | 最难的多步推理任务（TerminalBench 2.1 最高分） |
+| **Sol Ultra** | Sol 高算力模式 | 最难的多步推理任务（官方无 TB 4.0 记录，旧 TB 2.1 自报值为最高） |
 | **Terra** | 均衡通用 | 日常应用流量，性能对标 GPT-5.5，成本约半 |
 | **Luna** | 经济轻量 | 高吞吐分类/提取/路由，最低延迟和成本 |
 
 #### Benchmark 数据
 
-**TerminalBench 2.1（OpenAI 自报）**
+**Terminal-Bench 4.0（官方 tbench 榜单，2026-11-19）**
 
-| 模型 | TerminalBench 2.1 |
-|------|-------------------|
-| **GPT-5.6 Sol Ultra** | **91.9%** |
-| GPT-5.6 Sol | 88.8% |
-| Claude Mythos 5 | 88.0% |
-| GPT-5.6 Terra | 84.3% |
-| Claude Fable 5 | 84.3% |
-| GPT-5.5 | 83.4% |
-| GPT-5.6 Luna | 82.5% |
-| Claude Opus 4.8 | 78.9% |
-| Gemini 3.1 Pro Preview | 70.7% |
+> 旧版 TerminalBench 2.1 自报表（Sol Ultra 91.9% 等）已按全库 2026-11-20 口径规则停用。
+
+| 模型 | Terminal-Bench 4.0 |
+|------|--------------------|
+| **GPT-5.6 Sol** | **37.27%** |
+| Claude Opus 4.8 | 23.64% |
+| GPT-5.6 Terra | 21.52% |
+| GPT-5.6 Luna | 17.27% |
+| Gemini 3.1 Pro | 2.73% |
+| GPT-5.6 Sol Ultra / Claude Mythos 5 / Claude Fable 5 / GPT-5.5 | 未公布 |
 
 **HealthBench Professional（OpenAI System Card）**
 
@@ -93,7 +92,7 @@
 
 | Benchmark | GPT-5.5 (xhigh) | GPT-5.4 | Opus 4.7 | Gemini 3.1 Pro | 说明 |
 |-----------|------------------|---------|----------|----------------|------|
-| Terminal-Bench 2.0 | **82.7%** | 75.1% | 69.4% | 68.5% | 领先 Opus 4.7 达 13pt，最大单 benchmark 差距 |
+| Terminal-Bench 4.0 | 未公布 | 未公布 | 未公布 | 2.73%（Gemini 3.1 Pro，官方榜单） | 四模型均无 4.0 对比数据；旧 TB 2.0 分数已按全库规则停用 |
 | SWE-Bench Pro | 58.6% | 57.7% | **64.3%** | 54.2% | 落后 Opus 4.7，但该 benchmark 存在 memorization 争议 |
 | Expert-SWE（OpenAI 内部） | **73.1%** | 68.5% | — | — | 长程编程专项 |
 | OSWorld-Verified | 78.7% | 75.0% | 78.0% | — | |
@@ -197,6 +196,7 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-20 | 口径修订（全库 TB 4.0 规则）：删除 GPT-5.5 / 5.4 / Opus 4.7 / Gemini 3.1 Pro 的 TB 2.0 对比行，改为 4.0 口径（均无记录，标未公布） |
 | 2026-11-20 | 校验修复：清理限时促销/免费额度等营销性信息，定价保留官方标准列表价口径 |
 | 2026-10-09 | 合并四模型调研素材：**世代归档**——GPT-5.6 已被 GPT-6 Sol/Luna 取代（Sol 08-21 曾降价至 $4/$20 促销价）、GPT-5.5 被 GPT-6 Astra 取代；主推表移除、改为世代更替说明 + 历史模型标注，当前选型指向新建的 [GPT-6 系列](gpt-6-series.md)；GPT-5.6 章节状态行同步 |
 | 2026-06-29 | 合并：GPT-5.6 系列官网调研 — 路线图更新为已发布（有限预览）；新增 GPT-5.6 Sol/Terra/Luna + Sol Ultra 三层+模式，TerminalBench 2.1 benchmark（Sol Ultra 91.9%），HealthBench Pro 60.5，定价（$1-$30/M tokens），token 效率 +10-15%，安全评级与政府限制说明，prompt 缓存改进 |

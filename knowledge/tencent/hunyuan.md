@@ -76,7 +76,7 @@
 
 - 竞品列版本：GLM-5.3、DeepSeek-V4.1-Flash-1017、Kimi K3.1 Pro、GPT-6.1 Sol、Claude Opus 5.5。
 - `*` = 发布时首次评测 / 腾讯自测；官方另注明 **preview 列分数可能因 harness、裁判模型与反作弊机制更新而与 8-28 公布值不一致**，故"提升 xx%"须先确认两端同口径。
-- 旧基准（SWE-bench Multilingual 82.9、Terminal-Bench 2.1 85.4、MCP-Atlas 83.7 等）仍为 **preview 口径**；正式版换用 TB 4.0 等新基准，两者不可混用或拼接。⚠️ 尤其不要拿 preview 的 Terminal-Bench 2.1 85.4 对比正式版的 TB 4.0 44.4——基准难度与 harness 均已更换，只会得出反向结论。
+- 旧基准（SWE-bench Multilingual 82.9、MCP-Atlas 83.7 等）仍为 **preview 口径**；Terminal-Bench 已统一按全库 TB 4.0 规则：preview 26.3（腾讯自报）/ 19.39%（官方榜单）、正式版 44.4（腾讯自报）/ 39.09%（官方榜单），旧 preview TB 2.1 85.4 已停用。⚠️ 即使同为 4.0，腾讯自报值与官方榜单也差 3–7 分（harness 不同），对外须注明口径
 
 ### 可靠性与安全边界
 
@@ -167,7 +167,7 @@
 | SWE-bench Multilingual | **82.9** | 75.8 | GLM-5.3 81.3、Kimi K3 80.8、DeepSeek-V4-Pro 77.3 |
 | SWE-bench Pro (Public) | **65.7** | 57.9 | DeepSeek-V4-Pro 55.4 |
 | DeepSWE v1.1 | **64.3** | 28.0（2.3×） | GLM-5.3 68.96、Kimi K3 68.51（**落后**） |
-| Terminal-Bench 2.1 | **85.4** | 71.7 | DeepSeek-V4-Pro 72.1 |
+| Terminal-Bench 4.0 | **26.3**（腾讯自报）/ 19.39%（官方榜单） | 未公布 | 正式版 Hy4 44.4（自报）/ 39.09%（官方榜单）；DeepSeek-V4-Pro 6.67% |
 | MCP-Atlas | **83.7** | 79.1 | Kimi K3 82.3、DeepSeek-V4-Pro 74.2 |
 | Toolathlon-Verified | **74.1** | 56.8 | — |
 | SWE-Marathon | 31.9 | — | GLM-5.3 42.5、Kimi K3 42.0（**明显落后**） |
@@ -234,7 +234,7 @@
 | 高难度推理（HLE） | 37.0（无工具）/ 53.2（工具） | 同上 |
 | 浏览/信息检索（BrowseComp） | 84.2%（联网 + 工具） | 同上 |
 | Agent 工具调用（MCP-Atlas） | 79.1% | 同上 |
-| Agent 工具调用（TerminalBench 2.1） | 71.7% | 同上 |
+| Agent 工具调用（Terminal-Bench 4.0） | 未公布 | 官方榜单与 Vals 均无 Hy3 记录；旧 TB 2.1 分数已停用 |
 | Agent 工具调用（Tool Decathlon） | 48.5% | 同上 |
 | 长上下文（AA-LCR） | 73.4% | 同上 |
 | 开源部署 | 21B 激活参数，Apache 2.0 免费商用 | [GitHub](https://github.com/Tencent-Hunyuan/Hy3) |
@@ -262,7 +262,7 @@
 | 研发闭环 | 无 | 参与推理栈优化，吞吐 +31.8% | Hyra 2.0 + Jev / HyCell / HyPDE | 自蒸馏 Hy4 + RL（输出 token -50%） |
 | 权重开放 | Apache 2.0 | Apache 2.0（已开源） | ⚠️ 未放出，官方称"计划开源" | ⚠️ 未放出，官方称"计划开源" |
 | 定价（国内） | ¥1 / ¥4 | ¥6 / ¥18 | ¥6 / ¥18（加量不加价） | ¥0.5 / ¥2 |
-| 主评测 | TB 2.1 71.7 / DeepSWE 28.0 | TB 2.1 85.4 / DeepSWE 64.3 | 见上方 Benchmark 节（更换基准，不可拼接） | WorkIndex（内部闭集） |
+| 主评测 | TB 4.0 未公布 / DeepSWE 28.0 | TB 4.0 26.3（自报）/ 19.39%（官方榜单）/ DeepSWE 64.3 | 见上方 Benchmark 节（同为 4.0，自报与官方榜单并列） | WorkIndex（内部闭集） |
 
 > 演进逻辑：Hy3 走"小激活 + 极致性价比"，Hy4 转向"大容量 + 长上下文 + 生产力上限"，价格带整体上移；正式版在价格不变的前提下补上视觉与 Computer Use，但把"权重开放"从既成事实退回为计划项。Hy4 flash 则以 12B 激活 + Engram 补回轻量高并发档，把 API 价格下限拉到 ¥0.5/¥2（低于 Hy3），形成"flash 日常档 + Hy4 上限档"双档格局。
 
@@ -394,6 +394,7 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-20 | 口径修订（全库 TB 4.0 规则）：preview 表与代际演进表的 TB 2.1 行改为 4.0（腾讯自报 + 官方榜单并列），删除旧 preview 85.4 与正式版 44.4 不可比的跨版警告改写为 harness 差异提醒 |
 | 2026-11-20 | 校验修复：清理限时促销/免费额度等营销性信息，定价保留官方标准列表价口径 |
 | 2026-11-18 | **新增 Hy4 flash（2026-11-16 发布）**：轻量性价比档专章（224B/12B 含 64B Engram、多模态 + 1M、>150 tok/s、¥0.5/¥2、WorkIndex 与盲测口径）；主推表 / 代际演进 / 定价 / 场景联动，清除"Hy4 Flash 未发布"过期表述；信源为官方英文稿 + 新浪/快科技交叉 |
 | 2026-11-06 | **Hy4 正式版增量升级**：主推切至 Hy4（11-04 GA，首次视觉 + Computer Use），新增正式版专章；preview 降为历史版本；补入权重仍在"计划开源"状态、定价与 Bench 口径差异；信源以官方英文稿与 Bench 附录第三方转录交叉 |

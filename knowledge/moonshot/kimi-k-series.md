@@ -123,7 +123,7 @@
 
 | Benchmark | Kimi K3.1 Pro | 对比参照 | 来源 |
 |-----------|---------------|----------|------|
-| Terminal-Bench 4.0（Claude Code; max） | **65.7%** | Claude Opus 5.5 66.4%、GPT-6 Astra 58.2%（官方比较图） | 官方发布材料 |
+| Terminal-Bench 4.0（Claude Code; max） | **60.91%**（官方 tbench 榜单，2026-11-19）；厂商自报 **65.7%** | Claude Opus 5.5 64.85%、GPT-6 Astra 58.18%（官方榜单）；Kimi 官方比较图口径为 Opus 5.5 66.4% / Astra 58.2% | 官方榜单 + 官方发布材料 |
 | HLE Full（w/ tools; max） | **70.0%** | — | 官方发布材料 |
 | OSWorld V2.1（max） | 79.6% | — | 官方发布材料 |
 | GDPval-AA v2.1（Elo） | **1846**（95% 区间 1820–1872） | AA 自测值与官方图一致 | Artificial Analysis |
@@ -137,15 +137,14 @@
 
 | Benchmark | Kimi K3 | 对比参照 | 来源 |
 |-----------|---------|----------|------|
-| Terminal-Bench v2.1（独立复测） | **85.0%**，总榜第 6（前 5 均为 GPT-5.6 变体），**非 OpenAI 模型第 1** | Claude Opus 4.8 (max) 84.6%、Claude Fable 5 84.6%、GPT-5.5 (xhigh) 84.3%；榜首 GPT-5.6 Sol (xhigh) 89.5%；K2.6 为 65.9% | Artificial Analysis |
-| Terminal-Bench 2.1（官方口径） | 88.3 | ⚠️ 与独立复测存在口径差，对外引用建议用独立数据 | kimi.com/blog/kimi-k3 |
+| Terminal-Bench 4.0（官方榜单） | **22.42%**（OpenRouter 提交·max）；Vals 独立 harness 17.17% | Claude Opus 4.8 23.64%、Qwen3.8-Max 26.97%；K2.6 未公布（4.0 无记录） | 官方 tbench 榜单 + Vals AI |
 | GDPval-AA v2（Elo，独立评测） | **1668**，全球第 3 | Claude Fable 5 1750、GPT-5.6 Sol (max) 1743；Claude Sonnet 5 (max) 1607；K2.6 为 1191 | Artificial Analysis |
 | Intelligence Index（综合） | 57，第 3 | 与 Opus 4.8 / GPT-5.5 同档，落后 GPT-5.6 一档 | Artificial Analysis |
 | Frontend Code Arena（Elo） | **1679，#1** | Claude Fable 5 1631；K2.6 由第 18 名跃升 17 位 | arena.ai |
 | FrontierSWE（方案规划型） | 81.2 | Claude Fable 5 86.6 / GPT-5.6 Sol 71.3 | 官方技术博客 |
 | DeepSWE（精准执行型） | 67.3 | mini-SWE-agent harness | 官方技术博客 |
 
-> K3 代际跃升最大维度：Terminal-Bench +19.1pt、GDPval +477 Elo（均 vs K2.6）。SWE-bench Verified / LiveCodeBench / Tau2 / AIME 官方称"开源领先"，具体分数待 2026-07-27 技术报告 [⚠️ 待补充]。
+> K3 代际跃升最大维度：GDPval +477 Elo（vs K2.6）。Terminal-Bench 按全库 2026-11-20 规则只用 TB 4.0（K3 官方榜单 22.42%），旧 TB 2.1 时期的 +19.1pt 与 88.3/85.0 两个口径均不再引用；K2.6 无 4.0 数据，跨代 TB 差值需同基准复测。SWE-bench Verified / LiveCodeBench / Tau2 / AIME 官方称“开源领先”，具体分数待 2026-07-27 技术报告 [⚠️ 待补充]。
 
 ### Kimi K2.6 vs 主流模型
 
@@ -158,7 +157,7 @@
 | Toolathlon | 50.0 | **54.6** | 47.2 | 48.8 | 27.8 |
 | OSWorld-Verified | 73.1 | **75.0** | 72.7 | — | 63.3 |
 | **编码** |  |  |  |  |  |
-| Terminal-Bench 2.0 | 66.7 | 65.4 | 65.4 | **68.5** | 50.8 |
+| Terminal-Bench 4.0 | 未公布 | 未公布 | 未公布 | 2.73%（Gemini 3.1 Pro，官方榜单） | 未公布 |
 | SWE-Bench Pro | **58.6** | 57.7 | 53.4 | 54.2 | 50.7 |
 | SWE-Bench Verified | 80.2 | — | 80.8 | **80.6** | 76.8 |
 | **推理** |  |  |  |  |  |
@@ -218,6 +217,7 @@ Kimi K2 系列模型权重开源（block-fp8 格式），推荐推理引擎：
 
 | 日期 | 变更内容 |
 |------|---------|
+| 2026-11-20 | 口径修订（全库 TB 4.0 规则）：K3.1 Pro TB 补官方榜单值（自报值并列保留）；K3 改引 TB 4.0并删除 TB 2.1 双口径行；K2.6 等无 4.0 数据者标未公布 |
 | 2026-11-13 | 补充 Kimi 官方 API 约束：指定函数 tool_choice 与思考开启不兼容（返回 400），K3 系列始终思考故官方 API 不可用该形态，强制调用用 `"required"` [来源: platform.kimi.com/docs/guide/use-tool-choice] |
 | 2026-11-08 | 校验修复（knowledge-verification-2026-11-08）：K3.1 Pro 权重状态由「承诺 11-04 前发布、尚未发布」改为已按期开放（百炼上新页 11-05 条目描述为 open-weight）；参数量补双口径（官方 3T 级 vs 精确 2.8T）；AA 仍标 Proprietary 注记为收录滞后，HF 发布日/许可证标待确认 |
 | 2026-11-03 | 校验修复+补研（knowledge-verification-2026-11-03）：新增 Kimi K3.1 Pro 并切为当前旗舰（2026-10-24，K3 后训练版；定价 $2/$10；官方/AA 双口径评测见正文；权重承诺 11-04 前发布、截至 11-03 未发布，AA 暂标闭源）；解除 109 天未更新状态 |

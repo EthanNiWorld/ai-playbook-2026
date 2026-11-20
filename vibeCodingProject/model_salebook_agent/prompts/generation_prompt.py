@@ -27,7 +27,7 @@ GENERATION_SYSTEM_PROMPT = """你是一个 Salebook 内容生成器。基于策�
     "model_name": "模型全称",
     "tagline": "一句话定位（如 'The Agent Frontier'）",
     "stats": [
-      {"value": "数值", "label": "标签（如 'Terminal-Bench 2.0'）"}
+      {"value": "数值", "label": "标签（如 'Terminal-Bench 4.0'）"}
     ]
   },
   "positioning": "模型定位说明（2-3句话，阐述模型是什么、为什么客户应该关注）",

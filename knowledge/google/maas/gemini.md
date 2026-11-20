@@ -204,7 +204,7 @@
 
 **关键评测**：
 - HLE-Verified **54.9%**（官方）；Vals Finance Agent V2 与 Harvey's Legal Agent Benchmark 超 3.7 Flash 及其他前沿模型（官方）
-- DeepSWE v1.1 **73.7%**（vs Opus 5 74.0%，第三方 tmtpost/36kr 口径；官方图为"超越大多数更大前沿模型"）；Terminal-Bench 2.1 **89.4%**（第三方口径，超 Opus 5）
+- DeepSWE v1.1 **73.7%**（vs Opus 5 74.0%，第三方 tmtpost/36kr 口径；官方图为"超越大多数更大前沿模型"）；Terminal-Bench 4.0 **19.09%**（官方 tbench 榜单，mini-SWE-agent·high；Vals 独立 harness 19.70%）——旧 TB 2.1 口径的 89.4% 已停用
 - Gray Swan prompt injection 鲁棒性大幅跃升（官方）；CBRN + cyber offense 防护（Frontier Safety Framework）
 
 **核心设计 "works harder"**：复杂任务执行更多推理步骤、迭代调用工具——高档位下 token 消耗可能增加；**效率优先场景可用低 effort 档或继续用 3.7 Flash（官方 fully supported）**。API 沿用 `thinking_level` 三档枚举（替代 thinking_budget）。
@@ -279,7 +279,7 @@
 ### 3.5 Flash-Lite：高吞吐 Agent 扩展层
 
 - **速度/价格**：350 output tok/s（AA 实测，3.5 系最快），$0.30 输入 / $2.50 输出 /1M tokens
-- **能力跃升**（vs 3.1 Flash-Lite）：Terminal-Bench 2.1 54% vs 31%；GDM-MRCR v2 72.2% vs 60.1%；GDPval-AA v2 1140 vs 642
+- **能力跃升**（vs 3.1 Flash-Lite）：GDM-MRCR v2 72.2% vs 60.1%；GDPval-AA v2 1140 vs 642（TB 旧版 2.1 相对值已按全库规则停用；双方均无 TB 4.0 数据）
 - **越级表现**：多项 Agent/Coding 评测超 3 Flash（SWE-Bench Pro 54.2% vs 49.6%；OSWorld-Verified 74.0% vs 65.1%）
 - **定位**：可配置 thinking level，低档跑高并发低时延任务，高档处理多步 subagent 工作负载；官方示例中与 3.6 Flash 组成 master-worker 多 Agent 编排；已开始接入 Google Search
 
@@ -378,6 +378,7 @@ Gemini 通过 **Gemini Enterprise Agent Platform** 统一交付（见 [`vertex-a
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-20 | 口径修订（全库 TB 4.0 规则）：3.8 Flash 改引官方榜单 TB 4.0；3.5 Flash-Lite / 3.1 Flash-Lite 旧版 TB 相对量停用 |
 | 2026-11-20 | 校验修复：清理限时促销/免费额度等营销性信息，定价保留官方标准列表价口径 |
 | 2026-11-13 | 合并：Gemini 4 Hydrogen 发布调研（inbox 20261113）——新增 Hydrogen 专章（workhorse，adapted from Carbon、AA 51/54、$1.50/$7.50 flat、统一 1M 窗口、四档思考、Orchestrator、迁移六陷阱）；**修正 Carbon/Argon 可得性：Carbon 11-10 公开 API 开放（官方一手）、Argon 10-13 GA [⚠️ 第三方信源]，Fairwind 仅限无护栏 cyber 版**；入门价至 11-30 [⚠️ 待核实]；3.8 Flash / 3.1 Pro 移出主推表入历史模型（3.8 Flash 无退役日期仍在售、2027-01-01 价格收敛）；场景/平台交付/参考资料同步 |
 | 2026-11-11 | 校验修复（knowledge-verification-2026-11-11）：AA 榜首口径同步——Fable 5.2（v5.0.1）2026-11-09 收录登顶，Carbon 60 改“曾榜首”历史口径（头部/主推表/专章/场景表 4 处），指向 benchmark 全库统一口径；Changelog 折叠最早 2 条 |

@@ -66,7 +66,7 @@
 
 | 限制项 | 具体值 | 说明 |
 |--------|--------|------|
-| 旗舰能力差距 | Terminal-Bench 2.1 59.6 vs GPT 5.5 82.7 | Flash 定位换效率，绝对上限不及顶级闭源旗舰 |
+| 旗舰能力差距 | Terminal-Bench 4.0 未公布（Step 3.7 Flash 与 GPT 5.5 均无 4.0 记录） | Flash 定位换效率，绝对上限不及顶级闭源旗舰 |
 | 参数知识容量 | 11B 激活 | 依赖 test-time 搜索/视觉工具补偿，弱网/无工具场景能力受限 |
 
 ### 关键 Benchmark（官方博客，2026-05-29）
@@ -74,7 +74,7 @@
 | Benchmark | Step 3.7 Flash | 参照 |
 |-----------|---------------|------|
 | SWE-Bench Pro | 56.3 | 超 DeepSeek V4 Flash 55.6、Gemini 3.5 Flash 55.1 |
-| Terminal-Bench 2.1 | 59.6 | GPT 5.5 为 82.7 |
+| Terminal-Bench 4.0 | 未公布 | Step 系列与 GPT 5.5 均无 4.0 记录；旧 TB 2.1 分数已按全库规则停用 |
 | HLE w/ tool | 47.2% | — |
 | ClawEval-1.1 | 67.1% | — |
 | SimpleVQA w/ tool | 79.2% | 打平 GPT 5.5（79.1%） |
@@ -123,5 +123,6 @@
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-20 | 口径修订（全库 TB 4.0 规则）：3.7 Flash 与 GPT 5.5 的 TB 2.1 对比行改为 4.0 口径（均无记录，标未公布），核心限制表同步 |
 | 2026-11-03 | 校验修复+补研（knowledge-verification-2026-11-03）：新增 Step 5 Preview 小节并切为当前旗舰（2026-09-20，600B/27B、1M；定价 ¥7/¥20 见正文；HF 开放权重、百炼收录）；3.7 Flash 降为效率型；Step 4 路线图标记已兑现；标题与文件名泛化为 Step 系列；规格定价以 StepFun 官方文档站一手核实 |
 | 2026-07-27 | 创建：基于 inbox/ai-knowledge-by-qoder-ai-native-agent-20260727.md 提炼，收录 Step 3.7 Flash 详情与版本代际 |

@@ -35,7 +35,7 @@
 **Claude Opus 5.5**（2026-09-22）：
 - 定价 **$4/$20**（比 Opus 5 的 $5/$25 降 20%；与 Gemini 4 Argon 标准价同价）
 - 关键评测（第三方/竞对发布会口径）：Terminal-Bench 4.0 **66.4%**（领先 Gemini 4 Argon 57.4%）、DeepSWE v1.1 74.2%、AutomationBench 42.5%、Harvey Legal Agent 3.8%、Gray Swan IPI 攻击成功率 1.0%；AA Intelligence Index **59**（v5，2026-11-08 查询；2026-10 曾为独立榜第一，10-28 起 Gemini 4 Carbon 接棒、11-09 起 Fable 5.2 登顶）（Sonnet 5.5 56 次之）；AA 实测 $5.98/task、max effort 平均 $23.21/task（GPT-6.1 Sol 对比口径）
-- **⚠️ TB 4.0 统一对比口径**：跨模型横向对比统一取 **tbench.ai 榜单（最优提交，2026-11-08 查询）**——Opus 5.5 **64.8%** / Sonnet 5.5 **61.8%** / GPT-6 Astra 58.2%；厂商自报值 Opus 5.5 66.4% / Sonnet 5.5 70.6%（Claude Code harness）仅用于单产品宣传，不参与跨模型对比。TB 4.0 为当前统一基准版本；TB 2.x 时代模型（Opus 4.7/4.8 等）不追溯更新。⚠️ **TB 4.1 已发布**（tbench.ai 2026-11-11 核实版本号，榜单数值 JS 空表待复核）——4.0 分数保留原口径，4.1 数值待补，不混排
+- **⚠️ TB 4.0 统一对比口径**：跨模型横向对比统一取 **官方 tbench 4.0 榜单**——Opus 5.5 **64.85%** / Sonnet 5.5 **61.82%** / GPT-6 Astra 58.18%（2026-11-19 快照）；厂商自报值 Opus 5.5 66.4% / Sonnet 5.5 70.6%（Claude Code harness）仅用于单产品宣传，不参与跨模型对比。TB 4.0 为当前统一基准版本；**TB 2.x 时代的老模型（Opus 4.7/4.8 等）同样只引 4.0**：Opus 4.8 官方榜单 23.64%、Opus 4.7 无 4.0 记录写“未公布”，旧 TB 2.1 分数已停用。⚠️ **TB 4.1**（2026-11-09）仅为验证器重评分，统一对比仍用 4.0
 - 其余规格（上下文窗口、最大输出等）：[⚠️ 待补充——素材未提供]
 
 **Claude Sonnet 5.5**（2026-09-28）：
@@ -98,8 +98,8 @@
 
 | 版本 | 时间 | 定价 | 关键基准 | 一句话定位 |
 |------|------|------|----------|-----------|
-| **Opus 4.8** | 2026.05.28 | $5/$25（Fast $10/$50） | SWE-Bench Pro 69.2%、SWE-Bench Verified 88.6%、Terminal-Bench 2.1 74.6%、HLE w/tools 57.9%、OSWorld-Verified 83.4%、GDPval-AA 1,890 | 诚实度 4× 提升（漏报缺陷率降至 1/4）、动态工作流与 parallel subagents |
-| **Opus 4.7** | 2026.04.16 | 同价 | SWE-Bench Pro 64.3%、Terminal-Bench 2.1 66.1% | 视觉能力 3×，引入 xhigh 推理档与 Task Budgets |
+| **Opus 4.8** | 2026.05.28 | $5/$25（Fast $10/$50） | SWE-Bench Pro 69.2%、SWE-Bench Verified 88.6%、Terminal-Bench 4.0 23.64%（官方榜单）、HLE w/tools 57.9%、OSWorld-Verified 83.4%、GDPval-AA 1,890 | 诚实度 4× 提升（漏报缺陷率降至 1/4）、动态工作流与 parallel subagents |
+| **Opus 4.7** | 2026.04.16 | 同价 | SWE-Bench Pro 64.3%、Terminal-Bench 4.0 未公布 | 视觉能力 3×，引入 xhigh 推理档与 Task Budgets |
 
 > 📌 **版本节奏观察**：Opus 4.8 距 4.7 仅 **42 天**，为 Anthropic 史上最短 Opus 迭代间隔（此前约 70-75 天），动因是修复 4.7 的 comment-verbosity / tool-calling 一致性、以及用诚实度提升支撑 Agent 规模化。发布策略：Opus 先行 → Sonnet 1-4 周跟进 → Haiku 跳跃式更新。
 
@@ -272,6 +272,7 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-20 | 口径修订（全库 TB 4.0 规则）：Opus 4.8 改引官方榜单 4.0、Opus 4.7 标未公布，旧 TB 2.1 分数停用；统一对比口径改为官方 tbench 4.0 快照 |
 | 2026-11-11 | 补研（knowledge-verification-2026-11-11 B 组）：Fable 5.2 官方发布细节入库（发布日、官方 TB-Science/HLE 口径、快 30%、预发布成果），定价由 AA 口径升为官方公布（AA+媒体双源）；新增 Mythos 5.2 同期限制访问模型；anthropic.com 发布页 404、System Card 待补 |
 | 2026-11-11 | 校验修复（knowledge-verification-2026-11-11）：补记 Fable 5.2 并切为最高能力档（AA 口径，官方发布页未直取、细节待补研），Fable 5.1 移入历史；TB 4.1 已发布注记（榜单数值待复核）；竞品对比注 AA 座次残留改指向 benchmark 全库统一口径；Changelog 折叠最早 2 条 |
 | 2026-11-08 | 校验修复（knowledge-verification-2026-11-08）：AA Intelligence Index 刷新（Opus 5.5 58→59，全文 4 处同步，标查询日期）；**TB 4.0 定为统一对比口径**——跨模型对比取 tbench.ai 榜单值，厂商自报值仅单产品宣传，TB 2.x 时代模型（Opus 4.7/4.8）不追溯更新 |

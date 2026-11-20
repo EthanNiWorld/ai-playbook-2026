@@ -69,8 +69,8 @@
 | Hy3 / Hy4 / Hy4 flash / 腾讯混元 / Hunyuan | [混元系列](knowledge/tencent/hunyuan.md) |
 | MiMo / 小米 / V2.6 / 全模态 | [MiMo 系列](knowledge/xiaomi/mimo-series.md) |
 | StepFun / 阶跃星辰 / Step 5 Preview / Step 3.7 Flash / AI+终端 | [StepFun](knowledge/stepfun/general_intro.md) · [Step 系列](knowledge/stepfun/step-series.md) |
-| Qwen vs Hy4 / 混元竞争分析 | [Qwen3.8-Max / 27B vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) |
-| Qwen vs Doubao / 豆包竞争分析 | [Qwen3.8-Max vs Doubao-Seed-2.1 Pro](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
+| Qwen vs Hy4 / 混元竞争分析 | [Qwen4-Max / 3.8-27B vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) |
+| Qwen vs Doubao / 豆包竞争分析 | [Qwen4-Max vs Doubao-Seed-2.1 Pro](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) |
 | MiniMax / M3 / M3.1-Flash / M3 Pro / 海螺 AI | [M 系列](knowledge/minimax/minimax-series.md) |
 | H3-Image / 图像生成 / 4K / 开源图像 / MiniMax H 系列 | [H 系列](knowledge/minimax/h3-series.md) |
 | Kimi / 月之暗面 / Moonshot / K3 / K3.1 Pro | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
@@ -172,8 +172,8 @@
 
 **竞品对比（阿里云视角）**
 - [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) — 企业级 vs 个人开发者定位差异
-- [Qwen3.8-Max / 27B vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) — 旗舰+开源双档 vs 1M视觉+Computer Use
-- [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先（对 260628 版）+ Batch 输出成本优势 vs Agent/GUI 公开数据；双方当前版均 1M
+- [Qwen4-Max / 3.8-27B vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) — 旗舰+开源双档 vs 1M视觉+Computer Use
+- [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) — Qwen4-Max 当前代公开数据与任务成本 vs Doubao Agent/GUI 历史数据；双方当前版均 1M，新版能力需同任务实测
 
 ### Google
 
@@ -210,7 +210,7 @@
 
 - 公司分析: [DeepSeek 公司分析](knowledge/deepseek/general_intro.md) ⭐ — MLA+MoE 架构创新、R1 纯 RL 推理、V4 开源 SOTA、557 万美元训练成本、"DeepSeek 时刻"、**Harness 团队组建（2026-05，对标 Claude Code）**
 - 模型系列:
-  - [V 系列](knowledge/deepseek/deepseek-v-series.md) — V1 / V2 / V3 / V3.2 / **V4.1 Flash（0910：552B CED 非对称架构、原生视觉、官方声明全面超越 V4 Pro、闲时输出 ¥4/M）→ V4.1-Flash-1017（10/17：架构完全继承仅后训练重做，TB 4.0 31.2→42.3、DeepSWE 74.2→77.0，reasoning_effort 连续 1~100）** / V4（Pro GA 0813：TB 2.1 87.9 / 384K 输出 / 峰谷定价；Flash 0731 已下线）
+  - [V 系列](knowledge/deepseek/deepseek-v-series.md) — V1 / V2 / V3 / V3.2 / **V4.1 Flash（0910：552B CED 非对称架构、原生视觉、官方声明全面超越 V4 Pro、闲时输出 ¥4/M）→ V4.1-Flash-1017（10/17：架构完全继承仅后训练重做，TB 4.0 31.2→42.3、DeepSWE 74.2→77.0，reasoning_effort 连续 1~100）** / V4（Pro GA 0813：TB 4.0 6.67% / 384K 输出 / 峰谷定价；Flash 0731 已下线）
   - [R 系列](knowledge/deepseek/deepseek-r-series.md) — R1 / R1-0528 / R2
 - 知识地图: [DeepSeek AI 知识全景图](knowledge/deepseek/deepseek-ai-knowledge-map-JD-202606.html) — 202606 全景图（HTML）
 
@@ -225,16 +225,16 @@
 ### 智谱 AI（Zhipu）
 
 - 公司分析: [智谱 AI 公司分析](knowledge/zhipu/general_intro.md) — 2026.01 港股 IPO（02513.HK，全球大模型第一股）、GLM-5 编程开源 SOTA、MaaS ARR 17 亿元
-- 模型系列: [GLM 系列](knowledge/zhipu/glm-series.md) — GLM-4 / 4.5 / 4.6 / 5 / 5.1 / 5.2 / **5.3（8/14 发布，同基座后训练 Scaling，TB 3.0 28.3 开源第一，安全攻防涌现能力）** / **5.3-Flash（8/26 发布并开源，系列首个原生多模态，320B-A18B，¥0.8/¥2.8，AA 57）+ FlashX 高速服务档（9/18，同模型扩容集群 200 t/s，¥2/¥7）**，GLM-5.2 Solid 1M 上下文 + 长程任务开源 SOTA；**GLM-Legal（10/12，首个自有品牌法律 Agent 模型，Harvey LAB 19.2% 开放权重第一，定价已公开·原 Beta 申请制）**
+- 模型系列: [GLM 系列](knowledge/zhipu/glm-series.md) — GLM-4 / 4.5 / 4.6 / 5 / 5.1 / 5.2 / **5.3（8/14 发布，同基座后训练 Scaling，TB 4.0 41.82%，安全攻防涌现能力）** / **5.3-Flash（8/26 发布并开源，系列首个原生多模态，320B-A18B，¥0.8/¥2.8，AA 57）+ FlashX 高速服务档（9/18，同模型扩容集群 200 t/s，¥2/¥7）**，GLM-5.2 Solid 1M 上下文 + 长程任务开源 SOTA；**GLM-Legal（10/12，首个自有品牌法律 Agent 模型，Harvey LAB 19.2% 开放权重第一，定价已公开·原 Beta 申请制）**
 
 ### 月之暗面（Moonshot AI）
 
 - 公司分析: [月之暗面公司分析](knowledge/moonshot/general_intro.md) — 2023 成立、估值 ~$315 亿（投前）、累计融资超 376 亿元、ARR >$3 亿
-- 模型系列: [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) — K2 / K2.5 / K2.6 / K3 / **K3.1 Pro（10-24 后训练旗舰，$2/$10，官方 TB 4.0 65.7%）**；K3 2.8T / 1M 上下文、权重已开放
+- 模型系列: [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) — K2 / K2.5 / K2.6 / K3 / **K3.1 Pro（10-24 后训练旗舰，$2/$10，官方榜单 TB 4.0 60.91% / 自报 65.7%）**；K3 2.8T / 1M 上下文、权重已开放
 
 ### 字节跳动
 
-- 模型系列: [Doubao-Seed-2.1](knowledge/bytedance/doubao-seed-2.1.md) — Pro（旗舰）/ Turbo（轻量），Coding+Agent 时代生产级模型，GDPval 最高分
+- 模型系列: [Doubao-Seed-2.1](knowledge/bytedance/doubao-seed-2.1.md) — Pro 260915（稳定旗舰）/ Evolving（周级迭代）/ Lite 260915（轻量全模态）/ Turbo（轻量）；260628 公开 benchmark 仅作历史口径
 - 视频生成: [Seedance 系列](knowledge/bytedance/seedance-series.md) — 2.5（旗舰，30s 直出 + 50 全模态参考）/ 2.0（原生 4K），全球市占率第二仅次 Veo
 
 ### 腾讯混元（Tencent Hunyuan）
@@ -259,8 +259,8 @@
 ## 线：对比分析（阿里云视角）
 
 - [Qoder vs Trae](alibaba-ai-hub/competitive-analysis/qoder-vs-trae/overview.md) ⭐ — 企业级 vs 个人开发者定位差异
-- [Qwen3.8-Max / 27B vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) — 旗舰+开源双档 vs 1M视觉+Computer Use，SA 打法建议
-- [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) — Coding benchmark 双领先（TB 2.1 +15.6、SWE-Pro +10.2，对 260628 版）+ Batch 输出成本优势 vs Agent/GUI 公开数据；双方当前版均 1M
+- [Qwen4-Max / 3.8-27B vs Hy4](alibaba-ai-hub/competitive-analysis/qwen-vs-hy/overview.md) — 旗舰+开源双档 vs 1M视觉+Computer Use，SA 打法建议
+- [Qwen vs Doubao](alibaba-ai-hub/competitive-analysis/qwen-vs-doubao/overview.md) — Qwen4-Max 当前代公开数据与任务成本 vs Doubao Agent/GUI 历史数据；双方当前版均 1M，新版能力需同任务实测
 
 ---
 

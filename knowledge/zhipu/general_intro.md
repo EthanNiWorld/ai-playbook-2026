@@ -283,10 +283,10 @@
 | **ChatGLM-6B** | 2023.03 | 小参数对话模型，单卡可部署 | 📋 跟进对齐 | 国内最早一批开源中文对话模型，奠定开源生态 |
 | **GLM-4** | 2024.01 | 闭源旗舰全面对标 GPT-4；GLM-4V 多模态 | 📋 跟进对齐 | 进入第一梯队，无架构级创新披露 |
 | **GLM-4.5** | 2025 | 确立 ARC（Agent/Reasoning/Coding）能力体系；转向 MoE（355B 参数量级） | 🔧 组合创新 | 训练目标从“通用对话”转向“智能体原生”[reference:19] |
-| **GLM-5** | 2026.02 | 744B MoE 旗舰；**首次集成 DeepSeek Sparse Attention**（竞对开源技术反哺） | 📋 跟进对齐（注意力机制） | SWE-bench Verified / Terminal-Bench 2.0 开源 SOTA，比肩 Claude Opus 4.5[reference:11] |
+| **GLM-5** | 2026.02 | 744B MoE 旗舰；**首次集成 DeepSeek Sparse Attention**（竞对开源技术反哺） | 📋 跟进对齐（注意力机制） | SWE-bench Verified 开源 SOTA，比肩 Claude Opus 4.5；TB 旧版 2.0 分数已按全库规则停用[reference:11] |
 | **GLM-5.1** | 2026.04 | Progressive Alignment 后训练（阶梯型策略切换）；10 万张华为昇腾 910B 全程训练（完全无 NVIDIA） | 🔧 组合创新（长程对齐）+ ⚙️ 工程优化（国产算力） | 全球唯一 8 小时级持续工作开源模型；训练侧自主可控里程碑[reference:16] |
 | **GLM-5.2** | 2026.06 | Solid 1M 无损上下文（数月扩展 1M Coding Agent 训练环境）；IndexShare 稀疏注意力复用（1M 下 FLOPs 降 2.9×）；RL 从 GRPO 切回 critic-based PPO（Slime 框架） | 🔧 组合创新 | 长程任务开源 SOTA；1M 上下文推理成本显著下降[reference:17] |
-| **GLM-5.3** | 2026.08 | 同基座后训练 Scaling（GLM-5/5.1/5.2/5.3 四代共享 ~743B 基座仅改后训练）；自动化环境合成流水线（研究 Agent → 环境合成 → 验证器 → RL 奖励） | 🔧 组合创新 | 单代 Terminal-Bench 3.0 +515%，证明后训练 Scaling 远未见顶；网络安全能力涌现（2,436 个真实漏洞）[reference:18] |
+| **GLM-5.3** | 2026.08 | 同基座后训练 Scaling（GLM-5/5.1/5.2/5.3 四代共享 ~743B 基座仅改后训练）；自动化环境合成流水线（研究 Agent → 环境合成 → 验证器 → RL 奖励） | 🔧 组合创新 | 单代 Terminal-Bench 数量级跃升（现统一口径 TB 4.0 41.82%），证明后训练 Scaling 远未见顶；网络安全能力涌现（2,436 个真实漏洞）[reference:18] |
 | **GLM-5.3-Flash** | 2026.08 | 官方称**首个稀疏+线性混合注意力开源前沿模型**；IndexPool 索引器池化、mHC 流形约束超连接；30T 多模态语料从头预训练（系列首个原生多模态）；10 万张国产芯片推理软硬协同 | 🌟 首创（官方称，混合注意力开源首发） | 注意力计算量降 3.01×、KV 缓存降 4.44×；¥0.8/¥2.8 极致价位（架构 + 国产芯片 + 开源套利约束三层降本）[reference:19][reference:20] |
 
 ### 技术方向研判
@@ -383,7 +383,7 @@
 - [reference:15] 量子位/澎湃 — 历年收入 0.57/1.25/3.13/7.24 亿元
 - [reference:16] 智谱研究文档 — GLM-5.1 Progressive Alignment、8 小时级长程任务、10 万张昇腾 910B 训练（zhipuai.cn/zh/research/157）
 - [reference:17] 智谱官方博客/技术博客 — GLM-5.2 Solid 1M 无损上下文、IndexShare、RL 从 GRPO 切回 PPO（zhipuai.cn/zh/research/161 + z.ai/blog/glm-5.2）
-- [reference:18] 智谱研究博客 — GLM-5.3 同基座后训练 Scaling、Terminal-Bench 3.0 28.3、安全能力涌现（zhipuai.cn/zh/research/162）
+- [reference:18] 智谱研究博客 — GLM-5.3 同基座后训练 Scaling、Terminal-Bench（发布时 3.0 口径；现统一引 TB 4.0 41.82%）、安全能力涌现（zhipuai.cn/zh/research/162）
 - [reference:19] 智谱研究博客 — GLM-5.3-Flash 稀疏+线性混合注意力开源首发、IndexPool/mHC、320B-A18B、30T 多模态预训练（zhipuai.cn/zh/research/163）
 - [reference:20] Artificial Analysis — GLM-5.3-Flash 独立评测（AA 57、输出速度与冗长实测）
 

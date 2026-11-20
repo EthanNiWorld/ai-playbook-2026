@@ -125,7 +125,7 @@
 |------|-----------|
 | [MiniMax Agent Team](knowledge/minimax/agent-team.md) | Leader–Worker–Verifier 对抗制衡、多 Agent runtime 设计哲学 |
 | [DeepSeek V 系列](knowledge/deepseek/deepseek-v-series.md) | V4.1 Flash CED 非对称架构（输入 8B / 输出 16B 激活）、原生视觉、峰谷分时定价 |
-| [GLM 系列](knowledge/zhipu/glm-series.md) | GLM-5.3 / 5.3-Flash 开源 SOTA，Terminal-Bench 3.0 28.3 开源第一，1M 上下文 |
+| [GLM 系列](knowledge/zhipu/glm-series.md) | GLM-5.3 / 5.3-Flash 开源 SOTA，Terminal-Bench 4.0 41.82%，1M 上下文 |
 | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) | K3.1 Pro（10-24 后训练旗舰，$2/$10，权重已按期开放）/ K3 2.8T / 1M 上下文，K3 系已全部开源 |
 | [Claude API](knowledge/anthropic/claude-api.md) | Fable 5.2（最高能力档，AA v5.0.1 榜首）+ Claude 5.5 家族（Opus 5.5 $4/$20 / Sonnet 5.5 / Haiku 5.5 分层定价 $0.10/$0.50），护栏从领域级下沉到任务阶段级 |
 | [GPT-6 系列](knowledge/openai/gpt-6-series.md) | 🚩 GPT-6.2 Astra（11-17 接任旗舰，$8/$40，AA v5.0.1=62 总榜第二，token 效率主引擎）/ GPT-6.2 Sol（$2/$10）/ 6.1 Terra（性价比档）/ Luna（272K 分段 $0.10/$0.50），1M+ 上下文 |
@@ -188,7 +188,7 @@ mindmap
       MiniMax
         M3.1-Flash / M3 开源 / H3-Image / H3 视频 / Agent Team
       字节跳动
-        Doubao-Seed-2.1 Pro 0915 · Seedance 2.5
+        Doubao-Seed-2.1 Pro 260915 / Evolving / Lite 260915 · Seedance 2.5
       腾讯混元
         Hy4 正式版 / Hy4 flash / Hy3
       小米 MiMo

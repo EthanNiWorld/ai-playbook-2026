@@ -1,6 +1,6 @@
 # 通义千问 (Qwen)
 
-> 最后更新: 2026-11-17
+> 最后更新: 2026-11-20
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 
@@ -10,7 +10,7 @@
 
 ## 当前主推模型
 
-> 数据来源：[百炼模型广场](https://help.aliyun.com/zh/model-studio/models)，2026-07-25 核实；Qwen3.8-Flash 行据 qwen.ai 官方博客 + 千问AI平台模型页（2026-08-26/09-02）；Qwen4-Max 行据 help.aliyun.com 官方模型文档 + 国际站定价页（2026-11-16 抓取）与当日 API 实测
+> 数据来源：[百炼模型广场](https://help.aliyun.com/zh/model-studio/models)，2026-07-25 核实；Qwen3.8-Flash 行据 qwen.ai 官方博客 + 千问AI平台模型页（2026-08-26/09-02）；Qwen4-Max 行据 help.aliyun.com 官方模型文档 + 国际站定价页（2026-11-20 抓取）与 2026-11-16 API 实测
 
 | 模型 | 定位 | 上下文 | 特点 |
 |------|------|--------|------|
@@ -27,7 +27,7 @@
 - **时间**：**2026-11-16 GA**，按量计费可用，当日 CN / 国际站 SG / 国际站 BJ 三端点实测调通（报告：`maas-solution-and-api-sample/test_qwen4_max_preview_results_20261116.md`）
 - **尺寸**：主干 **2.4T MoE，每 token 激活 71B**，另配 **328B N-gram Embedding**（第二层查表，不进每 token 矩阵乘预算）[来源: qwen.ai 官方博客，经 IT之家/凤凰/网易多源转述交叉确认]
 - **上下文**：**1M tokens**（输入 991K / 思考模式 983K）；最大输出非思考 **131,072**，**思考+回答总预算 262,144** [来源: help.aliyun.com/zh/model-studio/qwen4-max]
-- **输入模态**：文本 + 图像 + **视频**（Max 档首次官方确认视频；AA 仅测 text+image，视频待独立验证），输出文本
+- **输入模态**：文本 + 图像 + **视频**（Max 档首次官方确认视频；AA 仅测 text+image，视频待独立验证），输出文本；平台规格为单图最高 1600 万像素、视频最长 2 小时、单视频最大 2GB，具体以控制台为准
 - **思考**：默认开启（`enable_thinking=true`）；`reasoning_effort` low / **high（默认）** / xhigh（minimal→low、medium→high、max→xhigh）；`preserve_thinking` 默认开启；`thinking_budget` 默认 131072。⚠️ 默认 effort 由 3.8 系 xhigh 降为 high，对比测试须对齐档位
 - **工具与协议**：FC（含并行）/ 联网搜索 / 前缀补全 / JSON Object+Schema / 思维链摘要与加密 / 显式（TTL 5m/1h）+隐式缓存；OpenAI Chat Completions + Responses / Anthropic Messages / DashScope 四协议
 - **联网搜索**（2026-11-18 实测）：兼容模式 `extra_body={"enable_search": True, "search_options": {"forced_search"/"enable_citation"/"enable_source": True}, "thinking_budget": 1024}`（budget 与 effort 互斥；限思考防长考超时）；原生 DashScope 走 **multimodal-generation** 路径（text-generation 报 url error），`search_info` 须 `enable_source=True` 才返回；workspace 专属域名仅支持 compatible-mode。脚本：`maas-solution-and-api-sample/test_qwen4_max_web_search.py`
@@ -55,12 +55,20 @@
 
 | 口径 | Qwen4-Max | Qwen3.8-Max | 说明 |
 |------|-----------|-------------|------|
+| Terminal-Bench 4.0 | **48.5** | **26.97**（官方榜单） | Kimi K3.1 Pro 67.2 / Opus 5.5 59.6（AA 口径）；xhigh/high 档 token 消耗 -48%/-49%（每次尝试 289K→151K）；3.8-Max 的 4.0 值取官方 tbench 榜单（Claude Code·max），Vals 独立 harness 为 34.34% |
+| FrontierCode 2.0（Cognition） | **26%** | — | 持平 Kimi K3.1 Pro，低于腾讯 Hy4 31% |
+| ProgramBench（黑盒软件复刻） | **31.5** | — | Opus 5.5 为 65.0，属于公开短板项 |
+| Agents' Last Exam v1.1 | **46.7** | — | 较上代 +18.8，官方对比组最佳 |
+| DeepSWE | **75.7** | — | 官方称第一；未标注 DeepSWE 版本，不与上代 DeepSWE 1.1 直接比较 |
+| CodeArena WebDev 盲测 | **1750，全球 #6 / 国产 #1** | — | 较上代 +74，第三方盲测 |
+| Agent Arena（1.47 万真实会话） | **全球 #14 / 国产 #1** | 全球 #39 | Bash 可靠性仅第 29 |
+| HLE-Diamond | **45** | — | 较上代 +21；AA-Omniscience +18 / AutomationBench-AA +17 |
 | Work360（官方自建） | **52.69** | 47.74 | [来源: 官方博客，IT之家/凤凰转述] |
 | AA Intelligence Index **v5.0.1**（2026-11-16 查询） | **43**（#38/81） | 34（#51/81，deprecated） | 同口径 +9；绝对座次仍低于 Fable 5.2（65）/ Opus 5.5 / Gemini 4 Carbon 等第一梯队 |
 | AA 单任务成本 | **$3.27** | $10.02 | -67% |
 | AA 全指数输出 tokens | 127M | 150M | -15%，但仍高于同类中位 78.6M（verbose 偏高） |
 
-> ⚠️ **口径警告**：① AA 指数 v5→v5.0.1 重校准，旧记录"3.8-Max v5=45"与 Qwen4-Max 43 跨版本不可比，同版本下才是 43 vs 34；② TB 4.0 与 TB 2.1 为不同难度独立基准，Qwen4-Max 的 TB 4.0 绝对分未公布（官方仅公布 token 降幅）[⚠️ 待补充]；③ Work360 为自建基准，引用时须与 AA 独立数据并陈。
+> ⚠️ **口径警告**：① AA 指数 v5→v5.0.1 重校准，旧记录"3.8-Max v5=45"与 Qwen4-Max 43 跨版本不可比，同版本下才是 43 vs 34；② Qwen4-Max 未公布 TB 2.1 / SWE-Pro 官方分数，与 3.8-Max 的 TB 2.1 时期分数本就不可比；跨代对比统一用 TB 4.0（3.8-Max 取官方榜单 26.97%）；DeepSWE 未标版本时也不与旧版直接比较；③ Work360 为自建基准，引用时须与 AA 独立数据并陈。
 
 **能力增强因果链**：
 - **存量变强**：Token 效率 → 同 262K 思考预算装下更长任务链，长程 Agent 截断/降智概率下降（AA 佐证：输出 -15% 且分数更高）；QSA+GDN → 1M 上下文从"标称"向"用得起"迁移（Flash 档 QSA kernel 最高 7.6×/4.9× 加速，Max 档幅度未公开）；328B N-gram 查表 → 世界知识与感知容量（官方宣传语"更强的世界知识与感知能力"）
@@ -77,7 +85,7 @@
 
 **边界与待核实**：
 - qianwenai.com 模型页"最大输出 393K"与 help.aliyun.com 131K/262K 矛盾，以 help.aliyun + API 实测为准
-- Batch 口径矛盾：help.aliyun 能力表六节点均"批量推理不支持"，但国际站定价页列北京 Batch File 价（$0.707/$2.12），实测报告记"批量仅北京支持" [⚠️ 待核实]
+- Batch 节点边界：2026-11-20 官方模型文档显示华北2（北京）支持批量推理，新加坡/美国/德国/日本/香港不支持；与定价页北京 Batch File 价格一致，早前文档矛盾已解除
 - 绝对智能非第一梯队（AA 43 vs Fable 5.2 65），最难科研/推理任务勿过度承诺；Work360 为自建基准
 
 ### Qwen3.8-Max（上代旗舰，存量，已被 Qwen4-Max 取代）
@@ -89,18 +97,18 @@
 - **AA 口径（2026-11-16）**：v5.0.1 = **34**（#51/81，已标记 deprecated，AA 建议改用 Qwen4 Max）；旧记录 v5=45 为过期口径，跨版本不可比。官方"仅次于 Fable 5"仅自评，无第三方背书
 - **迭代意义**：首次万亿参数 + 首次 Max 级开源；其 GDN 混合注意力 / MTP 设计直接演进为 3.8-Flash-Next 与 Qwen4 的 Next 架构
 
-**代际基准锚点**（官方发布时口径，TB 2.1 时代）：
+**代际基准锚点**（TB 行已按全库 2026-11-20 规则改用 TB 4.0；其余基准仍为官方发布时口径）：
 
 | 基准 | Qwen3.8-Max | Qwen3.7-Max |
 |------|------------|-------------|
-| Terminal-Bench 2.1 | **86.6** | 74.5 |
+| Terminal-Bench 4.0 | **26.97%**（官方 tbench 榜单） | 未公布 |
 | PaperBench | **93.0** | — |
 | SWE-bench Pro | 67.7 | 60.6 |
 | DeepSWE 1.1 | 56.6 | 21.6 |
 | FrontierSWE | 73.5 | 40.7 |
 | GPQA Diamond | 92.6 | 92.4 |
 
-> 📐 两模型均早于 TB 4.0 发布、无官方 4.0 分数，按全库规则不换算不补算；本表仅内部可比，不得与新模型 TB 4.0 分数混排。同期竞品对照（Opus 4.8 / Fable 5 / GPT 5.6 Sol）见 [Qwen3.8 官方博客](https://qwen.ai/blog?id=qwen3.8) 与 [benchmark-coding-agentic.md](../../knowledge/ai-general-notes/benchmark-coding-agentic.md)。
+> 📐 两模型均早于 TB 4.0（2026-08-28）发布，但官方 tbench 4.0 榜单已收录 `qwen3.8-max-0902` 的实测（Claude Code·max；Vals 独立 harness 为 34.34%），故 TB 行直接用 4.0；Qwen3.7-Max 官方与 Vals 均无 4.0 记录，按规则写"未公布"，其旧 TB 2.1 分数不再作为对比依据。同表其他基准（PaperBench / SWE-Pro / DeepSWE 等）为厂商发布时口径，仅本表内可比，不得与 TB 4.0 数字混用。规则见 [benchmark-coding-agentic.md](../../knowledge/ai-general-notes/benchmark-coding-agentic.md)。
 
 ### Qwen3.8-2.4T-A95B 开源版（存量，2026-08-12 上线）
 
@@ -171,7 +179,7 @@
 | 限制项 | 具体值 | 说明 |
 |--------|--------|------|
 | Qwen4-Max 开源 | 本体闭源 | 小尺寸模型将陆续开源（未公布）；私有化旗舰需求短期无 Qwen4 选项 |
-| Qwen4-Max Batch | 口径矛盾待核实 | 能力表六节点均"不支持" vs 定价页列北京 Batch File 价，调用前与控制台确认 |
+| Qwen4-Max Batch | 仅北京支持 | 2026-11-20 官方模型文档与定价页口径一致；新加坡不支持 Batch File |
 | Qwen4-Max max_tokens 语义 | 限制思考+回答总量 | 自 qwen4 代起变更，旧模型迁移须调整上限与思考回传逻辑 |
 | Qwen3.8-Max 视频输入 | 待确认（存量） | 文本与图像输入已实测，不应承诺视频能力；视频需求改选 Qwen4-Max |
 | qwen3.8-2.4t-a95b 视觉输入 | 不支持 | 开源版与 API 版 Qwen3.8-Max 的模态能力不同 |
@@ -198,11 +206,11 @@
 
 ## 定价（API）
 
-> 定价标准：阿里云国际站新加坡节点 USD 列表价，2026-11-16 核实；列 Qwen4-Max 与存量 Qwen3.8 代模型。北京价格与国内计费项仅作参考，实际折扣与账单以控制台为准。
+> 定价标准：阿里云国际站新加坡节点 USD 列表价，2026-11-20 核实；列 Qwen4-Max 与存量 Qwen3.8 代模型。北京价格与国内计费项仅作参考，实际折扣与账单以控制台为准。
 
 | 模型 | 输入（$/1M tokens） | 输出（$/1M tokens） | 缓存与其他说明 |
 |------|---------------------|---------------------|----------------|
-| **Qwen4-Max** | $1.5 | $4.5 | 缓存命中 $0.075（输入价 5%，较 3.8-Max -70%）；显式缓存写 5m $1.875 / 1h $3；北京 $1.413/$4.24；CN 参考 ¥10/¥30、缓存命中 ¥0.5 [来源: alibabacloud.com 定价页 + qianwenai.com，2026-11-16] |
+| **Qwen4-Max** | $1.5 | $4.5 | 缓存命中 $0.075（输入价 5%，较 3.8-Max -70%）；显式缓存写 5m $1.875 / 1h $3；北京 $1.413/$4.24；CN 参考 ¥10/¥30、缓存命中 ¥0.5；Batch File 北京 $0.707/$2.12（CN ¥5/¥15），新加坡不支持 [来源: alibabacloud.com 定价页 + qianwenai.com，2026-11-20] |
 | **Qwen3.8-Max**（含 `qwen3.8-max-0902` 快照，存量） | $2 | $6 | 缓存命中 $0.25；稳定版与 0902 快照同价 |
 | **qwen3.8-2.4t-a95b**（开源版） | $2 | $6 | 支持缓存折扣（单价未公开）；北京 $1.65/$4.951 |
 | **qwen3.8-27b**（开源 Dense 版） | $0.5 | $3 | 支持缓存折扣（单价未公开）；北京 $0.424/$1.696 |
@@ -241,6 +249,8 @@
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-20 | 口径修订（全库 TB 4.0 规则）：3.8-Max 基准行改用官方 tbench 4.0 榜单值，删除 TB 2.1 行；同步对齐 Benchmark 表与口径警告 |
+| 2026-11-20 | 合并：inbox Qwen4-Max 对比素材 - 补全当前代公开 benchmark，解除 Batch 节点支持口径矛盾，补齐多模态规格与标准 Batch 定价 |
 | 2026-11-18 | 联网搜索实测：兼容模式 enable_search+search_options 生效（SG），原生走 multimodal-generation 路径、search_info 须 enable_source；新增 test_qwen4_max_web_search.py |
 | 2026-11-17 | 瘦身：压缩存量模型小节（3.8-Max/A95B 收敛为要点+代际基准锚点，27B 精简实测细节），新增「系列迭代思路与方向」演进表；修复 Qwen3.7 历史小节悬空引用，清理历史参考链接；9 月及以前 Changelog 移入折叠区并压缩 |
 | 2026-11-17 | Qwen3.8-Max Benchmark 表对齐全库 TB 4.0 统一口径规则：新增 TB 4.0 行（五模型均早于 4.0 发布、无官方分数，不换算不补算，全"—"），TB 2.1 行标注发布时口径，表下补口径隔离警告（与 qwen-vs-hy 对比表同款处理） |

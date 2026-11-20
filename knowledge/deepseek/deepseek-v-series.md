@@ -15,9 +15,9 @@
 | 模型 | 定位 | 上下文 | 特点 | 推出时间 |
 |------|------|--------|------|----------|
 | **DeepSeek-V4.1-Flash-1017** | 🚩 新架构系列首发（1017 快照） | 100 万 tokens，最大输出 384K | 552B MoE（**CED 非对称**：Prefill 激活 8B / Decode 激活 16B）；原生视觉理解；reasoning_effort 连续 1~100；TB 4.0 42.3 / DeepSWE 77.0；闲时输出 ¥4/M、并发额度 2500 | **2026.10.17** |
-| **DeepSeek-V4-Pro**（GA） | 全能旗舰（上代） | 100 万 tokens，最大输出 384K | 1.6T MoE（49B 激活）；GA 版 Terminal-Bench 2.1 **87.9** / HLE w/ tools 60.0；原生 Responses API（Codex 适配）；官方定价页脚注确认 2026-09-14 后继续提供 API 服务、计费方式不变（被路由下线的是 deepseek-v4-flash / -vision-exp 旧名，非 V4-Pro）[来源: api-docs.deepseek.com/quick_start/pricing，2026-09-17 核实] | Preview 2026.04.24 / **GA 2026.08.13** |
+| **DeepSeek-V4-Pro**（GA） | 全能旗舰（上代） | 100 万 tokens，最大输出 384K | 1.6T MoE（49B 激活）；Terminal-Bench 4.0 **6.67%**（官方榜单，0813 提交）/ 14.14%（Vals）；HLE w/ tools 60.0；原生 Responses API（Codex 适配）；官方定价页脚注确认 2026-09-14 后继续提供 API 服务、计费方式不变（被路由下线的是 deepseek-v4-flash / -vision-exp 旧名，非 V4-Pro）[来源: api-docs.deepseek.com/quick_start/pricing，2026-09-17 核实] | Preview 2026.04.24 / **GA 2026.08.13** |
 
-> 📌 **历史模型**：**V4-Flash 正式版（0731 快照，284B MoE / 13B 激活）**——官方侧已于 2026-09-10 下线，模型名 deepseek-v4-flash 暂时路由到 V4.1 Flash 并按 Flash 价格计费（百炼侧 0731 快照暂保留）；关键基准 TB 2.1 82.7 / DeepSWE 54.4 / Cybergym 76.7 / NL2Repo 54.2，均低于 V4-Pro-GA；DeepSeek-V3.2（2025.12，V3 最终版）、V3（2024.12）、V2（2024.05）、V1（2024.01）已被 V4 系列取代，不建议新项目选用。
+> 📌 **历史模型**：**V4-Flash 正式版（0731 快照，284B MoE / 13B 激活）**——官方侧已于 2026-09-10 下线，模型名 deepseek-v4-flash 暂时路由到 V4.1 Flash 并按 Flash 价格计费（百炼侧 0731 快照暂保留）；关键基准 DeepSWE 54.4 / Cybergym 76.7 / NL2Repo 54.2（TB 旧版 2.1 分数已按全库规则停用；4.0 无官方记录，Vals 为 18.69%），均低于 V4-Pro-GA；DeepSeek-V3.2（2025.12，V3 最终版）、V3（2024.12）、V2（2024.05）、V1（2024.01）已被 V4 系列取代，不建议新项目选用。
 
 ### DeepSeek-V4.1-Flash
 
@@ -76,7 +76,7 @@
 |------|---------------|------------------|------|
 | HLE (w/o tools) | — | **42.7** | — |
 | HLE (w/ tools) | 48.2 | **60.0** | +11.8 |
-| Terminal-Bench 2.1 | — | **87.9** | — |
+| Terminal-Bench 4.0 | — | **6.67%**（官方榜单）/ 14.14%（Vals） | — |
 | NL2Repo | — | **61.5** | — |
 | Cybergym | — | **83.3** | — |
 | DeepSWE | — | **62.7** | — |
@@ -134,7 +134,7 @@
 | 能力 | 说明 |
 |------|------|
 | **开源 SOTA** | V4 全系列达开源最高水平 |
-| **Agent 能力（GA）** | V4-Pro GA Terminal-Bench 2.1 87.9（超越 Qwen3.8-Max 86.6）、Cybergym 83.3、Toolathlon-Verified 74.1，Agent 能力第一梯队 |
+| **Agent 能力（GA）** | V4-Pro GA Terminal-Bench 4.0 6.67%（官方榜单；Vals 14.14%）、Cybergym 83.3、Toolathlon-Verified 74.1；旧 TB 2.1 时期的“Agent 能力第一梯队”叙事已不再适用 |
 | **长上下文** | V4 支持 100 万 tokens，GA 版最大输出 384K |
 | **极致性价比** | V3 训练成本仅 557 万美元，对标 5 亿美元级模型；V4 峰谷定价非峰再减半 |
 | **思考模式** | 支持 reasoning_effort 三级控制（low / high / max） |
@@ -231,6 +231,7 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-20 | 口径修订（全库 TB 4.0 规则）：V4-Pro GA 改引官方榜单 4.0（Vals 并列）；V4-Flash 0731 旧版 TB 分数停用；能力表派生结论同步 |
 | 2026-10-19 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20261019.md - V4.1-Flash 小节新增 1017 快照（2026-10-17：架构完全继承仅后训练重做，TB 4.0 31.2→42.3 / DeepSWE 74.2→77.0，reasoning_effort 连续 1~100，自反馈 RL + 两条环境生产线，Search/Fetch 开放，MIT；价格表未变）；主推表/头部/核心能力表/适用场景表/定价章/参考资料同步；校正网传「763B」为官方 552B；标注 Harness 版本门槛与跨框架波动 |
 | 2026-10-19 | 历史模型瘦身：删除单独的 V4-Flash 小节（已下线模型的 5 条特点 + 9 行 benchmark 表），关键基准值（TB 2.1 82.7 / DeepSWE 54.4 / Cybergym 76.7 / NL2Repo 54.2）下沉到头部「历史模型」标注一行 |
 | 2026-09-17 | 校验修复（knowledge-verification-2026-09-17）：解除 V4-Pro"下线计划待核实"——官方定价页脚注明确 2026-09-14 后继续提供 API 服务、计费方式不变；被路由下线的是 deepseek-v4-flash / deepseek-v4-flash-vision-exp 旧名（非 V4-Pro）；主推表、定价章节标注同步；补百炼国际站（新加坡）USD 口径（v4.1-flash 闲时 $0.15/$0.6、v4-pro 平价 $2.4/$4.8、v4-pro-0813 闲时 $0.66/$1.98） |

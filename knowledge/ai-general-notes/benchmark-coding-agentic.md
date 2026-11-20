@@ -1,6 +1,6 @@
 # AI Agent Benchmark 三维度评估框架
 
-> 最后更新: 2026-11-11
+> 最后更新: 2026-11-20
 > 领域: AI Engineering / AI Coding
 > 状态: Published
 
@@ -65,7 +65,7 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 - 核心人物：John Yang 等（SWE-bench 核心贡献者）
 - 定位：评估 AI Agent 在真实终端环境中的操作能力（系统管理、安全、ML 训练等）
 - 内置 canary GUID 检测数据泄漏
-- 当前版本 **4.1**（tbench.ai 2026-11-11 核实版本号；榜单数值 JS 空表待复核，跨模型统一对比仍沿用 4.0 口径）；4.0 于 2026-11-03 核实为官网首页展示版本；历史沿革：2.1 基于 2.0 Verified 改进，3.0 曾标记 shipped 并将 host 迁移至 frontierbench.ai [来源: tbench.ai]
+- 版本沿革（tbench.ai 发布日期）：**4.1**（2026-11-09，仅对 4.0 试次重新评分，无 agent 侧变更）→ **4.0**（2026-08-28，66 道真实工作类任务，重标资源、修正 19 题、移除 8 题，与 3.0 不可比）→ 3.0（2026-07-30，74 题 / 7 领域，曾以 FrontierBench 名义发布）→ 2.1（2026-05-06，89 题）→ 2.0（2025-11-07）/ 1.0（2025-05-19）。跨模型统一对比用 4.0；旧版仅作历史存档
 
 ### 3. OSWorld-Verified
 
@@ -147,11 +147,31 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 
 > 注（2026-11-03 重刷口径）：① Carbon / Argon / Astra / Opus 5.5 / Fable 5.1 的 AA 与 OSWorld 数值来自 Google 2026-10-28 发布对比表（DataLearner 转述原始口径）；② K3.1 Pro 来自 Moonshot 官方发布（Claude Code harness），Opus 5.5 66.4% 来自 Claude 系发布口径（同 harness 可比）；③ **SWE-bench Pro 列已移除**——Scale Leaderboard 持续 403 无法复核，上代分数见下方存档；④ OSWorld 2.1 offline 为离线子集（Carbon 取三次最佳，Google 口径），与旧 OSWorld-Verified 不直接可比；⑤ **tbench.ai 榜单当前值（最优提交口径，2026-11-08 查询）**：Opus 5.5 64.8% / Sonnet 5.5 61.8% / GPT-6 Astra 58.2%——与表中官方发布口径（66.4% / 70.6% / 59.1%）数值不同，两套口径不可混比，对外引用须注明 harness 与查询日期。
 
-> 📐 **Terminal-Bench 版本口径规则（2026-11-08 确立）**
-> ① **统一对比口径 = TB 4.0**：跨模型横向对比只用 TB 4.0 分数，不与 2.0 / 2.1 / 3.0 混排（不同版本难度天差地别，同表并列会得出反向结论）。⚠️ **TB 4.1 已发布**（2026-11-11 核实版本号，榜单数值待复核）——复核前统一对比仍用 4.0，4.1 数值不预填、不混排。
-> ② **适用范围 = TB 4.0 时代发布的前沿模型**（2026-09 起）：Gemini 4 Argon / Carbon、GPT-6 Astra、Claude Opus·Sonnet·Haiku 5.5、Kimi K3.1 Pro、MiMo-V2.6-Flash、Hunyuan Hy4、DeepSeek-V4.1-Flash-1017 等。
-> ③ **TB 4.0 之前发布的模型不追溯更新**：Qwen3.8-Max（TB 2.1）、Kimi K3 / K2.6（TB 2.1 / 2.0）、DeepSeek-V4-Pro GA（TB 2.1）、GLM-5.3（TB 3.0）、Hunyuan Hy3（TB 2.1）、GPT-5.5（TB 2.0）、Claude Opus 4.7/4.8（TB 2.1）、Gemini 3.8 Flash（TB 2.1）等保持其发布时的版本分数，**不换算、不补算、不填入 4.0 对比表**。
-> ④ **同为 4.0 仍可能 harness 不同**（AA / tbench.ai 最优提交 / 厂商自报 Claude Code）：并列标注，跨厂商对比优先取同一 harness 的榜单值；对外引用必须注明 harness 与查询日期。
+> 📐 **Terminal-Bench 版本口径规则（2026-11-08 确立，2026-11-20 修订：旧代际一律改用 TB 4.0）**
+> ① **统一对比口径 = TB 4.0**：跨模型横向对比只用 TB 4.0 分数，不与 2.0 / 2.1 / 3.0 混排（不同版本难度天差地别，同表并列会得出反向结论）。⚠️ **TB 4.1 已发布**（2026-11-09，本质是用更严验证器对 4.0 试次重新评分、分数落在 4.0 置信区间内）——统一对比仍用 4.0。
+> ② **TB 4.0 发布（2026-08-28）之前上市的老模型，同样只引用 TB 4.0 分数**：官方榜单已收录旧代际模型在 4.0 题集上的实测（见下表），故 Qwen3.8-Max、GLM-5.3、Claude Opus 4.8、Kimi K3、Gemini 3.8 Flash、DeepSeek-V4-Pro、MiniMax M3、Gemini 3.1 Pro 等**一律改用 TB 4.0 数值描述能力**；TB 2.x / 3.0 分数仅作"发布时口径"的历史注记，不进入任何对比表，也不与 4.0 分数比大小。
+> ③ **仍无 TB 4.0 数据的模型写"未公布"**：GPT-5.5、Claude Opus 4.7、Kimi K2.6、Hunyuan Hy3、Qwen3.7-Max / Qwen3.7-Plus、Doubao-Seed-2.1-260628、GLM-5.1 / GLM-5.2、Step 3.7 Flash —— **不得用旧版分数顶替，也不得换算补算**。
+> ④ **同为 4.0 仍可能 harness 不同**（官方 tbench 榜单提交 / Vals AI 独立 harness / 厂商自报 Claude Code）：并列标注，跨厂商对比优先取官方榜单值；对外引用必须注明 harness 与查询日期。
+> ⑤ **数据源优先级**：官方 tbench 4.0 榜单（tbench.ai / harbor leaderboard，2026-11-19 快照）为主口径；Vals AI 独立 harness 为旁证；AA 评测页本机不可直连（连续超时），其数值须经可核实镜像或截图确认后才引用。
+
+**旧代际模型的 TB 4.0 分数（TB 4.0 之前上市，官方榜单已回测；原 TB 2.x / 3.0 分数不再作为对比依据）**：
+
+| 旧代际模型 | 发布时口径 | **TB 4.0（官方榜单）** | Vals 4.0（旁证） |
+|------------|-----------|:---:|:---:|
+| GLM-5.3 | TB 3.0 | **41.82%**（Claude Code·max） | 38.89% |
+| GLM-5.3-Flash | 未公布 | 36.67%（Claude Code·max） | 37.37% |
+| DeepSeek-V4.1-Flash-1017 | TB 4.0（自报 42.3） | 40.00%（OpenRouter 提交·max） | 31.82% |
+| Qwen3.8-Max-0902 | TB 2.1 | **26.97%**（Claude Code·max） | 34.34% |
+| Claude Opus 4.8 | TB 2.1 | **23.64%**（Claude Code·max） | 23.23% |
+| Kimi K3 | TB 2.1 | **22.42%**（OpenRouter 提交·max） | 17.17% |
+| Gemini 3.8 Flash | TB 2.1 | **19.09%**（mini-SWE-agent·high） | 19.70% |
+| MiniMax M3 | TB 2.1 | **7.27%**（mini-swe-agent·none） | 1.01% |
+| DeepSeek-V4-Pro（0813） | TB 2.1（自报） | **6.67%**（Claude Code·max） | 14.14% |
+| Gemini 3.1 Pro | TB 2.1 | **2.73%**（Antigravity CLI·high） | 2.52% |
+| 其他旧代际 | — | **未公布** | 未公布 |
+
+> 上表「其他旧代际」含 GPT-5.5（原 TB 2.0）、Claude Opus 4.7（原 TB 2.1）、Kimi K2.6、Hunyuan Hy3、Qwen3.7-Max / Plus、Doubao-Seed-2.1-260628、GLM-5.1 / 5.2、Step 3.7 Flash —— 官方榜单与 Vals 均无其 4.0 记录，按规则③写「未公布」，不用旧版分数顶替。⚠️ 同一模型官方榜单与 Vals 常差 2–8 分（harness 不同），跨厂商对比优先取官方榜单值并注明 harness。
+> 数据源：[tbench 4.0 榜单（harbor）](https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/latest?tab=leaderboard&leaderboard=4-0-0)、[Vals AI Terminal-Bench 4.0](https://www.vals.ai/benchmarks/terminal-bench-4)（经 benchlm.ai 镜像，2026-11-19 快照）。
 
 **学术推理力**：
 
@@ -184,21 +204,21 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 > Detailed product analysis: see vendor-specific documents
 
 <details>
-<summary>📦 上代模型三维度分数存档（TB 2.1 / OSWorld-Verified / 旧版 AA，2026-06~09 口径，勿与 4.0/v5 混排）</summary>
+<summary>📦 上代模型三维度分数存档（SWE-bench Pro / OSWorld-Verified / 旧版 AA，2026-06~09 口径，勿与当前口径混排）</summary>
 
-**操作执行力（旧口径）**：
+**操作执行力（旧口径，TB 列已按 2026-11-20 规则移除，TB 4.0 见上方旧代际座次表）**：
 
-| 模型 | SWE-bench Pro | Terminal-Bench 2.1 | OSWorld-Verified |
-|------|:---:|:---:|:---:|
-| Claude Opus 4.8 | **69.2%** | 74.6% | **83.4%** |
-| GPT-5.5 | 58.6% | **78.2%** | 78.7% |
-| Qwen3.7-Max | 60.6% | 74.5%（AA harness） | — |
-| MiniMax M3 | 59.0% | 66.0% | [⚠️ 待补充] |
-| GLM-5.1 | 58.4% | 58.7%（Claude Code harness） | [⚠️ 待补充] |
-| Gemini 3.5 Flash | 55.1% | 76.2% | 78.4% |
-| Gemini 3.1 Pro | 54.2% | 70.3% | 76.2% |
-| DeepSeek-V4-Pro | 52.1% | 87.9%（厂商自报 GA 0813，非 AA 统一 harness） | [⚠️ 待补充] |
-| Qwen3.7-Plus | 57.6% | 47.0% [⚠️ AA TB-Hard] | 73.3% |
+| 模型 | SWE-bench Pro | OSWorld-Verified |
+|------|:---:|:---:|
+| Claude Opus 4.8 | **69.2%** | **83.4%** |
+| GPT-5.5 | 58.6% | 78.7% |
+| Qwen3.7-Max | 60.6% | — |
+| MiniMax M3 | 59.0% | [⚠️ 待补充] |
+| GLM-5.1 | 58.4% | [⚠️ 待补充] |
+| Gemini 3.5 Flash | 55.1% | 78.4% |
+| Gemini 3.1 Pro | 54.2% | 76.2% |
+| DeepSeek-V4-Pro | 52.1% | [⚠️ 待补充] |
+| Qwen3.7-Plus | 57.6% | 73.3% |
 
 **学术推理力（旧口径）**：
 
@@ -211,7 +231,7 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 | Gemini 3.5 Flash | 40.2% |
 | Qwen3.7-Plus | 34.7% |
 
-> 旧注：Terminal-Bench 列默认为 v2.1；“AA harness”表示来自 Artificial Analysis 统一 harness 评测；[⚠️ AA TB-Hard] 表示 AA 独立评测的 Terminal-Bench Hard 子集。Claude Opus 4.8 的 HLE 57.9% 来自 Anthropic 自报（带工具），AA 独立评测（纯文本）为 45.7%。
+> 旧注：TB 旧版（2.0 / 2.1 / AA TB-Hard 等）分数已于 2026-11-20 按全库规则清理，统一改引 TB 4.0（见上方旧代际座次表）。Claude Opus 4.8 的 HLE 57.9% 来自 Anthropic 自报（带工具），AA 独立评测（纯文本）为 45.7%。
 
 </details>
 
@@ -260,6 +280,9 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 - [Scale AI Leaderboard] https://labs.scale.com/leaderboard/swe_bench_pro_public
 - [OpenAI 弃用声明] https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/
 - [Terminal-Bench 官网] https://www.tbench.ai/
+- [Terminal-Bench 4.0 榜单（官方 harbor）] https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/latest?tab=leaderboard&leaderboard=4-0-0
+- [Vals AI Terminal-Bench 4.0] https://www.vals.ai/benchmarks/terminal-bench-4
+- [AA Terminal-Bench 4.0 评测页] https://artificialanalysis.ai/evaluations/terminalbench-4-0 （2026-11-20 本机抓取连续超时，未直取；其数值须经可核实镜像或截图确认后引用）
 - [OSWorld 论文] https://arxiv.org/abs/2404.07972
 - [OSWorld 官网] https://os-world.github.io/
 - [Gemini Flash 页面] https://deepmind.google/models/gemini/flash/
@@ -272,6 +295,7 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-20 | 口径修订：TB 4.0 之前上市的老模型一律改引 TB 4.0（官方 tbench 榜单已收录旧代际实测），新增「旧代际模型 TB 4.0 座次表」；仍无 4.0 数据的模型写「未公布」，禁用旧版分数顶替；存档表移除 TB 旧版列。数据源为官方榜单 + Vals AI 镜像（AA 页本机超时未直取） |
 | 2026-11-11 | 校验修复（knowledge-verification-2026-11-11）：TB 4.1 已发布注记（版本号核实、榜单数值 JS 空表待复核，统一对比仍用 4.0）；AA 统一座次补 Fable 5.2 登顶（v5.0.1，其余总分待全量复核）；Changelog 折叠最早 1 条 |
 | 2026-11-08 | 校验修复（knowledge-verification-2026-11-08）：**确立 TB 4.0 统一对比口径规则**（适用范围 2026-09 起前沿模型；TB 4.0 之前的模型不追溯更新）；TB 表补 tbench.ai 榜单值并明确 harness 并列原则；新增 AA Intelligence Index v5 live 座次行（6 模型，全库统一引用口径）；Changelog 最早 2 条折叠 |
 | 2026-11-03 | 重刷（knowledge-verification-2026-11-03 B 组）：三维度表按 TB 4.0 / 新官方口径统一重刷为当前世代模型（数值见正文）；SWE-bench Pro 列移除（Scale 403）；GDPval 表新增 K3.1 Pro 1846（v2.1）；上代表整体移入 <details> 存档不混排 |
