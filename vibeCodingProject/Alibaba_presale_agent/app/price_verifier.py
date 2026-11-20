@@ -1749,3 +1749,88 @@ def audit_answer_prices(
         if p not in allowed and p not in derived_sums and not _derived(float(p))
     )
     return {"checked": True, "mismatched": mismatched}
+
+
+# ──────────────────── 用量截图成本题与官方表完整性审计 ────────────────────
+# 只在“带图 + 问总费用/总成本”时触发；不带图的普通价格题仍走原有 verify_price 路径。
+_USAGE_COST_RE = re.compile(
+    r"多少钱|费用|成本|总成本|汇总|总计|花了|账单|用量|测算", re.IGNORECASE
+)
+_FIELD_PRICE_RE = re.compile(
+    r"输入价|输出价|缓存价|cache input|cache write|input price|output price|"
+    r"显式缓存|那一行|某一列|一列|一行", re.IGNORECASE
+)
+
+
+def is_usage_cost_question(
+    question: str, history: list | None = None, has_images: bool = False
+) -> bool:
+    """是否为“用量/账单截图 → 计算总成本”类问题。
+
+    只有带图（本轮或历史）且问题语义指向费用/汇总时才命中；
+    追问某一列、某一行的价格不属于本类，避免误触发 calculate_token_cost。
+    """
+    if not has_images:
+        return False
+    texts = [question or ""]
+    for h in (history or [])[-6:]:
+        if h.get("role") != "user":
+            continue
+        content = h.get("content", "")
+        if isinstance(content, list):
+            content = " ".join(
+                str(x.get("text", ""))
+                for x in content
+                if isinstance(x, dict) and x.get("type") == "text"
+            )
+        texts.append(str(content))
+    if any(_FIELD_PRICE_RE.search(t) for t in texts):
+        return False
+    return any(_USAGE_COST_RE.search(t) for t in texts)
+
+
+_FULL_PRICE_RE = re.compile(
+    r"刊例价|完整价格|全部价格|价格是多少|多少钱|报价|价格$", re.IGNORECASE
+)
+
+
+def is_full_price_question(question: str) -> bool:
+    """是否为“要完整价格表”的问题（用于官方表行级完整性审计）。"""
+    q = (question or "").strip()
+    if _FIELD_PRICE_RE.search(q):
+        return False
+    return bool(_FULL_PRICE_RE.search(q))
+
+
+def _table_rows(md: str) -> list[tuple[str, ...]]:
+    """抽取 markdown 表格的数据行（去表头/分隔行/加粗），用于行级比对。"""
+    rows: list[tuple[str, ...]] = []
+    for line in (md or "").splitlines():
+        if not line.lstrip().startswith("|"):
+            continue
+        cells = [c.strip().replace("**", "") for c in line.strip().strip("|").split("|")]
+        if not cells or all(set(c) <= set("-: ") for c in cells):
+            continue
+        if cells[0].lower() in ("region", "模型"):
+            continue
+        rows.append(tuple(cells))
+    return rows
+
+
+def audit_price_completeness(
+    answer: str, official_md: str, question: str = ""
+) -> dict:
+    """检查“完整价格题”的回答是否覆盖了官方证据中的每一行。
+
+    返回 {"checked": bool, "missing_rows": [tuple...]}
+      - checked=False：非完整价格题或官方证据无表格行，不做完整性判定；
+      - missing_rows 非空：回答漏掉官方表行（如 qwen3-vl-embedding 只报 Image/Video，漏 Text）。
+    """
+    if not is_full_price_question(question):
+        return {"checked": False, "missing_rows": []}
+    official_rows = _table_rows(official_md)
+    if not official_rows:
+        return {"checked": False, "missing_rows": []}
+    answer_rows = set(_table_rows(answer))
+    missing = [row for row in official_rows if row not in answer_rows]
+    return {"checked": True, "missing_rows": missing}

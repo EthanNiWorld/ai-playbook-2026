@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.alibaba.presale-agent.daily-audit</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__PROJECT_ROOT__/deploy/run-daily-audit.sh</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>__PROJECT_ROOT__</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>QA_AUDIT_INSTANCE_ID</key>
+    <string>__ECS_INSTANCE_ID__</string>
+  </dict>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>8</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+  <key>RunAtLoad</key>
+  <false/>
+  <key>StandardOutPath</key>
+  <string>/tmp/alibaba-presale-agent-daily-audit.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/alibaba-presale-agent-daily-audit.log</string>
+</dict>
+</plist>

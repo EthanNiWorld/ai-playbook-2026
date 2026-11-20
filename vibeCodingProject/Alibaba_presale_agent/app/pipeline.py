@@ -28,8 +28,10 @@ from .price_verifier import (
     _STOCK_CONTEXT_RE,
     PRICE_KEYWORDS_RE,
     audit_answer_prices,
+    audit_price_completeness,
     extract_model_names,
     is_price_question,
+    is_usage_cost_question,
     needs_model_clarify,
 )
 
@@ -191,6 +193,25 @@ def _history_has_images(history: list) -> bool:
     return False
 
 
+def _history_snapshot(history: list) -> list[dict]:
+    """最近几轮对话的脱敏快照：只保留文本，不存图片。"""
+    out: list[dict] = []
+    for h in (history or [])[-4:]:
+        role = h.get("role")
+        content = h.get("content", "")
+        if isinstance(content, list):
+            content = " ".join(
+                str(it.get("text", ""))
+                for it in content
+                if isinstance(it, dict) and it.get("type") == "text"
+            )
+        else:
+            content = str(content)
+        if role in ("user", "assistant") and content.strip():
+            out.append({"role": role, "content": content[:1000]})
+    return out
+
+
 async def stream_answer(
     question: str,
     history: list,
@@ -225,6 +246,14 @@ async def stream_answer(
     competitor_md = ""
     calculated_md = ""  # calculate_token_cost 的确定性派生费用（审计白名单独立累加）
     price_checked = False  # 是否调过 verify_price（决定输出侧审计）
+    # 用量截图测算题：模型必须走 calculate_token_cost；代码侧不信任它的自由文本。
+    cost_intent = is_usage_cost_question(
+        question, history, bool(images) or _history_has_images(history)
+    )
+    # 审计元数据：工具轨迹、脱敏对话快照、截图数量（不存原图）。
+    tool_trace: list[dict] = []
+    history_snapshot = _history_snapshot(history)
+    image_count = len(images)
 
     def add_source(s: dict) -> None:
         if s.get("url") and s["url"] not in seen_urls:
@@ -303,6 +332,9 @@ async def stream_answer(
             client_ip=client_ip,
             user_agent=user_agent,
             interrupted=interrupted,
+            tool_trace=tool_trace,
+            history=history_snapshot,
+            image_count=image_count,
         )
 
     if direct_text:
@@ -321,7 +353,22 @@ async def stream_answer(
         return
 
     # ── 3. LLM 工具循环：模型自主决定查价/查汇率/搜索 ──
-    messages: list[dict] = [{"role": "system", "content": prompts.ANSWER_SYSTEM_PROMPT}]
+    # 用量截图测算题只开放核价 / 确定性计算 / 汇率三个工具，减少绕开计算器的路径；
+    # 即使模型仍不调用 calculate_token_cost，收尾处的代码闸门也会拒收自由文本成本。
+    available_tools = (
+        [
+            t
+            for t in tools.TOOLS
+            if t["function"]["name"]
+            in ("verify_price", "calculate_token_cost", "get_fx_rate")
+        ]
+        if cost_intent
+        else tools.TOOLS
+    )
+    system_content = prompts.ANSWER_SYSTEM_PROMPT
+    if cost_intent:
+        system_content += "\n\n" + prompts.USAGE_COST_HARD_GATE
+    messages: list[dict] = [{"role": "system", "content": system_content}]
     for h in history[-MAX_HISTORY:]:
         role = h.get("role")
         content = _mm_history_content(h.get("content", ""))
@@ -346,14 +393,17 @@ async def stream_answer(
         循环由 tool_calls 非空驱动（不信 finish_reason）：某轮未产出工具调用
         即视为模型已作答完毕，正常收尾。所有轮的 text 都正常流式输出——
         模型在带工具轮也可能不调工具直接作答（能力题知识库够答时），丢弃
-        会丢整段回答；探针已验证 qwen3.8-max 工具轮前无正文泄漏。"""
+        会丢整段回答；探针已验证 qwen3.8-max 工具轮前无正文泄漏。
+
+        用量截图成本题例外：正文先缓冲，拿到 calculate_token_cost 的成品表后
+        直接由代码输出；拿不到就落澄清话术，不允许自由文本成本进入交付。"""
         nonlocal price_status, official_md, competitor_md, calculated_md, price_checked
         for rnd in range(MAX_TOOL_ROUNDS):
             use_tools = rnd < MAX_TOOL_ROUNDS - 1
             thinking = False
             tool_calls: list[dict] = []
             async for kind, text in stream_chat(
-                messages, tools=tools.TOOLS if use_tools else None
+                messages, tools=available_tools if use_tools else None
             ):
                 if kind == "think":
                     if not thinking:
@@ -367,9 +417,10 @@ async def stream_answer(
                     yield {"type": "think", "text": text}
                 elif kind == "tool_calls":
                     tool_calls = text
-                else:  # text：工具轮与收尾轮同样流式输出（见 docstring）
+                else:  # text：工具轮与收尾轮同样保留；成本题先缓冲，避免自由文本成本外泄
                     parts.append(text)
-                    yield {"type": "delta", "text": text}
+                    if not cost_intent:
+                        yield {"type": "delta", "text": text}
             if not tool_calls:
                 return
             # 回填 assistant 工具调用消息 + 执行结果，进入下一轮
@@ -392,11 +443,22 @@ async def stream_answer(
             )
             for i, c in enumerate(tool_calls):
                 yield {"type": "status", "stage": "tool", "message": tools.status_of(c["name"])}
+                started = time.perf_counter()
+                trace = {
+                    "name": c["name"],
+                    "arguments": (c["arguments"] or "")[:2000],
+                    "status": "ok",
+                }
                 try:
                     result = await tools.execute_tool(c["name"], c["arguments"])
                 except Exception as e:
                     log.exception("工具执行失败 %s", c["name"])
                     result = {"content": f"工具执行失败：{e}"}
+                    trace["status"] = "error"
+                    trace["error"] = str(e)[:500]
+                finally:
+                    trace["latency_ms"] = int((time.perf_counter() - started) * 1000)
+                    tool_trace.append(trace)
                 if "price_status" in result:
                     price_status = result["price_status"]
                     # 多模型问题会连调多次 verify_price（如 4 个型号各一次）：
@@ -431,6 +493,9 @@ async def stream_answer(
                         "content": result.get("content", ""),
                     }
                 )
+            # 成本题拿到确定性成品表后提前收尾：不再进入自由文本生成轮。
+            if cost_intent and calculated_md:
+                return
             yield {"type": "status", "stage": "answering", "message": "✍️ 整理证据，生成回答..."}
 
     try:
@@ -452,24 +517,45 @@ async def stream_answer(
         yield {"type": "error", "message": f"生成失败：{e}"}
         return
 
-    # ── 4. 输出侧价格审计 + 交付记录入库 ──
+    # ── 4. 成本题代码闸门：只允许 calculated_md 或澄清话术 ──
+    # 不信任模型自由文本：#198 曾把非缓存输入放大 10 倍，追问后才纠正。
+    if cost_intent:
+        parts.clear()
+        if calculated_md:
+            final_text = "按官方单价与原始整数 tokens 计算：\n\n" + calculated_md
+        else:
+            final_text = prompts.USAGE_COST_CLARIFY_TEXT
+        parts.append(final_text)
+        yield {"type": "delta", "text": final_text}
+
+    # ── 5. 输出侧价格审计 + 交付记录入库 ──
     # 调过 verify_price 才审计：核对回答表格里的 $ 金额是否都来自官方证据，
     # 抄错/臆造则标记 mismatch（前端「已联网核实」徽章只看 official，不能为抄错背书）。
     if price_checked:
         result = audit_answer_prices(
             "".join(parts), official_md + "\n\n" + calculated_md, competitor_md, question
         )
+        completeness = {"checked": False, "missing_rows": []}
+        if not cost_intent and not result["mismatched"]:
+            completeness = audit_price_completeness("".join(parts), official_md, question)
         if result["checked"]:
-            price_audit = (
-                "mismatch:" + "|".join(result["mismatched"])
-                if result["mismatched"]
-                else "ok"
-            )
+            audit_parts: list[str] = []
             if result["mismatched"]:
+                audit_parts.append("mismatch:" + "|".join(result["mismatched"]))
                 log.warning(
                     "价格审计 mismatch：回答表格出现官方证据外的价格 %s",
                     result["mismatched"],
                 )
+            if completeness["checked"] and completeness["missing_rows"]:
+                missing_rows = "; ".join(
+                    " | ".join(row) for row in completeness["missing_rows"]
+                )
+                audit_parts.append("incomplete:" + missing_rows)
+                log.warning(
+                    "价格审计 incomplete：回答漏掉官方证据行 %s",
+                    completeness["missing_rows"],
+                )
+            price_audit = ";".join(audit_parts) if audit_parts else "ok"
     answer_id = persist(False)
     yield {
         "type": "done",

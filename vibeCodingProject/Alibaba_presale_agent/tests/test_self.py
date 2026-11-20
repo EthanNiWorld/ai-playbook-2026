@@ -4,6 +4,7 @@
 """
 
 import asyncio
+import json
 import sys
 import tempfile
 from pathlib import Path
@@ -788,6 +789,40 @@ def test_price_audit():
     rm2 = pv.audit_answer_prices(media_off.replace("$0.28", "$0.82"), media_off)
     check("审计: 视频价抄错被揪出", rm2["checked"] and "0.82" in rm2["mismatched"], str(rm2))
 
+    # 2026-11-20 P0：官方表行级完整性审计（#197 漏 Text 行事故）
+    check("用量截图题: 带图问总费用命中",
+          pv.is_usage_cost_question("看看多少钱", [], has_images=True))
+    check("用量截图题: 无图不命中",
+          not pv.is_usage_cost_question("看看多少钱", [], has_images=False))
+    check("用量截图题: 追问某一列不命中",
+          not pv.is_usage_cost_question("输入价格是多少", [], has_images=True))
+    official_two = (
+        "| Region | 输入价格 (Input) | 缓存输入价格 (Cache Input) | 输出价格 (Output) | 显式缓存创建 (Cache Write) | 备注 |\n"
+        "|---|---|---|---|---|---|\n"
+        "| China (Beijing) · Image/Video | $0.258 | — | — | — | — |\n"
+        "| China (Beijing) · Text | $0.1 | — | — | — | — |\n"
+    )
+    answer_one = (
+        "| Region | 输入价格 (Input) | 缓存输入价格 (Cache Input) | 输出价格 (Output) | 显式缓存创建 (Cache Write) | 备注 |\n"
+        "|---|---|---|---|---|---|\n"
+        "| China (Beijing) · Image/Video | $0.258 | — | — | — | — |\n"
+    )
+    missing = pv.audit_price_completeness(
+        answer_one, official_two, "qwen3-vl-embedding 北京节点多少钱"
+    )
+    check("完整性审计: 漏 Text 行被揪出",
+          missing["checked"] and any("Text" in row[0] for row in missing["missing_rows"]),
+          str(missing))
+    complete = pv.audit_price_completeness(
+        official_two, official_two, "qwen3-vl-embedding 北京节点多少钱"
+    )
+    check("完整性审计: 全行覆盖通过",
+          complete["checked"] and complete["missing_rows"] == [], str(complete))
+    field_q = pv.audit_price_completeness(
+        answer_one, official_two, "qwen3-vl-embedding 输入价格是多少"
+    )
+    check("完整性审计: 字段追问不判漏行", not field_q["checked"], str(field_q))
+
 
 def test_followup_anchor_and_competitor():
     """工具循环版：竞品证据抽取/打标纯函数回归（is_table_followup/competitor_of
@@ -1172,6 +1207,124 @@ def test_pipeline_wiring():
         tools.execute_tool = saved_tool
 
 
+def test_pipeline_usage_cost_gate():
+    """用量截图成本题：只开放核价/计算/汇率，必须走到 calculate_token_cost。
+
+    mock 第一轮 verify_price、第二轮 calculate_token_cost；拿到 calculated_md 后
+    应提前收尾，不再进入自由文本生成轮，最终答案由代码直接输出成品表。
+    """
+    print("[8b] 用量截图成本题硬闸门（mock 工具循环）")
+    import types
+    from app import pipeline, tools
+
+    official = (
+        "| Region | 输入价格 (Input) | 缓存输入价格 (Cache Input) | 输出价格 (Output) | 显式缓存创建 (Cache Write) | 备注 |\n"
+        "|---|---|---|---|---|---|\n"
+        "| Singapore | $1.5 | $0.075 | $4.5 | $1.875 (5m) / $3 (1h) | — |"
+    )
+    calculated = (
+        "### Token 成本测算（Singapore · 确定性计算）\n\n"
+        "| 模型 | 非缓存输入 tokens | 缓存输入 tokens | 输出 tokens | 非缓存输入费用 (USD) |"
+        " 缓存输入费用 (USD) | 输出费用 (USD) | 小计 (USD) |\n"
+        "|---|---:|---:|---:|---:|---:|---:|---:|\n"
+        "| qwen4-max | 465,468,500 | 23,953,611,124 | 344,621,570 |"
+        " $698.20 | $1,796.52 | $1,550.80 | $4,045.52 |"
+    )
+
+    class FakeIdx:
+        def search(self, q, top_k=6):
+            return [{"text": "x", "title": "qwen", "relpath": "maas/qwen.md"}]
+
+    stream_calls: list[dict] = []
+    captured: dict = {}
+
+    async def fake_stream(messages, tools=None, **kw):
+        stream_calls.append({"messages": [dict(m) for m in messages], "tools": tools})
+        if len(stream_calls) == 1:
+            yield ("think", "先核价")
+            yield (
+                "tool_calls",
+                [{"id": "call_0", "name": "verify_price",
+                  "arguments": '{"model": "qwen4-max"}'}],
+            )
+        elif len(stream_calls) == 2:
+            yield ("think", "再计算")
+            yield (
+                "tool_calls",
+                [{"id": "call_1", "name": "calculate_token_cost",
+                  "arguments": '{"region": "Singapore", "items": []}'}],
+            )
+        else:
+            yield ("text", "不应到达的自由文本")
+
+    async def fake_execute_tool(name, arguments):
+        if name == "verify_price":
+            return {
+                "content": "### 官方定价页证据（权威）\n" + official,
+                "sources": [{"title": "off", "url": "https://x", "kind": "official"}],
+                "price_status": "official",
+                "official_md": official,
+                "competitor_md": "",
+            }
+        if name == "calculate_token_cost":
+            return {"content": calculated, "calculated_md": calculated}
+        return {"content": ""}
+
+    def fake_insert(**kw):
+        captured.clear()
+        captured.update(kw)
+        return 1
+
+    saved = {k: getattr(pipeline, k) for k in ("get_index", "stream_chat", "store")}
+    saved_tool = tools.execute_tool
+    pipeline.get_index = lambda: FakeIdx()
+    pipeline.stream_chat = fake_stream
+    pipeline.store = types.SimpleNamespace(insert_answer=fake_insert)
+    tools.execute_tool = fake_execute_tool
+    async def drive():
+        evs = []
+        async for ev in pipeline.stream_answer(
+            "看看多少钱", [], "cost-session",
+            images=["data:image/png;base64,xxx"],
+        ):
+            evs.append(ev)
+        return evs
+
+    try:
+        evs = asyncio.run(drive())
+    finally:
+        for k, v in saved.items():
+            setattr(pipeline, k, v)
+        tools.execute_tool = saved_tool
+
+    deltas = "".join(e["text"] for e in evs if e["type"] == "delta")
+    done = next(e for e in evs if e["type"] == "done")
+    tool_names = {
+        t["function"]["name"]
+        for t in (stream_calls[0]["tools"] or [])
+    }
+    trace_names = [t["name"] for t in captured.get("tool_trace", [])]
+
+    check("成本闸门: system prompt 附加硬约束",
+          "用量截图测算" in stream_calls[0]["messages"][0]["content"],
+          stream_calls[0]["messages"][0]["content"][:200])
+    check("成本闸门: 只开放核价/计算/汇率工具",
+          tool_names == {"verify_price", "calculate_token_cost", "get_fx_rate"},
+          str(tool_names))
+    check("成本闸门: 必须走到 calculate_token_cost",
+          trace_names == ["verify_price", "calculate_token_cost"], str(trace_names))
+    check("成本闸门: 拿到成品表后提前收尾（不进自由文本轮）",
+          len(stream_calls) == 2, str(len(stream_calls)))
+    check("成本闸门: 最终答案由代码直接渲染成品表",
+          "按官方单价与原始整数 tokens 计算" in deltas and "$4,045.52" in deltas,
+          deltas[:300])
+    check("成本闸门: 不输出自由文本成本",
+          "不应到达的自由文本" not in deltas and "不应到达的自由文本" not in captured.get("answer", ""),
+          captured.get("answer", "")[:300])
+    check("成本闸门: image_count 落库", captured.get("image_count") == 1)
+    check("成本闸门: done 仍携带审计状态", done.get("price_status") == "official", str(done))
+
+
 def test_store_price_audit():
     """price_audit 列：新库写入、老库自动迁移、统计/导出。"""
     print("[7] price_audit 存储与迁移")
@@ -1188,14 +1341,29 @@ def test_store_price_audit():
             store.insert_answer("s2", "Q2", "A2", [], "official", "m", 100,
                                 price_audit="ok")
             store.insert_answer("s3", "Q3", "A3", [], "", "m", 100)
+            trace = [{"name": "calculate_token_cost", "arguments": "{}",
+                      "status": "ok", "latency_ms": 12}]
+            hist = [{"role": "user", "content": "看看多少钱"}]
+            a4 = store.insert_answer("s4", "Q4", "A4", [], "official", "m", 100,
+                                     tool_trace=trace, history=hist, image_count=1)
             s = store.stats()
             check("price_audit: 统计 mismatch 计数=1", s.get("price_audit_mismatch") == 1, str(s))
             items = {it["id"]: it for it in store.list_answers()}
             check("price_audit: 落库值可回读", items[a1]["price_audit"] == "mismatch:0.82")
             check("price_audit: 未审计默认空串", items[a1 + 2]["price_audit"] == "")
+            check("审计列: tool_trace_json 可回读",
+                  json.loads(items[a4]["tool_trace_json"])[0]["name"] == "calculate_token_cost",
+                  str(items[a4].get("tool_trace_json")))
+            check("审计列: history_json 可回读",
+                  json.loads(items[a4]["history_json"])[0]["content"] == "看看多少钱",
+                  str(items[a4].get("history_json")))
+            check("审计列: image_count 可回读", items[a4]["image_count"] == 1)
             csv_text = store.export_csv()
             check("price_audit: CSV 含表头与值",
                   "price_audit" in csv_text and "mismatch:0.82" in csv_text)
+            check("审计列: CSV 含工具轨迹与图片数",
+                  "tool_trace" in csv_text and "image_count" in csv_text
+                  and "calculate_token_cost" in csv_text)
         finally:
             store.get_db_path = orig
 
@@ -1214,12 +1382,15 @@ def test_store_price_audit():
         orig = store.get_db_path
         store.get_db_path = lambda: dbp
         try:
-            store.init_db()  # 应补 price_audit / thinking / client_ip 等列
+            store.init_db()  # 应补 price_audit / thinking / client_ip / 审计列等
             aid = store.insert_answer("s", "Q", "A", [], "official", "m", 1,
                                       price_audit="mismatch:1.23")
             row = store.list_answers()[0]
             check("price_audit: 老库迁移后可写可读",
                   row["id"] == aid and row["price_audit"] == "mismatch:1.23", str(row))
+            check("审计列: 老库迁移后默认值",
+                  row["tool_trace_json"] == "[]" and row["history_json"] == "[]"
+                  and row["image_count"] == 0, str(row))
         finally:
             store.get_db_path = orig
 
@@ -1574,6 +1745,7 @@ def main():
     test_rate_limit_lookup()
     test_asr()
     test_pipeline_wiring()
+    test_pipeline_usage_cost_gate()
     test_store_price_audit()
     test_fx()
     test_vendor_report()

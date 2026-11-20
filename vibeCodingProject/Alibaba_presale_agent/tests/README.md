@@ -51,3 +51,38 @@ python run.py &          # 独立终端启动，或按 README 用 docker compose
 联调脚本默认会真实调用 LLM 并消耗额度。本地启动服务时 `DASHSCOPE_API_KEY` 必须与 `DASHSCOPE_BASE_URL` 配对（workspace 密钥 `sk-ws-` 配专属端点，配公网默认端点会 401）；根目录 `.env` 只有带后缀的密钥变量，需显式映射一对再启动。仅改动 `static/` 时优先运行 `ui_regression.py --mock`，覆盖首屏布局、侧栏折叠、流式状态、反馈显隐、价格表横滑、移动端入口、中文输入法保护与异常后的新会话恢复；需要验证模型链路时再运行默认模式。
 
 > `data/` 已在 `.gitignore` 与 `.dockerignore` 中排除，测试产生的记录不会进入仓库或镜像。
+
+## 3. 线上交付只读日报（离线评审，不打线上问答）
+
+```bash
+# 手动运行：云助手只读快照 → 私有 OSS → 本地检查；最多抽审 8 条
+.venv/bin/python tests/e2e/daily_audit.py --instance-id <ECS_INSTANCE_ID>
+
+# 复用已下载快照，只做确定性检查，不产生评审模型费用
+.venv/bin/python tests/e2e/daily_audit.py --skip-sync --no-judge
+
+# daily_audit 自身的离线回归
+.venv/bin/python tests/e2e/test_daily_audit.py
+```
+
+日报读取 `answers` 中上一游标后的新记录，默认限近 24 小时，排除 `judge-/replay-/diagnose-/daily-audit-` 会话。全量检查踩、价格审计、中断、内部路径、来源和耗时；按风险优先最多抽审 8 条。报告与游标分别落 `data/reports/daily-<时间戳>.md/.json` 和 `data/eval/daily_audit_state.json`，原始问答不进入 Git。
+
+副作用与边界：
+
+- 远端只执行容器内 `VACUUM INTO` 和 OSS 上传，**不停止/重启服务、不改配置、不新增线上问答**；OSS 会覆盖同一个 `presale-agent/eval/remote-qa.db.gz` 快照对象。
+- 语义抽审调用 `DAILY_JUDGE_MODEL`（默认 `glm-5.2`、关闭思考）并消耗少量 token；深度 `eval_harness` 仍默认用 `glm-5.3`。`--no-judge` 可完全关闭。未抽审记录标 `unreviewed`，绝不算通过。
+- 优化建议只含证据、候选文件、影响和回归入口，**不会自动改代码**。`needs_replay=true` 表示必须带原 history 重放后才能定界，不能用单轮回放代替。
+
+### 每天 08:00（macOS launchd，默认不启用）
+
+模板为 `deploy/com.alibaba.presale-agent.daily-audit.plist`。确认启用时，在项目目录执行（会把模板中的 `__PROJECT_ROOT__` 替换为当前项目路径，并写入当前用户的 LaunchAgents）：
+
+```bash
+mkdir -p "$HOME/Library/LaunchAgents"
+sed -e "s|__PROJECT_ROOT__|$PWD|g" -e "s|__ECS_INSTANCE_ID__|<ECS_INSTANCE_ID>|g" \
+  deploy/com.alibaba.presale-agent.daily-audit.plist \
+  > "$HOME/Library/LaunchAgents/com.alibaba.presale-agent.daily-audit.plist"
+launchctl bootstrap "gui/$UID" "$HOME/Library/LaunchAgents/com.alibaba.presale-agent.daily-audit.plist"
+```
+
+运行环境要求：本机 `.venv`、阿里云 CLI 与 `ecsdeploy` profile 可用，工作区 `.env` 含 OSS 与评审模型配置；实例 ID 在上方安装命令中写入用户级 plist，不进入公开仓库。时间按 Mac 系统时区；睡眠时错过的任务通常会在唤醒后补跑，关机期间不能保证 08:00 准点。日志在 `/tmp/alibaba-presale-agent-daily-audit.log`，成功后发送 macOS 通知。模板和脚本仅入库，安装前不会注册任何定时任务。

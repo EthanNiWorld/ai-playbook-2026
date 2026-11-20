@@ -22,6 +22,9 @@ CREATE TABLE IF NOT EXISTS answers (
     sources_json    TEXT DEFAULT '[]',
     price_status    TEXT DEFAULT '',          -- ''|official|web|none|error
     price_audit     TEXT DEFAULT '',          -- ''|ok|mismatch:<金额|金额>（回答表格价格 vs 官方证据）
+    tool_trace_json TEXT DEFAULT '[]',        -- 每次工具调用的 name/arguments/status/latency
+    history_json    TEXT DEFAULT '[]',        -- 最近几轮脱敏对话（不存图片）
+    image_count     INTEGER DEFAULT 0,        -- 本轮截图数量（不存原图）
     llm_model       TEXT DEFAULT '',
     latency_ms      INTEGER DEFAULT 0,
     client_ip       TEXT DEFAULT '',          -- 提问者 IP（反代场景取 X-Forwarded-For 首跳）
@@ -44,6 +47,9 @@ _MIGRATIONS = {
     "user_agent": "TEXT DEFAULT ''",
     "interrupted": "INTEGER DEFAULT 0",
     "price_audit": "TEXT DEFAULT ''",
+    "tool_trace_json": "TEXT DEFAULT '[]'",
+    "history_json": "TEXT DEFAULT '[]'",
+    "image_count": "INTEGER DEFAULT 0",
 }
 
 # 依赖补列后才能建的索引（放在补列之后执行，否则老库报 no such column）
@@ -87,6 +93,9 @@ def insert_answer(
     user_agent: str = "",
     interrupted: bool = False,
     price_audit: str = "",
+    tool_trace: list | None = None,
+    history: list | None = None,
+    image_count: int = 0,
 ) -> int:
     """写入一条交付记录，返回 id（前端反馈凭此 id 关联）"""
     now = datetime.now().astimezone().isoformat(timespec="seconds")
@@ -96,8 +105,9 @@ def insert_answer(
             cur = conn.execute(
                 """INSERT INTO answers
                    (session_id, question, answer, thinking, sources_json, price_status,
-                    price_audit, llm_model, latency_ms, client_ip, user_agent, interrupted, created_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    price_audit, tool_trace_json, history_json, image_count,
+                    llm_model, latency_ms, client_ip, user_agent, interrupted, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     session_id,
                     question,
@@ -106,6 +116,9 @@ def insert_answer(
                     json.dumps(sources, ensure_ascii=False),
                     price_status,
                     price_audit,
+                    json.dumps(tool_trace or [], ensure_ascii=False),
+                    json.dumps(history or [], ensure_ascii=False),
+                    image_count,
                     llm_model,
                     latency_ms,
                     client_ip,
@@ -219,7 +232,7 @@ def export_csv() -> str:
     try:
         rows = conn.execute(
             "SELECT id, session_id, client_ip, user_agent, question, answer, thinking,"
-            " price_status, price_audit, llm_model, latency_ms, interrupted, created_at, feedback,"
+            " price_status, price_audit, tool_trace_json, history_json, image_count, llm_model, latency_ms, interrupted, created_at, feedback,"
             " feedback_reason, feedback_at, sources_json"
             " FROM answers ORDER BY id"
         ).fetchall()
@@ -229,7 +242,8 @@ def export_csv() -> str:
     writer = csv.writer(buf)
     writer.writerow(
         ["id", "session_id", "client_ip", "user_agent", "question", "answer",
-         "thinking", "price_status", "price_audit", "llm_model", "latency_ms", "interrupted",
+         "thinking", "price_status", "price_audit", "tool_trace", "history", "image_count",
+         "llm_model", "latency_ms", "interrupted",
          "created_at", "feedback", "feedback_reason", "feedback_at", "sources"]
     )
     for r in rows:

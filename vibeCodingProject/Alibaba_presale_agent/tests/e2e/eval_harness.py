@@ -77,22 +77,25 @@ def _client() -> OpenAI:
                   base_url=os.environ["DASHSCOPE_BASE_URL"])
 
 
-def _llm_json(client: OpenAI, prompt: str) -> dict:
+def _llm_json(client: OpenAI, prompt: str, max_tokens: int = 24000, retries: int = 3,
+              model: str | None = None, enable_thinking: bool | None = None) -> dict:
     """调 judge 模型取严格 JSON（GLM-5.3 强制思考，max_tokens 给足预算）。
 
     带重试：远端 DashScope 端点偶发 DNS/连接抖动（本机 DNS 劫持），
     单次瞬时错误不应中断整轮评测。
     """
     last_err = ""
-    for attempt in range(3):
+    for attempt in range(retries):
         try:
-            resp = client.chat.completions.create(
-                model=JUDGE_MODEL,
-                messages=[{"role": "user", "content": prompt}],
-                # 评审 prompt 较长，GLM-5.3 思考偶发吃 >16k tokens（实测 finish=length），
-                # cap 提到 24000 防截断；正常 case 用量不变，仅 outlier 受益
-                max_tokens=24000, temperature=0,
-            )
+            request = {
+                "model": model or JUDGE_MODEL,
+                "messages": [{"role": "user", "content": prompt}],
+                # GLM-5.3 默认给足思考预算；日报可用 glm-5.2 关思考控制延迟。
+                "max_tokens": max_tokens, "temperature": 0,
+            }
+            if enable_thinking is not None:
+                request["extra_body"] = {"enable_thinking": enable_thinking}
+            resp = client.chat.completions.create(**request)
             choice = resp.choices[0]
             raw = (choice.message.content or "").strip()
             raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw, flags=re.M).strip()
@@ -105,9 +108,9 @@ def _llm_json(client: OpenAI, prompt: str) -> dict:
                 return {}
         except Exception as e:
             last_err = str(e)[:100]
-            print(f"    [judge 连接失败 attempt{attempt + 1}/3] {last_err}")
+            print(f"    [judge 连接失败 attempt{attempt + 1}/{retries}] {last_err}")
             time.sleep(3 * (attempt + 1))
-    print(f"    [judge 三次重试均失败] {last_err}")
+    print(f"    [judge {retries} 次重试均失败] {last_err}")
     return {}
 
 
