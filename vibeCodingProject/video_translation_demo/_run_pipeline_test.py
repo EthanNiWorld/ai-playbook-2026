@@ -1,5 +1,10 @@
 """
 端到端测试脚本：直接调用 VideoDubbingPipeline（不通过 Gradio UI）
+
+Key 与端点说明：从仓库 .env 中读与地域配对的 workspace Key（sk-ws Key
+必须配 workspace 端点，主程序会从对应的 *_URL 环境变量自动推导端点）。
+注意不优先读 DASHSCOPE_API_KEY：shell 残留的旧 export 可能与 workspace
+不配对，导致 403 Endpoint.AccessDenied。
 """
 import os
 import sys
@@ -9,6 +14,17 @@ from datetime import datetime
 # 项目目录：基于脚本自身位置动态推导（避免硬编码绝对路径）
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PROJECT_DIR)
+
+# 加载仓库根目录 .env（存在则注入环境变量，已设置的不覆盖）
+ENV_FILE = os.path.join(PROJECT_DIR, "..", "..", ".env")
+if os.path.exists(ENV_FILE):
+    with open(ENV_FILE) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 # 列出 testfile 中的文件
 testfile_dir = os.path.join(PROJECT_DIR, "testfile")
@@ -38,11 +54,14 @@ if not video_path or not vocal_path:
     print("❌ 缺少素材")
     sys.exit(1)
 
-# API Key 从环境变量读取（禁止硬编码）
-API_KEY = os.getenv("DASHSCOPE_API_KEY", "").strip()
+# API Key 从环境变量读取（禁止硬编码）：用与地域配对的 workspace Key
+# （REGION_ENV 与主程序一致；不读裸 DASHSCOPE_API_KEY，避免 shell 残留旧值串台）
+from video_dubbing_zh2en import REGION_ENV
+
+REGION = os.getenv("DUBBING_TEST_REGION", "intl").strip() or "intl"
+API_KEY = os.getenv(REGION_ENV[REGION][0], "").strip()
 if not API_KEY:
-    print("❌ 未设置环境变量 DASHSCOPE_API_KEY")
-    print("   请先运行: export DASHSCOPE_API_KEY=sk-xxx")
+    print(f"❌ 未设置环境变量 {REGION_ENV[REGION][0]}")
     sys.exit(1)
 print(f"\n=== API Key 校验 ===")
 print(f"  starts_with_sk-: {API_KEY.startswith('sk-')}")
@@ -58,7 +77,7 @@ except UnicodeEncodeError as e:
 print(f"\n=== Pipeline 调用 ===")
 from video_dubbing_zh2en import VideoDubbingPipeline
 
-pipeline = VideoDubbingPipeline(api_key=API_KEY, region="intl")
+pipeline = VideoDubbingPipeline(api_key=API_KEY, region=REGION)
 print(f"  base_url: {pipeline.base_url}")
 
 output_video, asr_text, trans_text = pipeline.run(

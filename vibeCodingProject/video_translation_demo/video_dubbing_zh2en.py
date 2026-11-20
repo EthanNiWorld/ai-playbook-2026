@@ -5,7 +5,7 @@
 功能
 ----
 - 将视频中一个人的中文说话转换为英文配音
-- 声音克隆：使用 CosyVoice 保留原说话人音色特征
+- 声音克隆：使用 Qwen-Audio-3.1 声音复刻保留原说话人音色特征
 - 交互形式：Gradio Web UI
 
 用户输入
@@ -16,18 +16,21 @@
 
 Pipeline
 --------
-1. 百炼临时上传 → 纯人声 MP3 获得 oss:// URL
-2. fun-asr ASR → 带时间戳的中文句子列表
-3. qwen-mt-plus 翻译 → 中文→英文（plus 档质量优于 flash）
-4. CosyVoice 声音复刻 → 克隆原说话人音色（国际/国内站均支持）
-5. CosyVoice v3-plus TTS → 英文语音合成 + 时长对齐（plus 档音质优于 flash）
-6. ffmpeg 合成 → 替换视频音轨输出最终视频
+1. qwen-audio-3.1-asr-flash ASR → 带时间戳的中文句子列表（同步接口，本地 Base64 直传）
+2. qwen-mt-plus 翻译 → 中文→英文（plus 档质量优于 flash）
+3. Qwen-Audio-3.1 声音复刻 → 克隆原说话人音色（国际/国内站均支持）
+4. qwen-audio-3.1-tts-plus TTS → 英文语音合成 + 时长对齐（精品音色 / 内容制作档）
+5. ffmpeg 合成 → 替换视频音轨输出最终视频
 
 配置
 ----
 环境变量（可选，也可在 UI 中输入）:
-  DASHSCOPE_API_KEY_INTL_AIGC - 国际站 API Key（默认）
-  DASHSCOPE_API_KEY_CN_AIGC   - 国内站 API Key
+  DASHSCOPE_API_KEY_INTL_SG_TEST (+ DASHSCOPE_API_KEY_INTL_SG_TEST_URL) - 国际站 workspace Key
+  DASHSCOPE_API_KEY_INTL_BJ_TEST (+ DASHSCOPE_API_KEY_INTL_BJ_TEST_URL) - 国内站 workspace Key
+
+  注意：sk-ws 开头的 workspace Key 必须与其配套的 workspace 端点成对使用，
+  打到标准 dashscope.aliyuncs.com 域名会返回 401。端点会从 *_URL 环境变量
+  的 workspace 域名自动推导；未配置时回落到标准域名（需标准 sk- Key）。
 
 运行
 ----
@@ -40,26 +43,25 @@ Pipeline
 
 参考文档
 --------
-- 百炼临时上传: https://help.aliyun.com/zh/model-studio/get-temporary-file-url
-- fun-asr SDK: https://help.aliyun.com/zh/model-studio/non-realtime-speech-recognition-user-guide
-- CosyVoice 声音复刻: https://help.aliyun.com/zh/model-studio/voice-clone-design-python-sdk
+- Qwen-Audio ASR HTTP API: https://help.aliyun.com/zh/model-studio/qwen-audio-asr-http-api
+- 声音复刻（voice-enrollment）: https://help.aliyun.com/zh/model-studio/voice-clone-design-python-sdk
 - qwen-mt API: https://help.aliyun.com/zh/model-studio/machine-translation
+- Qwen-Audio-TTS: https://help.aliyun.com/zh/model-studio/qwen-audio-3-1-tts-plus
 """
 
 import os
 import json
 import time
+import base64
 import logging
+import mimetypes
 import subprocess
 import tempfile
-import re
 import shutil
-from pathlib import Path
 from typing import Optional, List, Dict, Tuple, Generator
 
 import dashscope
-from dashscope.audio.asr import Transcription
-from dashscope.audio.tts_v2 import VoiceEnrollmentService, SpeechSynthesizer, AudioFormat
+from dashscope.audio.tts_v2 import SpeechSynthesizer, AudioFormat
 from openai import OpenAI
 import gradio as gr
 import requests
@@ -79,21 +81,27 @@ logger = logging.getLogger("video_dubbing")
 # 常量
 # ---------------------------------------------------------------------------
 # 地域（百炼多地域接入点）
-# - cn:   国内大陆站 (北京)
-# - intl: 国际站（新加坡）
+# - cn:   国内大陆站（北京 workspace，cn-beijing）
+# - intl: 国际站（新加坡 workspace，ap-southeast-1）
+# 各地域的 Key 与端点成对配置（sk-ws Key 必须配 workspace 域名，否则 401）
+REGION_ENV = {
+    "intl": ("DASHSCOPE_API_KEY_INTL_SG_TEST", "DASHSCOPE_API_KEY_INTL_SG_TEST_URL"),
+    "cn":   ("DASHSCOPE_API_KEY_INTL_BJ_TEST", "DASHSCOPE_API_KEY_INTL_BJ_TEST_URL"),
+}
+
+# 标准域名接入点（需要标准 sk- Key；workspace sk-ws Key 打这里会 401）
 REGION_URLS = {
     "cn":   "https://dashscope.aliyuncs.com",
     "intl": "https://dashscope-intl.aliyuncs.com",
 }
-REGION_API_V1 = {k: f"{v}/api/v1" for k, v in REGION_URLS.items()}
-REGION_COMPAT_URL = {k: f"{v}/compatible-mode/v1" for k, v in REGION_URLS.items()}
 
 # 默认地域（用户要求）
 DEFAULT_REGION = "intl"
 
 DEFAULT_MT_MODEL = "qwen-mt-plus"
-DEFAULT_TTS_MODEL = "cosyvoice-v3-plus"
-DEFAULT_ASR_MODEL = "fun-asr"
+DEFAULT_TTS_MODEL = "qwen-audio-3.1-tts-plus"
+DEFAULT_ASR_MODEL = "qwen-audio-3.1-asr-flash"
+# ASR 用同步接口，上限 5 分钟，与 demo 的视频时长上限对齐
 MAX_VIDEO_DURATION_S = 300  # 5 分钟
 
 # WebSocket 端点（与 base_http_api_url 不互通，必须显式指定）
@@ -106,123 +114,6 @@ REGION_WS_URL = {
 # ---------------------------------------------------------------------------
 # 辅助函数
 # ---------------------------------------------------------------------------
-def sanitize_filename(filename: str) -> str:
-    """
-    将文件名转换为安全的 OSS 路径格式
-    移除空格、方括号等特殊字符，只保留字母、数字、下划线、连字符和点
-    """
-    name, ext = os.path.splitext(filename)
-    # 只保留安全字符
-    safe_name = re.sub(r'[^a-zA-Z0-9_\-]', '_', name)
-    # 移除连续下划线
-    safe_name = re.sub(r'_+', '_', safe_name).strip('_')
-    # 如果处理后为空，使用时间戳
-    if not safe_name:
-        safe_name = f"file_{int(time.time())}"
-    return f"{safe_name}{ext}"
-
-
-def oss_url_to_http(oss_url: str) -> str:
-    """
-    将 oss:// URL 转换为阿里云 OSS HTTP URL
-    
-    oss://dashscope-instant/xxx/xxx/file.mp3
-    -> https://dashscope-instant.oss-cn-beijing.aliyuncs.com/xxx/xxx/file.mp3
-    """
-    if not oss_url.startswith("oss://"):
-        return oss_url  # 已经是 HTTP URL
-    
-    # 解析 oss:// URL
-    # 格式: oss://bucket-name/path/to/file
-    oss_path = oss_url[6:]  # 移除 "oss://"
-    parts = oss_path.split("/", 1)
-    bucket = parts[0]
-    object_path = parts[1] if len(parts) > 1 else ""
-    
-    # 构建 HTTP URL（使用北京地域的 OSS endpoint）
-    http_url = f"https://{bucket}.oss-cn-beijing.aliyuncs.com/{object_path}"
-    logger.info(f"OSS URL 转换: {oss_url} -> {http_url}")
-    return http_url
-
-
-def upload_to_dashscope(
-    api_key: str,
-    model_name: str,
-    file_path: str,
-    api_v1_url: str,
-) -> str:
-    """
-    上传本地文件至百炼临时存储，返回 oss:// URL（有效期 48 小时）
-
-    百炼文件上传与模型绑定：上传时指定的 model 必须与后续调用的模型一致。
-
-    Args:
-        api_key: DashScope API Key
-        model_name: 绑定的模型名称（如 'fun-asr'、'cosyvoice-v3-plus'）
-        file_path: 本地文件路径
-        api_v1_url: 当前地域的 API v1 接入点
-
-    Returns:
-        oss:// 格式的临时 URL
-    """
-    logger.info(f"上传文件 {file_path} (绑定模型: {model_name}, endpoint: {api_v1_url})...")
-
-    # 安全化文件名（移除空格、方括号等特殊字符）
-    original_name = Path(file_path).name
-    safe_name = sanitize_filename(original_name)
-    
-    # 如果文件名需要修改，创建临时副本
-    upload_path = file_path
-    if safe_name != original_name:
-        temp_dir = tempfile.mkdtemp(prefix="upload_")
-        upload_path = os.path.join(temp_dir, safe_name)
-        shutil.copy2(file_path, upload_path)
-        logger.info(f"文件名安全化: {original_name} -> {safe_name}")
-
-    try:
-        # Step 1: 获取上传凭证
-        url = f"{api_v1_url}/uploads"
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        }
-        params = {"action": "getPolicy", "model": model_name}
-
-        resp = requests.get(url, headers=headers, params=params)
-        if resp.status_code != 200:
-            raise RuntimeError(f"获取上传凭证失败: {resp.status_code} {resp.text}")
-
-        policy_data = resp.json()["data"]
-
-        # Step 2: 上传文件到 OSS
-        file_name = Path(upload_path).name
-        key = f"{policy_data['upload_dir']}/{file_name}"
-
-        with open(upload_path, "rb") as f:
-            files = {
-                "OSSAccessKeyId": (None, policy_data["oss_access_key_id"]),
-                "Signature": (None, policy_data["signature"]),
-                "policy": (None, policy_data["policy"]),
-                "x-oss-object-acl": (None, policy_data["x_oss_object_acl"]),
-                "x-oss-forbid-overwrite": (None, policy_data["x_oss_forbid_overwrite"]),
-                "key": (None, key),
-                "success_action_status": (None, "200"),
-                "file": (file_name, f),
-            }
-            upload_resp = requests.post(policy_data["upload_host"], files=files)
-
-        if upload_resp.status_code != 200:
-            raise RuntimeError(f"文件上传 OSS 失败: {upload_resp.status_code} {upload_resp.text}")
-
-        oss_url = f"oss://{key}"
-        logger.info(f"上传成功: {oss_url}")
-        return oss_url
-    finally:
-        # 清理临时文件
-        if upload_path != file_path and os.path.exists(upload_path):
-            shutil.rmtree(os.path.dirname(upload_path), ignore_errors=True)
-
-
 def get_audio_duration(audio_path: str) -> float:
     """使用 ffprobe 获取音频时长（秒）"""
     result = subprocess.run(
@@ -289,11 +180,23 @@ class VideoDubbingPipeline:
         self.tts_model = DEFAULT_TTS_MODEL
         self.asr_model = DEFAULT_ASR_MODEL
 
-        # 按地域选择接入点
-        self.base_url = REGION_URLS[region]
-        self.api_v1_url = REGION_API_V1[region]
-        self.compat_url = REGION_COMPAT_URL[region]
-        self.ws_url = REGION_WS_URL[region]
+        # 按地域选择接入点：优先 workspace 域名（sk-ws Key 须配对），否则标准域名
+        _key_env, _url_env = REGION_ENV[region]
+        ws_base_url = os.getenv(_url_env, "").strip()
+        if ws_base_url:
+            # https://{workspace}.{region}.maas.aliyuncs.com/compatible-mode/v1 → 提取 host
+            host = ws_base_url.split("//", 1)[-1].split("/", 1)[0]
+            self.base_url = f"https://{host}"
+            self.api_v1_url = f"{self.base_url}/api/v1"
+            self.compat_url = f"{self.base_url}/compatible-mode/v1"
+            self.ws_url = f"wss://{host}/api-ws/v1/inference"
+            logger.info(f"使用 workspace 端点（{_url_env}）: {host}")
+        else:
+            self.base_url = REGION_URLS[region]
+            self.api_v1_url = f"{self.base_url}/api/v1"
+            self.compat_url = f"{self.base_url}/compatible-mode/v1"
+            self.ws_url = REGION_WS_URL[region]
+            logger.info("未配置 workspace 端点，回落标准域名（需标准 sk- Key）")
 
         # 配置 DashScope SDK
         dashscope.api_key = api_key
@@ -328,175 +231,129 @@ class VideoDubbingPipeline:
             if progress_cb:
                 progress_cb(msg)
 
-        # Step 1: 上传文件
-        _progress("Step 1/6: 上传音频文件至百炼...")
-        asr_url, voice_url, vocal_path = self._upload_files(vocal_mp3_path, work_dir)
-
-        # Step 2: ASR 语音识别
-        _progress("Step 2/6: 语音识别中（可能需要1-2分钟）...")
-        sentences = self._run_asr(asr_url)
+        # Step 1: ASR 语音识别（同步接口，本地 Base64 直传，无需先上传）
+        _progress("Step 1/5: 语音识别中（可能需要1-2分钟）...")
+        sentences = self._run_asr(vocal_mp3_path)
         asr_text = "\n".join(
             f"[{s['begin_time']/1000:.1f}s - {s['end_time']/1000:.1f}s] {s['text']}"
             for s in sentences
         )
-        _progress(f"Step 2/6: 语音识别完成，共 {len(sentences)} 句")
+        _progress(f"Step 1/5: 语音识别完成，共 {len(sentences)} 句")
 
-        # Step 3: 翻译
-        _progress("Step 3/6: 中译英翻译中...")
+        # Step 2: 翻译
+        _progress("Step 2/5: 中译英翻译中...")
         sentences = self._translate(sentences)
         translation_text = "\n".join(
             f"{s['text']} → {s['text_en']}" for s in sentences
         )
-        _progress("Step 3/6: 翻译完成")
+        _progress("Step 2/5: 翻译完成")
 
-        # Step 4: 声音复刻
-        _progress("Step 4/6: 声音复刻中（可能需要30秒-2分钟）...")
-        voice_id = self._clone_voice(voice_url, vocal_path)
-        _progress(f"Step 4/6: 声音复刻完成，voice_id={voice_id}")
+        # Step 3: 声音复刻
+        _progress("Step 3/5: 声音复刻中（可能需要30秒-2分钟）...")
+        voice_id = self._clone_voice(vocal_mp3_path)
+        _progress(f"Step 3/5: 声音复刻完成，voice_id={voice_id}")
 
-        # Step 5: 英文语音合成
-        _progress("Step 5/6: 英文语音合成中...")
+        # Step 4: 英文语音合成
+        _progress("Step 4/5: 英文语音合成中...")
         sentences = self._synthesize(sentences, voice_id, work_dir)
-        _progress("Step 5/6: 语音合成完成")
+        _progress("Step 4/5: 语音合成完成")
 
-        # Step 6: 合成视频
-        _progress("Step 6/6: 合成最终视频...")
+        # Step 5: 合成视频
+        _progress("Step 5/5: 合成最终视频...")
         output_path = self._compose_video(video_path, sentences, work_dir)
         _progress("✅ 全部完成！")
 
         return output_path, asr_text, translation_text
 
-    def _upload_files(self, vocal_mp3_path: str, work_dir: str) -> Tuple[str, str, str]:
+    def _run_asr(self, audio_path: str) -> List[Dict]:
         """
-        Step 1: 上传纯人声 MP3 至百炼临时存储
+        Step 1: 调用 qwen-audio-3.1-asr-flash 语音识别（同步多模态接口）
 
-        ASR 支持 oss:// URL（通过 X-DashScope-OssResourceResolve header）
-        声音复刻需要 oss:// URL（通过 HTTP API + header）或 Base64
+        音频先经 ffmpeg 下混为 16kHz 单声道 WAV（说话人分离仅支持单声道），
+        再以 Base64 Data URI 直传，无需百炼临时上传。
+        开启说话人分离后，句级时间戳从 output.sentences 读取
+        （注意：开启后 language_hints 不生效，语种由模型自动识别）。
 
         Returns:
-            (asr_oss_url, voice_oss_url, local_file_path)
+            sentences 列表: [{text, begin_time, end_time}]（时间戳单位 ms）
         """
-        # 为 ASR 上传（绑定 fun-asr），使用 oss:// URL
-        asr_oss_url = upload_to_dashscope(
-            self.api_key, self.asr_model, vocal_mp3_path, self.api_v1_url
+        # ffmpeg 下混：任意输入 → 16kHz 单声道 WAV（消除立体声导致分离失败的风险）
+        wav_path = os.path.join(tempfile.mkdtemp(prefix="asr_"), "asr_input.wav")
+        subprocess.run(
+            [
+                "ffmpeg", "-i", audio_path,
+                "-ar", "16000", "-ac", "1",
+                "-y", wav_path,
+            ],
+            capture_output=True, check=True,
         )
+        try:
+            with open(wav_path, "rb") as f:
+                audio_b64 = base64.b64encode(f.read()).decode("utf-8")
 
-        # 为声音复刻上传（绑定 voice-enrollment），保留 oss:// URL
-        voice_oss_url = upload_to_dashscope(
-            self.api_key, "voice-enrollment", vocal_mp3_path, self.api_v1_url
-        )
+            # 同步多模态 HTTP 接口（flash 系列不支持 SDK / 异步 filetrans 接口）
+            endpoint = f"{self.api_v1_url}/services/aigc/multimodal-generation/generation"
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+                "X-DashScope-SSE": "disable",
+            }
+            payload = {
+                "model": self.asr_model,
+                "input": {
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": [
+                                {
+                                    "type": "input_audio",
+                                    "input_audio": {
+                                        "data": f"data:audio/wav;base64,{audio_b64}",
+                                    },
+                                }
+                            ],
+                        }
+                    ]
+                },
+                "parameters": {
+                    "format": "wav",
+                    "sample_rate": "16000",
+                    "speaker_diarization_enabled": True,  # 开启后才返回句级时间戳
+                },
+            }
 
-        return asr_oss_url, voice_oss_url, vocal_mp3_path
+            logger.info(f"提交 ASR 同步识别: {self.asr_model}, 音频 {len(audio_b64)} 字符(Base64)")
+            resp = requests.post(endpoint, headers=headers, json=payload, timeout=300)
+        finally:
+            shutil.rmtree(os.path.dirname(wav_path), ignore_errors=True)
 
-    def _run_asr(self, audio_url: str) -> List[Dict]:
-        """
-        Step 2: 调用 fun-asr 进行语音识别
+        if resp.status_code != 200:
+            raise RuntimeError(f"ASR 识别失败: {resp.status_code} {resp.text[:300]}")
 
-        使用 HTTP API 直接调用，以支持 oss:// URL（需添加 X-DashScope-OssResourceResolve header）
-
-        Returns:
-            sentences 列表: [{text, begin_time, end_time}]
-        """
-        # 使用 HTTP API 直接调用，添加必要的 header
-        submit_url = f"{self.api_v1_url}/services/audio/asr/transcription"
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-            "X-DashScope-Async": "enable",
-            "X-DashScope-OssResourceResolve": "enable",  # 关键：解析 oss:// URL
-        }
-        payload = {
-            "model": self.asr_model,
-            "input": {
-                "file_urls": [audio_url],
-            },
-            "parameters": {
-                "language_hints": ["zh", "en"],
-            },
-        }
-
-        logger.info(f"提交 ASR 任务: {audio_url}")
-        submit_resp = requests.post(submit_url, headers=headers, json=payload)
-
-        if submit_resp.status_code != 200:
-            raise RuntimeError(
-                f"ASR 任务提交失败: {submit_resp.status_code} {submit_resp.text}"
-            )
-
-        submit_data = submit_resp.json()
-        task_id = submit_data.get("output", {}).get("task_id")
-        if not task_id:
-            raise RuntimeError(f"ASR 任务提交无 task_id: {submit_data}")
-
-        logger.info(f"ASR 任务已提交: task_id={task_id}")
-
-        # 等待任务完成（轮询）
-        query_url = f"{self.api_v1_url}/tasks/{task_id}"
-        max_wait = 180  # 最大等待 3 分钟
-        waited = 0
-        while waited < max_wait:
-            time.sleep(3)
-            waited += 3
-
-            query_resp = requests.get(query_url, headers=headers)
-            if query_resp.status_code != 200:
-                logger.warning(f"查询 ASR 任务失败: {query_resp.status_code}")
-                continue
-
-            query_data = query_resp.json()
-            task_status = query_data.get("output", {}).get("task_status", "")
-
-            if task_status == "SUCCEEDED":
-                logger.info("ASR 任务完成")
-                break
-            elif task_status == "FAILED":
-                error_msg = query_data.get("output", {}).get("message", "未知错误")
-                raise RuntimeError(f"ASR 任务失败: {error_msg}")
-
-            logger.info(f"ASR 进行中... status={task_status}")
-
-        if waited >= max_wait:
-            raise RuntimeError("ASR 任务超时")
-
-        # 解析结果
-        results = query_data.get("output", {}).get("results", [])
-        if not results:
-            raise RuntimeError("ASR 未返回任何结果")
-
-        # 检查 subtask_status
-        first_result = results[0]
-        subtask_status = first_result.get("subtask_status", "")
-        if subtask_status == "FAILED":
-            error_code = first_result.get("code", "未知")
-            error_msg = first_result.get("message", "未知错误")
-            raise RuntimeError(f"ASR 子任务失败: {error_code} - {error_msg}")
-
-        transcription_url = first_result.get("transcription_url")
-        if not transcription_url:
-            raise RuntimeError(f"ASR 结果无 transcription_url: {first_result}")
-
-        result_json = requests.get(transcription_url).json()
-
-        # 解析句子及时间戳
+        output = resp.json().get("output", {})
+        raw_sentences = output.get("sentences") or []
         sentences = []
-        transcripts = result_json.get("transcripts", [])
-        for transcript in transcripts:
-            for sentence in transcript.get("sentences", []):
+        for s in raw_sentences:
+            text = (s.get("text") or "").strip()
+            if text:
                 sentences.append({
-                    "text": sentence["text"].strip(),
-                    "begin_time": sentence["begin_time"],  # ms
-                    "end_time": sentence["end_time"],      # ms
+                    "text": text,
+                    "begin_time": s["begin_time"],  # ms
+                    "end_time": s["end_time"],      # ms
                 })
 
         if not sentences:
-            raise RuntimeError("ASR 识别结果为空，请检查音频文件")
+            raise RuntimeError(
+                "ASR 未返回句子级时间戳（output.sentences 为空），"
+                f"raw output: {json.dumps(output, ensure_ascii=False)[:300]}"
+            )
 
         logger.info(f"ASR 识别完成: {len(sentences)} 句")
         return sentences
 
     def _translate(self, sentences: List[Dict]) -> List[Dict]:
         """
-        Step 3: 使用 qwen-mt-plus 将中文翻译为英文（质量档）
+        Step 2: 使用 qwen-mt-plus 将中文翻译为英文（质量档）
 
         通过 OpenAI 兼容 API 调用，translation_options 通过 extra_body 传入
         """
@@ -524,14 +381,13 @@ class VideoDubbingPipeline:
         logger.info("翻译完成")
         return sentences
 
-    def _clone_voice(self, ref_audio_url: str, local_audio_path: str) -> str:
+    def _clone_voice(self, local_audio_path: str) -> str:
         """
-        Step 4: 使用 CosyVoice 声音复刻
+        Step 3: 声音复刻（voice-enrollment，克隆音色与 TTS 模型强绑定）
 
-        使用 HTTP API 调用，传入 Base64 音频数据（因为 oss:// URL 不被支持）
+        使用 HTTP API 调用，传入 Base64 Data URL（接口不支持 oss:// URL）
 
         Args:
-            ref_audio_url: 参考音频的 oss:// URL（备用）
             local_audio_path: 本地音频文件路径（用于读取 Base64）
 
         Returns:
@@ -541,18 +397,12 @@ class VideoDubbingPipeline:
         logger.info(f"读取音频文件: {local_audio_path}")
         with open(local_audio_path, "rb") as f:
             audio_data = f.read()
-        
-        # 检测 MIME 类型
-        import mimetypes
+
         mime_type, _ = mimetypes.guess_type(local_audio_path)
         if not mime_type:
             mime_type = "audio/mpeg"  # 默认 MP3
-        
-        base64_data = audio_data.encode("base64") if hasattr(audio_data, 'encode') else audio_data
-        # Python 3: 使用 base64 模块
-        import base64
+
         base64_str = base64.b64encode(audio_data).decode("utf-8")
-        
         data_url = f"data:{mime_type};base64,{base64_str}"
         logger.info(f"音频 Base64 编码完成，大小: {len(base64_str)} 字符")
 
@@ -643,7 +493,7 @@ class VideoDubbingPipeline:
         work_dir: str,
     ) -> List[Dict]:
         """
-        Step 5: 合并多句为一段 SSML，一次性合成英文语音
+        Step 4: 合并多句为一段 SSML，一次性合成英文语音
 
         关键改动（路径 A 优化 vs 旧版"逐句合成"）：
         1. 多句合并为 1 段长文本（用 <break> 隔开），一次 WebSocket 调用
@@ -664,7 +514,7 @@ class VideoDubbingPipeline:
         # 1) 拼 SSML 长文本
         ssml_text = self._build_ssml_long_text(sentences)
         logger.info(
-            f"Step 5: 合并 {len(sentences)} 句为一次合成，"
+            f"Step 4: 合并 {len(sentences)} 句为一次合成，"
             f"SSML 长度 {len(ssml_text)} 字符"
         )
         logger.info(f"  SSML 预览: {ssml_text[:200]}...")
@@ -740,7 +590,7 @@ class VideoDubbingPipeline:
         work_dir: str,
     ) -> str:
         """
-        Step 6: 使用 ffmpeg 合成最终视频
+        Step 5: 使用 ffmpeg 合成最终视频
 
         新策略（路径 A 优化）：
         - 5 句已合并为一段连续音频，整段替换原视频音轨
@@ -947,7 +797,7 @@ def build_ui() -> gr.Blocks:
             "将视频中一个人的中文说话转换为英文配音，保留原说话人音色。\n\n"
             "**使用步骤**: 1️⃣ 去 [vocalremover.org](https://vocalremover.org) 提取纯人声MP3 → "
             "2️⃣ 上传视频和MP3 → 3️⃣ 点击转换\n\n"
-            "> 💡 **CosyVoice v3-plus / qwen-mt-plus 在国际/国内站均可用**。"
+            "> 💡 **Qwen-Audio-3.1-ASR-Flash / Qwen-Audio-3.1-TTS-Plus / qwen-mt-plus 在国际/国内站均可用**。"
             "若某能力调用失败，尝试切换地域或检查 API Key 权限。"
         )
 
@@ -959,11 +809,11 @@ def build_ui() -> gr.Blocks:
                 scale=1,
             )
             api_key_input = gr.Textbox(
-                label="阿里云百炼 API Key (AIGC)",
+                label="阿里云百炼 API Key",
                 type="password",
                 placeholder=(
-                    "国际站: sk-xxx (DASHSCOPE_API_KEY_INTL_AIGC)  /  "
-                    "国内站: sk-xxx (DASHSCOPE_API_KEY_CN_AIGC)"
+                    "国际站: sk-xxx (DASHSCOPE_API_KEY_INTL_SG_TEST)  /  "
+                    "国内站: sk-xxx (DASHSCOPE_API_KEY_INTL_BJ_TEST)"
                 ),
                 value="",
                 scale=2,
@@ -977,8 +827,7 @@ def build_ui() -> gr.Blocks:
 
         # 地域切换时自动从对应环境变量预填 API Key
         def _on_region_change(region):
-            env_key = "DASHSCOPE_API_KEY_INTL_AIGC" if region == "intl" \
-                else "DASHSCOPE_API_KEY_CN_AIGC"
+            env_key = REGION_ENV[region][0]
             return gr.update(value=os.getenv(env_key, ""))
 
         region_input.change(
@@ -1024,10 +873,7 @@ def build_ui() -> gr.Blocks:
         def process_video(video_path, vocal_path, region, api_key, mt_model):
             """处理视频的主函数"""
             if not api_key:
-                env_hint = (
-                    "DASHSCOPE_API_KEY_INTL_AIGC" if region == "intl"
-                    else "DASHSCOPE_API_KEY_CN_AIGC"
-                )
+                env_hint = REGION_ENV[region][0]
                 raise gr.Error(f"请输入 API Key（环境变量名: {env_hint}）")
             if not video_path:
                 raise gr.Error("请上传视频文件")
