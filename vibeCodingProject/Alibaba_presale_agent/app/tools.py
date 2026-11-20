@@ -38,7 +38,8 @@ TOOLS = [
         "function": {
             "name": "verify_price",
             "description": (
-                "联网核实阿里云百炼模型的官方定价（国际站 USD）。默认只返回 Singapore；用户明确提到北京时只返回 China (Beijing)。"
+                "联网核实阿里云百炼模型的官方定价（国际站 USD）。默认先查 Singapore；未指定地域且 Singapore 未列出时自动回退 China (Beijing)；"
+                "用户明确提到北京时只返回 China (Beijing)，明确提到 Singapore 时不跨区。"
                 "凡是涉及任何具体模型的价格/计费/多少钱的问题（含追问、对比），必须先调用本工具"
                 "取得证据再回答，严禁凭记忆报价。用户追问上一轮价格表里的字段或节点"
                 "（如「China (Beijing) 那行多少」「cache input 是什么」）时，对同一型号重新调用。"
@@ -58,7 +59,7 @@ TOOLS = [
                     "region": {
                         "type": "string",
                         "enum": ["Singapore", "China (Beijing)"],
-                        "description": "报价节点：用户明确提到北京时填 China (Beijing)；未指定或提到新加坡时填 Singapore（也可留空，默认 Singapore）。只返回所选节点",
+                        "description": "报价节点：用户明确提到北京时填 China (Beijing)；明确提到新加坡时填 Singapore；未指定时留空，工具先查 Singapore，未列出才回退 Beijing",
                     },
                     "competitor": {
                         "type": "string",
@@ -67,6 +68,49 @@ TOOLS = [
                     },
                 },
                 "required": ["model"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "calculate_token_cost",
+            "description": (
+                "用原始整数 tokens 与 verify_price 已核实的 USD/百万 tokens 单价做确定性账单测算。"
+                "凡用户给调用量/账单截图并要求费用、汇总、总成本，完成核价后必须调用本工具，禁止 LLM 手算。"
+                "输入总 tokens 包含缓存 tokens；工具会计算非缓存输入、三项分量费用、小计与总计。"
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "region": {
+                        "type": "string",
+                        "enum": ["Singapore", "China (Beijing)"],
+                        "description": "本次核价证据所属节点，必须与 verify_price 实际返回节点一致",
+                    },
+                    "fx_rate": {
+                        "type": "string",
+                        "description": "可选 USD/CNY 汇率，只能取用户自报值或 get_fx_rate 返回值；不需要人民币合计时留空",
+                    },
+                    "items": {
+                        "type": "array",
+                        "maxItems": 12,
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "model": {"type": "string", "description": "官方模型 ID"},
+                                "input_tokens": {"type": "string", "description": "输入总 tokens 原始整数（含缓存），不得换算成 M/B"},
+                                "cached_input_tokens": {"type": "string", "description": "缓存输入 tokens 原始整数；无则为 0"},
+                                "output_tokens": {"type": "string", "description": "输出 tokens 原始整数；无则为 0"},
+                                "input_price_per_million": {"type": "string", "description": "标准输入 USD 单价/百万 tokens，逐字取核实证据"},
+                                "cache_input_price_per_million": {"type": "string", "description": "缓存输入 USD 单价/百万 tokens；有缓存 tokens 时必填"},
+                                "output_price_per_million": {"type": "string", "description": "输出 USD 单价/百万 tokens；有输出 tokens 时必填"},
+                            },
+                            "required": ["model", "input_tokens", "input_price_per_million"],
+                        },
+                    },
+                },
+                "required": ["region", "items"],
             },
         },
     },
@@ -254,6 +298,7 @@ TOOLS = [
 # 工具执行时的前端状态提示（pipeline 转成 status 事件）
 _TOOL_STATUS = {
     "verify_price": "💰 联网核实官方定价...",
+    "calculate_token_cost": "🧮 确定性计算 token 成本...",
     "get_model_rate_limit": "📈 查询官方限流与并发...",
     "get_fx_rate": "💱 获取实时汇率...",
     "make_price_share_link": "🔗 生成价格分享卡片...",
@@ -278,6 +323,7 @@ async def execute_tool(name: str, arguments: str) -> dict:
           "price_status":   仅 verify_price：official | web | none，
           "official_md":    仅 verify_price：官方证据（输出侧审计白名单），
           "competitor_md":  仅 verify_price：竞品证据（审计白名单），
+          "calculated_md":  仅 calculate_token_cost：确定性派生费用（审计白名单），
         }
     """
     try:
@@ -307,6 +353,18 @@ async def execute_tool(name: str, arguments: str) -> dict:
             "official_md": ev["official_md"],
             "competitor_md": ev["competitor_md"],
         }
+
+    if name == "calculate_token_cost":
+        region = price_verifier._normalize_region(str(args.get("region", "") or ""))
+        if not region:
+            return {"content": "region 必须为 Singapore 或 China (Beijing)，且与核价证据一致。"}
+        try:
+            content = tpm_calc.usage_cost_md(
+                args.get("items"), region=region, fx_rate=args.get("fx_rate")
+            )
+        except (TypeError, ValueError) as e:
+            return {"content": f"成本测算参数有误：{e}。请按原始整数 tokens 与官方单价修正后重试。"}
+        return {"content": content, "calculated_md": content}
 
     if name == "get_model_rate_limit":
         model = str(args.get("model", "") or "").strip()

@@ -1,5 +1,5 @@
 """
-TPM/成本互算 — 确定性测算层（数值不进模型）
+TPM/成本互算与账单 token 成本 — 确定性测算层（数值不进模型）
 ===========================================
 口径（用户 2026-11-10 指定，基于官方动态限流文档）：
 - 适用「模型与限流档位」章节的 auto TPM 模型，默认顶格 2000 万 TPM / 20000 RPM
@@ -14,6 +14,7 @@ estimate_tpm_cost 工具供 LLM 调用；价格从 price_verifier 的官方证�
 """
 
 import re
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
 from . import price_verifier
 
@@ -225,4 +226,133 @@ def format_md(r: dict) -> str:
         "实际额度以模型详情页限流显示为准）；命中 85% 依赖固定前缀（system prompt +",
         "检索分块稳定），实际以账单核对为准。",
     ]
+    return "\n".join(lines)
+
+
+# ── 账单 token 成本：原始整数 + Decimal 确定性计算 ──
+_MILLION = Decimal(1_000_000)
+_CENT = Decimal("0.01")
+
+
+def _usage_int(value, label: str) -> int:
+    """只接受原始非负整数；禁止模型先换算成 M/B 后再传入。"""
+    text = str(value if value is not None else "").strip().replace(",", "")
+    if not re.fullmatch(r"\d+", text):
+        raise ValueError(f"{label} 必须是原始非负整数 token 数")
+    return int(text)
+
+
+def _usage_decimal(value, label: str, required: bool = True) -> Decimal | None:
+    if value is None or str(value).strip() == "":
+        if required:
+            raise ValueError(f"缺少 {label}")
+        return None
+    text = str(value).strip().replace("$", "").replace(",", "")
+    try:
+        number = Decimal(text)
+    except InvalidOperation as exc:
+        raise ValueError(f"{label} 不是合法数字") from exc
+    if not number.is_finite() or number < 0:
+        raise ValueError(f"{label} 必须是非负有限数字")
+    return number
+
+
+def _cent(value: Decimal) -> Decimal:
+    return value.quantize(_CENT, rounding=ROUND_HALF_UP)
+
+
+def usage_cost_md(items: list[dict], region: str = "Singapore", fx_rate=None) -> str:
+    """按原始 token 整数计算账单，返回可直接交付的 Markdown 成品表。
+
+    每个费用分量先四舍五入到美分，小计为三个已舍入分量之和，总计为各模型
+    小计之和，保证客户看到的表格在分、合计两个层级都严格可加。
+    """
+    if not isinstance(items, list) or not items:
+        raise ValueError("items 至少需要一条模型用量")
+    if len(items) > 12:
+        raise ValueError("单次最多测算 12 个模型")
+    rate = _usage_decimal(fx_rate, "fx_rate", required=False)
+    if rate is not None and rate <= 0:
+        raise ValueError("fx_rate 必须大于 0")
+
+    rows: list[dict] = []
+    for index, item in enumerate(items, 1):
+        if not isinstance(item, dict):
+            raise ValueError(f"第 {index} 条用量不是对象")
+        model = re.sub(r"[|\r\n]", "", str(item.get("model", "")).strip())[:80]
+        if not model:
+            raise ValueError(f"第 {index} 条缺少 model")
+        input_tokens = _usage_int(item.get("input_tokens"), f"{model}.input_tokens")
+        cached_tokens = _usage_int(
+            item.get("cached_input_tokens", 0), f"{model}.cached_input_tokens"
+        )
+        output_tokens = _usage_int(item.get("output_tokens", 0), f"{model}.output_tokens")
+        if cached_tokens > input_tokens:
+            raise ValueError(f"{model} 的缓存 token 不能大于输入总 token")
+        input_price = _usage_decimal(
+            item.get("input_price_per_million"), f"{model}.input_price_per_million"
+        )
+        cache_price = _usage_decimal(
+            item.get("cache_input_price_per_million"),
+            f"{model}.cache_input_price_per_million",
+            required=cached_tokens > 0,
+        )
+        output_price = _usage_decimal(
+            item.get("output_price_per_million"),
+            f"{model}.output_price_per_million",
+            required=output_tokens > 0,
+        )
+        uncached_tokens = input_tokens - cached_tokens
+        uncached_cost = _cent(Decimal(uncached_tokens) / _MILLION * input_price)
+        cached_cost = _cent(
+            Decimal(cached_tokens) / _MILLION * (cache_price or Decimal(0))
+        )
+        output_cost = _cent(
+            Decimal(output_tokens) / _MILLION * (output_price or Decimal(0))
+        )
+        rows.append({
+            "model": model,
+            "uncached_tokens": uncached_tokens,
+            "cached_tokens": cached_tokens,
+            "output_tokens": output_tokens,
+            "uncached_cost": uncached_cost,
+            "cached_cost": cached_cost,
+            "output_cost": output_cost,
+            "subtotal": uncached_cost + cached_cost + output_cost,
+        })
+
+    lines = [
+        f"### Token 成本测算（{region} · 确定性计算）",
+        "",
+        "| 模型 | 非缓存输入 tokens | 缓存输入 tokens | 输出 tokens | 非缓存输入费用 (USD) | 缓存输入费用 (USD) | 输出费用 (USD) | 小计 (USD) |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for row in rows:
+        lines.append(
+            f"| {row['model']} | {row['uncached_tokens']:,} | {row['cached_tokens']:,} "
+            f"| {row['output_tokens']:,} | ${row['uncached_cost']:,.2f} "
+            f"| ${row['cached_cost']:,.2f} | ${row['output_cost']:,.2f} | ${row['subtotal']:,.2f} |"
+        )
+    total = sum((row["subtotal"] for row in rows), Decimal(0))
+    total_uncached = sum(row["uncached_tokens"] for row in rows)
+    total_cached = sum(row["cached_tokens"] for row in rows)
+    total_output = sum(row["output_tokens"] for row in rows)
+    total_uncached_cost = sum((row["uncached_cost"] for row in rows), Decimal(0))
+    total_cached_cost = sum((row["cached_cost"] for row in rows), Decimal(0))
+    total_output_cost = sum((row["output_cost"] for row in rows), Decimal(0))
+    lines.append(
+        f"| **合计** | {total_uncached:,} | {total_cached:,} | {total_output:,} "
+        f"| ${total_uncached_cost:,.2f} | ${total_cached_cost:,.2f} "
+        f"| ${total_output_cost:,.2f} | **${total:,.2f}** |"
+    )
+    lines += [
+        "",
+        f"**{len(rows)} 个模型合计：${total:,.2f}**",
+        "",
+        "口径：缓存 tokens 已包含在输入总 tokens 内；非缓存输入 = 输入总量 − 缓存量。"
+        "所有费用均由原始整数 tokens ÷ 1,000,000 × 对应 USD 单价计算，未经过 M/B 手工换算。",
+    ]
+    if rate is not None:
+        lines.append(f"按汇率 1 USD = {rate} CNY：合计约 **¥{_cent(total * rate):,.2f}**。")
+    lines.append("以上表格为代码计算成品，表头、数据行与合计必须逐字输出，不得自行重算或改写。")
     return "\n".join(lines)

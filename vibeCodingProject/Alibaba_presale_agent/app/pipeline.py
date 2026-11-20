@@ -223,6 +223,7 @@ async def stream_answer(
     price_audit = ""
     official_md = ""
     competitor_md = ""
+    calculated_md = ""  # calculate_token_cost 的确定性派生费用（审计白名单独立累加）
     price_checked = False  # 是否调过 verify_price（决定输出侧审计）
 
     def add_source(s: dict) -> None:
@@ -346,7 +347,7 @@ async def stream_answer(
         即视为模型已作答完毕，正常收尾。所有轮的 text 都正常流式输出——
         模型在带工具轮也可能不调工具直接作答（能力题知识库够答时），丢弃
         会丢整段回答；探针已验证 qwen3.8-max 工具轮前无正文泄漏。"""
-        nonlocal price_status, official_md, competitor_md, price_checked
+        nonlocal price_status, official_md, competitor_md, calculated_md, price_checked
         for rnd in range(MAX_TOOL_ROUNDS):
             use_tools = rnd < MAX_TOOL_ROUNDS - 1
             thinking = False
@@ -414,6 +415,12 @@ async def stream_answer(
                             else result["competitor_md"]
                         )
                     price_checked = True
+                if result.get("calculated_md"):
+                    calculated_md = (
+                        calculated_md + "\n\n" + result["calculated_md"]
+                        if calculated_md
+                        else result["calculated_md"]
+                    )
                 for s in result.get("sources", []):
                     add_source(s)
                 yield {"type": "sources", "sources": order_sources(sources)}
@@ -450,7 +457,7 @@ async def stream_answer(
     # 抄错/臆造则标记 mismatch（前端「已联网核实」徽章只看 official，不能为抄错背书）。
     if price_checked:
         result = audit_answer_prices(
-            "".join(parts), official_md, competitor_md, question
+            "".join(parts), official_md + "\n\n" + calculated_md, competitor_md, question
         )
         if result["checked"]:
             price_audit = (

@@ -363,6 +363,112 @@ def test_table_render_and_followup():
     check("选型对比（无价格历史）不触发", not pv.is_price_question("qwen3.8-max 和 deepseek 哪个强"))
 
 
+def test_region_fallback_and_usage_cost():
+    """默认地域回退、多模态分档价与确定性账单算术回归。"""
+    print("[1c] 地域回退 / 多模态价格 / token 成本计算")
+    from app import price_verifier as pv, tpm_calc, tools
+    import json
+
+    embedding_html = (
+        "<h4>Singapore</h4>"
+        "<table><tr><th>Model ID</th><th>Input unit price (per million tokens)</th></tr>"
+        "<tr><td>tongyi-embedding-vision-plus</td><td>$0.09</td></tr></table>"
+        "<h4>China (Beijing)</h4>"
+        "<table><tr><th>Model ID</th><th>Input unit price (per million tokens)</th></tr>"
+        "<tr><td>qwen3-vl-embedding</td><td>Image/Video: $0.258 Text: $0.1</td></tr></table>"
+    )
+    rows = pv._parse_pricing_rows(embedding_html)
+    block = pv._model_evidence(rows, "qwen3-vl-embedding", "China (Beijing)")[0]
+    check("多模态价格: Image/Video 与 Text 拆成两行",
+          "China (Beijing) · Image/Video | $0.258" in block
+          and "China (Beijing) · Text | $0.1" in block)
+    check("多模态价格: Beijing 来源带分表锚点", "#china-beijing-h4" in block)
+    detail_text = (
+        "original pricing for model API calls. China (Beijing) "
+        "Billing Item Price (USD) Unit Image Input 0.258 Per 1M tokens "
+        "Text Input 0.1 Per 1M tokens Rate Limits"
+    )
+    detail = pv._parse_model_pricing(detail_text)
+    detail_block = pv._detail_evidence(
+        "qwen3-vl-embedding", "https://example.com/model", detail, "China (Beijing)"
+    )[0]
+    check("多模态详情页: Image/Text 两种输入价都保留",
+          "China (Beijing) · image | $0.258" in detail_block
+          and "China (Beijing) · text | $0.1" in detail_block
+          and "#china-beijing-h4" in detail_block)
+
+    async def fake_pricing_html():
+        return embedding_html
+
+    async def fake_detail(*args, **kwargs):
+        return ""
+
+    async def fake_search(*args, **kwargs):
+        return []
+
+    original = pv._get_pricing_html, pv._cached_fetch, pv.web_search
+    pv._get_pricing_html, pv._cached_fetch, pv.web_search = (
+        fake_pricing_html, fake_detail, fake_search
+    )
+    try:
+        fallback = asyncio.run(pv.verify_price_for("qwen3-vl-embedding"))
+        explicit_sg = asyncio.run(
+            pv.verify_price_for("qwen3-vl-embedding", region="Singapore")
+        )
+    finally:
+        pv._get_pricing_html, pv._cached_fetch, pv.web_search = original
+    check("默认地域: Singapore 未列出时自动回退 Beijing",
+          fallback["status"] == "official" and fallback["region_fallback"]
+          and fallback["region"] == "China (Beijing)"
+          and "$0.258" in fallback["official_md"] and "$0.1" in fallback["official_md"])
+    check("默认地域: 证据明确说明回退且链接到 Beijing 分表",
+          "已自动回退 China (Beijing)" in fallback["evidence_md"]
+          and any(s["url"].endswith("#china-beijing-h4") for s in fallback["sources"]))
+    check("显式 Singapore: 不跨区、不把型号介绍当价格证据",
+          explicit_sg["status"] != "official" and "$0.258" not in explicit_sg["official_md"]
+          and "China (Beijing) |" not in explicit_sg["evidence_md"])
+
+    # 合成大数：覆盖原始整数减法、百万换算、三个分量、小计与汇率合计。
+    item = {
+        "model": "qwen4-max",
+        "input_tokens": "24,000,000,000",
+        "cached_input_tokens": "23,000,000,000",
+        "output_tokens": "300,000,000",
+        "input_price_per_million": "1.5",
+        "cache_input_price_per_million": "0.075",
+        "output_price_per_million": "4.5",
+    }
+    cost_md = tpm_calc.usage_cost_md([item], region="Singapore", fx_rate="7.25")
+    check("成本计算: 非缓存输入由原始整数相减", "| 1,000,000,000 | 23,000,000,000 |" in cost_md)
+    check("成本计算: 三个费用分量与小计准确",
+          "$1,500.00" in cost_md and "$1,725.00" in cost_md
+          and "$1,350.00" in cost_md and "$4,575.00" in cost_md)
+    check("成本计算: 人民币合计使用指定汇率", "¥33,168.75" in cost_md)
+    try:
+        tpm_calc.usage_cost_md([{**item, "input_tokens": "1", "cached_input_tokens": "2"}])
+        invalid_rejected = False
+    except ValueError:
+        invalid_rejected = True
+    check("成本计算: 缓存量大于输入总量时拒绝猜测", invalid_rejected)
+
+    names = {t["function"]["name"] for t in tools.TOOLS}
+    check("成本工具: schema 已注册", "calculate_token_cost" in names)
+    tool_result = asyncio.run(tools.execute_tool(
+        "calculate_token_cost",
+        json.dumps({"region": "Singapore", "items": [item]}, ensure_ascii=False),
+    ))
+    check("成本工具: 返回独立派生证据", tool_result.get("calculated_md", "").startswith("### Token 成本测算"))
+    official = (
+        "| Region | 输入价格 (Input) | 缓存输入价格 (Cache Input) | 输出价格 (Output) |\n"
+        "| Singapore | $1.5 | $0.075 | $4.5 |"
+    )
+    audited = pv.audit_answer_prices(
+        cost_md, official + "\n" + tool_result["calculated_md"]
+    )
+    check("成本审计: 确定性派生费用不再误报 mismatch",
+          audited["checked"] and audited["mismatched"] == [], str(audited))
+
+
 def test_price_parsing_offline():
     """价格页解析：用缓存 HTML 做结构化断言（有网则抓，无网用本地缓存）"""
     print("[2] 定价页结构化解析 + 代码渲染（官方页）")
@@ -1455,6 +1561,7 @@ def main():
     print("=" * 56)
     test_price_verifier_units()
     test_table_render_and_followup()
+    test_region_fallback_and_usage_cost()
     test_price_parsing_offline()
     test_knowledge_retrieval()
     test_store()

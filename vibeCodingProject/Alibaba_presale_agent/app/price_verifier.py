@@ -182,6 +182,13 @@ def _selected_regions(region: str = "") -> tuple:
     return (_normalize_region(region) or "Singapore",)
 
 
+def _pricing_url_for_region(region: str) -> str:
+    """地域定价分表锚点；Beijing 回退时直接链接到对应分表。"""
+    if region == "China (Beijing)":
+        return f"{PRICE_PAGE_URL}#china-beijing-h4"
+    return PRICE_PAGE_URL
+
+
 # 首格像模型 ID 的行才入库（排除表头/说明行）
 _ROW_MODEL_RE = re.compile(r"^[a-z][a-z0-9._-]{2,40}", re.IGNORECASE)
 _ROW_SKIP_KW = ("model", "note", "region", "deployment", "scope", "quota", "item")
@@ -532,6 +539,7 @@ async def _cached_fetch(key: str, url: str) -> str:
 # 详情页 Billing Item 行（长项优先；可选括号修饰词支持忙/闲时段写法，如 "Input (Idle hours) 0.141"）
 _BILLING_ITEM_RE = re.compile(
     r"(Explicit Cache Creation|Explicit Cache Read|Explicit Cache Hit"
+    r"|Image\s*/\s*Video\s+Input|Image\s+Input|Video\s+Input|Text\s+Input"
     r"|Input\(Implicit Cache[^)]*\)|"
     r"Input\(Batch File\)|Input\(Batch Chat\)|Output\(Batch File\)|Output\(Batch Chat\)"
     r"|Input|Output)\s*(\([^)]*\))?\s+\$?([\d.]+)",
@@ -565,6 +573,12 @@ def _parse_model_pricing(text: str) -> dict:
         for m in _BILLING_ITEM_RE.finditer(seg):
             base = m.group(1).lower()
             qual = (m.group(2) or "").strip("() ").strip()  # 如 "Idle hours"
+            # 多模态详情页把计费项写成 Image Input / Text Input；模态必须进入
+            # qualifier 拆行，否则通用 Input 匹配会只报首个价格、吞掉其余模态。
+            modality = re.fullmatch(r"(image(?:\s*/\s*video)?|video|text)\s+input", base)
+            if modality:
+                base = "input"
+                qual = f"{modality.group(1)} {qual}".strip()
             # 归一化：Input(Implicit Cache, Busy hours) → base=input(implicit cache), qual=busy hours
             m_ic = re.match(r"input\(implicit cache\s*,?\s*([^)]*)\)$", base)
             if m_ic:
@@ -643,10 +657,14 @@ def _detail_evidence(
             )
     if not rows:
         return []
+    source_url = page_url
+    if rows and all(r[0].startswith("China (Beijing)") for r in rows):
+        source_url = f"{page_url}#china-beijing-h4"
     return [
         _render_price_table(
             f"{model_id} · 模型详情页定价（每 1M tokens USD · 权威）", rows
         )
+        + (f"\n来源链接（回答时**直接引用此 URL**，不要自己拼接）：{source_url}" if source_url else "")
     ]
 
 
@@ -1127,7 +1145,7 @@ def _model_evidence(rows: list[dict], token: str, region: str = "") -> list[str]
                 f"{display} · 官方定价页（按秒/按张计费 USD）", media
             )
             + id_note
-            + f"\n来源链接（回答时**直接引用此 URL**，不要自己拼接）：{PRICE_PAGE_URL}"
+            + f"\n来源链接（回答时**直接引用此 URL**，不要自己拼接）：{_pricing_url_for_region(selected_regions[0])}"
         ]
     selected = hits
 
@@ -1189,7 +1207,21 @@ def _model_evidence(rows: list[dict], token: str, region: str = "") -> list[str]
                 ("idle hours", f"${idle_i.group(1)}", f"${idle_o.group(1)}" if idle_o else ""),
             ]
         else:
-            variants = [("", _first_price(input_cell), _first_price(output_cell))]
+            # 多模态 Embedding/Rerank 同一格含 Image/Video 与 Text 两档输入价。
+            # 只取第一个 $ 会静默漏掉文本价（qwen3-vl-embedding 实测）。
+            labeled = list(re.finditer(
+                r"(Image\s*/\s*Video|Text(?:\s+input)?|Image(?:\s+input)?|Video(?:\s+input)?)"
+                r"\s*:\s*\$([\d.]+)",
+                input_cell,
+                re.I,
+            ))
+            if labeled:
+                variants = [
+                    (m.group(1), f"${m.group(2)}", _first_price(output_cell))
+                    for m in labeled
+                ]
+            else:
+                variants = [("", _first_price(input_cell), _first_price(output_cell))]
 
         for qual, ip, op in variants:
             if not ip and not op:
@@ -1234,7 +1266,7 @@ def _model_evidence(rows: list[dict], token: str, region: str = "") -> list[str]
     ) + id_note
     # 主表路径同样附来源 URL：Prompt 硬约束"引用证据里的 URL、不得自拼"，
     # 证据不给 URL 会让模型在思考里反复权衡（2026-11-16 实测）
-    block += f"\n来源链接（回答时**直接引用此 URL**，不要自己拼接）：{PRICE_PAGE_URL}"
+    block += f"\n来源链接（回答时**直接引用此 URL**，不要自己拼接）：{_pricing_url_for_region(selected_regions[0])}"
     # 支持缓存折扣但主表未给命中单价（DeepSeek/Qwen 系常态）→ 附官方规则，防 LLM 臆造
     if has_cc and not any(r[2] != "—" for r in table_rows):
         i = _CACHE_RULE_POS.get("rule")
@@ -1296,11 +1328,29 @@ async def verify_price_for(model: str, competitor: str = "", region: str = "") -
     #    零额外网络开销；先用实时在售行目录裁决官方 ID，再取价格证据。
     #    正则白名单不再裁决 ID，防 -27b / -2.4t-a95b 等新后缀被削成家族
     #    前缀后"假命中"同族合并行（2026-11-17 事故）。
-    html = await _get_pricing_html()
-    rows = _parse_pricing_rows(html) if html else []
+    pricing_html = await _get_pricing_html()
+    rows = _parse_pricing_rows(pricing_html) if pricing_html else []
     models = _resolve_official_ids(model, rows)
 
-    selected_region = _normalize_region(region) or "Singapore"
+    requested_region = _normalize_region(region)
+    selected_region = requested_region or "Singapore"
+    region_fallback = False
+    # 仅在用户未指定地域时回退：默认 Singapore 主表没有该型号、Beijing 主表有，
+    # 则直接按 Beijing 取价，避免把“单一地域未列出”误报成“整体无法核实”。
+    # 显式 Singapore 查询绝不跨区；多型号句仍由调用方逐型号查询，不在此混区。
+    if not requested_region and len(models) == 1:
+        token = models[0]
+        has_sg = any(
+            r["region"] == "Singapore" and _row_matches(r["model_id"], token)
+            for r in rows
+        )
+        has_bj = any(
+            r["region"] == "China (Beijing)" and _row_matches(r["model_id"], token)
+            for r in rows
+        )
+        if not has_sg and has_bj:
+            selected_region = "China (Beijing)"
+            region_fallback = True
     checked_at = datetime.now().astimezone().isoformat(timespec="seconds")
     sources: list[dict] = []
     official_blocks: list[str] = []
@@ -1309,6 +1359,10 @@ async def verify_price_for(model: str, competitor: str = "", region: str = "") -
 
     # 〇级证据：模型详情页（含分辨率分档/缓存等细项价，优先）
     for m in models:
+        # 默认 SG→BJ 回退直接使用主定价页 Beijing 分表，来源与用户所见地域锚点一致。
+        if region_fallback:
+            need_main_page_models.append(m)
+            continue
         if m == "qwen":  # 泛化 token，无详情页
             need_main_page_models.append(m)
             continue
@@ -1358,8 +1412,8 @@ async def verify_price_for(model: str, competitor: str = "", region: str = "") -
                     official_blocks.extend(detail_blocks)
                     sources.append(
                         {
-                            "title": f"{m} 模型详情页（含缓存价 · 权威）",
-                            "url": url,
+                            "title": f"{m} 模型详情页（{selected_region} · 权威）",
+                            "url": f"{url}#china-beijing-h4" if selected_region == "China (Beijing)" else url,
                             "kind": "official",
                         }
                     )
@@ -1371,7 +1425,7 @@ async def verify_price_for(model: str, competitor: str = "", region: str = "") -
     # 一级证据：官方定价页主表（详情页未命中时；html/rows 已在 ⓪ 步
     # 抓取解析，此处直接复用，不重复请求）
     catalog_hints: list[str] = []
-    if html and need_main_page_models:
+    if pricing_html and need_main_page_models:
         unmatched: list[str] = []
         for m in need_main_page_models:
             blocks = _model_evidence(rows, m, selected_region)
@@ -1379,13 +1433,9 @@ async def verify_price_for(model: str, competitor: str = "", region: str = "") -
                 official_blocks.extend(blocks)
             else:
                 unmatched.append(m)
-        text = _strip_tags(html)
-        if not any("模型详情页定价" in b for b in official_blocks):
-            # 详情页全未命中时才回退 v1 文本窗口
-            if not official_blocks:
-                for m in need_main_page_models:
-                    for w in _find_windows(text, m):
-                        official_blocks.append(f"- 【{m}】…{w}…")
+        text = _strip_tags(pricing_html)
+        # 网页文本窗口只能证明“页面提到型号”，不能证明解析出了价格。
+        # 不再把这类介绍片段塞进 official_blocks，否则 status=official 却没有报价证据。
         # 命中忙/闲分时价格时，附带官方的忙时时间段定义（不然回答有价无时段）
         if any("busy" in b.lower() for b in official_blocks):
             i = text.lower().find("busy hours are")
@@ -1396,8 +1446,8 @@ async def verify_price_for(model: str, competitor: str = "", region: str = "") -
         if official_blocks and need_main_page_models:
             sources.append(
                 {
-                    "title": "Model Studio 官方定价页（国际站 · 权威）",
-                    "url": PRICE_PAGE_URL,
+                    "title": f"Model Studio 官方定价页（{selected_region} · 权威）",
+                    "url": _pricing_url_for_region(selected_region),
                     "kind": "official",
                 }
             )
@@ -1487,10 +1537,17 @@ async def verify_price_for(model: str, competitor: str = "", region: str = "") -
 
     evidence_md = ""
     if official_blocks:
-        region_rule = (
-            f"本次报价节点为 {selected_region}：只输出该 Region 的证据行，正文结论与所有成本测算"
-            "只能使用这些价格；不得补充其他 Region，也不得跨 Region 取价或错标地域。\n"
-        )
+        if region_fallback:
+            region_rule = (
+                "用户未指定地域；默认 Singapore 分表未列出该型号，已自动回退 "
+                "China (Beijing) 分表。回答时先用一句话说明此回退，只输出 Beijing 价格，"
+                "不得再说整体未能核实，也不得补充其他 Region。\n"
+            )
+        else:
+            region_rule = (
+                f"本次报价节点为 {selected_region}：只输出该 Region 的证据行，正文结论与所有成本测算"
+                "只能使用这些价格；不得补充其他 Region，也不得跨 Region 取价或错标地域。\n"
+            )
         evidence_md += (
             region_rule
             + "### 官方定价页证据（权威 — 具体价格数字仅可引用此处）\n"
@@ -1543,6 +1600,8 @@ async def verify_price_for(model: str, competitor: str = "", region: str = "") -
         "competitor_md": "\n".join(competitor_blocks),
         "competitor": competitor,
         "sources": sources,
+        "region": selected_region,
+        "region_fallback": region_fallback,
         "checked_at": checked_at,
     }
 
