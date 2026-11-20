@@ -124,6 +124,7 @@ async def list_runs():
             "theme": None, "title": None, "finished": None,
             "resumable": False,  # 有 checkpoint 且未完成：前端展示「续跑」按钮
             "assets": {"image": 0, "video": 0},
+            "files": [],  # 真实产物文件清单：前端回看按此加载，不猜文件名
         }
         # 主题/剧名/完成状态从 checkpoint 或 storyboard.json 读取（无则留空）
         ckpt_path = os.path.join(d, "checkpoint.json")
@@ -147,13 +148,26 @@ async def list_runs():
         entry["resumable"] = bool(ckpt and ckpt.get("storyboard") and not ckpt.get("finished"))
         if board:
             entry["title"] = board.get("title")
-        # 产物计数（回看按钮的素材量提示）
+        # 产物计数与文件清单（回看按钮按真实文件加载，final_cut 置顶）
         try:
             for f in os.listdir(d):
                 if f.endswith(".png"):
                     entry["assets"]["image"] += 1
+                    entry["files"].append({"name": f, "kind": "image"})
                 elif f.endswith(".mp4"):
                     entry["assets"]["video"] += 1
+                    entry["files"].append({"name": f, "kind": "video"})
+            # 展示排序：全片 > 编辑成片 > 原始视频 > 图片（final_cut 最优先）
+            def rank(fi):
+                n = fi["name"]
+                if n == "final_cut.mp4":
+                    return (0, n)
+                if "edited" in n:
+                    return (1, n)
+                if "raw" in n:
+                    return (2, n)
+                return (3, n)
+            entry["files"].sort(key=rank)
         except OSError:
             pass
         runs.append(entry)

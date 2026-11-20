@@ -25,10 +25,16 @@ BOARD = {
     "title": "测试短剧",
     "logline": "测试用一句话剧情",
     "poster_prompt": "竖版海报",
+    "character_ref_prompt": "主角标准像提示词",
     "scenes": [{
         "id": 1, "desc": "场景一", "dialogue": "台词",
-        "image_prompt": "剧照提示词", "video_prompt": "运镜提示词",
-        "video_duration": 5, "edit_instruction": "背景替换为雨夜街头",
+        "shots": [
+            {"shot_id": 1, "framing": "全景", "image_prompt": "镜头一首帧",
+             "video_prompt": "镜头一运镜", "duration": 8},
+            {"shot_id": 2, "framing": "特写", "image_prompt": "镜头二首帧",
+             "video_prompt": "镜头二运镜", "duration": 8},
+        ],
+        "edit_instruction": "背景替换为雨夜街头",
     }],
 }
 
@@ -50,6 +56,10 @@ class FakeLLM:
             raise RuntimeError("qwen4-max 网络重试耗尽")
         return {"pass": True, "score": 9, "issues": [], "summary": "符合分镜"}
 
+    def pick_take(self, take_paths, shot_desc):
+        self.calls["pick_take"] += 1
+        return 0, "mock 挑 take1"
+
 
 class FakeBailian:
     def __init__(self, *a, **k):
@@ -67,6 +77,10 @@ class FakeBailian:
     def image2video(self, prompt, url, models, resolution, duration):
         self.calls["image2video"] += 1
         return f"task-video-{self.calls['image2video']}", models[0]
+
+    def ref2video(self, prompt, ref_urls, models, resolution, duration):
+        self.calls["ref2video"] += 1
+        return f"task-ref-{self.calls['ref2video']}", models[0]
 
     def video_edit(self, prompt, video_url, models, resolution):
         self.calls["video_edit"] += 1
@@ -128,6 +142,8 @@ class Fakes:
             mock.patch.object(pl, "BailianAsyncClient", lambda *a, **k: self.gen),
             mock.patch.object(pl, "IMSClient", lambda *a, **k: self.ims),
             mock.patch.object(pl, "TaskManager", lambda *a, **k: FakeTaskManager(*a, **k)),
+            # 8.5 配音步含真实 TTS/BGM 调用，mock 环境置空避免扣费与外呼
+            mock.patch.object(pl.ShortDramaPipeline, "_dub_final_cut", lambda self: None),
         ]
         for p in patchers:
             p.start()
@@ -169,10 +185,13 @@ def main():
         run_dir = sorted(Path(tmp).glob("run_*"))[-1]
         ckpt = load_ckpt(run_dir)
         check("分镜已存入 checkpoint", ckpt.get("storyboard", {}).get("title") == "测试短剧")
-        check("图片产物已存入 checkpoint", "images" in ckpt and len(ckpt["images"]["stills"]) == 1)
+        check("图片产物已存入 checkpoint（镜头粒度）", "images" in ckpt and len(ckpt["images"]["stills"]) == 2)
+        check("角色锚定图已存 checkpoint", bool(ckpt["images"].get("char_ref_url")))
         check("验收结果未保存（失败在先）", "qa_results" not in ckpt)
         check("poster.png 已落盘", (run_dir / "poster.png").is_file())
-        check("scene_1_still.png 已落盘", (run_dir / "scene_1_still.png").is_file())
+        check("character_ref.png 已落盘", (run_dir / "character_ref.png").is_file())
+        check("shot1 首帧已落盘", (run_dir / "scene_1_shot1_still.png").is_file())
+        check("shot2 首帧已落盘", (run_dir / "scene_1_shot2_still.png").is_file())
         check("未标记 finished", not ckpt.get("finished"))
 
         # ---- 场景 2：断点续跑，网络恢复 ----
@@ -184,10 +203,12 @@ def main():
         check("复用同一 run 目录", report["run_dir"] == str(run_dir))
         check("分镜未重新生成", fakes.llm.calls["storyboard"] == sb_before)
         check("图像未重新生成", fakes.gen.calls["text2image"] == img_before)
-        check("验收重新执行 1 次", fakes.llm.calls["review"] == review_before + 1)
+        check("验收重新执行（镜头粒度 2 次）", fakes.llm.calls["review"] == review_before + 2)
         ckpt2 = load_ckpt(run_dir)
         check("验收结果已保存", ckpt2.get("qa_results", [{}])[0].get("pass") is True)
-        check("视频任务已提交并存 task_id", len(ckpt2.get("video_tasks", [])) == 1)
+        # 双 take：2 镜头 × 2 take = 4 个任务；角色锚定走 ref2video
+        check("视频任务已提交并存 task_id（双 take）", len(ckpt2.get("video_tasks", [])) == 4)
+        check("挑优已执行（2 镜头各一次）", fakes.llm.calls["pick_take"] >= 2)
         check("IMS 任务已保存", len(ckpt2.get("ims_jobs", [])) == 2)
         check("成片已下载", (run_dir / "scene_1_edited.mp4").is_file())
         # 场景 2 内已跑完 → finished 应为 True
@@ -199,7 +220,7 @@ def main():
         # （run 目录命名带递增序号，连续新建不会同名碰撞）
         fakes.gen.fail_at = "video_edit"
         fakes.llm.fail_at = None
-        fakes.gen.calls["image2video"] = 0  # 计数归零便于断言
+        fakes.gen.calls["ref2video"] = 0  # 计数归零便于断言
         try:
             pl.ShortDramaPipeline(theme="测试短剧", num_scenes=1).run()
             check("场景3首跑应抛出异常", False)
@@ -207,16 +228,16 @@ def main():
             check("场景3首跑抛出 RuntimeError", "videoedit" in str(e), str(e))
         run3 = sorted(Path(tmp).glob("run_*"))[-1]
         ckpt3 = load_ckpt(run3)
-        check("video task 已存 checkpoint", len(ckpt3.get("video_tasks", [])) == 1)
+        check("video task 已存 checkpoint（2镜头×2take=4）", len(ckpt3.get("video_tasks", [])) == 4)
         check("edit task 未存（失败在先）", not ckpt3.get("edit_tasks"))
         i2v_after_fail, edit_after_fail = (
-            fakes.gen.calls["image2video"], fakes.gen.calls["video_edit"])
+            fakes.gen.calls["ref2video"], fakes.gen.calls["video_edit"])
 
         fakes.gen.fail_at = None
         report3 = pl.ShortDramaPipeline(resume_dir=str(run3)).run()
-        check("续跑后 image2video 未重复调用",
-              fakes.gen.calls["image2video"] == i2v_after_fail,
-              f"实际调用 {fakes.gen.calls['image2video']} 次（失败时已提交 {i2v_after_fail} 次）")
+        check("续跑后 ref2video 未重复调用",
+              fakes.gen.calls["ref2video"] == i2v_after_fail,
+              f"实际调用 {fakes.gen.calls['ref2video']} 次（失败时已提交 {i2v_after_fail} 次）")
         check("续跑后 video_edit 重新提交 1 次",
               fakes.gen.calls["video_edit"] == edit_after_fail + 1)
         check("场景3 成片已下载", (run3 / "scene_1_edited.mp4").is_file())

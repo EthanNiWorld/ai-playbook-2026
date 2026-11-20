@@ -16,6 +16,10 @@
   var statusTime = $("statusTime");
   var mediaCard = $("mediaCard");
   var gallery = $("gallery");
+  var videoGallery = $("videoGallery");
+  var imageGallery = $("imageGallery");
+  var videoGroup = $("videoGroup");
+  var imageGroup = $("imageGroup");
   var mediaCount = $("mediaCount");
   var videoWrap = $("videoWrap");
   var videoPlayer = $("videoPlayer");
@@ -136,7 +140,7 @@
       }
       var btn = document.createElement("button");
       btn.className = "btn ghost small"; btn.textContent = "回看产物";
-      btn.addEventListener("click", function () { viewRunAssets(r.name); });
+      btn.addEventListener("click", function () { viewRunAssets(r); });
       actions.appendChild(btn);
       item.appendChild(actions);
 
@@ -144,8 +148,10 @@
     });
   }
 
-  function viewRunAssets(runName) {
-    // 回看历史产物：清空当前画廊并加载该 run 目录下的 png/mp4/report.json
+  function viewRunAssets(run) {
+    // 回看历史产物：按后端返回的真实文件清单加载（final_cut 置顶，不再猜文件名）
+    var runName = (typeof run === "string") ? run : run.name;
+    var files = (run && run.files) ? run.files : null;
     resetUI();
     setStatus("回看历史产物：" + runName, false);
     appendLog("回看 " + runName + " 的历史产物");
@@ -162,16 +168,23 @@
         });
       }
     }).catch(function () { /* 无报告则跳过 */ });
-    // 图片/视频按命名约定加载：poster/scene_*/report
-    var imgs = ["poster.png"], vids = [];
-    var sceneCount = 3;  // 场景数上限（页面选择器最大 3 场）
-    for (var i = 1; i <= sceneCount; i++) {
-      imgs.push("scene_" + i + "_still.png");
-      vids.push("scene_" + i + "_raw.mp4");
-      vids.push("scene_" + i + "_edited.mp4");
+    if (files && files.length) {
+      // 后端已排序：final_cut > edited > raw > 图片，逐个直接加载
+      files.forEach(function (fi) {
+        if (fi.kind === "image") addImage(fi.name, "/files/" + runName + "/" + fi.name);
+        else addVideo(fi.name, "/files/" + runName + "/" + fi.name);
+      });
+    } else {
+      // 兼容旧接口：files 缺失时回退猜文件名
+      var imgs = ["poster.png"], vids = [];
+      for (var i = 1; i <= 3; i++) {
+        imgs.push("scene_" + i + "_still.png");
+        vids.push("scene_" + i + "_raw.mp4");
+        vids.push("scene_" + i + "_edited.mp4");
+      }
+      imgs.forEach(function (f) { probeAsset(runName, f, "image"); });
+      vids.forEach(function (f) { probeAsset(runName, f, "video"); });
     }
-    imgs.forEach(function (f) { probeAsset(runName, f, "image"); });
-    vids.forEach(function (f) { probeAsset(runName, f, "video"); });
   }
 
   function probeAsset(runName, file, kind) {
@@ -251,6 +264,7 @@
   // ── 产物 ──
   function addImage(label, url) {
     mediaCard.hidden = false;
+    imageGroup.hidden = false;  // 图片分组：海报/剧照都进这一组
     var card = document.createElement("div");
     card.className = "shot";
     var a = document.createElement("a");
@@ -261,16 +275,25 @@
     var cap = document.createElement("div");
     cap.className = "shot-label"; cap.textContent = label;
     card.appendChild(a); card.appendChild(cap);
-    gallery.appendChild(card);
+    imageGallery.appendChild(card);
     assetCount++;
     mediaCount.textContent = assetCount + " 个产物";
   }
 
   function addVideo(label, url) {
+    // 视频分组：每个视频独立成卡，final_cut 等成片与实时产物都进这一组
     mediaCard.hidden = false;
-    videoWrap.hidden = false;
-    videoPlayer.src = url;
-    videoCaption.textContent = label + "（点击播放）";
+    videoGroup.hidden = false;
+    var card = document.createElement("div");
+    card.className = "shot shot-video";
+    var v = document.createElement("video");
+    v.src = url; v.controls = true; v.playsInline = true;
+    v.preload = "metadata"; v.muted = true;
+    card.appendChild(v);
+    var cap = document.createElement("div");
+    cap.className = "shot-label"; cap.textContent = label;
+    card.appendChild(cap);
+    videoGallery.appendChild(card);
     assetCount++;
     mediaCount.textContent = assetCount + " 个产物";
   }
@@ -457,6 +480,10 @@
 
   function resetUI() {
     while (gallery.firstChild) gallery.removeChild(gallery.firstChild);
+    while (videoGallery.firstChild) videoGallery.removeChild(videoGallery.firstChild);
+    while (imageGallery.firstChild) imageGallery.removeChild(imageGallery.firstChild);
+    videoGroup.hidden = true;
+    imageGroup.hidden = true;
     assetCount = 0;
     mediaCount.textContent = "";
     mediaCard.hidden = true;

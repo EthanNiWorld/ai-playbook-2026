@@ -24,6 +24,7 @@
 - 质量验收：qwen4-max 多模态对剧照打分 4/10，准确指出 7 处与分镜的叙事偏差（缺协议书/酒杯等）——验收能力真实可用
 - 图生视频（wan3.0-video 系）：首帧必须用 `input.media` + `type: "first_frame"`；错误传 wan2.7 式 `input.images` 会被**静默忽略**退化成纯 T2V（判据：竖版剧照输出 16:9 横版）
 - duration 参数：正常生效（dur=10 → 10s，dur=5 → 5s，dur=-1 智能时长 → 9s）；曾两次偶发输出 2s（正确参数下复测不重现，服务端偶发，遇 2s 输出重提任务即可）
+- **⚠️ 平台时段性故障（2026-11-20 19:00-20:30 实测，九次对照实验定位）**：wan3.0-video-prime / wan3.0-video 的 `duration=5/7` 档位曾稳定输出 2s（同参数上午正常，属服务端当日变更；与首帧图/prompt 内容/模型代际无关，dur=8/10 全程正常；智能时长 -1 也会被带偏成 2s）。处置：pipeline 提交侧已把 <8s 的 duration 规整为 8（[pipeline.py](pipeline.py) 第 4 步），并在成片下载后 ffprobe 校验时长偏差打警告；平台修复后可放开
 - **时长决策（双层）**：分镜阶段 qwen4-max 按剧情动作量推荐每场 `video_duration`（反应特写 2-3s / 完整动作 5-8s / 多人物长镜头 8-12s，实测两场给出 8s/10s）；推荐缺失时传 `duration: -1` 交由服务端智能时长模式（模型按 prompt/内容自动推荐）
 - 生成式编辑：wan2.7-videoedit 720P 编辑 141s 完成
 - prime vs 标准版：prime 为官方「高速版，能力对齐标准版，端到端速度显著提升」（非高画质档），480P/5s 出片 45s、480P/10s 出片 61s；价格略高（国际站列表价 480P $0.068/s vs $0.05/s）
@@ -137,4 +138,4 @@ short_drama_pipeline/
 
 ## 运行产物
 
-每次运行生成 `output/run_NNN_YYYYMMDD_HHMMSS/`（NNN 为递增序号，按名字排序即时间顺序，一眼可辨是第几次生产；删除旧 run 后序号重新从 001 计）：storyboard.json、poster.png、scene\*_still.png、qa_results.json、scene\*_raw.mp4、scene\*_edited.mp4、report.json，以及断点续传用的 checkpoint.json（完成时标记 finished，之后不再可续跑）。生成结果 URL 有效期 24 小时，脚本会及时下载到本地。`output/` 下所有文件已在 .gitignore 中全部忽略。
+每次运行生成 `output/run_NNN_YYYYMMDD_HHMMSS/`（NNN 为递增序号，按名字排序即时间顺序，一眼可辨是第几次生产；删除旧 run 后序号重新从 001 计）：storyboard.json、poster.png、scene\*_still.png、qa_results.json、scene\*_raw.mp4、scene\*_edited.mp4、**final_cut.mp4（第 8 步：各场景成片自动拼接的连贯全片）**、**final_dubbed.mp4（第 8.5 步：TTS 配音 + 字幕烧录 + fun-music BGM 的完整短剧）**、report.json，以及断点续传用的 checkpoint.json（完成时标记 finished，之后不再可续跑）。配音链路：qwen-audio-3.1-tts-plus（longanlingxin_v3.1 女声 + 情绪指令）台词配音，PIL 生成字幕图 + overlay 烧录（本机 ffmpeg 无 drawtext 滤镜的绕行方案），fun-music-v1 生成纯器乐 BGM 垫底；失败不阻断主流水线，幂等可重跑，也可用 `scripts/make_dubbed_final.py <run目录>` 对任意历史 run 单独补制。生成结果 URL 有效期 24 小时，脚本会及时下载到本地。`output/` 下所有文件已在 .gitignore 中全部忽略。

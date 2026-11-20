@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#fcfbf9"/>
 <title>短剧工场 · 北京节点 demo</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230d0d0d'/%3E%3Cpath d='M12 9l10 7-10 7z' fill='%23ff6a00'/%3E%3C/svg%3E"/>
-<link rel="stylesheet" href="/static/style.css?v=20261120d"/>
+<link rel="stylesheet" href="/static/style.css?v=20261120i"/>
 </head>
 <body>
 <div class="layout">
@@ -109,6 +109,14 @@
 
       <section class="card" id="mediaCard" hidden>
         <div class="card-head"><h2>生成产物</h2><span class="muted" id="mediaCount"></span></div>
+        <div id="videoGroup" class="asset-group" hidden>
+          <h3 class="asset-group-title">🎬 视频</h3>
+          <div id="videoGallery" class="gallery"></div>
+        </div>
+        <div id="imageGroup" class="asset-group" hidden>
+          <h3 class="asset-group-title">🖼️ 图片</h3>
+          <div id="imageGallery" class="gallery"></div>
+        </div>
         <div id="gallery" class="gallery"></div>
         <div id="videoWrap" class="video-wrap" hidden>
           <video id="videoPlayer" controls playsinline preload="metadata"></video>
@@ -132,6 +140,6 @@
     </div>
   </main>
 </div>
-<script src="/static/app.js?v=20261120g"></script>
+<script src="/static/app.js?v=20261120i"></script>
 </body>
 </html>

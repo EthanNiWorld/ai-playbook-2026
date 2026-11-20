@@ -41,7 +41,8 @@ NATIVE_BASE_URL = (
 # 主模型（可通过环境变量覆盖，便于探测不同候选）
 LLM_MODEL = os.getenv("SDP_LLM_MODEL", "qwen4-max")
 IMAGE_MODEL = os.getenv("SDP_IMAGE_MODEL", "qwen-image-3.0-pro")
-IMAGE_MODEL_FALLBACKS = ["qwen-image-2.1-pro", "qwen-image-2.1-turbo", "wan2.7-image-pro"]
+# 限流降级链：3.0-pro → 3.0（同代非 pro，额度独立）→ 2.1 系 → wan 系（异步路径）
+IMAGE_MODEL_FALLBACKS = ["qwen-image-3.0", "qwen-image-2.1-pro", "qwen-image-2.1-turbo", "wan2.7-image-pro"]
 # 2026-11-20 起默认 prime（用户指定，画质增强档，480P 列表价 $0.068/s vs 标准 $0.05/s）
 VIDEO_MODEL = os.getenv("SDP_VIDEO_MODEL", "wan3.0-video-prime")
 VIDEO_MODEL_FALLBACKS = ["wan3.0-video", "wan2.7-i2v", "wan2.7-t2v"]

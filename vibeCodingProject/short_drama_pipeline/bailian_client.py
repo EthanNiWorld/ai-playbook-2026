@@ -32,6 +32,10 @@ class ModelNotAvailableError(Exception):
     """模型在北京节点不可用（未开通/不存在），应尝试降级候选。"""
 
 
+class ThrottledError(Exception):
+    """限流重试耗尽（配额级问题）：换下一候选模型（额度独立）而非硬等窗口。"""
+
+
 class BailianAsyncClient:
     def __init__(self, api_key=None, base_url=None, timeout=60):
         self.api_key = api_key or config.API_KEY
@@ -128,6 +132,11 @@ class BailianAsyncClient:
             except ModelNotAvailableError as e:
                 print(f"    ⚠️ 模型不可用，降级: {e}")
                 continue
+            except ThrottledError as e:
+                # 限流是配额级问题：同模型硬等窗口不划算了（RPM 打空时退避再久也可能徒劳），
+                # 降级到下一候选模型继续干（额度独立），全链路不至于停在图像步
+                print(f"    ⚠️ 限流降级: {e}")
+                continue
         raise ModelNotAvailableError("所有图像候选模型均不可用")
 
     def _qwen_text2image_sync(self, prompt, model, size, negative_prompt, n):
@@ -141,7 +150,7 @@ class BailianAsyncClient:
             "parameters": params,
         }
         last_err = None
-        for attempt in range(3):
+        for attempt in range(6):  # 限流退避加长：RPM 配额耗尽需等到限流窗口回填（实测 2026-11-20 晚）
             try:
                 resp = self.session.post(
                     self.base_url + QWEN_IMAGE_SYNC_PATH,
@@ -162,15 +171,17 @@ class BailianAsyncClient:
                 raise RuntimeError(f"响应中未找到图片 URL: {json.dumps(data, ensure_ascii=False)[:300]}")
             code = data.get("code", "")
             if code in THROTTLING_CODES:
-                wait = random.uniform(0, 2 ** attempt + 1)
-                print(f"    ⚠️ 限流（{code}），退避 {wait:.1f}s 后重试")
+                # RPM 窗口级限流：指数退避拉长（最大 ~60s）；重试耗尽抛 ThrottledError
+                # 交由上层降级到下一候选模型（配额独立），不停在单模型上硬等
+                wait = random.uniform(0, min(2 ** attempt + 1, 60))
+                print(f"    ⚠️ 限流（{code}），退避 {wait:.1f}s 后重试（attempt {attempt + 1}/6）")
                 time.sleep(wait)
                 last_err = data
                 continue
             if code in MODEL_UNAVAILABLE_CODES or resp.status_code in (403, 404):
                 raise ModelNotAvailableError(f"{model}: {code} {data.get('message', '')}")
             raise RuntimeError(f"文生图失败 HTTP {resp.status_code}: {json.dumps(data, ensure_ascii=False)[:300]}")
-        raise RuntimeError(f"文生图限流重试耗尽: {json.dumps(last_err, ensure_ascii=False)[:200]}")
+        raise ThrottledError(f"文生图限流重试耗尽（{model}）: {json.dumps(last_err, ensure_ascii=False)[:150]}")
 
     def _wan_text2image_async(self, prompt, model, negative_prompt, n):
         """wan*-image 异步文生图（降级路径）：提交任务并轮询到终态，返回图片 URL。"""
@@ -207,6 +218,20 @@ class BailianAsyncClient:
                 "prompt": prompt,
                 "images": [{"type": "image", "url": image_url}],
             }
+        return self._submit_video(
+            model_candidates, build_input, resolution=resolution, duration=duration,
+        )
+
+    def ref2video(self, prompt, ref_image_urls, model_candidates, resolution="480P", duration=None):
+        """参考生视频（角色锚定）：纯 reference_image 输入驱动，保证角色一致性。
+
+        实测约束（2026-11-20 探测）：wan3.0 的 first_frame 不能与 reference_image
+        混用（InvalidParameter: first_frame cannot be combined with other media
+        types except last_frame），角色一致性只能走纯 reference_image 形态；
+        图像首帧构图控制与角色一致性不可兼得，由 prompt 描述构图。"""
+        def build_input(model):
+            media = [{"type": "reference_image", "url": u} for u in ref_image_urls]
+            return {"prompt": prompt, "media": media}
         return self._submit_video(
             model_candidates, build_input, resolution=resolution, duration=duration,
         )

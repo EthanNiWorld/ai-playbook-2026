@@ -94,32 +94,45 @@ class Qwen4MaxClient:
         return self.chat(messages, temperature=0.2, max_tokens=max_tokens)
 
     def generate_storyboard(self, theme="都市逆袭短剧", num_scenes=1):
-        """生成短剧分镜脚本（结构化 JSON）。"""
-        prompt = f"""你是短剧制作流水线的总编剧。请为主题「{theme}」创作一段竖屏短剧的分镜脚本。
+        """生成短剧分镜脚本（结构化 JSON，多镜头 shot list 版）。
+
+        每场拆 2-3 个镜头（业内实践：短剧平均 2-4s 切镜，景别必须有变化，
+        远全交代环境→中景推叙事→近特写给情绪）；另出 character_ref_prompt
+        （主角标准像提示词）供角色锚定图生成，保全片角色一致性。"""
+        prompt = f"""你是短剧制作流水线的总编剧兼分镜师。请为主题「{theme}」创作一段竖屏短剧的分镜脚本。
 要求输出严格的 JSON（不要 markdown 代码块、不要多余文字），结构如下：
 {{
   "title": "剧名",
   "logline": "一句话剧情",
   "poster_prompt": "竖版海报的文生图提示词（中文，包含画面主体、氛围、风格）",
+  "character_ref_prompt": "主角标准像提示词（中文，正面清晰半身照，明确发型服饰面容，背景纯色，供全片角色一致性参考）",
   "scenes": [
     {{
       "id": 1,
       "desc": "剧情描述",
       "dialogue": "一句台词",
-      "image_prompt": "该场景剧照的文生图提示词（中文，含人物/场景/光线/风格，2:3 竖构图）",
-      "video_prompt": "图生视频的运动与运镜提示词（中文）",
-      "video_duration": 建议视频时长秒数（2-30 的整数，按剧情动作量与镜头节奏判断：单一反应特写 2-3s，
-一个完整动作与调度 5-8s，多人物调度或长镜头 8-12s），
-      "edit_instruction": "对生成视频做生成式编辑的指令（如：把背景替换为雨夜街头）"
+      "shots": [
+        {{
+          "shot_id": 1,
+          "framing": "景别（远景/全景/中景/近景/特写）",
+          "image_prompt": "本镜头首帧的文生图提示词（中文，含人物状态/构图/光线，3:4 竖构图）",
+          "video_prompt": "本镜头的运动与运镜提示词（中文，单镜头单一运镜，节奏与景别匹配）",
+          "duration": 本镜头时长秒数（2-8 的整数；特写反应 2-3s，中景动作 4-6s，环境交代 6-8s）
+        }},
+        {{"shot_id": 2, "framing": "...", "image_prompt": "...", "video_prompt": "...", "duration": 4}}
+      ],
+      "edit_instruction": "对场景成片做生成式编辑的指令（如：把背景替换为雨夜街头）"
     }}
   ]
 }}
+每场拆 2-3 个镜头，景别必须有变化（不得全为同一景别），镜头切换服务剧情节奏；
+同一主角在各镜头的发型服饰面容必须一致（与 character_ref_prompt 呼应）。
 共 {num_scenes} 个场景。"""
-        raw = self.chat([{"role": "user", "content": prompt}], temperature=0.8, max_tokens=1500)
+        raw = self.chat([{"role": "user", "content": prompt}], temperature=0.8, max_tokens=2500)
         return self._extract_json(raw)
 
     def review_image(self, image_path, scene_desc, dialogue):
-        """质量验收：用多模态输入校验剧照是否符合分镜要求，返回结构化评价。"""
+        """质量验收：用多模态输入校验镜头首帧是否符合分镜要求，返回结构化评价。"""
         question = (
             f"这是一张短剧分镜的生成图。分镜要求：{scene_desc}；台词：{dialogue}。"
             "请从以下维度验收并输出严格 JSON（不要 markdown）："
@@ -127,6 +140,43 @@ class Qwen4MaxClient:
         )
         raw = self.chat_with_image(question, image_path)
         return self._extract_json(raw)
+
+    def pick_take(self, take_paths, shot_desc):
+        """双 take 挑优：对同一镜头的两条生成视频抽帧后多模态打分，返回较优序号（0/1）。
+
+        抽各 take 的首/中/尾三帧拼为一图比较，避免上传整段视频；
+        返回 (chosen_index, reason)。"""
+        import subprocess as sp
+        import tempfile
+        from PIL import Image
+        frames = []
+        tmpdir = tempfile.mkdtemp(prefix="take_")
+        for i, tp in enumerate(take_paths):
+            for tag, t in (("s", 0.1), ("m", 0.5), ("e", 0.9)):
+                out = os.path.join(tmpdir, f"t{i}{tag}.jpg")
+                sp.run(["ffmpeg", "-y", "-ss", str(t), "-i", tp, "-frames:v", "1",
+                        "-vf", "scale=360:-2", out], capture_output=True)
+                if os.path.isfile(out):
+                    frames.append(out)
+        if len(frames) < 2:
+            return 0, "抽帧失败，默认选第一条"
+        # 拼 2×3 网格对比图（take1 三帧上排，take2 三帧下排）
+        grid = Image.new("RGB", (360 * 3, 640 * 2), (20, 20, 20))
+        for idx, fp in enumerate(frames[:6]):
+            img = Image.open(fp).convert("RGB")
+            grid.paste(img, ((idx % 3) * 360, (idx // 3) * 640))
+        grid_path = os.path.join(tmpdir, "grid.jpg")
+        grid.save(grid_path, quality=85)
+        question = (
+            f"同一镜头生成了两条候选视频（上排=第一条的前/中/后帧，下排=第二条）。" + chr(10)
+            + f"镜头要求：{shot_desc}。请从画面质量、人物一致性、运动自然度、瑕疵 artifacts "
+            "四维评估哪条更好，输出严格 JSON（不要 markdown）："
+            "{\"better\": 0 或 1, \"reason\": \"一句话理由\"}"
+        )
+        raw = self.chat_with_image(question, grid_path, max_tokens=300)
+        result = self._extract_json(raw)
+        chosen = 1 if result.get("better") == 1 else 0
+        return chosen, result.get("reason", "")
 
     @staticmethod
     def _extract_json(raw):
