@@ -78,6 +78,7 @@
 | Seedance / 字节视频生成 / AI 短剧 / 火山方舟 | [Seedance 系列](knowledge/bytedance/seedance-series.md) |
 | 蚂蚁 / 百灵 / Ling-3.1-flash / antdigital | [Ling 系列](knowledge/ant/ling-series.md) |
 | GRPO / PPO / critic / RL 算法选型 / Agentic RL | [RL 算法选型](knowledge/ai-general-notes/rl-algorithm-selection-grpo-vs-ppo.md) |
+| 蒸馏 / Distillation / CoT 蒸馏 / on-policy 蒸馏 / R1 蒸馏 / student teacher | [模型蒸馏](knowledge/ai-general-notes/model-distillation.md) |
 | 视频模型数据策略 / 不蒸馏 / 数据质量密度 | [视频模型数据策略](knowledge/ai-general-notes/video-model-data-strategy.md) |
 | API 定价 / 开源套利 / 架构降本 / Flash 低价可持续性 | [开源定价套利与架构降本](knowledge/ai-general-notes/open-weights-api-pricing-floor.md) |
 | 企业自建推理 / Higress / AI 网关 | [企业自建 AI 推理平台](alibaba-ai-hub/ai-industry-solutions/enterprise-ai-platform/overview.md) ⭐ |
@@ -105,7 +106,8 @@
 - [前沿模型定位](knowledge/ai-general-notes/frontier-model-positioning.md) — 三正交轴选型框架（时间尺度 × 模态融合 × 泛化广度）
 - [推测解码](knowledge/ai-general-notes/speculative-decoding.md) ⭐ — draft-and-verify 范式、DSpark/DFlash/Eagle3 方法对比、模型+系统联合优化趋势
 - [视频模型数据策略](knowledge/ai-general-notes/video-model-data-strategy.md) — 数据质量密度决定生成模型上限、不蒸馏的必然性、UNet→DiT scaling 切换（Seedance 2.0 样本）
-- [RL 算法选型：GRPO vs PPO](knowledge/ai-general-notes/rl-algorithm-selection-grpo-vs-ppo.md) — f(rollout 成本, 任务时程) 选型框架、长程 Agentic RL 重新拥抱 critic（GLM-5.2 样本）
+- [RL 算法选型：GRPO vs PPO](knowledge/ai-general-notes/rl-algorithm-selection-grpo-vs-ppo.md) — f(rollout 成本, 任务时程) 选型框架、长程 Agentic RL 重新拥 抱 critic（GLM-5.2 样本）
+- [模型蒸馏](knowledge/ai-general-notes/model-distillation.md) — 三条路线（数据蒸馏 / logit KD / on-policy）、R1 800k 样本案例、数据配比实践、蒸馏 API 请求样本识别标尺（kimi-k3.1-pro 真实样本）
 - [AI Agent 记忆系统](knowledge/ai-general-notes/agent-memory.md) ⭐ — ChatGPT Dreaming V3、人脑记忆工程同构、个性化护城河
 - [ReAct 范式](knowledge/ai-general-notes/Memory-ReAct.md) ⭐ — Reasoning and Acting 范式、Thought-Action-Observation 循环、Memory 是最后一公里
 - [AI 公司增长飞轮](knowledge/ai-general-notes/ai-company-growth-flywheel.md) ⭐ — Killer App × 企业信任 × 消费制收入，Anthropic 17 个月 47 倍
