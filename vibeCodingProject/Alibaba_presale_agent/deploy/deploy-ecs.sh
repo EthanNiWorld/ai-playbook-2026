@@ -300,9 +300,10 @@ for f in /etc/nginx/conf.d/*.conf; do
 done
 
 # 旧站点（如 bqa）与本站点同为 default_server，会报 duplicate default_server
+# share-oss 是本机手工维护的 443 子域反代（OSS CNAME），不含 default_server，不属本脚本管辖，跳过
 for f in /etc/nginx/sites-enabled/*; do
   [ -e "$f" ] || continue
-  case "$(basename "$f")" in alibaba-presale-agent|default) continue ;; esac
+  case "$(basename "$f")" in alibaba-presale-agent|default|share-oss) continue ;; esac
   move_aside "$f"
 done
 
@@ -337,6 +338,45 @@ server {
     }
 }
 EOF
+
+# 若已有 TLS 证书（acme.sh 已签发并安装到 /etc/nginx/ssl/），必须补上 443 server 段：
+# 上面的模板只写 listen 80，直接覆盖会把手工/acme 部署的 HTTPS 段抹掉（2026-11-20 曾因此整站失守 443）。
+if [ -f /etc/nginx/ssl/day1cloud.cn.fullchain.pem ] && [ -f /etc/nginx/ssl/day1cloud.cn.key ]; then
+  cat >> /etc/nginx/sites-available/alibaba-presale-agent <<'TLS'
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name day1cloud.cn www.day1cloud.cn;
+
+    ssl_certificate     /etc/nginx/ssl/day1cloud.cn.fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/day1cloud.cn.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    client_max_body_size 8m;
+    limit_req zone=apa_chat burst=10 nodelay;
+    limit_conn apa_conn 8;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header Connection "";
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 300s;
+        chunked_transfer_encoding on;
+    }
+}
+TLS
+  ok "检测到 day1cloud.cn TLS 证书，已附加 443 server 段（避免重部署覆盖 HTTPS）"
+else
+  warn "未检测到 TLS 证书（/etc/nginx/ssl/day1cloud.cn.*），本次仅部署 80；签发证书后需手工补 443 段"
+fi
 ln -sf /etc/nginx/sites-available/alibaba-presale-agent /etc/nginx/sites-enabled/alibaba-presale-agent
 if [ -e /etc/nginx/sites-enabled/default ]; then
   mv /etc/nginx/sites-enabled/default /root/nginx-default.bak
