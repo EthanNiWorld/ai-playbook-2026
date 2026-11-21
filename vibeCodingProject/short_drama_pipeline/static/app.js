@@ -502,6 +502,16 @@
     });
   }
 
+  // 客户图库：上传选择的图片，返回服务端文件名列表
+  async function uploadCustomImages(files) {
+    var fd = new FormData();
+    for (var i = 0; i < Math.min(files.length, 12); i++) fd.append("files", files[i]);
+    var resp = await fetch("/api/upload", { method: "POST", body: fd });
+    var data = await resp.json();
+    if (!data.ok) throw new Error(data.error || "上传失败");
+    return data.files;
+  }
+
   async function startRun(resume, resumeRun) {
     if (busy) return;
     setBusy(true);
@@ -509,6 +519,16 @@
     setStatus(resume ? (resumeRun ? "断点续跑 " + resumeRun + "…" : "断点续跑启动…") : "启动流水线…", true);
 
     try {
+      // 客户图库模式：先上传图，再随 run 请求提交文件名
+      var customImages = null;
+      if (!resume && $("imgsource").value === "custom") {
+        var files = $("imgfiles").files;
+        if (!files || !files.length) {
+          throw new Error("已选择「我的图库」，请先选择至少 1 张客户图");
+        }
+        setStatus("上传客户图（" + Math.min(files.length, 12) + " 张）…", true);
+        customImages = await uploadCustomImages(files);
+      }
       var resp = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -517,7 +537,8 @@
           scenes: parseInt($("scenes").value, 10),
           resume: !!resume,
           resume_run: resumeRun || null,
-          manual: $("manual").checked
+          manual: $("manual").checked,
+          custom_images: customImages
         })
       });
       if (!resp.ok || !resp.body) throw new Error("HTTP " + resp.status);
@@ -555,6 +576,10 @@
 
   runBtn.addEventListener("click", function () { startRun(false); });
   resumeBtn.addEventListener("click", function () { startRun(true); });
+  // 图像来源切换：选「我的图库」时展开上传控件
+  $("imgsource").addEventListener("change", function () {
+    $("uploadField").hidden = (this.value !== "custom");
+  });
   $("theme").addEventListener("keydown", function (e) {
     if (e.key === "Enter") startRun();
   });

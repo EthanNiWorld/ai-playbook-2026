@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#fcfbf9"/>
 <title>短剧工场 · 北京节点 demo</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230d0d0d'/%3E%3Cpath d='M12 9l10 7-10 7z' fill='%23ff6a00'/%3E%3C/svg%3E"/>
-<link rel="stylesheet" href="/static/style.css?v=20261120i"/>
+<link rel="stylesheet" href="/static/style.css?v=20261121b"/>
 </head>
 <body>
 <div class="layout">
@@ -58,8 +58,9 @@
           </label>
           <label class="field">
             <span class="field-label">场景数</span>
-            <select id="scenes">
-              <option value="1" selected>1 场</option>
+            <select id="scenes" title="AI 自动：qwen4-max 分镜时按剧情复杂度决定场景数（1-4 场）">
+              <option value="0" selected>AI 自动</option>
+              <option value="1">1 场</option>
               <option value="2">2 场</option>
               <option value="3">3 场</option>
             </select>
@@ -70,6 +71,19 @@
           </label>
           <button id="runBtn" class="btn primary">🚀 开始生产</button>
           <button id="resumeBtn" class="btn" hidden title="从上次中断的 checkpoint 继续：已完成步骤跳过，已提交的异步任务凭 task_id 续轮询">♻️ 续跑上次任务</button>
+        </div>
+        <div class="composer-row imgsource-row">
+          <label class="field" title="AI 生图：qwen-image 按分镜生成海报与首帧；我的图库：剧情围绕客户图写，客户图直接作首帧，跳过 AI 生图">
+            <span class="field-label">图像来源</span>
+            <select id="imgsource">
+              <option value="ai" selected>AI 生图</option>
+              <option value="custom">我的图库</option>
+            </select>
+          </label>
+          <label class="field grow" id="uploadField" hidden>
+            <span class="field-label">客户图（最多 12 张，剧情将围绕这些图创作）</span>
+            <input id="imgfiles" type="file" accept="image/jpeg,image/png,image/webp,image/bmp" multiple/>
+          </label>
         </div>
         <p class="hint">控制 qwen4-max 分镜（含每场视频时长建议）→ 图像生成 → 视频生成 → 编辑，全程真实调用北京节点模型。网络中断后可从 checkpoint 断点续跑。</p>
       </section>
@@ -140,6 +154,6 @@
     </div>
   </main>
 </div>
-<script src="/static/app.js?v=20261120i"></script>
+<script src="/static/app.js?v=20261121b"></script>
 </body>
 </html>

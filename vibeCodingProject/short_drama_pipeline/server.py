@@ -24,7 +24,7 @@ import sys
 import threading
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -182,6 +182,12 @@ class RunRequest(BaseModel):
     # 缺省时自动选最新可续跑 run。仅允许 basename，防止路径注入。
     resume_run: str | None = None
     manual: bool = True  # 打磨模式：四步人工确认（勾掉则全自动一次跑到底）
+    # 客户图库模式：/api/upload 返回的文件名列表（output/uploads/ 内），
+    # 看图写分镜 + 客户图直接作首帧，跳过 AI 生图
+    custom_images: list[str] | None = None
+    # 克隆音色 ID（音色复刻产物）：配音与口型驱动用客户本人的声音。
+    # str=全局单音色；dict=多角色映射（角色名→voice_id，按分镜 speaker 路由）
+    custom_voice: str | dict[str, str] | None = None
 
 
 class ConfirmRequest(BaseModel):
@@ -317,11 +323,28 @@ async def run_pipeline(req: RunRequest):
                         if resume_dir is None:
                             emit({"type": "error", "message": "没有可续跑的任务（未找到未完成的 checkpoint）"})
                             return
+                # scenes=0（界面「AI 自动」）→ None：场景数由 qwen4-max 分镜时
+                # 按剧情复杂度自行决定；显式 1-3 则为人工指定。
+                # 客户图库模式：/api/upload 返回的文件名（仅 basename，防路径注入）
+                n = int(req.scenes or 0)
+                uploads_dir = os.path.join(config.OUTPUT_DIR, "uploads")
+                custom_imgs = None
+                if req.custom_images:
+                    custom_imgs = []
+                    for name in req.custom_images[:12]:  # 上限 12 张
+                        path = os.path.join(uploads_dir, os.path.basename(name))
+                        if os.path.isfile(path):
+                            custom_imgs.append(path)
+                    if not custom_imgs:
+                        emit({"type": "error", "message": "客户图未找到（请先上传）"})
+                        return
                 p = ShortDramaPipeline(
                     theme=(req.theme or "都市逆袭短剧").strip(),
-                    num_scenes=max(1, min(3, int(req.scenes))),
+                    num_scenes=(None if n <= 0 else min(3, n)),
                     resume_dir=resume_dir,
                     confirm_cb=make_web_confirm(emit, holder) if req.manual else None,
+                    custom_images=custom_imgs,
+                    custom_voice=req.custom_voice,
                 )
                 holder["run_dir"] = p.run_dir
                 holder["pipeline"] = p
@@ -372,6 +395,30 @@ async def run_pipeline(req: RunRequest):
             holder["closed"] = True
 
     return StreamingResponse(event_gen(), media_type="text/event-stream", headers=_SSE_HEADERS)
+
+
+@app.post("/api/upload")
+async def upload_images(files: list[UploadFile] = File(...)):
+    """客户图库上传：存入 output/uploads/（按时间戳重命名防覆盖），返回文件名列表。
+    流水线启动时用这些图「看图写分镜」并直接作首帧，跳过 AI 生图。"""
+    import time as _time
+    import uuid as _uuid
+    allowed = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
+    uploads_dir = os.path.join(config.OUTPUT_DIR, "uploads")
+    os.makedirs(uploads_dir, exist_ok=True)
+    saved = []
+    for f in files[:12]:  # 与 RunRequest.custom_images 同上限
+        ext = os.path.splitext(f.filename or "")[1].lower()
+        if ext not in allowed:
+            continue
+        name = f"u{_time.strftime('%Y%m%d_%H%M%S')}_{_uuid.uuid4().hex[:8]}{ext}"
+        path = os.path.join(uploads_dir, name)
+        with open(path, "wb") as out:
+            out.write(await f.read())
+        saved.append(name)
+    if not saved:
+        return {"ok": False, "error": "仅支持 jpg/png/webp/bmp，至少传 1 张"}
+    return {"ok": True, "files": saved}
 
 
 # 运行产物静态服务（最后挂载，避免遮蔽 API 路由）

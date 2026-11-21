@@ -22,6 +22,7 @@
 步骤均在 checkpoint 中，可 --resume 断点续跑。
 """
 import os
+import sys
 import json
 import glob
 import time
@@ -46,13 +47,20 @@ class ShortDramaPipeline:
         "video": "场景视频已生成，请确认后再进入生成式编辑（wan2.7-videoedit）",
     }
 
-    def __init__(self, theme="都市逆袭短剧", num_scenes=1, ims_real=False, target_qps=10,
-                 resume_dir=None, confirm_cb=None):
+    def __init__(self, theme="都市逆袭短剧", num_scenes=None, ims_real=False, target_qps=10,
+                 resume_dir=None, confirm_cb=None, custom_images=None, custom_voice=None):
         self.llm = Qwen4MaxClient()
         self.gen = BailianAsyncClient()
         self.ims = IMSClient(real=ims_real)
         self.tm = TaskManager(self.gen, self.ims, target_qps=target_qps)
         self.confirm_cb = confirm_cb  # None=全自动；否则每步确认返回 (action, edited)
+        # 客户图库模式：图先决（看图写分镜，跳过 AI 生图）；绝对路径列表，续跑时以
+        # checkpoint 内的 custom_images（相对 run 目录的路径）为准
+        self.custom_images = custom_images or []
+        # 克隆音色：str=全局单音色；dict=多角色映射（角色名→voice_id，
+        # 按分镜 scenes[].speaker 路由）。配音与口型驱动按场景选对应角色声音；
+        # 续跑时从 checkpoint 恢复
+        self.custom_voice = custom_voice
         if resume_dir:
             # 断点续跑：复用已有 run 目录与 checkpoint，不再新建时间戳目录
             self.run_dir = resume_dir
@@ -71,9 +79,15 @@ class ShortDramaPipeline:
         os.makedirs(self.run_dir, exist_ok=True)
         self.checkpoint_path = os.path.join(self.run_dir, "checkpoint.json")
         self.ckpt = self._load_ckpt()
-        # 恢复时以 checkpoint 内的主题/场数为准（忽略新传入值，避免口径错乱）
+        # 恢复时以 checkpoint 内的主题/场数为准（忽略新传入值，避免口径错乱）；
+        # 客户图库模式同理：续跑时从 checkpoint 恢复图路径列表
         self.theme = self.ckpt.get("theme", theme)
         self.num_scenes = self.ckpt.get("num_scenes", num_scenes)
+        if self.ckpt.get("custom_images"):
+            self.custom_images = [os.path.join(self.run_dir, c) if not os.path.isabs(c) else c
+                                  for c in self.ckpt["custom_images"]]
+        if self.ckpt.get("custom_voice"):
+            self.custom_voice = self.ckpt["custom_voice"]
         self.report = {
             "theme": self.theme,
             "models_used": set(self.ckpt.get("models_used", [])),
@@ -129,10 +143,30 @@ class ShortDramaPipeline:
                     with open(os.path.join(self.run_dir, "storyboard.json"), "w") as f:
                         json.dump(board, f, ensure_ascii=False, indent=2)
             else:
-                board = self.llm.generate_storyboard(self.theme, self.num_scenes)
+                if self.custom_images:
+                    # 客户图库模式（图先决）：qwen4-max 多模态看图写分镜，
+                    # 每张图必成为一个镜头首帧（seq 对应）；图先复制进 run 目录归档
+                    for i, src in enumerate(self.custom_images, 1):
+                        dst = os.path.join(self.run_dir, f"custom_{i:02d}{os.path.splitext(src)[1]}")
+                        if not os.path.isfile(dst):
+                            shutil.copyfile(src, dst)
+                    self.custom_images = sorted(
+                        glob.glob(os.path.join(self.run_dir, "custom_*.*")))
+                    board = self.llm.generate_storyboard_with_images(
+                        self.theme, self.custom_images, self.num_scenes)
+                    print(f"  图库模式：{len(self.custom_images)} 张客户图 → 看图写分镜")
+                else:
+                    board = self.llm.generate_storyboard(self.theme, self.num_scenes)
+                # num_scenes=None（AI 自动）时以 LLM 实际决策为准，回写后落入
+                # checkpoint，续跑与后续日志/报告口径一致
+                auto = self.num_scenes is None
+                self.num_scenes = len(board["scenes"])
+                self._log(f"共 {self.num_scenes} 场" + ("（AI 自动决策）" if auto else ""))
                 with open(os.path.join(self.run_dir, "storyboard.json"), "w") as f:
                     json.dump(board, f, ensure_ascii=False, indent=2)
-                self._save_ckpt(theme=self.theme, num_scenes=self.num_scenes, storyboard=board)
+                self._save_ckpt(theme=self.theme, num_scenes=self.num_scenes, storyboard=board,
+                                 custom_images=[os.path.basename(p) for p in self.custom_images],
+                                 custom_voice=self.custom_voice)
             self._log(f"剧名「{board['title']}」— {board.get('logline', '')[:60]}")
             self._step("storyboard", f"{board['title']} / {len(board['scenes'])} 场")
             self.report["models_used"].add(self.llm.model)
@@ -157,99 +191,137 @@ class ShortDramaPipeline:
         print(f"\n[2] 图像生成（qwen-image-3.0-pro：海报 + 角色锚定 + 镜头首帧）")
         while True:
             images = self.ckpt.get("images")
+            # 镜头清单：新 schema（shots[]）或兼容旧 schema（单镜头字段）。
+            # 提前定义：客户图库分支与 AI 生图分支都依赖。
+            def _shots_of(sc):
+                if sc.get("shots"):
+                    return sc["shots"]
+                return [{"shot_id": 1, "framing": "中景",
+                         "image_prompt": sc.get("image_prompt", ""),
+                         "video_prompt": sc.get("video_prompt", ""),
+                         "duration": sc.get("video_duration", -1)}]
+
             if images:
-                print("  ♻️ 海报/锚定图/镜头首帧已生成，跳过（本地缺失时按 URL 重下）")
-                poster_url, poster_model = images["poster_url"], images["poster_model"]
-                poster_local = os.path.join(self.run_dir, "poster.png")
-                if not os.path.isfile(poster_local):
-                    self.gen.download(poster_url, poster_local)
-                char_ref_url = images.get("char_ref_url")
-                char_ref_local = os.path.join(self.run_dir, "character_ref.png")
-                if char_ref_url and not os.path.isfile(char_ref_local):
-                    self.gen.download(char_ref_url, char_ref_local)
-                stills = []  # [(scene, shot, url, local_path)]
-                for item in images["stills"]:
-                    local = os.path.join(self.run_dir, item["local"])
-                    if not os.path.isfile(local):
-                        self.gen.download(item["url"], local)
-                    # 旧 checkpoint 兼容：早期单镜头 run 无 shot 字段 → 包默认镜头
-                    shot = item.get("shot") or {"shot_id": 1, "framing": "中景",
-                                                "video_prompt": "", "duration": -1}
-                    stills.append((item["scene"], shot, item["url"], local))
-                self.report["models_used"].add(poster_model)
-                self._log(f"海报完成（{poster_model}，复用）")
+                print("  ♻️ 海报/锚定图/镜头首帧已生成，跳过（本地缺失时按 URL 重下）" if not images.get("custom")
+                      else "  ♻️ 客户图库模式：首帧已绑定，跳过")
+                if images.get("custom"):
+                    # 客户图模式：首帧即 run 目录内 custom_*.* 文件，无需下载；
+                    # poster 由图 1 兼任；无 AI 生图产物。
+                    poster_url = poster_model = None
+                    char_ref_url = None
+                    stills = []
+                    for item in images["stills"]:
+                        shot = item.get("shot") or {"shot_id": 1, "framing": "中景",
+                                                    "video_prompt": "", "duration": -1}
+                        stills.append((item["scene"], shot, None,
+                                       os.path.join(self.run_dir, item["local"])))
+                    poster_local = stills[0][3] if stills else None
+                else:
+                    poster_url, poster_model = images["poster_url"], images["poster_model"]
+                    poster_local = os.path.join(self.run_dir, "poster.png")
+                    if not os.path.isfile(poster_local):
+                        self.gen.download(poster_url, poster_local)
+                    char_ref_url = images.get("char_ref_url")
+                    char_ref_local = os.path.join(self.run_dir, "character_ref.png")
+                    if char_ref_url and not os.path.isfile(char_ref_local):
+                        self.gen.download(char_ref_url, char_ref_local)
+                    stills = []  # [(scene, shot, url, local_path)]
+                    for item in images["stills"]:
+                        local = os.path.join(self.run_dir, item["local"])
+                        if not os.path.isfile(local):
+                            self.gen.download(item["url"], local)
+                        # 旧 checkpoint 兼容：早期单镜头 run 无 shot 字段 → 包默认镜头
+                        shot = item.get("shot") or {"shot_id": 1, "framing": "中景",
+                                                    "video_prompt": "", "duration": -1}
+                        stills.append((item["scene"], shot, item["url"], local))
+                    self.report["models_used"].add(poster_model)
+                    self._log(f"海报完成（{poster_model}，复用）")
             else:
-                # 多镜头并行生图：海报 + 角色锚定图 + 各镜头首帧（qwen-image 同步接口）。
-                # 每镜头独立首帧（景别各异），角色锚定图作为 reference 供视频步角色一致性。
-                def _gen_one(job):
-                    if job["kind"] == "poster":
-                        url, model = self.gen.text2image(
-                            board["poster_prompt"],
-                            [config.IMAGE_MODEL] + config.IMAGE_MODEL_FALLBACKS,
-                            size="1536*2688",  # 9:16 竖版海报
-                        )
-                        local = os.path.join(self.run_dir, "poster.png")
-                    elif job["kind"] == "char_ref":
-                        url, model = self.gen.text2image(
-                            board.get("character_ref_prompt") or board["poster_prompt"],
-                            [config.IMAGE_MODEL] + config.IMAGE_MODEL_FALLBACKS,
-                            size="1024*1024",  # 角色标准像（参考图正方形）
-                        )
-                        local = os.path.join(self.run_dir, "character_ref.png")
-                    else:
-                        sc, shot = job["scene"], job["shot"]
-                        url, model = self.gen.text2image(
-                            shot["image_prompt"],
-                            [config.IMAGE_MODEL] + config.IMAGE_MODEL_FALLBACKS,
-                            size="1728*2368",  # 3:4 竖构图首帧
-                        )
-                        local = os.path.join(
-                            self.run_dir, f"scene_{sc['id']}_shot{shot['shot_id']}_still.png")
-                    self.gen.download(url, local)
-                    return job, url, model, local
-
-                # 镜头清单：新 schema（shots[]）或兼容旧 schema（单镜头字段）
-                def _shots_of(sc):
-                    if sc.get("shots"):
-                        return sc["shots"]
-                    return [{"shot_id": 1, "framing": "中景",
-                             "image_prompt": sc.get("image_prompt", ""),
-                             "video_prompt": sc.get("video_prompt", ""),
-                             "duration": sc.get("video_duration", -1)}]
-
-                jobs = ([{"kind": "poster"}, {"kind": "char_ref"}]
-                        + [{"kind": "still", "scene": sc, "shot": shot}
-                           for sc in board["scenes"] for shot in _shots_of(sc)])
-                n_shots = len(jobs) - 2
-                print(f"  并行提交 {len(jobs)} 个图像任务（海报 1 + 角色锚定 1 + 镜头首帧 {n_shots}）…")
-                poster_url = poster_model = poster_local = None
-                char_ref_url = char_ref_local = None
-                stills = []  # [(scene, shot, url, local_path)]
-                with ThreadPoolExecutor(max_workers=min(len(jobs), 8)) as pool:
-                    futures = [pool.submit(_gen_one, j) for j in jobs]
-                    for fut in as_completed(futures):
-                        job, url, model, local = fut.result()  # 单任务失败则整体抛错，续跑重试
-                        self.report["models_used"].add(model)
+                # 客户图库模式：跳过 AI 生图，客户图直接作镜头首帧（图先决）。
+                # poster/char_ref 同样不生成：海报由图 1 兼任，角色一致性由真实图
+                # 天然保证（同一图库）；url 字段填 data URI 占位由视频步现转，
+                # checkpoint 仍存 local 路径供续跑复用。
+                if self.custom_images:
+                    poster_url = poster_model = None
+                    char_ref_url = None
+                    poster_local = self.custom_images[0]
+                    stills = []
+                    for sc in board["scenes"]:
+                        for shot in _shots_of(sc):
+                            seq = shot.get("seq")
+                            if not isinstance(seq, int) or not (1 <= seq <= len(self.custom_images)):
+                                self._log(f"⚠️ 场景{sc['id']}-镜头{shot.get('shot_id')} 缺失有效 seq，"
+                                          f"按顺序取下一张图")
+                                seq = (len(stills) % len(self.custom_images)) + 1
+                            stills.append((sc, shot, None, self.custom_images[seq - 1]))
+                    print(f"  图库模式：{len(stills)} 个镜头直接使用 {len(self.custom_images)} 张客户图，跳过 AI 生图")
+                else:
+                    # 多镜头并行生图：海报 + 角色锚定图 + 各镜头首帧（qwen-image 同步接口）。
+                    # 每镜头独立首帧（景别各异），角色锚定图作为 reference 供视频步角色一致性。
+                    def _gen_one(job):
                         if job["kind"] == "poster":
-                            poster_url, poster_model, poster_local = url, model, local
-                            self._log(f"海报完成（{model}）")
+                            url, model = self.gen.text2image(
+                                board["poster_prompt"],
+                                [config.IMAGE_MODEL] + config.IMAGE_MODEL_FALLBACKS,
+                                size="1536*2688",  # 9:16 竖版海报
+                            )
+                            local = os.path.join(self.run_dir, "poster.png")
                         elif job["kind"] == "char_ref":
-                            char_ref_url, char_ref_local = url, local
-                            self._log(f"角色锚定图完成（{model}）")
+                            url, model = self.gen.text2image(
+                                board.get("character_ref_prompt") or board["poster_prompt"],
+                                [config.IMAGE_MODEL] + config.IMAGE_MODEL_FALLBACKS,
+                                size="1024*1024",  # 角色标准像（参考图正方形）
+                            )
+                            local = os.path.join(self.run_dir, "character_ref.png")
                         else:
-                            stills.append((job["scene"], job["shot"], url, local))
-                            self._log(f"场景 {job['scene']['id']}-镜头 {job['shot']['shot_id']}"
-                                      f"（{job['shot'].get('framing', '?')}）首帧完成")
-                stills.sort(key=lambda x: (x[0]["id"], x[1]["shot_id"]))  # 按（场景号，镜头号）重排
+                            sc, shot = job["scene"], job["shot"]
+                            url, model = self.gen.text2image(
+                                shot["image_prompt"],
+                                [config.IMAGE_MODEL] + config.IMAGE_MODEL_FALLBACKS,
+                                size="1728*2368",  # 3:4 竖构图首帧
+                            )
+                            local = os.path.join(
+                                self.run_dir, f"scene_{sc['id']}_shot{shot['shot_id']}_still.png")
+                        self.gen.download(url, local)
+                        return job, url, model, local
+
+                    # 镜头清单（同外层 _shots_of）已提前定义
+
+                    jobs = ([{"kind": "poster"}, {"kind": "char_ref"}]
+                            + [{"kind": "still", "scene": sc, "shot": shot}
+                               for sc in board["scenes"] for shot in _shots_of(sc)])
+                    n_shots = len(jobs) - 2
+                    print(f"  并行提交 {len(jobs)} 个图像任务（海报 1 + 角色锚定 1 + 镜头首帧 {n_shots}）…")
+                    poster_url = poster_model = poster_local = None
+                    char_ref_url = char_ref_local = None
+                    stills = []  # [(scene, shot, url, local_path)]
+                    with ThreadPoolExecutor(max_workers=min(len(jobs), 8)) as pool:
+                        futures = [pool.submit(_gen_one, j) for j in jobs]
+                        for fut in as_completed(futures):
+                            job, url, model, local = fut.result()  # 单任务失败则整体抛错，续跑重试
+                            self.report["models_used"].add(model)
+                            if job["kind"] == "poster":
+                                poster_url, poster_model, poster_local = url, model, local
+                                self._log(f"海报完成（{model}）")
+                            elif job["kind"] == "char_ref":
+                                char_ref_url, char_ref_local = url, local
+                                self._log(f"角色锚定图完成（{model}）")
+                            else:
+                                stills.append((job["scene"], job["shot"], url, local))
+                                self._log(f"场景 {job['scene']['id']}-镜头 {job['shot']['shot_id']}"
+                                          f"（{job['shot'].get('framing', '?')}）首帧完成")
+                    stills.sort(key=lambda x: (x[0]["id"], x[1]["shot_id"]))  # 按（场景号，镜头号）重排
                 # 图片产物归档（URL 有效期 24h，续跑时缺失的本地文件可按 URL 重下）
                 self._save_ckpt(images={
                     "poster_url": poster_url, "poster_model": poster_model,
                     "char_ref_url": char_ref_url,
+                    "custom": bool(self.custom_images),
                     "stills": [{"scene": sc, "shot": shot, "url": url,
                                 "local": os.path.basename(local)}
                                for sc, shot, url, local in stills],
                 })
-            self._step("images", f"海报 1 + 锚定 1 + 镜头首帧 {len(stills)}（{poster_model}）")
+            self._step("images", ("客户图库模式：客户图直用，无 AI 生图" if self.custom_images
+                                  else f"海报 1 + 锚定 1 + 镜头首帧 {len(stills)}（{poster_model}）"))
             # 确认点：预览相对路径供 Web 前端拼 /files/ 直链
             act, _ = self._gate("images", {
                 "poster": os.path.relpath(poster_local, config.OUTPUT_DIR).replace(os.sep, "/"),
@@ -304,7 +376,7 @@ class ShortDramaPipeline:
         TAKES = 2  # 同镜头抽卡次数（业内标准：多 take 挑优）
         video_records = []  # [(scene, shot, rec, model)]，rec 为选定 take 的任务记录
         submitted = {(t["scene_id"], t.get("shot_id", 1)): t for t in ckpt.get("video_tasks", [])}
-        for sc, shot, still_url, _ in stills:
+        for sc, shot, still_url, still_local in stills:
             # 时长决策：镜头级 duration；平台时段性故障规避：<8 档位规整为 8
             dur = shot.get("duration")
             if not isinstance(dur, int) or not (2 <= dur <= 30):
@@ -312,6 +384,11 @@ class ShortDramaPipeline:
             elif 0 < dur < 8:
                 self._log(f"场景{sc['id']}-镜头{shot['shot_id']} duration={dur} 规整为 8（平台 <8s 档位 2s 故障规避）")
                 dur = 8
+            # 客户图库模式：图无公网 URL，降采样转 base64 data URI 直传
+            # （实测 wan3.0/wan2.7 均接受，探测脚本 scripts/test_datauri_first_frame.py）
+            if not still_url:
+                b64, mime = self.llm._encode_image(still_local)
+                still_url = f"data:{mime};base64,{b64}"
             key = (sc["id"], shot.get("shot_id", 1))
             saved = submitted.get(key)
             if saved:
@@ -322,12 +399,30 @@ class ShortDramaPipeline:
                 video_records.append((sc, shot, rec, model, None))
                 self.report["models_used"].add(model)
                 continue
-            # 新提交：优先角色锚定参考生视频（首帧构图换角色一致性），锚定图缺失时回退首帧驱动
+            # 新提交：三层路由（口型镜头 / 角色锚定参考 / 首帧驱动）
             ref_urls = [char_ref_url, still_url] if char_ref_url else []
             take_jobs = []  # [(take_id, task_id, model)]
-            for take_id in range(TAKES):
-                if ref_urls:
-                    # 参考生视频：锚定图保角色一致，prompt 描述构图/运镜（首镜头把首帧图也作参考保持构图）
+            needs_lipsync = bool(shot.get("needs_lipsync")) and bool(sc.get("dialogue"))
+            audio_url = None
+            if needs_lipsync:
+                # 口型镜头前置：先合成台词 TTS 音轨（driving_audio 需公网 URL）。
+                # 上传用百炼临时存储：dashscope 内置 OSS 通道（voice 同款接口返回的 URL 不可复用，
+                # 改用百炼文件上传 API 拿公网 URL）。
+                audio_url = self._prep_driving_audio(sc, shot)
+                if not audio_url:
+                    self._log(f"⚠️ 场景{sc['id']}-镜头{shot['shot_id']} 口型音轨准备失败，回退常规生成")
+                    needs_lipsync = False
+            for take_id in range(TAKES if not needs_lipsync else 1):  # 口型镜头单 take（成本高）
+                if needs_lipsync:
+                    # 口型路径：wan2.7-i2v + first_frame + driving_audio（画质换口型）
+                    task_id, model = self.gen.lipsync2video(
+                        shot["video_prompt"], still_url, audio_url,
+                        ["wan2.7-i2v", "wan2.7-i2v-2026-06-12"],
+                        resolution="720P", duration=dur,
+                    )
+                    self._log(f"场景{sc['id']}-镜头{shot['shot_id']} 口型同步提交（{model}，台词驱动）")
+                elif ref_urls:
+                    # 参考生视频：锚定图保角色一致，prompt 描述构图/运镜
                     prompt = (f"{shot['video_prompt']}；保持人物与参考图完全一致的面容发型服饰。"
                               f"构图：{shot.get('framing', '中景')}景，3:4 竖构图")
                     task_id, model = self.gen.ref2video(
@@ -342,10 +437,12 @@ class ShortDramaPipeline:
                         resolution="480P", duration=dur,
                     )
                 take_jobs.append((take_id, task_id, model))
-                self._log(f"场景{sc['id']}-镜头{shot['shot_id']} take{take_id + 1} 已提交（{model}, {dur if dur > 0 else '智能'}s）")
+                if not needs_lipsync:
+                    self._log(f"场景{sc['id']}-镜头{shot['shot_id']} take{take_id + 1} 已提交（{model}, {dur if dur > 0 else '智能'}s）")
                 self._ckpt_append("video_tasks",
                                   {"scene_id": sc["id"], "shot_id": shot.get("shot_id", 1),
-                                   "take_id": take_id, "task_id": task_id, "model": model})
+                                   "take_id": take_id, "task_id": task_id, "model": model,
+                                   "lipsync": needs_lipsync})
             for take_id, task_id, model in take_jobs:
                 rec = self.tm.add_bailian_task(task_id, "bailian_video",
                                                f"场景{sc['id']}-镜头{shot['shot_id']}-t{take_id}({model})")
@@ -413,7 +510,7 @@ class ShortDramaPipeline:
                 self._log(f"场景{sc['id']}-镜头{key[1]}-take{take_id} 未成功（{rec.status}）")
                 continue
             take_local = os.path.join(self.run_dir,
-                                      f"scene_{key[0]}_shot{key[1]}_take{take_id}.mp4")
+                                      f"scene_{key[0]}_shot{key[1]}_take{take_id if take_id is not None else 'r'}.mp4")
             self.gen.download(url, take_local)
             takes_by_key[key]["takes"].append((take_id, take_local))
         for key, bundle in takes_by_key.items():
@@ -451,11 +548,12 @@ class ShortDramaPipeline:
                 if ok.returncode == 0:
                     scene_raw[sc["id"]] = merged
                     self._log(f"场景 {sc['id']} 场内 {len(keys)} 镜硬切拼接完成")
-                else:  # concat 失败（编码不一致等）→ 逐镜头转码拼接兜底
+                else:  # concat 失败（编码不一致等）→ 统一画布转码拼接兜底
                     inputs, fc = [], []
                     for i, k in enumerate(keys):
                         inputs += ["-i", chosen_take_local[k]]
-                        fc.append(f"[{i}:v]scale=820:1124,setsar=1,fps=30[v{i}]")
+                        fc.append(f"[{i}:v]scale=1080:1440:force_original_aspect_ratio=decrease,"
+                                  f"pad=1080:1440:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30[v{i}]")
                         fc.append(f"[{i}:a]aresample=44100[a{i}]")
                     for i in range(1, len(keys)):
                         fc.append(f"[v{i - 1}][v{i}]concat=n=2:v=1:a=0[vc{i}]")
@@ -478,10 +576,19 @@ class ShortDramaPipeline:
         # 7c. 生成式编辑（场景粒度，同前：复用/新提交）
         edit_records = []
         edit_saved = {e["scene_id"]: e for e in ckpt.get("edit_tasks", [])}
+        lipsync_sids = {t["scene_id"] for t in ckpt.get("video_tasks", []) if t.get("lipsync")}
         for sc in board["scenes"]:
             raw_path = scene_raw.get(sc["id"])
             if not raw_path:
                 self._log(f"场景 {sc['id']} 无可用片段，跳过编辑")
+                continue
+            if sc["id"] in lipsync_sids:
+                # 口型保护：videoedit 重绘会破坏逐字口型并丢失台词音轨，
+                # 含 lipsync 镜头的场景直接用场内拼接原片作为成片
+                scene_edited = os.path.join(self.run_dir, f"scene_{sc['id']}_edited.mp4")
+                shutil.copyfile(raw_path, scene_edited)
+                self._check_clip_duration(sc, scene_edited)
+                self._log(f"场景 {sc['id']} 含口型镜头，跳过生成式编辑（保护口型与台词音轨）")
                 continue
             video_url = next((rec.info.get("output", {}).get("video_url")
                               for s2, sh2, rec, _, _ in video_records
@@ -548,6 +655,48 @@ class ShortDramaPipeline:
             self._log(f"⚠️ 场景 {sc['id']} 片段仅 {actual:.1f}s（预期 {want}s），疑似平台短时长故障，"
                       f"成片节奏会偏快；可在确认点重做或手工重提")
 
+    def _voice_for(self, sc):
+        """按场景选克隆音色：voice_map（dict）时用分镜 speaker 路由到该角色的
+        voice_id；无匹配回退全局音色（str）；都不是则 None（用默认旗舰音色）。"""
+        vc = self.custom_voice
+        if isinstance(vc, dict):
+            speaker = (sc.get("speaker") or "").strip()
+            if speaker and speaker in vc:
+                return vc[speaker]
+            if speaker:
+                self._log(f"⚠️ 场景{sc.get('id')} speaker「{speaker}」无对应克隆音色，"
+                          f"回退默认音色（可用角色：{list(vc.keys())}）")
+            return None
+        return vc
+
+    def _prep_driving_audio(self, sc, shot):
+        """口型镜头前置：台词 TTS 合成 → 直接用 TTS 返回的公网签名 URL。
+
+        wan2.7-i2v 的 driving_audio 仅接受公网 HTTP(S) URL（官方 API 参考）：
+        - 百炼 uploads 两步上传（getPolicy→OSS）返回的 oss:// 地址会被拒（实测
+          报 Failed to download oss://…，且 OSS 对象私有 403 不可公开读）；
+        - TTS 接口响应自带 dashscope OSS 签名 URL，合成后立即提交时效足够；
+        同时落盘 voice_{sid}.mp3 供第 8.5 步配音字幕复用（不重复合成）。
+        失败返回 None（上层回退常规生成）。"""
+        local = os.path.join(self.run_dir, f"voice_{sc['id']}.mp3")
+        try:
+            sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts"))
+            from make_dubbed_final import synth, MOOD_CYCLE
+            line = sc.get("dialogue", "")
+            # 情绪优先用分镜的 voice_mood（贴合人设），缺失时兑底 MOOD_CYCLE；
+            # 已有本地音轨但 URL 过期不可复用（签名有时效）：重合成拿新 URL；
+            # 克隆音色模式下台词用客户本人的声音驱动口型
+            mood = sc.get("voice_mood") or MOOD_CYCLE[(sc["id"] - 1) % len(MOOD_CYCLE)]
+            audio_url = synth(line, mood, local, voice=self._voice_for(sc))
+            self._log(f"场景{sc['id']} 台词音轨已合成"
+                      + (f"（{sc.get('speaker') or '旁白'}，克隆音色）"
+                         if self._voice_for(sc) else "")
+                      + "（口型驱动用，公网 URL）")
+            return audio_url
+        except Exception as e:
+            self._log(f"⚠️ 台词 TTS 失败：{e}")
+            return None
+
     def _dub_final_cut(self):
         """配音版全片（第 8.5 步）：qwen-audio-3.1-tts-plus 台词配音 + PIL 字幕 +
         fun-music-v1 纯器乐 BGM → final_dubbed.mp4。
@@ -561,11 +710,46 @@ class ShortDramaPipeline:
         try:
             sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts"))
             from make_dubbed_final import dub_final
-            print(f"\n[8.5] 配音字幕版：TTS 台词 + 字幕 + BGM → final_dubbed.mp4")
-            out = dub_final(self.run_dir)
+            print(f"\n[8.5] 配音字幕版：TTS 台词 + 字幕 + BGM → final_dubbed.mp4"
+                  + ("（多角色克隆音色）" if isinstance(self.custom_voice, dict)
+                     else "（克隆音色）" if self.custom_voice else ""))
+            out = dub_final(self.run_dir, voice=self.custom_voice)
             self._step("final_dubbed", os.path.basename(out))
+            # 台词质检（8.6）：ASR 识别配音与分镜台词逐场比对，相似度低于阈值告警。
+            # 背景：run_010 曾发生 TTS 情绪指令被克隆音色当台词朗读的事故
+            # （[俏皮重庆妹儿] 被念出来），无质检则静默进入成片。仅旁白场景受检
+            # （口型镜头台词已烧进视频音轨）。仅告警不阻断（ASR 有识别噪声）。
+            try:
+                sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts"))
+                from qa_dubbing import asr as asr_text, similarity
+                board = json.load(open(os.path.join(self.run_dir, "storyboard.json")))
+                for sc in board["scenes"]:
+                    line = sc.get("dialogue", "")
+                    if not line or sc["id"] in self._lipsync_scene_ids(self.run_dir):
+                        continue
+                    audio = os.path.join(self.run_dir, f"voice_{sc['id']}.mp3")
+                    if not os.path.isfile(audio):
+                        continue
+                    sim = similarity(asr_text(audio), line)
+                    if sim < 0.85:
+                        self._log(f"⚠️ 台词质检：场景{sc['id']} ASR 相似度 {sim:.0%}，"
+                                  f"疑似指令被朗读/幻觉/漏读，建议重跑配音（scripts/qa_dubbing.py）")
+                    else:
+                        self._log(f"✅ 台词质检：场景{sc['id']} ASR 相似度 {sim:.0%}")
+            except Exception as e:
+                self._log(f"⚠️ 台词质检跳过：{type(e).__name__}: {e}")
         except Exception as e:
             self._log(f"⚠️ 配音版合成失败（不影响 final_cut）：{type(e).__name__}: {e}")
+
+    @staticmethod
+    def _lipsync_scene_ids(run_dir):
+        """checkpoint 中标记了 lipsync 的镜头所在场景集合（配音质检时跳过它们：
+        台词已烧进视频音轨，旁白 ASR 比对不适用）。"""
+        try:
+            ck = json.load(open(os.path.join(run_dir, "checkpoint.json")))
+            return {t["scene_id"] for t in ck.get("video_tasks", []) if t.get("lipsync")}
+        except (OSError, json.JSONDecodeError, KeyError):
+            return set()
 
     def _concat_final_cut(self):
         """把各场景成片按场景号顺序拼接为 final_cut.mp4（第 8 步，自动）。
@@ -587,16 +771,52 @@ class ShortDramaPipeline:
             f.writelines(f"file '{os.path.basename(c)}'\n" for c in clips)
         out = os.path.join(self.run_dir, "final_cut.mp4")
         print(f"\n[8] 剪辑合成：拼接 {len(clips)} 段成片 → final_cut.mp4")
+        # 主动检测分辨率一致性：-c copy 对多分辨率混合会“成功”但只保留首段规格
+        # （其余段被播放器拉伸，客户图库模式必踩）；不一致时直接走统一画布转码
+        resos = set()
+        for c in clips:
+            r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0",
+                                "-show_entries", "stream=width,height",
+                                "-of", "csv=p=0", c], capture_output=True, text=True)
+            if r.stdout.strip():
+                resos.add(r.stdout.strip())
+        uniform = len(resos) <= 1
         try:
+            if not uniform:
+                raise subprocess.CalledProcessError(1, "ffmpeg")  # 直接走转码兑底
             subprocess.run(
                 ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-c", "copy", out],
                 capture_output=True, check=True, timeout=120,
             )
-            size_mb = os.path.getsize(out) / 1048576
-            self._log(f"✅ 全片完成: final_cut.mp4（{len(clips)} 段拼接，{size_mb:.1f}MB）")
-            self._step("final_cut", f"{len(clips)} 段拼接")
-        except (subprocess.SubprocessError, OSError) as e:
-            self._log(f"⚠️ 拼接失败（不影响成片，可手工 ffmpeg concat）：{e}")
+        except (subprocess.SubprocessError, OSError):
+            # 编码/分辨率不一致（如客户图库模式各段随原图比例各异）：
+            # 内接缩放到 3:4 画布 + 居中 pad 统一规格后转码拼接（不裁切不变形）
+            try:
+                inputs, fc = [], []
+                for i, c in enumerate(clips):
+                    inputs += ["-i", c]
+                    fc.append(f"[{i}:v]scale=1080:1440:force_original_aspect_ratio=decrease,"
+                              f"pad=1080:1440:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30[v{i}]")
+                    fc.append(f"[{i}:a]aresample=44100[a{i}]")
+                # 链式 concat：上一步的输出 [vc{i-1}] 接下一段，不是原流 v{i}
+                prev_v, prev_a = "v0", "a0"
+                for i in range(1, len(clips)):
+                    out_v, out_a = (f"vc{i}", f"ac{i}") if i < len(clips) - 1 else ("vc", "ac")
+                    fc.append(f"[{prev_v}][v{i}]concat=n=2:v=1:a=0[{out_v}]")
+                    fc.append(f"[{prev_a}][a{i}]concat=n=2:v=0:a=1[{out_a}]")
+                    prev_v, prev_a = out_v, out_a
+                subprocess.run(
+                    ["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(fc),
+                     "-map", "[vc]", "-map", "[ac]",
+                     "-c:v", "libx264", "-preset", "fast", "-c:a", "aac", out],
+                    capture_output=True, check=True, timeout=300,
+                )
+            except (subprocess.SubprocessError, OSError) as e:
+                self._log(f"⚠️ 拼接失败（不影响成片，可手工 ffmpeg concat）：{e}")
+                return
+        size_mb = os.path.getsize(out) / 1048576
+        self._log(f"✅ 全片完成: final_cut.mp4（{len(clips)} 段拼接，{size_mb:.1f}MB）")
+        self._step("final_cut", f"{len(clips)} 段拼接")
 
     # ---------- 打磨模式：人工确认点 ----------
 

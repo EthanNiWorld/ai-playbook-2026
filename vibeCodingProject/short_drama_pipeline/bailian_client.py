@@ -236,6 +236,30 @@ class BailianAsyncClient:
             model_candidates, build_input, resolution=resolution, duration=duration,
         )
 
+    def lipsync2video(self, prompt, image_url, audio_url, model_candidates,
+                       resolution="720P", duration=None):
+        """口型同步对白镜头：wan2.7-i2v 的 first_frame + driving_audio（官方明确定位
+        口型同步/动作卡点）。wan2.7 系用 input.media 数组（实测 images 字段报
+        Field required: input.media）；每种 type 最多 1 个；音频 2-30s，
+        超出 duration 截断、不足部分无声。
+
+        分层路由决策：仅严格口型的近景对白镜头走此路径（画质换口型），
+        其余镜头走 wan3.0 ref2video（画质/速度优先）。wan3.0 无 driving_audio 能力。"""
+        def build_input(model):
+            if model.startswith("wan3.0"):
+                # wan3.0 不支持 driving_audio：强制降级链提前命中 wan2.7-i2v
+                raise ModelNotAvailableError(f"{model}: 不支持 driving_audio，口型镜头须走 wan2.7-i2v")
+            return {
+                "prompt": prompt,
+                "media": [
+                    {"type": "first_frame", "url": image_url},
+                    {"type": "driving_audio", "url": audio_url},
+                ],
+            }
+        return self._submit_video(
+            model_candidates, build_input, resolution=resolution, duration=duration,
+        )
+
     def text2video(self, prompt, model_candidates, resolution="480P", duration=None):
         """文生视频，按候选列表降级。返回 (task_id, model)。"""
         return self._submit_video(

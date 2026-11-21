@@ -7,6 +7,7 @@
 import base64
 import io
 import json
+import os
 import random
 import re
 import time
@@ -93,12 +94,20 @@ class Qwen4MaxClient:
         ]
         return self.chat(messages, temperature=0.2, max_tokens=max_tokens)
 
-    def generate_storyboard(self, theme="都市逆袭短剧", num_scenes=1):
+    def generate_storyboard(self, theme="都市逆袭短剧", num_scenes=None):
         """生成短剧分镜脚本（结构化 JSON，多镜头 shot list 版）。
 
         每场拆 2-3 个镜头（业内实践：短剧平均 2-4s 切镜，景别必须有变化，
         远全交代环境→中景推叙事→近特写给情绪）；另出 character_ref_prompt
-        （主角标准像提示词）供角色锚定图生成，保全片角色一致性。"""
+        （主角标准像提示词）供角色锚定图生成，保全片角色一致性。
+        num_scenes=None 时场景数量由 LLM 按剧情复杂度自行决定（业内做法，
+        界面默认 AI 自动）；显式传值则为人工指定。"""
+        if num_scenes:
+            scenes_hint = f"共 {num_scenes} 个场景。"
+        else:
+            scenes_hint = ("场景数量由你根据主题的剧情复杂度自行决定（1-4 场）："
+                           "单一日常小事或单一情绪短片 1-2 场；有地点转换、起承转合的完整小故事 2-3 场；"
+                           "复仇/逆袭/多重反转等强剧情 3-4 场。宁少勿滥，每场都必须有不可删的剧情价值。")
         prompt = f"""你是短剧制作流水线的总编剧兼分镜师。请为主题「{theme}」创作一段竖屏短剧的分镜脚本。
 要求输出严格的 JSON（不要 markdown 代码块、不要多余文字），结构如下：
 {{
@@ -110,14 +119,18 @@ class Qwen4MaxClient:
     {{
       "id": 1,
       "desc": "剧情描述",
+      "speaker": "本场景开口说话/旁白的角色名（无台词则填空字符串；多角色短剧时由配音步按角色路由克隆音色）",
       "dialogue": "一句台词",
+      "voice_mood": "这句台词的说话方式（自然语言：语气/情绪/语速，须与人物身份和剧情情绪一致，20字内；无台词则填空字符串）",
       "shots": [
         {{
           "shot_id": 1,
           "framing": "景别（远景/全景/中景/近景/特写）",
           "image_prompt": "本镜头首帧的文生图提示词（中文，含人物状态/构图/光线，3:4 竖构图）",
           "video_prompt": "本镜头的运动与运镜提示词（中文，单镜头单一运镜，节奏与景别匹配）",
-          "duration": 本镜头时长秒数（2-8 的整数；特写反应 2-3s，中景动作 4-6s，环境交代 6-8s）
+          "duration": 本镜头时长秒数（2-8 的整数；特写反应 2-3s，中景动作 4-6s，环境交代 6-8s），
+          "needs_lipsync": 是否需要口型同步（true/false；仅当【正面近景/特写 且 有人物开口说台词】时 true，
+                          其余一律 false——中远景台词用画外音+字幕即可，不必浪费口型链路）
         }},
         {{"shot_id": 2, "framing": "...", "image_prompt": "...", "video_prompt": "...", "duration": 4}}
       ],
@@ -126,9 +139,64 @@ class Qwen4MaxClient:
   ]
 }}
 每场拆 2-3 个镜头，景别必须有变化（不得全为同一景别），镜头切换服务剧情节奏；
-同一主角在各镜头的发型服饰面容必须一致（与 character_ref_prompt 呼应）。
-共 {num_scenes} 个场景。"""
+同一主角在各镜头的发型服饰面容必须一致（与 character_ref_prompt 呼应）；
+voice_mood 必须贴合人物身份与剧情情绪（如霸道总裁用沉稳从容的语气，不用"俏皮妹儿"），仅描述语气不写入台词本身；
+全片 needs_lipsync 的镜头不超过 1-2 个（选台词最关键、最适合特写的那句），其余台词走画外音。
+{scenes_hint}"""
         raw = self.chat([{"role": "user", "content": prompt}], temperature=0.8, max_tokens=2500)
+        return self._extract_json(raw)
+
+    def generate_storyboard_with_images(self, theme, image_paths, num_scenes=None):
+        """客户图库模式：qwen4-max 多模态「看图写分镜」。
+
+        剧情围绕客户图来写（图先决）而非先生成分镜再硬配图：每张图必成为一个
+        镜头首帧（seq 与图片顺序一一对应），剧情/台词/运镜必须与图内容严格自洽；
+        场景数量由图数与剧情共同决定。返回的 shots 内含 seq 字段指向图序号。"""
+        if num_scenes:
+            scenes_hint = f"场景数固定为 {num_scenes} 场。"
+        else:
+            scenes_hint = "场景数量由你根据图片内容与剧情复杂度自行决定。"
+        question = (
+            f"这些是客户图库中的图片（按顺序编号 1-{len(image_paths)}）。"
+            f"请围绕这些图为主题「{theme}」创作竖屏短剧分镜，剧情必须与图内容自洽，"
+            "要求输出严格的 JSON（不要 markdown 代码块），结构必须完全如下（字段名逐一照抄，不得自创同义词）：" + chr(10)
+            + "{" + chr(10)
+            + "  \"title\": \"剧名\"," + chr(10)
+            + "  \"logline\": \"一句话剧情\"," + chr(10)
+            + "  \"character_ref_prompt\": \"主角标准像描述（供参考）\"," + chr(10)
+            + "  \"scenes\": [" + chr(10)
+            + "    {" + chr(10)
+            + "      \"id\": 1," + chr(10)
+            + "      \"desc\": \"剧情描述\"," + chr(10)
+            + "      \"speaker\": \"本场景开口说话的角色名（无台词填空）\"," + chr(10)
+            + "      \"dialogue\": \"一句台词（可为空字符串）\"," + chr(10)
+            + "      \"voice_mood\": \"这句台词的说话方式（语气/情绪，贴合人物身份，20字内；无台词填空）\"," + chr(10)
+            + "      \"shots\": [" + chr(10)
+            + "        {" + chr(10)
+            + "          \"shot_id\": 1," + chr(10)
+            + f"          \"seq\": 图序号（1-{len(image_paths)}），每个镜头必填、不得为空，" + chr(10)
+            + "          \"framing\": \"景别（远景/全景/中景/近景/特写）\"," + chr(10)
+            + "          \"image_prompt\": \"描述对应图画面（供参考，不用于生图）\"," + chr(10)
+            + "          \"video_prompt\": \"本镜头的运动与运镜提示词（与图内容一致：图中人物服饰/场景/光线是既定事实）\"," + chr(10)
+            + "          \"duration\": 本镜头时长秒数（2-8 的整数），" + chr(10)
+            + "          \"needs_lipsync\": false（仅【正面近景/特写且开口说台词】才 true，全片 ≤1-2 个）" + chr(10)
+            + "        }" + chr(10)
+            + "      ]," + chr(10)
+            + "      \"edit_instruction\": \"对场景成片做生成式编辑的指令\"" + chr(10)
+            + "    }" + chr(10)
+            + "  ]" + chr(10)
+            + "}" + chr(10)
+            + "硬性约束：镜头总数必须等于图片数量，每个镜头的 seq 与图一一对应（可用不同图，但不得虚构没有对应图的新镜头，也不得遇漏任何一张图）；"
+              "不得使用 scene_id/scene_name/shot_size/camera_movement/action/sound 等自创字段名。" + chr(10)
+            + f"{scenes_hint} 共 {len(image_paths)} 张图。"
+        )
+        # 多图多模态消息：文本指令在前，图片依序附后（与 chat_with_image 同降采样规格）
+        content = [{"type": "text", "text": question}]
+        for p in image_paths:
+            b64, mime = self._encode_image(p)
+            content.append({"type": "image_url",
+                            "image_url": {"url": f"data:{mime};base64,{b64}"}})
+        raw = self.chat([{"role": "user", "content": content}], temperature=0.8, max_tokens=2500)
         return self._extract_json(raw)
 
     def review_image(self, image_path, scene_desc, dialogue):

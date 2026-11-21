@@ -1,8 +1,8 @@
 """短剧批量生产流水线 · 北京节点 demo 入口。
 
 用法：
-  python run_demo.py                        # 默认跑一遍完整流水线（1 场景，全自动）
-  python run_demo.py --theme "古装甜宠" --scenes 2
+  python run_demo.py                        # 默认跑一遍完整流水线（场景数 AI 自动，全自动）
+  python run_demo.py --scenes 2            # 人工指定 2 场（0=AI 自动）
   python run_demo.py --manual               # 打磨模式：分镜/图像/验收/视频四步后人工确认
   python run_demo.py --pressure 30          # 附加 30 秒任务状态查询压测（观测限流）
   python run_demo.py --ims-real             # IMS 走真实 SDK（需开通+凭证）
@@ -79,7 +79,14 @@ def make_cli_confirm():
 def main():
     parser = argparse.ArgumentParser(description="短剧生产流水线 demo（北京节点）")
     parser.add_argument("--theme", default="都市逆袭短剧")
-    parser.add_argument("--scenes", type=int, default=1)
+    parser.add_argument("--scenes", type=int, default=0,
+                        help="场景数：0=AI 自动（qwen4-max 分镜时按剧情复杂度决定，默认），1-3 人工指定")
+    parser.add_argument("--custom-images", nargs="*", default=None, metavar="IMG",
+                        help="客户图库模式：传入图片路径（可多张），看图写分镜且客户图直接作首帧，跳过 AI 生图")
+    parser.add_argument("--voice", default=None, metavar="VOICE_ID",
+                        help="克隆音色 ID（音色复刻产物），配音与口型驱动用客户本人的声音")
+    parser.add_argument("--voice-map", default=None, metavar="JSON",
+                        help="多角色音色映射 JSON，如 '{\"马老师\": \"voice-id-a\", \"于总\": \"voice-id-b\"}'，按分镜 speaker 路由")
     parser.add_argument("--ims-real", action="store_true", help="IMS 走真实 SDK 调用")
     parser.add_argument("--resume", action="store_true",
                         help="断点续跑：从最新未完成 run 的 checkpoint 继续（忽略 --theme/--scenes）")
@@ -102,11 +109,32 @@ def main():
             sys.exit(1)
         print(f"♻️ 断点续跑: {resume_dir}")
 
+    custom_imgs = None
+    if args.custom_images:
+        custom_imgs = [p for p in args.custom_images if os.path.isfile(p)]
+        if not custom_imgs:
+            print("❌ --custom-images 指定的图片均不存在")
+            sys.exit(1)
+        print(f"图库模式：{len(custom_imgs)} 张客户图（看图写分镜，跳过 AI 生图）")
+
+    custom_voice = args.voice
+    if args.voice_map:
+        try:
+            custom_voice = json.loads(args.voice_map)
+            if not isinstance(custom_voice, dict):
+                raise ValueError("--voice-map 须为角色名→voice_id 的 JSON 对象")
+        except json.JSONDecodeError as e:
+            print(f"❌ --voice-map JSON 解析失败: {e}")
+            sys.exit(1)
+
     p = ShortDramaPipeline(
-        theme=args.theme, num_scenes=args.scenes,
+        theme=args.theme,
+        num_scenes=(None if args.scenes <= 0 else args.scenes),
         ims_real=args.ims_real, target_qps=args.qps,
         resume_dir=resume_dir,
         confirm_cb=make_cli_confirm() if args.manual else None,
+        custom_images=custom_imgs,
+        custom_voice=custom_voice,
     )
     p.run()
 

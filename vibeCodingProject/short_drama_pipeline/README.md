@@ -35,13 +35,14 @@
 
 1. **qwen-image 与 wan*-image 接口不同**：qwen-image 系列走同步 `multimodal-generation/generation`（`input.messages` 单轮结构、响应直接含图片 URL），不能打到异步 `image-synthesis` 路径（否则报 `InvalidParameter: url error`）。本项目的 [bailian_client.py](bailian_client.py) 已按模型名自动分流。
 2. **任务查询 GET 不能带 `X-DashScope-Async` 头**：否则返回 403 `AccessDenied: current user api does not support asynchronous calls`，且响应里无 `task_status`，极易误判为任务异常。官方示例 GET 仅带 Authorization。
-3. **wan3.0-video 系首帧输入用 `input.media` + `type: "first_frame"`**，与 wan2.7-I2V 的 `input.images` 不兼容；错传会被静默忽略退化成纯 T2V（竖版剧照输出 16:9 横版即是此症状）。`ratio: "adaptive"` 可自适应首帧比例。客户端已按模型代际自动分流。
+3. **wan3.0-video 系首帧输入用 `input.media` + `type: "first_frame"`**，与老版 wan2.7 的 `input.images` 不兼容；错传会被静默忽略退化成纯 T2V（竖版剧照输出 16:9 横版即是此症状）。`ratio: "adaptive"` 可自适应首帧比例。客户端已按模型代际自动分流。**注意（2026-11-20 晚实测修正）**：当前 workspace 端点的 wan2.7-i2v 已同为 `input.media` 数组格式（传 images 报 `Field required: input.media`），含 first_frame/driving_audio 等 type 元素。
 4. **wan2.7-videoedit 输入用 `input.media` 数组**（`{type: video|reference_image, url}`），不是 `video_url`；resolution 仅支持 720P/1080P，且**提交时不校验、执行时才报 InvalidParameter**——必须在提交侧过滤非法档位，否则降级重试链不生效。
 5. **qwen4-max 为思考模型**：`max_tokens` 含思考额度；结构化 JSON 生成场景传 `enable_thinking: false`（不兼容时自动去除重试）。
 6. **Key 与端点成对**：`sk-ws-` 前缀 workspace Key 必须配 workspace 端点，错配返回 401/403。凭证从仓库根 `.env` 读取（`DASHSCOPE_API_KEY_CN_TEST` + `DASHSCOPE_API_KEY_CN_URL`），禁止硬编码。
 7. **异步任务统一管理**：[task_manager.py](task_manager.py) 实现自适应爬坡限速（遇 `Throttling`/BurstRate 全抖动退避），对应客户「任务状态查询 ≥500 QPS」诉求提供 `--pressure` 压测模式，实测当前 workspace 可持续查询 QPS 与限流触发点。
 8. **长流水线的网络韧性（Web 界面实测补强）**：①所有 HTTP 调用（提交/查询/下载/LLM）均带全抖动退避重试——长流水线跑几十分钟，任何一次网络抖动都会整条失败；②qwen4-max 多模态验收前将 1728*2368 原图（~5MB）降采样到 ≤1024px JPEG（~220KB），否则 base64 单请求体约 6.4MB，长距链路频繁 write timeout；③任务终态集合必须同时包含百炼的 `SUCCEEDED` 与 IMS 的 `SUCCESS`，漏写会让 IMS 任务永不算完成、轮询被迫跑满 max_wait。
-9. **断点续传（checkpoint）**：[pipeline.py](pipeline.py) 每步完成后把关键产物写入 run 目录的 `checkpoint.json`（分镜、图片 URL、验收结果、已提交的异步任务 task_id，原子写防损坏）。网络中断等异常后传入 `resume_dir` 复用同一 run 目录：已完成的步骤直接跳过、复用已落盘的分镜与图片产物；已提交的异步任务在服务端仍在跑，凭 task_id 重新登记轮询即可，**不重复提交、不重复计费**。恢复时以 checkpoint 内的主题/场数为准。验收：`scripts/test_checkpoint_resume.py`（全程 mock，不调真实模型）。
+9. **断点续传（checkpoint）**：[pipeline.py](pipeline.py) 每步完成后把关键产物写入 run 目录下的 `checkpoint.json`（分镜、图片 URL、验收结果、已提交的异步任务 task_id，原子写防损坏）。网络中断等异常后传入 `resume_dir` 复用同一 run 目录：已完成的步骤直接跳过、复用已落盘的分镜与图片产物；已提交的异步任务在服务端仍在跑，凭 task_id 重新登记轮询即可，**不重复提交、不重复计费**。恢复时以 checkpoint 内的主题/场数为准。验收：`scripts/test_checkpoint_resume.py`（全程 mock，不调真实模型）。
+10. **口型同步镜头的分层路由（多镜头 shot list 架构）**：分镜阶段 qwen4-max 为镜头标记 `needs_lipsync`（仅【正面近景/特写 + 开口说台词】才 true，全片 ≤1-2 个，中远景台词走画外音+字幕）；视频步三层路由：口型镜头 → wan2.7-i2v（first_frame + driving_audio，**单 take 省成本**），其余 → wan3.0 参考生视频（角色锚定）。口型镜头的 driving_audio 音轨由 qwen-audio-3.1-tts-plus 现场合成，直接用 TTS 响应自带的公网签名 URL 提交（合成后立即用，时效足够）。**两个实测坑**：① 百炼 uploads 两步上传（getPolicy→OSS）返回的 `oss://` 地址 wan 不认（报 `Failed to download oss://…`，且对象私有 403），driving_audio 仅接受公网 HTTP(S)；② 含口型镜头的场景会**跳过 wan2.7-videoedit 生成式编辑**（重绘会破坏逐字口型并丢失台词音轨，直接用场内拼接原片作成片），第 8.5 步配音也对口型场景**跳过二次 TTS 混入**（台词已在视频音轨，只烧字幕），避免双声重叠。
 
 ## 目录结构
 
@@ -74,7 +75,12 @@ short_drama_pipeline/
 # 浏览器打开 http://127.0.0.1:7861
 ```
 
-- 输入短剧主题/场景数 → 点「开始生产」，SSE 实时推送运行日志，海报/剧照/视频边生成边出现
+- 输入短剧主题/场景数 → 点「开始生产」，SSE 实时推送运行日志，海报/剧照/视频 边生成边出现。场景数默认「AI 自动」：qwen4-max 分镜时按主题剧情复杂度自行决定场次（1-4，单一日常小事 1-2 场、有起承转合的完整小故事 2-3 场、复仇逆袭强剧情 3-4 场），实测「都市逆袭短剧」自动决策 3 场；也可手动指定 1-3 场
+- **客户图库模式（图像来源 = 我的图库）**：适合已有素材库的客户（艺员照/场景图等）——上传图后 qwen4-max 多模态「看图写分镜」（图先决：剧情围绕客户图写，每张图必成为一个镜头首帧，seq 与图一一对应，台词/运镜不得与画面矛盾），图像步跳过 AI 生图（客户图直接作首帧，海报由图 1 兼任，角色一致性由真实图天然保证）；视频步将客户图降采样转 base64 data URI 直传（实测 wan3.0-video-prime 接受，探测脚本 `scripts/test_datauri_first_frame.py`），音轨上传的 oss:// 通道则不可用。图先归档进 run 目录，断点续跑正常复用。上限 12 张，支持 jpg/png/webp/bmp。**注意**：客户图比例各异时（4:3/16:9/竖版混排），视频 ratio:adaptive 会跟随原图比例，各段分辨率不一致——拼接已统一为「内接缩放+居中 pad 到 1080×1440 画布」（不裁切不变形），xfade 转场同样先统一画布。
+- **克隆音色（custom_voice）**：客户本人的声音贯穿全片——qwen-audio-3.1-tts-plus 音色复刻（voice-enrollment：`create_voice` 的 audio 支持 base64 data URI，本地 m4a 无需公网 URL，样本要求 10-60s 清晰人声，创建免费）→ 返回的 voice_id 由 `--voice` / RunRequest.custom_voice 传入 → 旁白配音与口型镜头 driving_audio 全部用克隆声音合成（实测部署仅 6s，探测脚本 `scripts/test_voice_clone.py`）。实战验证 run_010/run_011：4 张客户图 + 克隆声音，自动编排为 4 场，正面镜头自动走口型同步。
+- **多角色音色路由（voice_map）**：短剧多人出镜时每个角色用自己的声音——分镜阶段 LLM 为每场标注 `speaker`（开口角色名），生产时传 `--voice-map '{"于总": "voice-id-a", "马老师": "voice-id-b"}'`（或 RunRequest.custom_voice 传 dict），口型驱动与旁白配音按 speaker 路由到对应克隆音色，无匹配场景回退默认音色并告警。实战验证 run_011 场景4（马老师抱拳祝贺「老于啊，这别墅气派！恭喜恭喜！」用 zhouxingchi.mp3 克隆音色）。单镜头重造工具：`scripts/rework_lipsync_scene.py`（换图/换台词/换声音/换动作重造指定口型镜头）。
+- **⚠️ 克隆音色的情绪指令必须走 `input.instruction` 参数**（官方指令控制通道，复刻/设计音色均支持）：方括号标签 `[开心地说]` 只对系统音色生效，克隆音色会把标签整段当台词朗读（run_010 实测事故："俏皮重庆妹儿语气点评"被念进成片，ASR 相似度 56%）。情绪内容由分镜阶段 LLM 为每场生成 `voice_mood` 字段（贴合人物身份与剧情，替代机械轮换）。
+- **自动质检（第 8.6 步）**：配音完成后用 qwen-audio-3.1-asr-flash（同步多模态 HTTP，音频 base64 data URI）识别每段配音，与分镜台词做字符级相似度比对，低于 85% 告警"疑似指令被朗读/幻觉/漏读"；口型场景（台词已烧进视频音轨）跳过旁白比对。独立脚本：`scripts/qa_dubbing.py`（台词质检）、`scripts/qa_continuity.py`（成片连贯性：段数/时长/分辨率归一/静音检测，纯本地 ffprobe 零费用）。
 - **打磨模式（默认开启）**：剧本分镜 → 海报剧照 → 质量验收 → 图生视频四个步骤后暂停，界面弹确认卡（预览产物）等你人工确认：
   - ✅ 确认继续 · 🔁 重新生成本步（图生视频已计费，不提供重做） · ⛔ 终止（保留进度，可续跑）
   - 分镜确认点可直接在页面编辑分镜 JSON（改剧名/台词/时长建议），确认后按新分镜走后续生成
@@ -97,8 +103,11 @@ short_drama_pipeline/
 # 3) 附加 30 秒任务状态查询压测（验证 500 QPS 申请的当前水位）
 .venv/bin/python run_demo.py --pressure 30 --qps 50
 
-# 多场景 / 换题材
+# 多场景 / 换题材（场景数默认 AI 自动：0；1-3 人工指定）
 .venv/bin/python run_demo.py --theme "古装甜宠复仇" --scenes 2
+
+# 客户图库模式：剧情围绕客户图写、客户图直接作首帧（跳过 AI 生图）
+.venv/bin/python run_demo.py --theme "品牌宣传短剧" --custom-images img1.png img2.jpg
 
 # 打磨模式（CLI 版人工确认）：分镜/图像/验收/视频每步暂停，回车=继续 e=改完分镜后继续 r=重做本步 n=终止
 .venv/bin/python run_demo.py --manual

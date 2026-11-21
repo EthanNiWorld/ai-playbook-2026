@@ -38,6 +38,19 @@ BOARD = {
     }],
 }
 
+# 口型路由变体：镜头2 标记 needs_lipsync（单 take + 跳过生成式编辑）
+BOARD_LIPSYNC = json.loads(json.dumps(BOARD))
+BOARD_LIPSYNC["scenes"][0]["shots"][1]["needs_lipsync"] = True
+
+# 客户图库模式分镜：shots 带 seq 指向客户图（图先决）
+BOARD_CUSTOM = json.loads(json.dumps(BOARD))
+for s in BOARD_CUSTOM["scenes"][0]["shots"]:
+    s["seq"] = s["shot_id"]
+
+# 多角色变体：场景带 speaker（voice_map 路由验证用）
+BOARD_MULTI = json.loads(json.dumps(BOARD_LIPSYNC))
+BOARD_MULTI["scenes"][0]["speaker"] = "马老师"
+
 
 class FakeLLM:
     model = "qwen4-max"
@@ -46,9 +59,19 @@ class FakeLLM:
         self.calls = Counter()
         self.fail_at = None  # "review" / None
 
+    @staticmethod
+    def _encode_image(path, max_side=1024, quality=85):
+        # mock：返回假 data URI（真实现走 PIL 降采样 base64）
+        return "ZmFrZS1pbWc=", "image/jpeg"
+
     def generate_storyboard(self, theme, num_scenes):
         self.calls["storyboard"] += 1
         return json.loads(json.dumps(BOARD))
+
+    def generate_storyboard_with_images(self, theme, image_paths, num_scenes=None):
+        self.calls["storyboard_with_images"] += 1
+        # mock：seq 已在 BOARD_CUSTOM 内预置，直接返回
+        return json.loads(json.dumps(BOARD_CUSTOM))
 
     def review_image(self, local, desc, dialogue):
         self.calls["review"] += 1
@@ -81,6 +104,10 @@ class FakeBailian:
     def ref2video(self, prompt, ref_urls, models, resolution, duration):
         self.calls["ref2video"] += 1
         return f"task-ref-{self.calls['ref2video']}", models[0]
+
+    def lipsync2video(self, prompt, image_url, audio_url, models, resolution, duration):
+        self.calls["lipsync2video"] += 1
+        return f"task-lipsync-{self.calls['lipsync2video']}", models[0]
 
     def video_edit(self, prompt, video_url, models, resolution):
         self.calls["video_edit"] += 1
@@ -144,6 +171,9 @@ class Fakes:
             mock.patch.object(pl, "TaskManager", lambda *a, **k: FakeTaskManager(*a, **k)),
             # 8.5 配音步含真实 TTS/BGM 调用，mock 环境置空避免扣费与外呼
             mock.patch.object(pl.ShortDramaPipeline, "_dub_final_cut", lambda self: None),
+            # 口型音轨前置含真实 TTS + OSS 上传，mock 直接返回假 oss:// URL
+            mock.patch.object(pl.ShortDramaPipeline, "_prep_driving_audio",
+                              lambda self, sc, shot: "oss://fake/voice.mp3"),
         ]
         for p in patchers:
             p.start()
@@ -246,6 +276,75 @@ def main():
         check("已完成的 run 不再可续跑",
               (load_ckpt(run_dir).get("finished") is True
                and load_ckpt(run3).get("finished") is True))
+
+        # ---- 场景 4：口型镜头路由（单 take + 跳过生成式编辑） ----
+        print("\n[场景4] needs_lipsync 镜头：wan2.7-i2v 单 take，场景跳过 videoedit")
+        orig_board = FakeLLM.generate_storyboard
+        FakeLLM.generate_storyboard = lambda self, theme, num_scenes: json.loads(json.dumps(BOARD_LIPSYNC))
+        try:
+            pl.ShortDramaPipeline(theme="测试短剧", num_scenes=1).run()
+        finally:
+            FakeLLM.generate_storyboard = orig_board
+        run4 = sorted(Path(tmp).glob("run_*"))[-1]
+        ckpt5 = load_ckpt(run4)
+        vt = ckpt5.get("video_tasks", [])
+        check("口型镜头走 lipsync2video（1 次）", fakes.gen.calls["lipsync2video"] >= 1)
+        check("口型镜头单 take（总任务 2+1=3）", len(vt) == 3,
+              f"实际 {len(vt)}")
+        check("checkpoint 带 lipsync 标记",
+              any(t.get("lipsync") and t.get("shot_id") == 2 for t in vt))
+        check("含口型镜头的场景跳过生成式编辑", not ckpt5.get("edit_tasks"))
+        check("口型场景成片已产出（原片直拷）", (run4 / "scene_1_edited.mp4").is_file())
+        check("场景4 已标记 finished", ckpt5.get("finished") is True)
+
+        # ---- 场景 5：客户图库模式（图先决，跳过 AI 生图） ----
+        print("\n[场景5] 客户图库：看图写分镜 + 客户图直作首帧，无 text2image")
+        fake_imgs = []
+        for i in range(2):
+            p = os.path.join(tmp, f"client_{i + 1}.png")
+            with open(p, "wb") as f:
+                f.write(b"fake-img")
+            fake_imgs.append(p)
+        ti_before = fakes.gen.calls["text2image"]
+        pl.ShortDramaPipeline(theme="测试短剧", num_scenes=None,
+                              custom_images=fake_imgs).run()
+        run5 = sorted(Path(tmp).glob("run_*"))[-1]
+        ckpt6 = load_ckpt(run5)
+        check("看图写分镜已调用", fakes.llm.calls["storyboard_with_images"] >= 1)
+        check("AI 生图被跳过", fakes.gen.calls["text2image"] == ti_before)
+        check("客户图已归档进 run 目录",
+              (run5 / "custom_01.png").is_file() and (run5 / "custom_02.png").is_file())
+        check("checkpoint 记录 custom 模式与图路径",
+              ckpt6.get("custom_images") and ckpt6["images"].get("custom") is True
+              and len(ckpt6["images"]["stills"]) == 2)
+        check("镜头首帧指向客户图",
+              ckpt6["images"]["stills"][0]["local"] == "custom_01.png"
+              and ckpt6["images"]["stills"][1]["local"] == "custom_02.png")
+        check("视频任务正常提交（首帧 data URI）", len(ckpt6.get("video_tasks", [])) == 4)
+        check("客户图库成片已产出", (run5 / "scene_1_edited.mp4").is_file())
+        check("场景5 已标记 finished", ckpt6.get("finished") is True)
+
+        # ---- 场景 6：多角色音色路由（voice_map + speaker） ----
+        print("\n[场景6] 多角色：speaker=马老师 → voice_map 路由对应克隆音色")
+        orig_board2 = FakeLLM.generate_storyboard
+        FakeLLM.generate_storyboard = lambda self, theme, num_scenes: json.loads(json.dumps(BOARD_MULTI))
+        try:
+            pl.ShortDramaPipeline(
+                theme="测试短剧", num_scenes=1,
+                custom_voice={"马老师": "voice-malaoshi-fake", "于总": "voice-yuzong-fake"},
+            ).run()
+        finally:
+            FakeLLM.generate_storyboard = orig_board2
+        run6 = sorted(Path(tmp).glob("run_*"))[-1]
+        ckpt7 = load_ckpt(run6)
+        check("多角色 voice_map 已落 checkpoint",
+              isinstance(ckpt7.get("custom_voice"), dict)
+              and ckpt7["custom_voice"].get("马老师") == "voice-malaoshi-fake")
+        check("分镜 speaker 已记录",
+              ckpt7["storyboard"]["scenes"][0].get("speaker") == "马老师")
+        # FakeBailian 不感知音色，验证点在路由无异常走完全流程
+        check("多角色模式成片已产出", (run6 / "scene_1_edited.mp4").is_file())
+        check("场景6 已标记 finished", ckpt7.get("finished") is True)
     finally:
         fakes.exit()
         import shutil
@@ -255,7 +354,7 @@ def main():
     if failures:
         print(f"❌ 失败 {len(failures)} 项: {failures}")
         sys.exit(1)
-    print("✅ 全部断言通过（3 个场景）")
+    print("✅ 全部断言通过（6 个场景）")
 
 
 if __name__ == "__main__":
