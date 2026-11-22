@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!-- 合成用量表截图素材（自造数字，无隐私内容），供 test_screenshot_unit_price.py
+     复现 2026-11-22「带用量截图问单价被误判成成本题」事故。
+     重新生成 PNG：
+     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new \
+       --disable-gpu --screenshot=apa_usage_sample.png --window-size=760,260 \
+       "file://$PWD/apa_usage_sample.html" -->
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<style>
+  body { font-family: -apple-system, "PingFang SC", sans-serif; margin: 24px; background: #fff; }
+  h3 { font-size: 16px; margin: 0 0 14px; }
+  table { border-collapse: collapse; font-size: 14px; }
+  th, td { border: 1px solid #d0d0d0; padding: 8px 14px; text-align: right; }
+  th { background: #f5f6f8; }
+  td:first-child, th:first-child { text-align: left; }
+</style>
+</head>
+<body>
+<h3>模型调用用量统计（示例数据）</h3>
+<table>
+  <tr><th>模型</th><th>输入 tokens（含缓存）</th><th>缓存输入 tokens</th><th>输出 tokens</th></tr>
+  <tr><td>kimi-k3.1-pro</td><td>12,000,000</td><td>2,000,000</td><td>3,000,000</td></tr>
+</table>
+</body>
+</html>

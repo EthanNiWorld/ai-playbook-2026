@@ -354,5 +354,6 @@ def usage_cost_md(items: list[dict], region: str = "Singapore", fx_rate=None) ->
     ]
     if rate is not None:
         lines.append(f"按汇率 1 USD = {rate} CNY：合计约 **¥{_cent(total * rate):,.2f}**。")
-    lines.append("以上表格为代码计算成品，表头、数据行与合计必须逐字输出，不得自行重算或改写。")
+    # 给 LLM 的“逐字输出”指令由 tools.py 只拼进 tool content，不进成品表：
+    # 成本硬闸门直接把 calculated_md 渲染给用户，拼在这里会泄漏到正文。
     return "\n".join(lines)

@@ -204,6 +204,27 @@ def test_price_verifier_units():
           pv._resolve_official_ids("qwen3.8 max", []) == ["qwen3.8-max"])
     check("目录裁决: 泛化 qwen 不命中目录",
           pv._resolve_official_ids("qwen", os_rows) == ["qwen"])
+    # 2026-11-22 事故：目录只有 kimi-k3 与 kimi-k3.1-pro，用户省略 -pro 写
+    # kimi-k3.1，正向包含把版本号被截断的 kimi-k3（kimik3 ⊂ kimik31）当成
+    # 裁决结果，LLM 思考流里自行发现并补调 pro 才救回。反向命中优先修复。
+    kimi_rows = [
+        {"model_id": "kimi-k2.5"},
+        {"model_id": "kimi-k3"},
+        {"model_id": "kimi-k3.1-pro"},
+    ]
+    check("目录裁决: kimi-k3.1 省略后缀收敛到 pro（不被截断成 kimi-k3）",
+          pv._resolve_official_ids("kimi-k3.1", kimi_rows) == ["kimi-k3.1-pro"])
+    check("目录裁决: kimi-k3.1-pro 精确命中不受反向规则影响",
+          pv._resolve_official_ids("kimi-k3.1-pro", kimi_rows) == ["kimi-k3.1-pro"])
+    check("目录裁决: kimi-k3 精确命中不误带 pro",
+          pv._resolve_official_ids("kimi-k3", kimi_rows) == ["kimi-k3"])
+    check("目录裁决: 裸家族名 kimi 不召回整个家族",
+          pv._resolve_official_ids("kimi", kimi_rows) == ["kimi"])
+    check("目录裁决: 带中文噪声问句也能收敛（归一 key 剥 CJK）",
+          pv._resolve_official_ids("kimi-k3.1，多少钱", kimi_rows) == ["kimi-k3.1-pro"])
+    snap_rows = [{"model_id": "qwen3.8-max-0902"}, {"model_id": "qwen3.8-flash"}]
+    check("目录裁决: 反向命中不召回快照版本号",
+          pv._resolve_official_ids("qwen3.8", snap_rows) == ["qwen3.8-flash"])
     # 开源线详情页把显式缓存读取价写作 "Explicit Cache Hit"（a95b 实测），
     # 不归一会静默丢价；Input (Cache Hit) 则归隐式命中列
     hit_text = (
@@ -459,6 +480,9 @@ def test_region_fallback_and_usage_cost():
         json.dumps({"region": "Singapore", "items": [item]}, ensure_ascii=False),
     ))
     check("成本工具: 返回独立派生证据", tool_result.get("calculated_md", "").startswith("### Token 成本测算"))
+    check("成本工具: 成品表不泄漏提示词指令（硬闸门直接渲染给用户）",
+          "逐字输出" not in tool_result.get("calculated_md", "")
+          and "逐字输出" in tool_result.get("content", ""))
     official = (
         "| Region | 输入价格 (Input) | 缓存输入价格 (Cache Input) | 输出价格 (Output) |\n"
         "| Singapore | $1.5 | $0.075 | $4.5 |"
@@ -796,6 +820,28 @@ def test_price_audit():
           not pv.is_usage_cost_question("看看多少钱", [], has_images=False))
     check("用量截图题: 追问某一列不命中",
           not pv.is_usage_cost_question("输入价格是多少", [], has_images=True))
+    # 2026-11-22 事故：“kimi-k3.1，多少钱”+用量截图被“多少钱”歧义词判成
+    # 成本题，硬闸门把模型已写好的单价表替换成澄清话术（答非所问）。
+    check("用量截图题: 带型号名只问单价不命中（事故复现）",
+          not pv.is_usage_cost_question("kimi-k3.1，多少钱", [], has_images=True))
+    check("用量截图题: 带型号名问价格不命中",
+          not pv.is_usage_cost_question("kimi-k3.1-pro 价格", [], has_images=True))
+    check("用量截图题: 型号名+token 数量仍命中",
+          pv.is_usage_cost_question(
+              "kimi-k3.1-pro 输入100万tokens、输出100万tokens，一共多少钱？",
+              [], has_images=True))
+    check("用量截图题: 型号名+裸 token 数量仍命中",
+          pv.is_usage_cost_question(
+              "kimi-k3.1-pro 100万 tokens 多少钱", [], has_images=True))
+    check("用量截图题: 型号名+账单/花了仍命中",
+          pv.is_usage_cost_question(
+              "kimi-k3.1-pro 这个月账单花了多少钱", [], has_images=True))
+    check("用量截图题: 无型号名的成本题仍命中（模型名只在图里）",
+          pv.is_usage_cost_question("帮我算下这张账单的总成本", [], has_images=True))
+    check("用量截图题: 当前句单价意图不被历史成本题污染",
+          not pv.is_usage_cost_question(
+              "kimi-k3.1，多少钱",
+              [{"role": "user", "content": "帮我算下账单总成本"}], has_images=True))
     official_two = (
         "| Region | 输入价格 (Input) | 缓存输入价格 (Cache Input) | 输出价格 (Output) | 显式缓存创建 (Cache Write) | 备注 |\n"
         "|---|---|---|---|---|---|\n"

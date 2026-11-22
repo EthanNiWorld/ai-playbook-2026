@@ -364,7 +364,13 @@ async def execute_tool(name: str, arguments: str) -> dict:
             )
         except (TypeError, ValueError) as e:
             return {"content": f"成本测算参数有误：{e}。请按原始整数 tokens 与官方单价修正后重试。"}
-        return {"content": content, "calculated_md": content}
+        # 指令只进 tool content（给 LLM）；calculated_md 是交付给用户的成品表
+        # （成本硬闸门直接渲染），不得混入提示词文案。
+        return {
+            "content": content
+            + "\n以上表格为代码计算成品，表头、数据行与合计必须逐字输出，不得自行重算或改写。",
+            "calculated_md": content,
+        }
 
     if name == "get_model_rate_limit":
         model = str(args.get("model", "") or "").strip()

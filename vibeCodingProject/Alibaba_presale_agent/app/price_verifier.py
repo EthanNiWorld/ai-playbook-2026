@@ -907,6 +907,20 @@ def _resolve_official_ids(raw: str, rows: list[dict]) -> list[str]:
     # 保留 .0，原样变体保证命中，别名变体只增不减）
     variants = {tok, re.sub(r"\.0(?=[\s-]|$)", "", tok)}
     raw_keys = {_norm_model_key(v) for v in variants}
+    # 省略后缀的反向命中优先（2026-11-22 kimi-k3.1 事故）：目录只有 kimi-k3
+    # 与 kimi-k3.1-pro 时，正向包含会把版本号被截断的 kimi-k3（kimik3 ⊂
+    # kimik31）当成裁决结果。无精确命中且查询串带版本号时，若官方 ID 以
+    # 查询串为前缀（用户省略了 -pro 等档位后缀），优先取反向命中；
+    # 裸家族名（qwen/kimi，无数字）不适用，避免召回整个家族。
+    if re.search(r"\d", tok) and not any(mk in raw_keys for mk in cat.values()):
+        rev = [
+            mid
+            for mid, mk in cat.items()
+            if any(mk.startswith(rk) for rk in raw_keys)
+            and not re.search(r"-\d{4}(?:-\d{2}-\d{2})?$", mid)
+        ]
+        if rev:
+            return sorted(set(rev))
     hits = [mid for mid, mk in cat.items() if any(mk in rk for rk in raw_keys)]
     # 最长匹配优先：qwen3.8-27b 命中时不再单独保留其前缀型号
     # （qwen-image 与 qwen-image-2.1-pro 同理）
@@ -1760,6 +1774,16 @@ _FIELD_PRICE_RE = re.compile(
     r"输入价|输出价|缓存价|cache input|cache write|input price|output price|"
     r"显式缓存|那一行|某一列|一列|一行", re.IGNORECASE
 )
+# 带图问单价守卫（2026-11-22 事故）：“kimi-k3.1，多少钱”+用量截图被
+# “多少钱”歧义词判成成本题，硬闸门把模型已写好的单价表替换成澄清话术。
+# 问句自带型号名且只含单价词、无汇总/账单/token 数量信号时，视为单价题。
+_UNIT_PRICE_WORD_RE = re.compile(r"多少钱|价格|报价|单价", re.IGNORECASE)
+_COST_SIGNAL_RE = re.compile(
+    r"费用|成本|汇总|总计|一共|合计|总共|花了|账单|用量|测算", re.IGNORECASE
+)
+_TOKEN_QTY_RE = re.compile(
+    r"\d[\d,.]*\s*(?:万|亿|[mMbBkK])\s*tokens?", re.IGNORECASE
+)
 
 
 def is_usage_cost_question(
@@ -1771,6 +1795,16 @@ def is_usage_cost_question(
     追问某一列、某一行的价格不属于本类，避免误触发 calculate_token_cost。
     """
     if not has_images:
+        return False
+    q = question or ""
+    # 型号名写在问句里（非只在图里）且只问单价：截图是附带上下文，
+    # 不是测算诉求，不走成本硬闸门（模型仍看图自主决策）。
+    if (
+        extract_model_names(q)
+        and _UNIT_PRICE_WORD_RE.search(q)
+        and not _COST_SIGNAL_RE.search(q)
+        and not _TOKEN_QTY_RE.search(q)
+    ):
         return False
     texts = [question or ""]
     for h in (history or [])[-6:]:
