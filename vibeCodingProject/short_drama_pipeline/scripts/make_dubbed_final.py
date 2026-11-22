@@ -11,6 +11,7 @@
 """
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -87,6 +88,42 @@ def dur(p):
     r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                         "-of", "csv=p=0", p], capture_output=True, text=True)
     return float(r.stdout.strip())
+
+
+def trim_speech_tail(video_path, keep=0.5, noise_db=-30, min_tail=1.0):
+    """口型镜头片尾静音裁剪，返回 (是否裁剪, 裁剪后时长)；探测失败返回 (False, None)。
+
+    背景（run_011 实测）：wan2.7-i2v 按档位时长出片（如 8s），driving_audio
+    台词只有 2-3s——音频播完后模型不知道台词说完，继续外推「张嘴说话」的
+    动作，而音轨后半段是纯静音 → 成片尾部「嘴动无声」。
+    做法：silencedetect 找与片尾相连的静音段，超过 min_tail 秒则把视频
+    裁到 语音结束 + keep 秒（收尾缓冲）。全静音/探测失败不动原文件。"""
+    try:
+        total = dur(video_path)
+        r = subprocess.run(
+            ["ffmpeg", "-i", video_path,
+             "-af", f"silencedetect=noise={noise_db}dB:d=0.4", "-f", "null", "-"],
+            capture_output=True, text=True, timeout=120)
+        pairs = list(zip(re.findall(r"silence_start: ([0-9.]+)", r.stderr),
+                         re.findall(r"silence_end: ([0-9.]+)", r.stderr)))
+        # 片尾静音段：silence_end ≈ 总时长的那段，speech_end 即其 silence_start
+        speech_end = next((float(s) for s, e in pairs if abs(float(e) - total) < 0.35),
+                          None)
+        if speech_end is None or total - speech_end <= min_tail:
+            return False, total
+        cut = round(speech_end + keep, 3)
+        if cut < 1.0 or cut >= total - 0.2:  # 片长过短或无实际裁剪量
+            return False, total
+        tmp = video_path + ".trim.mp4"
+        subprocess.run(
+            ["ffmpeg", "-y", "-i", video_path, "-t", f"{cut:.3f}",
+             "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+             "-c:a", "aac", "-b:a", "128k", tmp],
+            capture_output=True, check=True, timeout=300)
+        os.replace(tmp, video_path)
+        return True, cut
+    except Exception:
+        return False, None
 
 
 def wrap_text(t, per_line=14):
@@ -259,6 +296,11 @@ def dub_final(run_dir, voice=None):
             continue
         is_lipsync = sid in lipsync_sids
         voiced = os.path.join(RUN, f"voice_{sid}.mp3")
+        src = os.path.join(RUN, f"scene_{sid}_edited.mp4")
+        if not os.path.isfile(src):
+            # 缺段容错（如 videoedit 超时未下载）：跳过该场，不阻断其余段合成
+            print(f"⚠️ 场景{sid} 成片缺失，跳过（后续补齐后重跑 dub_final 可幂等补回）", flush=True)
+            continue
         if not is_lipsync:
             if not os.path.isfile(voiced):
                 # 情绪优先用分镜的 voice_mood（LLM 按人设/剧情生成）；

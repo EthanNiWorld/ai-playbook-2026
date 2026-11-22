@@ -183,6 +183,67 @@ class BailianAsyncClient:
             raise RuntimeError(f"文生图失败 HTTP {resp.status_code}: {json.dumps(data, ensure_ascii=False)[:300]}")
         raise ThrottledError(f"文生图限流重试耗尽（{model}）: {json.dumps(last_err, ensure_ascii=False)[:150]}")
 
+    def ref_image2image(self, prompt, ref_image_uris, model_candidates, size="1728*2368"):
+        """参考图生图（角色参考 + 场景参考 → 新图），返回 (image_url, model)。
+
+        qwen-image 系同步多模态接口：content 混排 image（≤4 张，data URI 或公网
+        URL）+ text 指令。实测（2026-11-21 探测）：qwen-image-3.0-pro 接受
+        双图输入完成「场景换人」（图1定人物、图2定场景），qwen-image-edit
+        在本 workspace 未开通；wan 系降级候选走异步 t2i 路径不吃图像输入，
+        故仅取 qwen-image* 前缀候选，不可用时直接报错而非静默降级换人。"""
+        candidates = [m for m in model_candidates if m.startswith("qwen-image")]
+        if not candidates:
+            candidates = [config.IMAGE_MODEL]
+        for model in candidates:
+            try:
+                return self._qwen_multimodal_image_sync(prompt, ref_image_uris, model, size), model
+            except (ModelNotAvailableError, ThrottledError) as e:
+                # 与 text2image 同策略：限流/不可用降级下一候选（额度独立）
+                print(f"    ⚠️ 参考生图降级: {e}")
+                continue
+        raise ModelNotAvailableError("所有参考生图候选模型均不可用")
+
+    def _qwen_multimodal_image_sync(self, prompt, image_uris, model, size):
+        """qwen-image 同步多模态编辑：content = [image, image, ..., text]。
+        限流退避策略与 _qwen_text2image_sync 一致（6 次指数退避）。"""
+        content = [{"image": u} for u in image_uris] + [{"text": prompt}]
+        body = {
+            "model": model,
+            "input": {"messages": [{"role": "user", "content": content}]},
+            "parameters": {"size": size, "n": 1},
+        }
+        last_err = None
+        for attempt in range(6):
+            try:
+                resp = self.session.post(
+                    self.base_url + QWEN_IMAGE_SYNC_PATH,
+                    headers=self._headers(async_mode=False), json=body, timeout=300,
+                )
+            except requests.RequestException as e:
+                wait = random.uniform(0, 2 ** attempt + 1)
+                print(f"    ⚠️ 参考生图网络错误（{type(e).__name__}），退避 {wait:.1f}s 后重试")
+                time.sleep(wait)
+                last_err = {"message": str(e)}
+                continue
+            data = self._parse(resp)
+            if resp.status_code == 200:
+                items = data["output"]["choices"][0]["message"]["content"]
+                for c in items:
+                    if c.get("image"):
+                        return c["image"]
+                raise RuntimeError(f"响应中未找到图片 URL: {json.dumps(data, ensure_ascii=False)[:300]}")
+            code = data.get("code", "")
+            if code in THROTTLING_CODES:
+                wait = random.uniform(0, min(2 ** attempt + 1, 60))
+                print(f"    ⚠️ 限流（{code}），退避 {wait:.1f}s 后重试（attempt {attempt + 1}/6）")
+                time.sleep(wait)
+                last_err = data
+                continue
+            if code in MODEL_UNAVAILABLE_CODES or resp.status_code in (403, 404):
+                raise ModelNotAvailableError(f"{model}: {code} {data.get('message', '')}")
+            raise RuntimeError(f"参考生图失败 HTTP {resp.status_code}: {json.dumps(data, ensure_ascii=False)[:300]}")
+        raise ThrottledError(f"参考生图限流重试耗尽（{model}）: {json.dumps(last_err, ensure_ascii=False)[:150]}")
+
     def _wan_text2image_async(self, prompt, model, negative_prompt, n):
         """wan*-image 异步文生图（降级路径）：提交任务并轮询到终态，返回图片 URL。"""
         inp = {"prompt": prompt}
@@ -238,17 +299,26 @@ class BailianAsyncClient:
 
     def lipsync2video(self, prompt, image_url, audio_url, model_candidates,
                        resolution="720P", duration=None):
-        """口型同步对白镜头：wan2.7-i2v 的 first_frame + driving_audio（官方明确定位
-        口型同步/动作卡点）。wan2.7 系用 input.media 数组（实测 images 字段报
-        Field required: input.media）；每种 type 最多 1 个；音频 2-30s，
-        超出 duration 截断、不足部分无声。
+        """口型同步对白镜头，按模型代际分流。返回 (task_id, model)。
 
-        分层路由决策：仅严格口型的近景对白镜头走此路径（画质换口型），
-        其余镜头走 wan3.0 ref2video（画质/速度优先）。wan3.0 无 driving_audio 能力。"""
+        - wan3.0 系（2026-11-22 实测迁入）：reference_image + reference_audio
+          组合参考（reference 系与 first_frame 互斥，音频只能走 reference_audio）。
+          实测 prime 91s/条、ASR 92%、抽帧口型开合交替清晰且人物一致性好于
+          wan2.7-i2v（后者时间维度有发型漂移）。素材指代：图1=人物剧照、
+          音频1=台词；须显式要求口型同步，否则模型可能不说话。
+        - wan2.7-i2v（降级候选）：first_frame + driving_audio（官方口型同步定位）；
+          每种 type 最多 1 个；音频 2-30s，超出 duration 截断、不足部分无声。"""
         def build_input(model):
             if model.startswith("wan3.0"):
-                # wan3.0 不支持 driving_audio：强制降级链提前命中 wan2.7-i2v
-                raise ModelNotAvailableError(f"{model}: 不支持 driving_audio，口型镜头须走 wan2.7-i2v")
+                return {
+                    "prompt": (prompt + "；图1中的人物直视镜头说出台词，语音内容与"
+                               "音频1完全一致，口型与语音逐字同步，保持图1人物的"
+                               "发型面容服饰不变"),
+                    "media": [
+                        {"type": "reference_image", "url": image_url},
+                        {"type": "reference_audio", "url": audio_url},
+                    ],
+                }
             return {
                 "prompt": prompt,
                 "media": [
@@ -268,28 +338,44 @@ class BailianAsyncClient:
         )
 
     def video_edit(self, prompt, video_url, model_candidates, resolution="720P"):
-        """生成式视频编辑（元素替换/运镜/特效复刻）。
+        """生成式视频编辑（元素替换/运镜/特效复刻，多候选降级）。
 
-        与生成接口的差异：输入是 input.media 数组（type=video / reference_image）；
-        resolution 仅支持 720P/1080P（无 480P）；不接受 duration。
+        按模型代际分流（2026-11-22 实测，官方 wan3 视频生成指南）：
+        - wan3.0-video 系（All-in-One）：type=reference_video + 提示词含编辑
+          意图关键词，ratio=adaptive + duration=-1 自动保持原视频宽高比与时长；
+          实测 prime 编辑一条 8s 素材约 60-80s（wan2.7-videoedit 同任务 8-10 分钟）
+        - wan2.7-videoedit（老格式降级候选）：type=video，仅 720P/1080P
+
         注意：提交时不校验 resolution，执行时才报 InvalidParameter，
-        因此必须在提交侧就过滤非法档位。
-        """
+        因此必须在提交侧就过滤非法档位。"""
         errors = []
         # 仅保留合法档位（传入 480P 等非法值会被静默受理后在执行阶段失败）
         reso_chain = [r for r in dict.fromkeys([resolution, "720P", "1080P"]) if r in ("720P", "1080P")]
         for model in model_candidates:
             for reso in reso_chain:
                 try:
-                    body = {
-                        "_kind": "video",
-                        "model": model,
-                        "input": {
-                            "prompt": prompt,
-                            "media": [{"type": "video", "url": video_url}],
-                        },
-                        "parameters": {"resolution": reso},
-                    }
+                    if model.startswith("wan3.0"):
+                        # wan3.0 编辑路由：reference_video + 编辑意图关键词前置，
+                        # 确保模型按编辑意图路由而非参考生成新内容
+                        body = {
+                            "_kind": "video",
+                            "model": model,
+                            "input": {
+                                "prompt": f"编辑视频：{prompt}（保持原视频宽高比与时长）",
+                                "media": [{"type": "reference_video", "url": video_url}],
+                            },
+                            "parameters": {"resolution": reso, "ratio": "adaptive", "duration": -1},
+                        }
+                    else:
+                        body = {
+                            "_kind": "video",
+                            "model": model,
+                            "input": {
+                                "prompt": prompt,
+                                "media": [{"type": "video", "url": video_url}],
+                            },
+                            "parameters": {"resolution": reso},
+                        }
                     task_id, _ = self._post_task(body)
                     return task_id, model
                 except ModelNotAvailableError:

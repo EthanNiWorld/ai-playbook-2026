@@ -174,6 +174,10 @@ class Fakes:
             # 口型音轨前置含真实 TTS + OSS 上传，mock 直接返回假 oss:// URL
             mock.patch.object(pl.ShortDramaPipeline, "_prep_driving_audio",
                               lambda self, sc, shot: "oss://fake/voice.mp3"),
+            # 口型 take 下载后会尝试导入 make_dubbed_final（含真实凭证检查）
+            # 并跑 ffmpeg 裁剪，mock 环境直接置空
+            mock.patch.object(pl.ShortDramaPipeline, "_trim_lipsync_tail",
+                              lambda self, *a, **k: None),
         ]
         for p in patchers:
             p.start()
@@ -293,6 +297,8 @@ def main():
               f"实际 {len(vt)}")
         check("checkpoint 带 lipsync 标记",
               any(t.get("lipsync") and t.get("shot_id") == 2 for t in vt))
+        check("口型任务带台词指纹（dialogue_hash）",
+              all(t.get("dialogue_hash") for t in vt if t.get("lipsync")))
         check("含口型镜头的场景跳过生成式编辑", not ckpt5.get("edit_tasks"))
         check("口型场景成片已产出（原片直拷）", (run4 / "scene_1_edited.mp4").is_file())
         check("场景4 已标记 finished", ckpt5.get("finished") is True)
@@ -345,6 +351,40 @@ def main():
         # FakeBailian 不感知音色，验证点在路由无异常走完全流程
         check("多角色模式成片已产出", (run6 / "scene_1_edited.mp4").is_file())
         check("场景6 已标记 finished", ckpt7.get("finished") is True)
+
+        # ---- 场景 7：口型镜头改词后续跑 → 旧任务作废重新提交 ----
+        print("\n[场景7] 改台词后续跑：旧口型任务作废重新提交（dialogue_hash 失效）")
+        orig_board3 = FakeLLM.generate_storyboard
+        FakeLLM.generate_storyboard = lambda self, theme, num_scenes: json.loads(json.dumps(BOARD_LIPSYNC))
+        try:
+            pl.ShortDramaPipeline(theme="测试短剧", num_scenes=1).run()
+        finally:
+            FakeLLM.generate_storyboard = orig_board3
+        run7 = sorted(Path(tmp).glob("run_*"))[-1]
+        ck8 = load_ckpt(run7)
+        ls_calls_before = fakes.gen.calls["lipsync2video"]
+        vt_before = [t for t in ck8.get("video_tasks", []) if t.get("lipsync")]
+        check("改词前口型任务已存（单 take）", len(vt_before) == 1,
+              f"实际 {len(vt_before)}")
+        # 模拟打磨模式人工改台词：storyboard.json 与 checkpoint 同步改
+        ck8["storyboard"]["scenes"][0]["dialogue"] = "改词后的全新台词"
+        with open(os.path.join(run7, "storyboard.json"), "w") as f:
+            json.dump(ck8["storyboard"], f, ensure_ascii=False)
+        with open(os.path.join(run7, "checkpoint.json"), "w") as f:
+            json.dump(ck8, f, ensure_ascii=False)
+        ls_non_before = fakes.gen.calls["ref2video"]
+        pl.ShortDramaPipeline(resume_dir=str(run7)).run()
+        ck9 = load_ckpt(run7)
+        vt_after = [t for t in ck9.get("video_tasks", [])
+                    if t.get("lipsync") and t.get("scene_id") == 1]
+        check("改词后口型任务重新提交 1 次",
+              fakes.gen.calls["lipsync2video"] == ls_calls_before + 1)
+        check("非口型镜头不受改词影响（ref2video 未重提）",
+              fakes.gen.calls["ref2video"] == ls_non_before)
+        check("旧口型任务记录已替换（不残留旧 task_id）",
+              len(vt_after) == 1 and vt_after[0]["task_id"] != vt_before[0]["task_id"])
+        check("新任务带新台词指纹",
+              vt_after[0].get("dialogue_hash") not in (None, vt_before[0].get("dialogue_hash")))
     finally:
         fakes.exit()
         import shutil
@@ -354,7 +394,7 @@ def main():
     if failures:
         print(f"❌ 失败 {len(failures)} 项: {failures}")
         sys.exit(1)
-    print("✅ 全部断言通过（6 个场景）")
+    print("✅ 全部断言通过（7 个场景）")
 
 
 if __name__ == "__main__":

@@ -26,6 +26,8 @@ import sys
 import json
 import glob
 import time
+import hashlib
+import math
 import shutil
 import subprocess
 from datetime import datetime
@@ -48,7 +50,8 @@ class ShortDramaPipeline:
     }
 
     def __init__(self, theme="都市逆袭短剧", num_scenes=None, ims_real=False, target_qps=10,
-                 resume_dir=None, confirm_cb=None, custom_images=None, custom_voice=None):
+                 resume_dir=None, confirm_cb=None, custom_images=None, custom_voice=None,
+                 char_ref_image=None):
         self.llm = Qwen4MaxClient()
         self.gen = BailianAsyncClient()
         self.ims = IMSClient(real=ims_real)
@@ -61,6 +64,10 @@ class ShortDramaPipeline:
         # 按分镜 scenes[].speaker 路由）。配音与口型驱动按场景选对应角色声音；
         # 续跑时从 checkpoint 恢复
         self.custom_voice = custom_voice
+        # 女主角真实照片参考（换人/角色一致性锚定）：图库模式下用它把客户图
+        # 里的女主角重制为照片人物（参考图生图：图1定人物、图2定场景）；
+        # AI 生图模式下替代 AI 锚定图。续跑时从 checkpoint 恢复
+        self.char_ref_image = char_ref_image
         if resume_dir:
             # 断点续跑：复用已有 run 目录与 checkpoint，不再新建时间戳目录
             self.run_dir = resume_dir
@@ -88,6 +95,16 @@ class ShortDramaPipeline:
                                   for c in self.ckpt["custom_images"]]
         if self.ckpt.get("custom_voice"):
             self.custom_voice = self.ckpt["custom_voice"]
+        if self.ckpt.get("char_ref_image"):
+            ref_p = os.path.join(self.run_dir, self.ckpt["char_ref_image"])
+            if os.path.isfile(ref_p):
+                self.char_ref_image = ref_p
+        # 角色参考图归档进 run 目录（统一命名 char_ref.png，续跑/重跑均按此复用）
+        if self.char_ref_image and os.path.isfile(self.char_ref_image):
+            dst_ref = os.path.join(self.run_dir, "char_ref.png")
+            if os.path.abspath(self.char_ref_image) != os.path.abspath(dst_ref):
+                shutil.copyfile(self.char_ref_image, dst_ref)
+            self.char_ref_image = dst_ref
         self.report = {
             "theme": self.theme,
             "models_used": set(self.ckpt.get("models_used", [])),
@@ -236,6 +253,16 @@ class ShortDramaPipeline:
                         stills.append((item["scene"], shot, item["url"], local))
                     self.report["models_used"].add(poster_model)
                     self._log(f"海报完成（{poster_model}，复用）")
+                # 对齐当前分镜：images.stills 里存的 scene/shot 是存图时的快照，
+                # 打磨模式改分镜 / rework 脚本改词后即过时（run_011 实踩：口型
+                # 镜头指纹比对用了旧快照台词，改词后旧视频被静默复用）。台词、
+                # 时长档位、镜头参数一律以当前 storyboard 为准，快照仅作兑底。
+                sc_map = {s["id"]: s for s in board["scenes"]}
+                stills = [(sc_map.get(sc["id"], sc),
+                           next((s for s in _shots_of(sc_map.get(sc["id"], sc))
+                                 if s.get("shot_id") == shot.get("shot_id")), shot),
+                           url, local)
+                          for sc, shot, url, local in stills]
             else:
                 # 客户图库模式：跳过 AI 生图，客户图直接作镜头首帧（图先决）。
                 # poster/char_ref 同样不生成：海报由图 1 兼任，角色一致性由真实图
@@ -255,16 +282,35 @@ class ShortDramaPipeline:
                                 seq = (len(stills) % len(self.custom_images)) + 1
                             stills.append((sc, shot, None, self.custom_images[seq - 1]))
                     print(f"  图库模式：{len(stills)} 个镜头直接使用 {len(self.custom_images)} 张客户图，跳过 AI 生图")
+                    if self.char_ref_image:
+                        # 真实照片角色参考（换人）：参考图生图重制每镜头首帧——
+                        # 图1=char_ref.png（定人物面容发型），图2=原客户图（定场景
+                        # 构图光影服饰），换人保景；原客户图保留归档可对照
+                        print(f"  女主角替换：以 {os.path.basename(self.char_ref_image)}"
+                              f" 为角色参考，参考图生图重制 {len(stills)} 个首帧…")
+                        stills = self._regen_lead_stills(stills)
+                        poster_local = stills[0][3] if stills else None
                 else:
                     # 多镜头并行生图：海报 + 角色锚定图 + 各镜头首帧（qwen-image 同步接口）。
                     # 每镜头独立首帧（景别各异），角色锚定图作为 reference 供视频步角色一致性。
+                    # 真实照片角色参考（char_ref_image）时：锚定图不再 AI 生成（照片即锚定），
+                    # 海报/首帧改走参考图生图，女主角直接生成照片人物。
                     def _gen_one(job):
                         if job["kind"] == "poster":
-                            url, model = self.gen.text2image(
-                                board["poster_prompt"],
-                                [config.IMAGE_MODEL] + config.IMAGE_MODEL_FALLBACKS,
-                                size="1536*2688",  # 9:16 竖版海报
-                            )
+                            if self.char_ref_image:
+                                b64p, mimep = self.llm._encode_image(self.char_ref_image)
+                                url, model = self.gen.ref_image2image(
+                                    board["poster_prompt"] + "；女主角面容发型与第一张参考图完全一致。",
+                                    [f"data:{mimep};base64,{b64p}"],
+                                    [config.IMAGE_MODEL] + config.IMAGE_MODEL_FALLBACKS,
+                                    size="1536*2688",  # 9:16 竖版海报
+                                )
+                            else:
+                                url, model = self.gen.text2image(
+                                    board["poster_prompt"],
+                                    [config.IMAGE_MODEL] + config.IMAGE_MODEL_FALLBACKS,
+                                    size="1536*2688",  # 9:16 竖版海报
+                                )
                             local = os.path.join(self.run_dir, "poster.png")
                         elif job["kind"] == "char_ref":
                             url, model = self.gen.text2image(
@@ -275,11 +321,20 @@ class ShortDramaPipeline:
                             local = os.path.join(self.run_dir, "character_ref.png")
                         else:
                             sc, shot = job["scene"], job["shot"]
-                            url, model = self.gen.text2image(
-                                shot["image_prompt"],
-                                [config.IMAGE_MODEL] + config.IMAGE_MODEL_FALLBACKS,
-                                size="1728*2368",  # 3:4 竖构图首帧
-                            )
+                            if self.char_ref_image:
+                                b64p, mimep = self.llm._encode_image(self.char_ref_image)
+                                url, model = self.gen.ref_image2image(
+                                    shot["image_prompt"] + "；女主角面容发型与第一张参考图完全一致。",
+                                    [f"data:{mimep};base64,{b64p}"],
+                                    [config.IMAGE_MODEL] + config.IMAGE_MODEL_FALLBACKS,
+                                    size="1728*2368",  # 3:4 竖构图首帧
+                                )
+                            else:
+                                url, model = self.gen.text2image(
+                                    shot["image_prompt"],
+                                    [config.IMAGE_MODEL] + config.IMAGE_MODEL_FALLBACKS,
+                                    size="1728*2368",  # 3:4 竖构图首帧
+                                )
                             local = os.path.join(
                                 self.run_dir, f"scene_{sc['id']}_shot{shot['shot_id']}_still.png")
                         self.gen.download(url, local)
@@ -287,11 +342,15 @@ class ShortDramaPipeline:
 
                     # 镜头清单（同外层 _shots_of）已提前定义
 
-                    jobs = ([{"kind": "poster"}, {"kind": "char_ref"}]
+                    jobs = ([{"kind": "poster"}]
+                            + ([] if self.char_ref_image else [{"kind": "char_ref"}])
                             + [{"kind": "still", "scene": sc, "shot": shot}
                                for sc in board["scenes"] for shot in _shots_of(sc)])
-                    n_shots = len(jobs) - 2
-                    print(f"  并行提交 {len(jobs)} 个图像任务（海报 1 + 角色锚定 1 + 镜头首帧 {n_shots}）…")
+                    n_shots = len(jobs) - 1
+                    if self.char_ref_image:
+                        print(f"  并行提交 {len(jobs)} 个图像任务（海报 1 + 镜头首帧 {n_shots}，女主角参考图生图）…")
+                    else:
+                        print(f"  并行提交 {len(jobs)} 个图像任务（海报 1 + 角色锚定 1 + 镜头首帧 {n_shots}）…")
                     poster_url = poster_model = poster_local = None
                     char_ref_url = char_ref_local = None
                     stills = []  # [(scene, shot, url, local_path)]
@@ -315,6 +374,8 @@ class ShortDramaPipeline:
                 self._save_ckpt(images={
                     "poster_url": poster_url, "poster_model": poster_model,
                     "char_ref_url": char_ref_url,
+                    "char_ref_image": (os.path.basename(self.char_ref_image)
+                                       if self.char_ref_image else None),
                     "custom": bool(self.custom_images),
                     "stills": [{"scene": sc, "shot": shot, "url": url,
                                 "local": os.path.basename(local)}
@@ -390,7 +451,21 @@ class ShortDramaPipeline:
                 b64, mime = self.llm._encode_image(still_local)
                 still_url = f"data:{mime};base64,{b64}"
             key = (sc["id"], shot.get("shot_id", 1))
+            # 口型镜头判定提前到复用决策前：台词指纹任一变化旧口型视频即作废
+            needs_lipsync = bool(shot.get("needs_lipsync")) and bool(sc.get("dialogue"))
+            dlg_hash = self._lipsync_hash(sc) if needs_lipsync else None
             saved = submitted.get(key)
+            if (saved and saved.get("lipsync") and dlg_hash
+                    and saved.get("dialogue_hash") not in (None, dlg_hash)):
+                # 改词/换情绪/换音色后续跑：旧口型视频音轨还是旧台词，若静默复用
+                # 会出现「字幕新台词、烧入音轨旧台词」（run_011 场景4 实踩）。
+                # 剔除旧任务记录强制重新提交（TTS/口型重新生成，其余步骤照旧）
+                self._save_ckpt(video_tasks=[t for t in ckpt.get("video_tasks", [])
+                                             if not (t.get("scene_id") == sc["id"]
+                                                     and t.get("shot_id") == key[1])])
+                submitted.pop(key, None)
+                saved = None
+                self._log(f"场景{sc['id']}-镜头{key[1]} 台词已修改，旧口型镜头作废重新生成")
             if saved:
                 task_id, model = saved["task_id"], saved["model"]
                 self._log(f"场景{sc['id']}-镜头{shot['shot_id']} ♻️ 复用已提交任务（{model}）")
@@ -399,10 +474,13 @@ class ShortDramaPipeline:
                 video_records.append((sc, shot, rec, model, None))
                 self.report["models_used"].add(model)
                 continue
-            # 新提交：三层路由（口型镜头 / 角色锚定参考 / 首帧驱动）
-            ref_urls = [char_ref_url, still_url] if char_ref_url else []
+            # 新提交：三层路由（口型镜头 / 角色锚定参考 / 首帧驱动）。
+            # 真实照片角色参考时首帧已携带照片人物（换人重制/参考生图），
+            # 首帧驱动即可保人物一致，不再叠加 reference_image（wan3.0 的
+            # first_frame 与 reference_image 互斥，构图控制优先走首帧）。
+            ref_urls = [char_ref_url, still_url] \
+                if (char_ref_url and not self.char_ref_image) else []
             take_jobs = []  # [(take_id, task_id, model)]
-            needs_lipsync = bool(shot.get("needs_lipsync")) and bool(sc.get("dialogue"))
             audio_url = None
             if needs_lipsync:
                 # 口型镜头前置：先合成台词 TTS 音轨（driving_audio 需公网 URL）。
@@ -412,12 +490,17 @@ class ShortDramaPipeline:
                 if not audio_url:
                     self._log(f"⚠️ 场景{sc['id']}-镜头{shot['shot_id']} 口型音轨准备失败，回退常规生成")
                     needs_lipsync = False
+                else:
+                    # 时长档位随台词音轨定：视频档位长于台词时尾部会生成
+                    # 「嘴动无声」的表演段（详见 _lipsync_duration）
+                    dur = self._lipsync_duration(sc, dur)
             for take_id in range(TAKES if not needs_lipsync else 1):  # 口型镜头单 take（成本高）
                 if needs_lipsync:
-                    # 口型路径：wan2.7-i2v + first_frame + driving_audio（画质换口型）
+                    # 口型路径：默认 wan3.0 语音带入（reference_image+reference_audio，
+                    # 91s/条实测），wan2.7-i2v first_frame+driving_audio 作降级
                     task_id, model = self.gen.lipsync2video(
                         shot["video_prompt"], still_url, audio_url,
-                        ["wan2.7-i2v", "wan2.7-i2v-2026-06-12"],
+                        [config.LIPSYNC_MODEL] + config.LIPSYNC_MODEL_FALLBACKS,
                         resolution="720P", duration=dur,
                     )
                     self._log(f"场景{sc['id']}-镜头{shot['shot_id']} 口型同步提交（{model}，台词驱动）")
@@ -439,10 +522,13 @@ class ShortDramaPipeline:
                 take_jobs.append((take_id, task_id, model))
                 if not needs_lipsync:
                     self._log(f"场景{sc['id']}-镜头{shot['shot_id']} take{take_id + 1} 已提交（{model}, {dur if dur > 0 else '智能'}s）")
-                self._ckpt_append("video_tasks",
-                                  {"scene_id": sc["id"], "shot_id": shot.get("shot_id", 1),
-                                   "take_id": take_id, "task_id": task_id, "model": model,
-                                   "lipsync": needs_lipsync})
+                task_rec = {"scene_id": sc["id"], "shot_id": shot.get("shot_id", 1),
+                            "take_id": take_id, "task_id": task_id, "model": model,
+                            "lipsync": needs_lipsync}
+                if needs_lipsync:
+                    # 台词指纹落盘：续跑时比对，改词强制重生成口型镜头
+                    task_rec["dialogue_hash"] = dlg_hash
+                self._ckpt_append("video_tasks", task_rec)
             for take_id, task_id, model in take_jobs:
                 rec = self.tm.add_bailian_task(task_id, "bailian_video",
                                                f"场景{sc['id']}-镜头{shot['shot_id']}-t{take_id}({model})")
@@ -512,6 +598,8 @@ class ShortDramaPipeline:
             take_local = os.path.join(self.run_dir,
                                       f"scene_{key[0]}_shot{key[1]}_take{take_id if take_id is not None else 'r'}.mp4")
             self.gen.download(url, take_local)
+            if bool(shot.get("needs_lipsync")) and bool(sc.get("dialogue")):
+                self._trim_lipsync_tail(take_local, sc, shot, take_id)
             takes_by_key[key]["takes"].append((take_id, take_local))
         for key, bundle in takes_by_key.items():
             sc, shot, takes = bundle["scene"], bundle["shot"], bundle["takes"]
@@ -587,7 +675,7 @@ class ShortDramaPipeline:
                 # 含 lipsync 镜头的场景直接用场内拼接原片作为成片
                 scene_edited = os.path.join(self.run_dir, f"scene_{sc['id']}_edited.mp4")
                 shutil.copyfile(raw_path, scene_edited)
-                self._check_clip_duration(sc, scene_edited)
+                self._check_clip_duration(sc, scene_edited, lipsync=True)
                 self._log(f"场景 {sc['id']} 含口型镜头，跳过生成式编辑（保护口型与台词音轨）")
                 continue
             video_url = next((rec.info.get("output", {}).get("video_url")
@@ -602,7 +690,9 @@ class ShortDramaPipeline:
             else:
                 edit_task, edit_model = self.gen.video_edit(
                     sc.get("edit_instruction") or "把背景替换为雨夜霓虹街头",
-                    video_url, [config.VIDEOEDIT_MODEL], resolution="720P",
+                    video_url,
+                    [config.VIDEOEDIT_MODEL] + config.VIDEOEDIT_MODEL_FALLBACKS,
+                    resolution="720P",
                 )
                 self._ckpt_append("edit_tasks",
                                   {"scene_id": sc["id"], "task_id": edit_task, "model": edit_model})
@@ -635,9 +725,57 @@ class ShortDramaPipeline:
         self._finalize()
         return self.report
 
-    def _check_clip_duration(self, sc, clip_path):
+    def _regen_lead_stills(self, stills):
+        """图库模式 + 真实照片角色参考：参考图生图重制镜头首帧（换人保景）。
+
+        图1=char_ref.png（定女主角面容发型），图2=原客户图（定场景构图灯光
+        服饰动作姿态）；产物 lead_s{sid}_shot{shid}.png，原 custom_* 保留
+        归档可对照。多镜头并行提交（同步接口，每张约 1-4 分钟）；原图比例
+        各异（4:3 / 16:9 / 3:4 混排），size 逐张跟随原图不裁切。"""
+        b64, mime = self.llm._encode_image(self.char_ref_image)
+        photo_uri = f"data:{mime};base64,{b64}"
+
+        def _gen_one(item):
+            sc, shot, _old_url, custom_local = item
+            try:
+                from PIL import Image
+                w, h = Image.open(custom_local).size
+            except Exception:
+                w, h = 1728, 2368  # PIL 缺失/图损坏时回退 3:4
+            b2, m2 = self.llm._encode_image(custom_local)
+            scene_uri = f"data:{m2};base64,{b2}"
+            prompt = (
+                "把第二张图场景中的女主角替换为第一张参考照片中的女士："
+                "面容与发型完全采用参考照片人物，保留第二张图的场景、构图、"
+                "灯光氛围、人物动作姿态与服饰，女主角以外的元素保持不变；"
+                f"写实摄影风格。剧情语境：{sc['desc'][:100]}"
+            )
+            url, model = self.gen.ref_image2image(
+                prompt, [photo_uri, scene_uri],
+                [config.IMAGE_MODEL] + config.IMAGE_MODEL_FALLBACKS,
+                size=f"{w}*{h}")
+            local = os.path.join(
+                self.run_dir, f"lead_s{sc['id']}_shot{shot.get('shot_id', 1)}.png")
+            self.gen.download(url, local)
+            return sc, shot, url, local, model
+
+        new_stills = []
+        with ThreadPoolExecutor(max_workers=min(len(stills), 4)) as pool:
+            futures = [pool.submit(_gen_one, it) for it in stills]
+            for fut in as_completed(futures):
+                sc, shot, url, local, model = fut.result()  # 单任务失败整体抛错，续跑重试
+                self.report["models_used"].add(model)
+                new_stills.append((sc, shot, url, local))
+                self._log(f"场景 {sc['id']}-镜头{shot.get('shot_id', 1)}"
+                          f" 女主角重制首帧完成（{model}）")
+        new_stills.sort(key=lambda x: (x[0]["id"], x[1].get("shot_id", 1)))
+        return new_stills
+
+    def _check_clip_duration(self, sc, clip_path, lipsync=False):
         """片段时长校验：实际与预期偏差过大时打警告，不阻断流程。
-        预期取镜头时长求和（新 schema shots[].duration），兼容旧字段 video_duration。"""
+        预期取镜头时长求和（新 schema shots[].duration），兼容旧字段 video_duration。
+        口型镜头（lipsync=True）时长由台词音轨决定（片尾静音已裁剪），
+        分镜 duration 不再适用，只校验「台词音轨未被截断」。"""
         if not shutil.which("ffprobe"):
             return
         try:
@@ -646,6 +784,19 @@ class ShortDramaPipeline:
                  "-of", "csv=p=0", clip_path], capture_output=True, text=True, timeout=30)
             actual = float(r.stdout.strip())
         except (ValueError, subprocess.SubprocessError, OSError):
+            return
+        if lipsync:
+            voice = os.path.join(self.run_dir, f"voice_{sc['id']}.mp3")
+            try:
+                r = subprocess.run(
+                    ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                     "-of", "csv=p=0", voice], capture_output=True, text=True, timeout=30)
+                ad = float(r.stdout.strip())
+            except (ValueError, subprocess.SubprocessError, OSError):
+                return
+            if actual + 0.3 < ad:
+                self._log(f"⚠️ 场景 {sc['id']} 口型片段 {actual:.1f}s 短于台词音轨 {ad:.1f}s，"
+                          f"台词尾字可能被截断")
             return
         shots = sc.get("shots") or []
         want = sum(s.get("duration") or 0 for s in shots if isinstance(s.get("duration"), int))
@@ -668,6 +819,45 @@ class ShortDramaPipeline:
                           f"回退默认音色（可用角色：{list(vc.keys())}）")
             return None
         return vc
+
+    def _lipsync_hash(self, sc):
+        """口型镜头台词指纹：dialogue / voice_mood / 音色任一变化，
+        旧口型视频的烧入音轨即与新台词不一致，续跑时强制重生成。"""
+        raw = "|".join([sc.get("dialogue") or "", sc.get("voice_mood") or "",
+                        str(self._voice_for(sc) or "")])
+        return hashlib.md5(raw.encode("utf-8")).hexdigest()
+
+    def _lipsync_duration(self, sc, fallback):
+        """口型镜头时长按台词音轨实测定档（run_011 实测：视频按 8s 档出片、
+        台词只有 2-3s，音频结束后 wan2.7-i2v 继续外推张嘴动作 → 尾部嘴动无声）。
+        取 语音时长+0.8s 缓冲向上取偶数档，不低于 8（平台 <8 档位 2s 故障
+        规避），封顶 30；音轨探测失败回退 fallback（剩余尾部静音由
+        trim_speech_tail 兜底裁剪）。"""
+        local = os.path.join(self.run_dir, f"voice_{sc['id']}.mp3")
+        try:
+            r = subprocess.run(
+                ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                 "-of", "csv=p=0", local], capture_output=True, text=True, timeout=30)
+            ad = float(r.stdout.strip())
+        except (ValueError, subprocess.SubprocessError, OSError):
+            return fallback
+        want = min(30, max(8, int(math.ceil((ad + 0.8) / 2.0)) * 2))
+        self._log(f"场景{sc['id']} 口型镜头时长按台词音轨定档：{want}s（音轨 {ad:.1f}s）")
+        return want
+
+    def _trim_lipsync_tail(self, take_local, sc, shot, take_id):
+        """口型 take 下载后裁掉片尾静音段（嘴动无声尾巴，详见
+        make_dubbed_final.trim_speech_tail）。失败静默跳过不阻断
+        （mock 测试的假文件探测必然失败，跳过即可）。"""
+        try:
+            sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts"))
+            from make_dubbed_final import trim_speech_tail
+            trimmed, new_dur = trim_speech_tail(take_local)
+            if trimmed:
+                self._log(f"场景{sc['id']}-镜头{shot.get('shot_id', 1)}-take{take_id} "
+                          f"片尾静音已裁剪（现 {new_dur:.1f}s）")
+        except Exception:
+            pass
 
     def _prep_driving_audio(self, sc, shot):
         """口型镜头前置：台词 TTS 合成 → 直接用 TTS 返回的公网签名 URL。

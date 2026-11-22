@@ -10,9 +10,12 @@
 ④ 备份旧 scene_X_edited.mp4 → 替换 → 更新 storyboard dialogue/voice_mood
 ⑤ 提示后续重拼/质检命令（dub 幂等重跑 + _concat_final_cut + qa 脚本）
 
-运行：.venv/bin/python -u scripts/rework_lipsync_scene.py <run目录> <场景号> <图路径> <voice_id> <动作prompt> [人设描述]
+运行：.venv/bin/python -u scripts/rework_lipsync_scene.py <run目录> <场景号> <图路径> <voice_id> <动作prompt> [人设描述] [固定台词]
+固定台词可选：传入时跳过 LLM 生成，直接用该台词（情绪取分镜 voice_mood，
+动作描述用 <动作prompt>），适合重生成时对齐已有字幕的场景。
 """
 import json
+import hashlib
 import os
 import sys
 import time
@@ -22,7 +25,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__))))
 import config  # noqa: E402
 from bailian_client import BailianAsyncClient  # noqa: E402
 from llm_client import Qwen4MaxClient  # noqa: E402
-from make_dubbed_final import synth  # noqa: E402
+from make_dubbed_final import synth, trim_speech_tail  # noqa: E402
 from qa_dubbing import asr as asr_text, similarity  # noqa: E402
 
 RUN = sys.argv[1]
@@ -31,6 +34,7 @@ IMG = sys.argv[3]
 VOICE_ID = sys.argv[4]
 ACTION = sys.argv[5]
 SPEAKER = sys.argv[6] if len(sys.argv) > 6 else "主角"
+FIXED_LINE = sys.argv[7] if len(sys.argv) > 7 else None
 
 
 def main():
@@ -38,20 +42,28 @@ def main():
     board = json.load(open(board_path))
     sc = next(s for s in board["scenes"] if s["id"] == SID)
 
-    # ① LLM 生成台词（贴人设；保持台词简短，口型镜头 3-8s 内说完）
-    llm = Qwen4MaxClient()
-    q = (f"短剧《{board['title']}》中，{SPEAKER}面对镜头做一个约 5 秒的祝贺/表态镜头，"
-         f"画面动作是：{ACTION}。剧情背景：{sc.get('desc', '')}。"
-         "请输出严格 JSON（不要 markdown）："
-         "{\"dialogue\": \"一句 12-20 字的中文台词\", "
-         "\"voice_mood\": \"这句台词的说话方式（语气/情绪，贴合人物身份，20字内）\", "
-         "\"video_prompt\": \"一段镜头运动与人物动作描述（中文，40字内，含口型与台词同步的要求）\"}")
-    gen = llm._extract_json(llm.chat([{"role": "user", "content": q}],
-                                     temperature=0.8, max_tokens=400))
-    line, mood, vprompt = gen["dialogue"], gen["voice_mood"], gen["video_prompt"]
-    print(f"① 台词: {line}")
-    print(f"   情绪: {mood}")
-    print(f"   运镜: {vprompt}")
+    # ① 台词：传入固定台词则直接用（对齐已有字幕），否则 qwen4-max 按人设生成
+    llm = Qwen4MaxClient()  # 固定台词模式仅用其图像编码，不走 LLM 生成
+    if FIXED_LINE:
+        line = FIXED_LINE
+        mood = sc.get("voice_mood") or "自然真诚地说"
+        vprompt = ACTION
+        print(f"① 固定台词: {line}")
+        print(f"   情绪: {mood}")
+        print(f"   运镜: {vprompt}")
+    else:
+        q = (f"短剧《{board['title']}》中，{SPEAKER}面对镜头做一个约 5 秒的祝贺/表态镜头，"
+             f"画面动作是：{ACTION}。剧情背景：{sc.get('desc', '')}。"
+             "请输出严格 JSON（不要 markdown）："
+             "{\"dialogue\": \"一句 12-20 字的中文台词\", "
+             "\"voice_mood\": \"这句台词的说话方式（语气/情绪，贴合人物身份，20字内）\", "
+             "\"video_prompt\": \"一段镜头运动与人物动作描述（中文，40字内，含口型与台词同步的要求）\"}")
+        gen = llm._extract_json(llm.chat([{"role": "user", "content": q}],
+                                         temperature=0.8, max_tokens=400))
+        line, mood, vprompt = gen["dialogue"], gen["voice_mood"], gen["video_prompt"]
+        print(f"① 台词: {line}")
+        print(f"   情绪: {mood}")
+        print(f"   运镜: {vprompt}")
 
     # ② TTS 合成（指定克隆音色 + instruction 情绪通道）
     voiced_local = os.path.join(RUN, f"voice_{SID}.mp3")
@@ -91,10 +103,36 @@ def main():
     if os.path.isfile(edited):
         os.replace(edited, edited + f".bak{int(time.time())}")
     gen_client.download(url, edited)
+    # 片尾静音裁剪：口型视频按 8s 档出片而台词只有几秒，
+    # 音频结束后模型继续外推张嘴动作 → 尾部「嘴动无声」（run_011 实踩）
+    trimmed, new_dur = trim_speech_tail(edited)
+    if trimmed:
+        print(f"④ 片尾静音已裁剪: {new_dur:.1f}s")
 
     # 更新 storyboard（台词/情绪/首帧归档引用不变）
     sc["dialogue"], sc["voice_mood"] = line, mood
     json.dump(board, open(board_path, "w"), ensure_ascii=False, indent=2)
+    # checkpoint 同步（run_011 实踩：只改 storyboard.json 不改 checkpoint，
+    # 续跑时流水线用 checkpoint 里的旧分镜、dub_final 用新分镜 →
+    # 字幕新台词、烧入音轨旧台词，且旧 lipsync 任务被静默复用）：
+    # ① storyboard 场景台词/情绪同步；② lipsync 任务的 dialogue_hash 指纹同步
+    ck_path = os.path.join(RUN, "checkpoint.json")
+    if os.path.isfile(ck_path):
+        try:
+            ck = json.load(open(ck_path))
+            ck_sc = next((s for s in ck.get("storyboard", {}).get("scenes", [])
+                          if s.get("id") == SID), None)
+            if ck_sc is not None:
+                ck_sc["dialogue"], ck_sc["voice_mood"] = line, mood
+                if sc.get("speaker"):
+                    ck_sc["speaker"] = sc["speaker"]  # 音色路由依赖 speaker
+            dlg_hash = hashlib.md5(f"{line}|{mood}|{VOICE_ID}".encode("utf-8")).hexdigest()
+            for t in ck.get("video_tasks", []):
+                if t.get("scene_id") == SID and t.get("lipsync"):
+                    t["dialogue_hash"] = dlg_hash
+            json.dump(ck, open(ck_path, "w"), ensure_ascii=False, indent=2)
+        except (json.JSONDecodeError, OSError, KeyError, StopIteration):
+            print("⚠️ checkpoint 同步失败（不影响本次重生成，但续跑时旧分镜优先）")
     # checkpoint 的 lipsync 标记保持（该场仍为口型场景）
     print(f"✅ 场景{SID} 已重生成: {os.path.basename(edited)}")
     print(f"后续: 删除 {RUN}/scene_{SID}_dub.mp4 后重跑 dub_final + _concat_final_cut，"

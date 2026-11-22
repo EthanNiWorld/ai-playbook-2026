@@ -188,6 +188,9 @@ class RunRequest(BaseModel):
     # 克隆音色 ID（音色复刻产物）：配音与口型驱动用客户本人的声音。
     # str=全局单音色；dict=多角色映射（角色名→voice_id，按分镜 speaker 路由）
     custom_voice: str | dict[str, str] | None = None
+    # 女主角真实照片参考：/api/upload 返回的文件名（output/uploads/ 内，仅
+    # basename 防路径注入）；图库模式重制首帧换人，AI 生图模式替代锚定图
+    char_ref: str | None = None
 
 
 class ConfirmRequest(BaseModel):
@@ -338,6 +341,14 @@ async def run_pipeline(req: RunRequest):
                     if not custom_imgs:
                         emit({"type": "error", "message": "客户图未找到（请先上传）"})
                         return
+                # 女主角参考图：/api/upload 上传的文件（仅 basename，防路径注入）
+                char_ref_img = None
+                if req.char_ref:
+                    char_ref_img = os.path.join(
+                        uploads_dir, os.path.basename(req.char_ref))
+                    if not os.path.isfile(char_ref_img):
+                        emit({"type": "error", "message": "女主角参考图未找到（请先上传）"})
+                        return
                 p = ShortDramaPipeline(
                     theme=(req.theme or "都市逆袭短剧").strip(),
                     num_scenes=(None if n <= 0 else min(3, n)),
@@ -345,6 +356,7 @@ async def run_pipeline(req: RunRequest):
                     confirm_cb=make_web_confirm(emit, holder) if req.manual else None,
                     custom_images=custom_imgs,
                     custom_voice=req.custom_voice,
+                    char_ref_image=char_ref_img,
                 )
                 holder["run_dir"] = p.run_dir
                 holder["pipeline"] = p

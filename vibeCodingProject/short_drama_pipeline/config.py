@@ -46,7 +46,14 @@ IMAGE_MODEL_FALLBACKS = ["qwen-image-3.0", "qwen-image-2.1-pro", "qwen-image-2.1
 # 2026-11-20 起默认 prime（用户指定，画质增强档，480P 列表价 $0.068/s vs 标准 $0.05/s）
 VIDEO_MODEL = os.getenv("SDP_VIDEO_MODEL", "wan3.0-video-prime")
 VIDEO_MODEL_FALLBACKS = ["wan3.0-video", "wan2.7-i2v", "wan2.7-t2v"]
-VIDEOEDIT_MODEL = os.getenv("SDP_VIDEOEDIT_MODEL", "wan2.7-videoedit")
+# 生成式编辑：2026-11-22 起默认 wan3.0 All-in-One 编辑路由（type=reference_video +
+# 编辑意图提示词，实测 prime 60-80s/条，约为 wan2.7-videoedit 的 1/8），老格式作降级
+VIDEOEDIT_MODEL = os.getenv("SDP_VIDEOEDIT_MODEL", "wan3.0-video-prime")
+VIDEOEDIT_MODEL_FALLBACKS = ["wan3.0-video", "wan2.7-videoedit"]
+# 口型镜头：2026-11-22 起默认 wan3.0 语音带入（reference_image+reference_audio，
+# 实测 91s/条、ASR 92%、口型开合交替清晰），wan2.7-i2v first_frame+driving_audio 作降级
+LIPSYNC_MODEL = os.getenv("SDP_LIPSYNC_MODEL", "wan3.0-video-prime")
+LIPSYNC_MODEL_FALLBACKS = ["wan3.0-video", "wan2.7-i2v", "wan2.7-i2v-2026-06-12"]
 
 OUTPUT_DIR = os.path.join(PROJECT_DIR, "output")
 

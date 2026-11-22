@@ -35,26 +35,49 @@ issues, warns = [], []
 board = json.load(open(os.path.join(RUN, "storyboard.json")))
 n_scenes = len(board["scenes"])
 
+# 口型场景集合（含 lipsync 镜头）：时长由台词音轨决定（片尾静音已裁剪，
+# 分镜 duration 不再适用），预期改为 voice_{sid}.mp3 时长 + 收尾缓冲
+lipsync_sids = set()
+ck_path = os.path.join(RUN, "checkpoint.json")
+if os.path.isfile(ck_path):
+    try:
+        lipsync_sids = {t["scene_id"] for t in json.load(open(ck_path)).get("video_tasks", [])
+                        if t.get("lipsync")}
+    except (json.JSONDecodeError, KeyError, OSError):
+        pass
+
 # 1) 成片存在性与段数
 edited = sorted(f for f in os.listdir(RUN) if f.startswith("scene_") and f.endswith("_edited.mp4"))
 print(f"[1] 场景成片: {len(edited)}/{n_scenes} 段")
 if len(edited) < n_scenes:
     issues.append(f"成片缺段：{len(edited)}/{n_scenes}")
 
-# 2) 每段时长 vs 分镜预期（镜头 duration 求和，<8 已规整为 8，允许偏差）
+# 2) 每段时长 vs 预期：常规镜头用分镜 duration（<8 已规整为 8，允许偏差）；
+#    口型场景用台词音轨时长预期（片尾静音裁剪后明显短于分镜值属正常）
 for f in edited:
     sid = int(f.split("_")[1])
     sc = next((s for s in board["scenes"] if s["id"] == sid), None)
     if not sc:
         continue
-    want = sum(s.get("duration") or 0 for s in sc.get("shots", [])
-               if isinstance(s.get("duration"), int))
-    want = max(want, 8 * len(sc.get("shots", [])))  # 规整后预期
+    voice_mp3 = os.path.join(RUN, f"voice_{sid}.mp3")
+    if sid in lipsync_sids:
+        if os.path.isfile(voice_mp3):
+            want = dur(voice_mp3) + 1.0
+        else:
+            # 口型场景无本地音轨（台词烧入视频、voice 未归档）：时长由裁剪决定，
+            # 无法用音轨预期比对，跳过（全静音/截断由第 4/5 项检测兑底）
+            print(f"ℹ️ 场景{sid}: 口型场景无本地音轨，跳过时长预期比对（现 {dur(os.path.join(RUN, f)):.1f}s）")
+            continue
+    else:
+        want = sum(s.get("duration") or 0 for s in sc.get("shots", [])
+                   if isinstance(s.get("duration"), int))
+        want = max(want, 8 * len(sc.get("shots", [])))  # 规整后预期
     actual = dur(os.path.join(RUN, f))
     flag = "✅" if actual >= want - 1.5 else "❌"
-    print(f"{flag} 场景{sid}: {actual:.1f}s（预期 ≥{want - 1.5:.0f}s）")
+    tag = "（口型，按台词音轨）" if sid in lipsync_sids else ""
+    print(f"{flag} 场景{sid}: {actual:.1f}s（预期 ≥{want - 1.5:.0f}s{tag}）")
     if actual < want - 1.5:
-        issues.append(f"场景{sid} 仅 {actual:.1f}s（疑似平台短时长故障）")
+        issues.append(f"场景{sid} 仅 {actual:.1f}s（疑似平台短时长故障或台词被截断）")
 
 # 3) 分辨率一致性
 resos = {f: probe(os.path.join(RUN, f), ["-show_entries", "stream=width,height",

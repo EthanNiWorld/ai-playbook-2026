@@ -134,7 +134,7 @@ class Qwen4MaxClient:
         }},
         {{"shot_id": 2, "framing": "...", "image_prompt": "...", "video_prompt": "...", "duration": 4}}
       ],
-      "edit_instruction": "对场景成片做生成式编辑的指令（如：把背景替换为雨夜街头）"
+      "edit_instruction": "对场景成片做生成式编辑的指令（如：把背景替换为雨夜街头）；严禁要求对画面内文字做故障/重绘类特效，必须注明『保持画面内所有文字与原片逐字一致』（重绘小字必乱码）"
     }}
   ]
 }}
@@ -182,7 +182,7 @@ voice_mood 必须贴合人物身份与剧情情绪（如霸道总裁用沉稳从
             + "          \"needs_lipsync\": false（仅【正面近景/特写且开口说台词】才 true，全片 ≤1-2 个）" + chr(10)
             + "        }" + chr(10)
             + "      ]," + chr(10)
-            + "      \"edit_instruction\": \"对场景成片做生成式编辑的指令\"" + chr(10)
+            + "      \"edit_instruction\": \"对场景成片做生成式编辑的指令；严禁对画面文字做故障/重绘特效，须注明保持画面内文字与原片逐字一致\"" + chr(10)
             + "    }" + chr(10)
             + "  ]" + chr(10)
             + "}" + chr(10)
@@ -200,11 +200,17 @@ voice_mood 必须贴合人物身份与剧情情绪（如霸道总裁用沉稳从
         return self._extract_json(raw)
 
     def review_image(self, image_path, scene_desc, dialogue):
-        """质量验收：用多模态输入校验镜头首帧是否符合分镜要求，返回结构化评价。"""
+        """质量验收：用多模态输入校验镜头首帧是否符合分镜要求，返回结构化评价。
+        含品牌/公司名拼写校验（run_012 实测：扩散模型把 PPIO 画成 PPI，
+        拉丁字母序列极不可靠，容错为零的品牌文字必须看图核对）。"""
         question = (
             f"这是一张短剧分镜的生成图。分镜要求：{scene_desc}；台词：{dialogue}。"
             "请从以下维度验收并输出严格 JSON（不要 markdown）："
-            "{\"pass\": true/false, \"score\": 0-10, \"issues\": [\"问题列表\"], \"summary\": \"一句话结论\"}"
+            "{\"pass\": true/false, \"score\": 0-10, \"issues\": [\"问题列表\"], \"summary\": \"一句话结论\"}。"
+            "验收维度：1) 画面与分镜要求是否一致；2) 人物状态与光线是否自然；"
+            "3) 【文字拼写】画面中出现的所有英文单词、字母、品牌名、公司名必须逐字母看图核对"
+            "（如出现 PPIO 必须恰好四个字母 P-P-I-O，缺字母/错字/多字母都算不通过），"
+            "拼写错误必须写入 issues 并 pass=false；4) 无意义乱码文字也计入 issues。"
         )
         raw = self.chat_with_image(question, image_path)
         return self._extract_json(raw)

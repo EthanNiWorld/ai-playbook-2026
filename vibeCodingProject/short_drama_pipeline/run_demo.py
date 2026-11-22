@@ -87,6 +87,9 @@ def main():
                         help="克隆音色 ID（音色复刻产物），配音与口型驱动用客户本人的声音")
     parser.add_argument("--voice-map", default=None, metavar="JSON",
                         help="多角色音色映射 JSON，如 '{\"马老师\": \"voice-id-a\", \"于总\": \"voice-id-b\"}'，按分镜 speaker 路由")
+    parser.add_argument("--char-ref", default=None, metavar="IMG",
+                        help="女主角真实照片参考：图库模式下用它把客户图里的女主角重制为照片人物（换人保景）；"
+                             "AI 生图模式下替代锚定图，海报/首帧直接生成照片人物")
     parser.add_argument("--ims-real", action="store_true", help="IMS 走真实 SDK 调用")
     parser.add_argument("--resume", action="store_true",
                         help="断点续跑：从最新未完成 run 的 checkpoint 继续（忽略 --theme/--scenes）")
@@ -127,6 +130,11 @@ def main():
             print(f"❌ --voice-map JSON 解析失败: {e}")
             sys.exit(1)
 
+    char_ref = args.char_ref
+    if char_ref and not os.path.isfile(char_ref):
+        print(f"❌ --char-ref 指定的图片不存在: {char_ref}")
+        sys.exit(1)
+
     p = ShortDramaPipeline(
         theme=args.theme,
         num_scenes=(None if args.scenes <= 0 else args.scenes),
@@ -135,6 +143,7 @@ def main():
         confirm_cb=make_cli_confirm() if args.manual else None,
         custom_images=custom_imgs,
         custom_voice=custom_voice,
+        char_ref_image=char_ref,
     )
     p.run()
 
