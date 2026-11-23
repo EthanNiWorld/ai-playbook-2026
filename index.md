@@ -1,7 +1,7 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-11-20
+> 最后更新：2026-11-23
 
 ## 目录
 
@@ -60,7 +60,7 @@
 | Claude / Opus 5.5 / Sonnet 5.5 / Haiku 5.5 / Fable 5.2 / 分层定价 | [Claude API](knowledge/anthropic/claude-api.md) |
 | S-1 / 招股书 / 营收增速 / 毛利率 / NRR / 客户分层 / IPO | [Anthropic 公司分析](knowledge/anthropic/general_intro.md) ⭐ + [看板](knowledge/anthropic/general_intro.html) |
 | Claude Code / 竞品 | [Claude Code](knowledge/anthropic/claude-code.md) |
-| Gemini / Gemini 4 Carbon / Argon / Hydrogen / Orchestrator / 1M 输出上限 / Google / Computer Use | [Gemini](knowledge/google/maas/gemini.md) |
+| Gemini / Gemini 4 Neon / Carbon / Argon / Hydrogen / Orchestrator / 1M 输出上限 / Google / Computer Use | [Gemini](knowledge/google/maas/gemini.md) |
 | TPU / 8tx / 8i Max / 机密计算 / 长上下文 / Google 自研芯片 | [TPU 第八代](knowledge/google/ai-platform/tpu.md) |
 | GPT-6 / GPT-6.2 / Astra / Sol / Terra / Luna / GPT-5 / ChatGPT / OpenAI / Codex | [GPT-6 系列](knowledge/openai/gpt-6-series.md) · [GPT-5 系列](knowledge/openai/gpt-5-series.md) · [Codex](knowledge/openai/codex.md) |
 | MAI / 微软自研 / Copilot 模型 | [MAI 模型家族](knowledge/microsoft/mai-models.md) |
@@ -75,7 +75,7 @@
 | H3-Image / 图像生成 / 4K / 开源图像 / MiniMax H 系列 | [H 系列](knowledge/minimax/h3-series.md) |
 | Kimi / 月之暗面 / Moonshot / K3 / K3.1 Pro | [Kimi K 系列](knowledge/moonshot/kimi-k-series.md) |
 | GLM / 智谱 / GLM-5.3 / GLM-5.3-Flash / FlashX / GLM-5.2 / 1M 上下文 / 长程任务 | [GLM 系列](knowledge/zhipu/glm-series.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) |
-| Seedance / 字节视频生成 / AI 短剧 / 火山方舟 | [Seedance 系列](knowledge/bytedance/seedance-series.md) |
+| Seedance / Seedance 2.5 Flash / 字节视频生成 / AI 短剧 / 火山方舟 | [Seedance 系列](knowledge/bytedance/seedance-series.md) |
 | 蚂蚁 / 百灵 / Ling-3.1-flash / antdigital | [Ling 系列](knowledge/ant/ling-series.md) |
 | GRPO / PPO / critic / RL 算法选型 / Agentic RL | [RL 算法选型](knowledge/ai-general-notes/rl-algorithm-selection-grpo-vs-ppo.md) |
 | 蒸馏 / Distillation / CoT 蒸馏 / on-policy 蒸馏 / R1 蒸馏 / student teacher | [模型蒸馏](knowledge/ai-general-notes/model-distillation.md) |
@@ -181,7 +181,7 @@
 
 **MaaS**
 - [Gemini Enterprise Agent Platform](knowledge/google/maas/overview.md)
-- [Gemini](knowledge/google/maas/gemini.md) — **4 Carbon 🚩（10/28 发布、11/10 公开 API，AA v5.0 = 60 曾榜首、现 Fable 5.2 登顶，标准 $4/$20）** / 4 Argon（9/30 发布、10/13 GA，🌟 1M 输出上限）/ **4 Hydrogen（11/12，workhorse：3.8 Flash 官方接棒者，AA 51/54，$1.50/$7.50 flat）** / 3.5 Flash-Lite / Omni Flash；3.8 Flash 与 3.1 Pro 移入历史（仍在售）；3.5 Pro 确认搁置；Fairwind 仅限无护栏 cyber 版
+- [Gemini](knowledge/google/maas/gemini.md) — **4 Neon（11/18 发布，AA v5.0.1 xhigh=61 总榜第 3，$3/$15，Google 七周内第四款）** / **4 Carbon 🚩（10/28 发布、11/10 公开 API，AA v5.0 = 60 曾榜首，标准 $4/$20）** / 4 Argon（9/30 发布、10/13 GA，🌟 1M 输出上限）/ **4 Hydrogen（11/12，workhorse：3.8 Flash 官方接棒者，$1.50/$7.50 flat）** / 3.5 Flash-Lite / Omni Flash；3.8 Flash 与 3.1 Pro 移入历史（仍在售）；3.5 Pro 确认搁置；Fairwind 仅限无护栏 cyber 版
 
 **AI Platform**
 - [Vertex AI → Agent Platform](knowledge/google/ai-platform/vertex-ai.md) — 训练/部署/Agent
@@ -237,7 +237,7 @@
 ### 字节跳动
 
 - 模型系列: [Doubao-Seed-2.1](knowledge/bytedance/doubao-seed-2.1.md) — Pro 260915（稳定旗舰）/ Evolving（周级迭代）/ Lite 260915（轻量全模态）/ Turbo（轻量）；260628 公开 benchmark 仅作历史口径
-- 视频生成: [Seedance 系列](knowledge/bytedance/seedance-series.md) — 2.5（旗舰，30s 直出 + 50 全模态参考）/ 2.0（原生 4K），全球市占率第二仅次 Veo
+- 视频生成: [Seedance 系列](knowledge/bytedance/seedance-series.md) — 2.5（旗舰，30s 直出 + 50 全模态参考）/ 2.5 Flash（11/15 API 上线，速度翻倍+价格更低）/ 2.0（原生 4K），全球市占率第二仅次 Veo
 
 ### 腾讯混元（Tencent Hunyuan）
 
