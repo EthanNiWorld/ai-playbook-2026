@@ -842,6 +842,19 @@ def test_price_audit():
           not pv.is_usage_cost_question(
               "kimi-k3.1，多少钱",
               [{"role": "user", "content": "帮我算下账单总成本"}], has_images=True))
+    # 2026-11-23 事故："wan3.0 API查询任务的RPM或者并发是多少"在带图成本
+    # 会话后被历史成本词继承判成成本题→工具被裁剪+闸门替换正文。
+    # 修复：当前问句必须自带成本语义，历史命中不再单独触发。
+    hist_cost = [{"role": "user", "content": "帮我看看这张用量截图，算一下总成本多少钱"}]
+    check("用量截图题: 历史带图带成本词，当前问RPM/并发不命中（事故复现）",
+          not pv.is_usage_cost_question(
+              "wan3.0 API查询任务的RPM或者并发是多少", hist_cost, has_images=True))
+    check("用量截图题: 历史带图带成本词，当前问限速/能力类不命中",
+          not pv.is_usage_cost_question("wan3.0 支持哪些分辨率", hist_cost, has_images=True))
+    check("用量截图题: 历史成本题后省略式追问仍命中",
+          pv.is_usage_cost_question("帮我算一下", hist_cost, has_images=True))
+    check("用量截图题: 历史成本题后当前句自带成本词仍命中",
+          pv.is_usage_cost_question("那总共花了多少钱", hist_cost, has_images=True))
     official_two = (
         "| Region | 输入价格 (Input) | 缓存输入价格 (Cache Input) | 输出价格 (Output) | 显式缓存创建 (Cache Write) | 备注 |\n"
         "|---|---|---|---|---|---|\n"

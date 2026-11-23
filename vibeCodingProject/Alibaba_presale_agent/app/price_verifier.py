@@ -1784,6 +1784,10 @@ _COST_SIGNAL_RE = re.compile(
 _TOKEN_QTY_RE = re.compile(
     r"\d[\d,.]*\s*(?:万|亿|[mMbBkK])\s*tokens?", re.IGNORECASE
 )
+# 省略式成本追问：当前句不含成本词但语义是“继续算”（历史已给过用量图）。
+_COST_FOLLOWUP_RE = re.compile(
+    r"算一下|帮我算|算算|加起来|总共多少|合计多少|算总|算下来", re.IGNORECASE
+)
 
 
 def is_usage_cost_question(
@@ -1797,6 +1801,19 @@ def is_usage_cost_question(
     if not has_images:
         return False
     q = question or ""
+    # 2026-11-23 事故：历史成本词不再继承到与成本无关的当前问题。
+    # "wan3.0 API查询任务的RPM或者并发是多少"在带图成本会话后被历史命中
+    # 判成成本题，工具列表被裁剪成 3 个成本工具（get_model_rate_limit 被
+    # 移除），收尾闸门再把正文替换成澄清话术。修复：当前问句必须自带
+    # 成本语义（成本/单价/用量词、token 数量、或省略式测算追问）才进
+    # 闸门；纯限速/并发/能力/参数类问题即使会话历史带图带成本词也不劫持。
+    if not (
+        _USAGE_COST_RE.search(q)
+        or _UNIT_PRICE_WORD_RE.search(q)
+        or _TOKEN_QTY_RE.search(q)
+        or _COST_FOLLOWUP_RE.search(q)
+    ):
+        return False
     # 型号名写在问句里（非只在图里）且只问单价：截图是附带上下文，
     # 不是测算诉求，不走成本硬闸门（模型仍看图自主决策）。
     if (
