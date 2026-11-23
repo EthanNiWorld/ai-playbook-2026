@@ -1,6 +1,6 @@
 # Kimi K 系列模型
 
-> 最后更新: 2026-11-13
+> 最后更新: 2026-11-23
 > 所属厂商: 月之暗面（Moonshot AI）
 > 产品类别: MaaS
 
@@ -34,7 +34,7 @@
 - **多模态**：文本 + 图片 + 视频输入 → 文本输出；3D 成果通过生成并执行 Blender / CAD / 游戏引擎代码完成，非原生 3D 模态
 - **思考**：始终开启，推理强度 low / high / max（默认 max）；支持工具调用与结构化输出
 - **定价**（官方，datalearner 转述）：标准版 $2 输入 / $10 输出（¥13/¥68）；缓存读取 $0.20（¥1.30）；缓存写入 5 分钟 $2（¥13）/ 1 小时 $4（¥26）；高速版 $4/$20（¥26/¥136），官方称同等智能、速度约 2–3×，缓存读取同价。人民币与美元为两区域实际标价而非汇率换算
-- **开放权重**：官方承诺 **2026-11-04 前发布完整权重**，**百炼上新页 2026-11-05 条目已描述为 "3T-parameter open-weight model"**（官方博客口径 "3T-class open-weight"）——按承诺时间窗判定已按期开放；HF 仓库确切发布日与许可证本轮未直查 [⚠️ 待确认]（Kimi K3 License 为上一代参考）；**Artificial Analysis 当前仍标 Proprietary，疑为收录滞后**。需立即自部署的团队可同步评估已开放权重的 K3（2.8T / Modified MIT）
+- **开放权重**：官方承诺 2026-11-04 前发布完整权重，已按期兑现。**HF 仓库 `moonshotai/Kimi-K3.1-Pro` 2026-11-02~11-05 上线**，Safetensors 格式含 8-bit 量化版本；许可证为 **Kimi K3.1 Pro License**（MIT-style，非 K3 的 Modified MIT）；模型卡描述 "open-weight, natively multimodal agentic model, 3T-class"。**Artificial Analysis 当前仍标 Proprietary，确认为收录滞后**（2026-11-23 多源交叉验证）
 - **评测**：官方与 AA 独立双口径数据（TB 4.0、HLE、GDPval 等）统一收录于下方「Benchmark 对比」节，此处不重复
 
 ### Kimi K3（2026 年 7 月，旗舰）
@@ -217,6 +217,7 @@ Kimi K2 系列模型权重开源（block-fp8 格式），推荐推理引擎：
 
 | 日期 | 变更内容 |
 |------|---------|
+| 2026-11-23 | 校验修复（knowledge-verification-2026-11-23）：K3.1 Pro 权重开放状态解除 [⚠️ 待确认]——HF 仓库 2026-11-02~11-05 上线，Kimi K3.1 Pro License（MIT-style），多源交叉确认 |
 | 2026-11-20 | 口径修订（全库 TB 4.0 规则）：K3.1 Pro TB 补官方榜单值（自报值并列保留）；K3 改引 TB 4.0并删除 TB 2.1 双口径行；K2.6 等无 4.0 数据者标未公布 |
 | 2026-11-13 | 补充 Kimi 官方 API 约束：指定函数 tool_choice 与思考开启不兼容（返回 400），K3 系列始终思考故官方 API 不可用该形态，强制调用用 `"required"` [来源: platform.kimi.com/docs/guide/use-tool-choice] |
 | 2026-11-08 | 校验修复（knowledge-verification-2026-11-08）：K3.1 Pro 权重状态由「承诺 11-04 前发布、尚未发布」改为已按期开放（百炼上新页 11-05 条目描述为 open-weight）；参数量补双口径（官方 3T 级 vs 精确 2.8T）；AA 仍标 Proprietary 注记为收录滞后，HF 发布日/许可证标待确认 |

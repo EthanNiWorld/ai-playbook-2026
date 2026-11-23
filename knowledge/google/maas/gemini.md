@@ -1,18 +1,19 @@
 # Gemini
 
-> 最后更新: 2026-11-20
+> 最后更新: 2026-11-23
 > 所属厂商: GCP
 > 产品类别: MaaS
 
 **定位**: Google 自研多模态大模型系列，原生支持文本+图像+音频+视频多模态输入输出
 **适用**: 多模态理解与生成、企业知识管理、Agent 基础模型、代码生成、计算机操控
 **不适用**: 需要私有化部署的场景（Gemini 仅通过 API / GCP 平台提供）
-**当前主推**: **Gemini 4 Carbon 🚩（2026.10.28 发布、11.10 公开 API 开放，AA Intelligence Index v5.0 = 60，2026-11-08 曾榜首、11-09 起 Fable 5.2 接棒；标准价 $4/$20）**；Gemini 4 Argon（09.30 发布、10.13 GA [⚠️ 第三方信源]，🌟 输出上限 1M tokens 行业首个）；**Gemini 4 Hydrogen（2026.11.12，当前 workhorse，3.8 Flash 官方接棒者，AA high 51 / xhigh 54 超 Argon，$1.50/$7.50 flat）**；3.5 Flash-Lite（350 tok/s 高吞吐，app 免费档主力）与 Omni Flash（原生音视频）在售。3.8 Flash / 3.1 Pro 移入历史模型（仍可调用，3.8 Flash 无退役日期）。**Gemini 3.5 Pro 官方确认搁置（2026.09.24）**；Fairwind Program 现仅覆盖无护栏 cyber 版
+**当前主推**: **Gemini 4 Neon（2026.11.18 发布，AA Intelligence Index v5.0.1 xhigh = 61 总榜第 3，$3/$15，Google 七周内第四款模型）**；**Gemini 4 Carbon 🚩（2026.10.28 发布、11.10 公开 API 开放，AA v5.0 = 60，2026-11-08 曾榜首、11-09 起 Fable 5.2 接棒；标准价 $4/$20）**；Gemini 4 Argon（09.30 发布、10.13 GA，🌟 输出上限 1M tokens 行业首个）；**Gemini 4 Hydrogen（2026.11.12，workhorse，3.8 Flash 官方接棒者，$1.50/$7.50 flat）**；3.5 Flash-Lite / Omni Flash 在售。3.8 Flash / 3.1 Pro 移入历史模型。**Gemini 3.5 Pro 官方确认搁置**；Fairwind 仅覆盖无护栏 cyber 版
 
 ## 当前主推模型
 
 | 模型 | 定位 | 核心特点 | 推出/更新时间 |
 |------|------|------|------|
+| **Gemini 4 Neon** | 高性能新旗舰（**公开可得**） | AA v5.0.1 xhigh = 61（总榜第 3，仅次 Fable 5.2 65 / GPT-6.2 Astra 62）；$3/$15、cached $0.15（95% 折扣）；1M ctx、文本+图像+视频+语音输入；effort 四档（low/medium/high/xhigh）；发布即公开 API + Antigravity | 2026.11.18 |
 | **Gemini 4 Carbon** 🚩 | 旗舰（**公开可得**：付费 API / Ultra 订阅） | **AA Intelligence Index v5.0 = 60（2026-11-08 曾 #1，现榜首 Fable 5.2 65）**；TB 4.0 (AA) 65.2%；SEC-bench Pro 88.2%；11-10 API 开放，标准价 $4/$20；Fairwind 仅限无护栏 cyber 版 | 2026.10.28（11.10 API 开放） |
 | **Gemini 4 Argon** | 世代首发旗舰（**公开可得**） | 🌟 输出上限 1M tokens（行业首个）；DeepSWE 77.9% SOTA、AA 幻觉率 15% 最低；10-13 GA [⚠️ 第三方信源]；标准价 $4/$20 | 2026.09.30（10.13 GA） |
 | **Gemini 4 Hydrogen** | 当前 workhorse（coding/agents 执行档） | adapted from Carbon；AA high 51 / xhigh 54（超 Argon 50）；TB 4.1 57%（3.8 Flash 18.2%）；统一 1M 窗口 + 1M long-decode 输出；`thinking_level` 四档（默认 high）；$1.50/$7.50 flat | 2026.11.12 |
@@ -44,6 +45,19 @@
 | 部署方式 | 仅 API / GCP 平台 | 不支持私有化下载部署 |
 | API 双轨 | `google.genai` + `vertexai` 两套 API | 开发者需根据场景选择，Google 已确认将长期共存 |
 | 中文能力 | 强但非母语级 | 中文场景优先考虑 Qwen / DeepSeek 作为补充 |
+
+## Gemini 4 Neon（2026-11-18，Google 七周内第四款模型）
+
+> 来源：[AA 官方分析文章](https://artificialanalysis.ai/articles/gemini-4-neon-intelligence-gain)（2026-11-18）
+
+- **模型**：Gemini 4 Neon，Google 七周内第四款模型（Argon → Carbon → Hydrogen → Neon）
+- **公司**：Google
+- **时间**：2026-11-18 发布，发布即公开 API + Gemini Enterprise Agent Platform + Antigravity（Pro/Ultra）
+- **Benchmark**：AA Intelligence Index v5.0.1（xhigh）= **61，总榜第 3**（仅次 Fable 5.2 65、GPT-6.2 Astra 62）；比 Carbon（high）高 1 分；Coding Agent Index 59（Antigravity CLI，Carbon 55）；GDP.pdf 33.4%（+5pt）；AA-Briefcase 1700 Elo（Presentation Quality 1771 超 Sonnet 5.5 居首）
+- **定价**：$3/$15（Carbon 标准价 $4/$20 的 75 折）；cached $0.15（95% 折扣）
+- **上下文**：1M tokens
+- **输入模态**：文本 + 图像 + 视频 + 语音
+- **推理强度**：effort 四档（low / medium / high / xhigh）
 
 ## Gemini 4 Hydrogen（2026-11-12，当前 workhorse，Gemini 4 首个公开可得模型）
 
@@ -378,6 +392,7 @@ Gemini 通过 **Gemini Enterprise Agent Platform** 统一交付（见 [`vertex-a
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-23 | 校验修复（knowledge-verification-2026-11-23）：新增 Gemini 4 Neon 专章（11-18 发布，AA v5.0.1 xhigh=61 总榜第 3，$3/$15，七周内第四款）；主推表与头部同步收录 Neon；index.md / README.md mindmap 同步代号 |
 | 2026-11-20 | 口径修订（全库 TB 4.0 规则）：3.8 Flash 改引官方榜单 TB 4.0；3.5 Flash-Lite / 3.1 Flash-Lite 旧版 TB 相对量停用 |
 | 2026-11-20 | 校验修复：清理限时促销/免费额度等营销性信息，定价保留官方标准列表价口径 |
 | 2026-11-13 | 合并：Gemini 4 Hydrogen 发布调研（inbox 20261113）——新增 Hydrogen 专章（workhorse，adapted from Carbon、AA 51/54、$1.50/$7.50 flat、统一 1M 窗口、四档思考、Orchestrator、迁移六陷阱）；**修正 Carbon/Argon 可得性：Carbon 11-10 公开 API 开放（官方一手）、Argon 10-13 GA [⚠️ 第三方信源]，Fairwind 仅限无护栏 cyber 版**；入门价至 11-30 [⚠️ 待核实]；3.8 Flash / 3.1 Pro 移出主推表入历史模型（3.8 Flash 无退役日期仍在售、2027-01-01 价格收敛）；场景/平台交付/参考资料同步 |
