@@ -1,19 +1,35 @@
 # 知识库全局索引
 
 > 本文件是知识库的全局索引，Skill 必读。
-> 最后更新：2026-11-23
+> 最后更新：2026-11-24
 
 ## 目录
 
-- [🔍 快速查找](#-快速查找)
-- [道：AI 领域知识（跨厂商）](#道ai-领域知识跨厂商)
-- [点：单产品知识](#点单产品知识)
-  - 云厂商：[阿里云](#阿里云) · [Google](#google)
-  - 海外模型厂商：[Anthropic](#anthropic) · [OpenAI](#openai) · [Microsoft AI (MAI)](#microsoft-ai-mai) · [Meta](#meta)
-  - 中国模型厂商：[DeepSeek](#deepseek深度求索) · [MiniMax](#minimax) · [智谱 AI](#智谱-aizhipu) · [月之暗面](#月之暗面moonshot-ai) · [字节跳动](#字节跳动) · [腾讯混元](#腾讯混元tencent-hunyuan) · [小米 MiMo](#小米-mimo-xiaomi-mimo) · [阶跃星辰](#阶跃星辰stepfun) · [蚂蚁百灵](#蚂蚁百灵ant-group)
-- [线：对比分析（阿里云视角）](#线对比分析阿里云视角)
-- [体：行业解决方案](#体行业解决方案)
-- [模板参考](#模板参考)
+- [知识库全局索引](#知识库全局索引)
+  - [目录](#目录)
+  - [🔍 快速查找](#-快速查找)
+  - [道：AI 领域知识（跨厂商）](#道ai-领域知识跨厂商)
+    - [技术概念类（关键选型维度）](#技术概念类关键选型维度)
+    - [概念洞察类（关键认知框架）](#概念洞察类关键认知框架)
+  - [点：单产品知识](#点单产品知识)
+    - [🟧 阿里云（核心阵地，47 篇深度文档）](#-阿里云核心阵地47-篇深度文档)
+    - [Google](#google)
+    - [Anthropic](#anthropic)
+    - [OpenAI](#openai)
+    - [Microsoft AI (MAI)](#microsoft-ai-mai)
+    - [Meta](#meta)
+    - [DeepSeek（深度求索）](#deepseek深度求索)
+    - [MiniMax](#minimax)
+    - [智谱 AI（Zhipu）](#智谱-aizhipu)
+    - [月之暗面（Moonshot AI）](#月之暗面moonshot-ai)
+    - [字节跳动](#字节跳动)
+    - [腾讯混元（Tencent Hunyuan）](#腾讯混元tencent-hunyuan)
+    - [小米 MiMo（Xiaomi MiMo）](#小米-mimoxiaomi-mimo)
+    - [阶跃星辰（StepFun）](#阶跃星辰stepfun)
+    - [蚂蚁百灵（Ant Group）](#蚂蚁百灵ant-group)
+  - [线：对比分析（阿里云视角）](#线对比分析阿里云视角)
+  - [体：行业解决方案](#体行业解决方案)
+  - [模板参考](#模板参考)
 
 ---
 
@@ -123,7 +139,7 @@
 
 > 分组顺序：**云厂商**（阿里云 / Google）→ **海外模型厂商** → **中国模型厂商**。
 
-### 🟧 阿里云（核心阵地，45 篇深度文档）
+### 🟧 阿里云（核心阵地，47 篇深度文档）
 
 > **从底层算力到上层应用，覆盖 MaaS / AI Coding / AI App / AI Infra / 竞品对比全链路。**
 

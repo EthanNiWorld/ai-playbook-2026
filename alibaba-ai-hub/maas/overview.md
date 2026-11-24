@@ -1,6 +1,6 @@
 # 百炼平台
 
-> 最后更新: 2026-11-05
+> 最后更新: 2026-11-24
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 > 状态: Published
@@ -169,7 +169,7 @@
 
 | 需求 | 推荐模型 | 地域 |
 |------|---------|------|
-| 中文推理 | qwen3.8-max / qwen3.8-27b | 任意 |
+| 中文推理 | qwen4-max / qwen3.8-27b | 任意 |
 | 思考推理 | deepseek-v4.1-flash / deepseek-v4-pro | 大陆 / 新加坡 / 美国 |
 | 中文生成 | qwen3.8-flash / qwen3.8-27b | 任意 |
 | 图像生成 | qwen-image-3.0-pro（Qwen-Image 系列，图像线已自 Wan*-Image 移交） | [⚠️ 待补充] |
@@ -207,3 +207,4 @@
 | 2026-07-08 | 选型建议表移除 qwen3.6-flash（已非主推），中文生成推荐更新为 qwen3.7-plus |
 | 2026-09-02 | 校验修复（knowledge-verifier 2026-09-02 报告）：选型建议表更新—— 中文推理主推切换 qwen3.7-max → qwen3.8-max；图像生成 wan2.7 → qwen-image-3.0-pro（Wan*-Image 图像线已移交 Qwen-Image）；状态 Draft → Published |
 | 2026-11-05 | 模型代际同步：地域接入点表 DeepSeek-V4 / V3.2 → V4.1-Flash / V4-Pro（V3.2 已于 2026-07-24 下线，V4-Flash 0731 已于 2026-09-10 下线）；选型建议「思考推理」行更新为 deepseek-v4.1-flash，「中文推理/中文生成」行去除已退出主推的 qwen3.7-plus、改推 qwen3.8-max / qwen3.8-27b / qwen3.8-flash；历史压测记录（deepseek-v4-flash-0731）统一加旧快照标注 |
+| 2026-11-24 | 校验修复：中文推理主推由 qwen3.8-max 更新为 qwen4-max（2026-11-16 GA，取代 3.8-Max） |

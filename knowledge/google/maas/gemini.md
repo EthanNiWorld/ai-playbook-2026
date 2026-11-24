@@ -1,6 +1,6 @@
 # Gemini
 
-> 最后更新: 2026-11-23
+> 最后更新: 2026-11-24
 > 所属厂商: GCP
 > 产品类别: MaaS
 
@@ -21,7 +21,7 @@
 | **Gemini Omni Flash** | 原生音视频多模态 | 端到端音频/视频原生理解，实时语音交互 | 2026.05.19 |
 
 > 📌 **专用模型**：**Gemini 3.8 Flash Cyber**（2026.09.02，当前）与 Gemini 3.5 Flash Cyber（2026.07.21）——Flash 线网络安全专用模型：CyberGym 前沿级漏洞发现、CWE-Bench 修复 pass@1 47.2%（Pareto 前沿）、内部 20 语言漏洞发现成功率 >70%；经 **Fairwind Program** 向政府/关键基础设施/软件维护者等受信防御者开放，不公开售卖。2026-11-10 起 Fairwind 亦开放 **Carbon for cyber**（无护栏版，受信防御者申请制；公开版 Carbon 已 GA 且带完整护栏）
-> 📌 **历史模型**：**Gemini 3.8 Flash（2026.09.02）workhorse 已于 2026-11-12 由 4 Hydrogen 接棒（官方迁移指南），无退役日期、API 仍在售（2027-01-01 起定价 $1.50/$7.50 与 Hydrogen 同价），Gemini app 已不再列出**；**Gemini 3.1 Pro（2026.02.19）上代公开旗舰，仍可调用**；3.7 Flash（2026.08.13）仍官方 fully supported（效率优先负载）；3 Pro / 3.1 Flash / 3.5 Flash / 3.6 Flash（仅存活三周）仍可调用，不建议新项目选用。2026-12-01 起已弃用的 gemini-2.5-pro 请求自动路由至 3.8 Flash（第三方引 Google 退役表 [⚠️ 待核实]）
+> 📌 **历史模型**：**Gemini 3.8 Flash（2026-09-02）workhorse 已于 2026-11-12 由 4 Hydrogen 接棒（官方迁移指南），无退役日期、API 仍在售（标准价 $1.50/$7.50 与 Hydrogen 同价），Gemini app 已不再列出**；**Gemini 3.1 Pro（2026-02.19）上代公开旗舰，仍可调用**；3.7 Flash（2026-08-13）仍官方 fully supported（效率优先负载）；3 Pro / 3.1 Flash / 3.5 Flash / 3.6 Flash（仅存活三周）仍可调用，不建议新项目选用。已弃用的 gemini-2.5-pro 请求自动路由至 3.8 Flash（第三方引 Google 退役表 [⚠️ 待核实]）
 
 > ⚠️ Gemini 2.5 系列（Pro/Flash/Deep Think）为 2025 年中发布，**已非最新代**。2.5 Pro 更新至 2025.06.27，2.5 Flash 更新至 2025.09.26。详见 [Google DeepMind Model Cards](https://deepmind.google/models/model-cards/)
 
@@ -113,21 +113,21 @@
 - 前沿风险评估：较 Argon 无实质能力增量，bio/cyber 低于 critical 阈值但触及 alert 阈值；完整 Safety & Security Report 待发（felloai 引 card）
 
 **成本归因**：
-- ⚠️ **token 单价并非更低而是更高**：$1.50/$7.50 = 3.8 Flash 过渡期价格（$0.75/$3.75）的 **2×**。"更便宜"成立于**单任务成本**口径
-- **架构内禀降本（主因，可持续）**：AA 实测 $1.87/task（high）vs 3.8 Flash $7.77 / Argon 标准价 $9.95 / Carbon $7.76——**单价贵 2× 但单任务便宜 4.1×**；机制 = 旗舰蒸馏 + 执行纪律 → 每任务输出 token 更少 + 成功率高减少重试；无技术报告，独立实测支撑"真实成本下降"
-- **定价策略（辅因）**：**价格收敛设计**——2027-01-01 起 3.8 Flash 涨至 $1.50/$7.50 与 Hydrogen 同价，"升级免费"；当前 2× 差价实为早鸟溢价。Batch/Flex 两者均 $0.75/$3.75、Priority 均 $2.70/$13.50；缓存命中价 3.8 Flash 2027-01-01 起 $0.075→$0.15，Hydrogen 保持 $0.075（orcarouter 引 Google rate card [⚠️ 官方定价页待直核]）
+- ⚠️ **token 单价并非更低**：$1.50/$7.50 与 3.8 Flash 标准价持平。"更便宜"成立于**单任务成本**口径
+- **架构内禀降本（主因，可持续）**：AA 实测 $1.87/task（high）vs 3.8 Flash $7.77 / Argon 标准价 $9.95 / Carbon $7.76——**标准价持平但单任务成本不同**；机制 = 旗舰蒸馏 + 执行纪律 → 每任务输出 token 更少 + 成功率高减少重试；无技术报告，独立实测支撑"真实成本下降"
+- **定价策略（辅因）**：Hydrogen 与 3.8 Flash 标准价均为 $1.50/$7.50；Batch/Flex 两者均 $0.75/$3.75、Priority 均 $2.70/$13.50；缓存命中价均为 $0.075（orcarouter 引 Google rate card [⚠️ 官方定价页待直核]）
 - **系统级降本**：Orchestrator quota -24% / 速度 +19%（官方）——路由层节省，与模型单价无关
 - TPU 自研推理栈为长期单位成本优势（KB 既有结论），本次发布无新披露，不作为本次降本归因证据
 
 **迁移陷阱（3.8 Flash → Hydrogen）**（orcarouter 分析与官方指南 snippet 交叉；官方指南页直连超时，细目以第三方转述为主）：
 - **四项静默失效（返回 200，行为已变）**：① temperature/top_p/top_k 被服务端静默忽略（3.7 起已废弃，调参 prompt 悄悄回到默认分布）；② 默认思考档 medium→high（延迟与输出计费变）；③ 统一窗口挤占（900K 输入只剩 ~148K 给思考+回答，长上下文任务截断自己的答案而非报错）；④ 显式缓存不支持（仅隐式 ≥4096 tokens、95% off——折扣相同但控制权丢失）
 - **两项显式报错**：⑤ minimal 思考档报错（3.8 Flash 同样报错，存量问题）；⑥ 同步输出上限 64K/hop，>64K 需 `background: true` **且** `max_output_tokens > 65536`（上限 1M − 输入），只设 background 不提 max_output_tokens 仍停 64K；max_output_tokens 现在约束 thinking+output 总和
-- **官方建议**：从 high 起步，xhigh 留给 high 解不出的多步问题；硬架构/调试/科学/安全审计用 Carbon。**迁移节奏**（orcarouter 建议）：agent/终端/长程负载立即迁；聊天型/首字延迟敏感/显式缓存依赖者可等 2027-01 价格收敛；预留一周行为回归测试，勿在 12 月最后一周迁移
+- **官方建议**：从 high 起步，xhigh 留给 high 解不出的多步问题；硬架构/调试/科学/安全审计用 Carbon。**迁移节奏**（orcarouter 建议）：agent/终端/长程负载可迁；聊天型/首字延迟敏感/显式缓存依赖者先做行为回归测试，按业务窗口安排
 
 **售前启示（阿里云视角）**：
-- Flash 档竞争口径从 $/M tokens 转向 **$/task**——Hydrogen 单价 2× 但单任务便宜 4.1×；对 Qwen Flash 档比价应引入 AA cost/task + 成功率口径，仅比单价会误判
+- Flash 档竞争口径从 $/M tokens 转向 **$/task**——Hydrogen 与 3.8 Flash 标准价持平，但单任务成本不同；对 Qwen Flash 档比价应引入 AA cost/task + 成功率口径，仅比单价会误判
 - "旗舰蒸馏 + 执行档定价 + 轨迹级路由"组合拳把 Carbon 锁进执行生态；百炼多模型编排与缓存亲和路由资产可对位叙事
-- Gemini 4 免费档 + Search 全用户 = 分发优势；差异化强调 Qwen 开源可私有化部署、中国节点合规、中文能力
+- Gemini 4 用户基础 + Search 全用户 = 分发优势；差异化强调 Qwen 开源可私有化部署、中国节点合规、中文能力
 
 ## Gemini 4 Carbon（2026-10-28 发布、2026-11-10 公开 API 开放，Gemini 4 世代第二个旗舰）🌟
 
@@ -135,17 +135,17 @@
 
 **基本信息**：
 - 2026-10-28 Google DeepMind 发布，Gemini 4 世代第二个模型（Argon 之后）；面向长期自主工程、编程与网络安全防御
-- **2026-11-10 公开 API 开放**（官方公告博客）：向所有付费开发者/企业开放（AI Studio / Gemini for business），入门价与 Argon 相同 $2/$10；Google AI Ultra 订阅者可在 Antigravity / Gemini app / Search AI Mode 使用。首发（10-28）曾为 Fairwind 受限，现 **Fairwind Program 仅覆盖 "Carbon for cyber" 无护栏版**（受信防御者申请制）——售前可承诺公开付费 API，无护栏版仍不可承诺
+- **2026-11-10 公开 API 开放**（官方公告博客）：向所有付费开发者/企业开放（AI Studio / Gemini for business）；Google AI Ultra 订阅者可在 Antigravity / Gemini app / Search AI Mode 使用。首发（10-28）曾为 Fairwind 受限，现 **Fairwind Program 仅覆盖 "Carbon for cyber" 无护栏版**（受信防御者申请制）——售前可承诺公开付费 API，无护栏版仍不可承诺
 - 官方定位（11-10 博客）："our strongest model"；**Argon 仍是多数软件工程与知识工作的首选**，Carbon 面向测试智力极限的最难任务（复杂多步编码/调试、开放式科学研究），比 Argon 消耗更多 token 做彻底探索、深度推理与扩展验证循环
 - 规格（第三方口径，待 Google 确认）：1M 上下文 + 最大输出 1M（Vals 评测配置）；文本+图像+音频+视频输入 → 文本；默认 high 思考档；参数量未公布；公开 API model ID [⚠️ 待补充]
 
-**定价**：入门价 $2 输入 / $10 输出 / 缓存 $0.10（=输入价 5%）；标准价 $4/$20（缓存 $0.20）。入门价至 2026-11-30、12-01 起标准价（felloai 引 Google 定价页 [⚠️ 官方定价页待直核]）。生产预算按标准价测算。
+**定价**：标准价 $4 输入 / $20 输出 / 缓存 $0.20（=输入价 5%）。生产预算按标准价测算。
 
 **2026-11-10 GA 公告新增事实**（官方公告博客）：
 - **榜单与成本**：CursorBench 4.0 / Perplexity WANDR / Zapier AutomationBench 均 #1，单任务成本比次优外部模型低 2×+；MKA 榜 #2 且平均单任务成本比榜首低 6×+（**MKA 为 Google 与 Artificial Analysis 共建的新基准**——非完全独立第三方，成绩解读需带此折扣）
 - **安全/对齐**：agentic honesty benchmark（375 任务）通过率 92%（Argon 70%），98% 情况下拒绝填补缺失实验数据、68% 情况下标记方法学缺陷；阻断 99% 自适应红队攻击轨迹，单次尝试突破率 0.8%（Argon 3.1%）；Gray Swan 自动化网络攻击查询成功率 2.17%（Argon 9.86%）；Trajectory Labs 132 小时 / 13,000+ 请求零新型通用越狱
 - **/swarm**（Antigravity 并行 agent 团队）预览：上线数日即数万 swarm；Carbon 承担架构设计/协调/审计等最深推理角色，搭配轻量模型并行隔离工作区与对抗验证器
-- **科学家计划**：10,000 名科学家免费 6 个月 Argon 访问（4 周前开放申请，已 onboard 数千人），11-10 起扩展至 Carbon，每周滚动审核
+- **科学家计划**：面向受信研究者提供 Carbon 访问，每周滚动审核
 - **科学推理案例**：AlphaProof Code 用 Carbon 生成数百万行 Lean 代码，数周内证明 Signal 密码协议关键安全性质（传统需专家团队数年）；CASP17 低同源蛋白家族同源检索平均提升 40×；Axiom Bio 将生产科学分析迁移至 Carbon/Argon
 
 **独立评测与榜首**：
@@ -198,9 +198,9 @@
 
 **⚠️ 落后项（Bloomberg 报道内部质疑部分印证）**：Terminal-Bench 4.0 57.4% vs Opus 5.5 **66.4%**；FrontierSWE v2 55.0% vs Astra **65.5%**；Code Arena: WebDev 仅 #8（前端弱）；AA Intelligence Index 53 = Astra = Fable 5.1，低于 Opus 5.5 58 / Sonnet 5.5 56（均为 2026-09-30 Argon 发布时口径）。
 
-**AA 成本实测**：促销期 $1.99/task、标准价 $3.98/task（Astra $3.26、Opus 5.5 $5.98）；**62K output tokens/task（Astra 27K）——低价靠单价而非省 token**。
+**AA 成本实测**：[⚠️ 待复核]（历史低价口径不纳入知识库）；**62K output tokens/task（Astra 27K）——低成本主要来自单价而非省 token**。
 
-**成本归因**：低价主要来自定价策略而非架构内禀降本（无技术报告）——AA 明确"低价来自 token 单价而非用量"（输出 token 用量为 Astra 的 2.3×）；第三方成本效率口径（AA $1.99/task、LMArena "most cost efficient model"）建立在促销期价格上，标准价下需重估。Google 自有 TPU 推理栈是长期单位成本优势（知识库已有结论），但本次发布无相关披露。
+**成本归因**：需区分 token 单价与单任务用量；AA 指出输出 token 用量为 Astra 的 2.3×，因此不能把低价简单归因于架构效率，第三方成本效率口径需按标准价重估。Google 自有 TPU 推理栈是长期单位成本优势（知识库已有结论），但本次发布无相关披露。
 
 **与 Hydrogen 的关系（2026-11-13 更新）**：Hydrogen（adapted from Carbon）AA high 51 已超 Argon 50，且 🌟 1M 输出经其 long decode 下放公开档——Argon 的差异化收窄至单轮深度推理与最低幻觉率；官方定位仍称 "Argon remains the ideal choice for the majority of software engineering and knowledge work"（11-10 Carbon 博客）。AA 单任务成本 Argon 标准价 $9.95 vs Hydrogen $1.87（felloai 引 AA 2026-11-12 表）。
 
@@ -208,11 +208,11 @@
 
 > 来源：[Google Blog — Introducing Gemini 3.8 Flash and 3.8 Flash Cyber](https://blog.google/innovation-and-ai/models-and-research/gemini-models/3-8-flash-and-3-8-flash-cyber/)（2026-09-02，官方一手）；2026-11-03 合并入库
 >
-> ⚠️ **2026-11-12 workhorse 已由 Gemini 4 Hydrogen 接棒**（官方开发者指南 "Recommended upgrade from Gemini 3.8 Flash and earlier Gemini 3 and 2.5 models"）；无退役日期、API 仍在售；2027-01-01 起价格升至 $1.50/$7.50 与 Hydrogen 同价；Gemini app 已不再列出。迁移陷阱见 Hydrogen 专章。以下为发布时历史记录。
+> ⚠️ **2026-11-12 workhorse 已由 Gemini 4 Hydrogen 接棒**（官方开发者指南 "Recommended upgrade from Gemini 3.8 Flash and earlier Gemini 3 and 2.5 models"）；无退役日期、API 仍在售；标准价 $1.50/$7.50 与 Hydrogen 同价；Gemini app 已不再列出。迁移陷阱见 Hydrogen 专章。以下为发布时历史记录。
 
 **基本信息**：
 - 2026-09-02 发布（3.7 后三周、六周内第三个 Flash）；官方口径 "Gemini 3.8, our best reasoning and coding model yet, at the same speed and low cost of 3.7"
-- **3.8 Flash**：most intelligent workhorse model——软件工程、agentic 任务与专业领域多步推理显著提升；入门价同 3.7（$0.75/$3.75 至 2026-12-31，2027-01-01 起 $1.50/$7.50）
+- **3.8 Flash**：most intelligent workhorse model——软件工程、agentic 任务与专业领域多步推理显著提升；标准价 $1.50/$7.50
 - **3.8 Flash Cyber**：最强网络安全模型，经 Fairwind Program 向受信防御者开放
 - 训练：长程 agentic loops 递归评估与精炼底层模型 + 网络安全高要求领域严格训练，驱动共享核心能力提升（官方口径）
 
@@ -236,14 +236,7 @@
 - 距 3.6 Flash（2026.07.21）仅三周发布；上下文维持 1M 未扩展，能力提升来自后训练（RL）而非模型扩大（素材分析）
 - 技术规格：1M tokens 上下文 / 最大输出 64K；输入文本+图像+音频+视频，输出文本；知识截止 2026 年
 
-**定价（含时效）** [来源: blog.google + Google AI Studio]：
-
-| 时段 | 输入 ($/M tokens) | 输出 ($/M tokens) | 有效期 |
-|------|-------------------|-------------------|--------|
-| 入门价 | $0.75 | $3.75 | 至 2026-12-31 |
-| 标准价 | $1.50 | $7.50 | 2027-01-01 起 |
-
-入门价 = 3.6 Flash 标准价的一半，同时性能更强。
+**定价** [来源: blog.google + Google AI Studio]：标准价 **$1.50 输入 / $7.50 输出 per 1M tokens**。历史阶段性低价不纳入本知识库。
 
 **Benchmark（vs 3.6 Flash）** [来源: blog.google 官方 + miraflow.ai 分析]：
 
@@ -263,7 +256,7 @@
 
 **部署与生态**：已部署至 Gemini Spark（Google 个人 AI Agent，覆盖 160+ 国家）与 Antigravity（Agent-first 编码环境）
 
-> **Why 值得关注**：三周点更新 + 入门价减半 + 性能大幅提升 = 同价位性能翻倍；`thinking_level` 三值枚举是推理控制新范式——从"猜 token 预算"到"选任务难度"，与 DeepSeek / GLM 的 `reasoning_effort` 三级化同向（见 [推理深度控制](../../ai-general-notes/reasoning-effort.md)）
+> **Why 值得关注**：三周点更新 + 标准价口径下的性能提升；`thinking_level` 三值枚举是推理控制新范式——从"猜 token 预算"到"选任务难度"，与 DeepSeek / GLM 的 `reasoning_effort` 三级化同向（见 [推理深度控制](../../ai-general-notes/reasoning-effort.md)）
 
 ## Gemini 3.6 Flash / 3.5 Flash-Lite / 3.5 Flash Cyber（2026-07-21 发布）
 
@@ -392,6 +385,7 @@ Gemini 通过 **Gemini Enterprise Agent Platform** 统一交付（见 [`vertex-a
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-24 | 校验修复：清理 Carbon/3.7/3.8 Flash 入门价、促销期与免费试用表述，仅保留标准价口径；历史任务成本标注待复核 |
 | 2026-11-23 | 校验修复（knowledge-verification-2026-11-23）：新增 Gemini 4 Neon 专章（11-18 发布，AA v5.0.1 xhigh=61 总榜第 3，$3/$15，七周内第四款）；主推表与头部同步收录 Neon；index.md / README.md mindmap 同步代号 |
 | 2026-11-20 | 口径修订（全库 TB 4.0 规则）：3.8 Flash 改引官方榜单 TB 4.0；3.5 Flash-Lite / 3.1 Flash-Lite 旧版 TB 相对量停用 |
 | 2026-11-20 | 校验修复：清理限时促销/免费额度等营销性信息，定价保留官方标准列表价口径 |

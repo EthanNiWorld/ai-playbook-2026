@@ -1,6 +1,6 @@
 # 百炼决策模型（decision-model-preview）
 
-> 最后更新: 2026-11-03
+> 最后更新: 2026-11-24
 > 所属厂商: 阿里云
 > 产品类别: MaaS
 > 状态: Published
@@ -12,7 +12,7 @@
 **不适用**: 需要校准概率的量化决策、需要生成解释/理由、多跳推理、存量标准端点系统（决策模型仅支持 workspace 专属域名）
 <!-- SUMMARY_END -->
 
-> ⚠️ 素材截止 2026-10-09（预览版阶段，无 SLA 承诺；"限时免费"为培育期定价策略，生产接入需评估转正后价格风险）。
+> ⚠️ 素材截止 2026-10-09（预览版阶段，无 SLA 承诺；标准价格未公布，生产接入需评估转正后价格风险）。
 
 ## 当前主推模型
 
@@ -75,13 +75,13 @@
 | 端点 | 仅 workspace 专属域名 | 标准 DashScope 端点 404；与通用 LLM 端点约束相反，需单独配置 |
 | 概率校准 | 主观维度 one-hot 退化 | probs 不能自假为可靠后验分布，阈值策略前需按维度实测校准 |
 | 误用保护 | 无 | 生成任务传入不报错，集成层需自行把关 |
-| 预览阶段 | 无 SLA 承诺 | 限时免费为培育期定价策略，生产接入需评估转正后价格风险 |
+| 预览阶段 | 无 SLA 承诺 | 标准价格未公布，生产接入需评估转正后价格风险 |
 
 ## 定价概览
 
 | 模型 | 输入价格 | 输出价格 | 备注 |
 |------|---------|---------|------|
-| decision-model-preview | **限时免费**（北京/新加坡） | —（无输出生成） | 支持 Token Plan；转正价格未公布 |
+| decision-model-preview | [⚠️ 待补充]（标准列表价未公布） | —（无输出生成） | 支持 Token Plan；转正价格未公布 |
 
 > 定价来源：[官方模型页](https://help.aliyun.com/zh/model-studio/decision-model-preview)，核实日期 2026-10-09。
 
@@ -138,7 +138,7 @@
 
 ## 参考资料
 
-- [官方模型页 — decision-model-preview](https://help.aliyun.com/zh/model-studio/decision-model-preview)（能力/限流/免费/65536 输入）
+- [官方模型页 — decision-model-preview](https://help.aliyun.com/zh/model-studio/decision-model-preview)（能力/限流/65536 输入；标准价格待公布）
 - [官方 API 参考 — 决策模型 API](https://help.aliyun.com/zh/model-studio/decision-model-api)（System One 协议/参数/示例）
 - [第一财经 — 百炼决策模型上线](https://www.yicai.com/news/103378100.html)、[东方财富报道](https://emwap.eastmoney.com/a/202609243883964179.html)（2026-09-24）
 - [InfoQ — OpenAI DevDay 2026](https://www.infoq.com/news/2026/10/openai-devday-2026/)、[HF Blog — What is Decisions API](https://huggingface.co/blog/sora-2/what-is-decisions-api-openais-fast-decision-layer)
@@ -152,5 +152,6 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-24 | 校验修复：按标准列表价口径清理「限时免费」表述，标准价格未公布处保留待补充标记 |
 | 2026-11-03 | 校验修复（knowledge-verification-2026-11-03）：营销口径收敛——「限时免费」为当前官方事实，仅在定价表与风险说明保留；删除 SUMMARY、主推表、限流行、架构时间线、竞品表及 index.md 中的宣传式重复，改为客观能力描述 |
 | 2026-10-09 | 新建文档，提炼自 inbox 素材（含 2026-10-09 实测）：基本信息与限流（限时免费/1200 RPM/200 万 TPM）、端点实测（仅 workspace 域名、标准端点 404）、性能实测（P50 51ms ≈ qwen3.7-plus 1/25）、三个行为坑（other 吸分类/主观维度 one-hot/误用不报错）、架构溯源（TypeSafe System One + RLCD + 三方时间线）、logit trick 三层机制拆解、竞品对照 |

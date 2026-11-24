@@ -2,17 +2,17 @@
 
 > **AI 解决方案售前知识库** — 模型选型 · 竞品对比 · 行业方案 · 技术通识，一站式参考
 >
-> 最后更新：2026-11-23
+> 最后更新：2026-11-24
 
 <p align="center">
   <img src="https://img.shields.io/badge/覆盖厂商-15-blue?style=for-the-badge" alt="覆盖厂商 15 家：阿里云 + 14 家外部厂商">
-  <img src="https://img.shields.io/badge/结构化文档-112-orange?style=for-the-badge" alt="结构化文档 112 篇">
+  <img src="https://img.shields.io/badge/结构化文档-115-orange?style=for-the-badge" alt="结构化文档 115 篇">
   <img src="https://img.shields.io/badge/知识维度-4-green?style=for-the-badge" alt="知识维度 4 类：通识 · 产品 · 对比 · 方案">
   <img src="https://img.shields.io/badge/核心阵地-阿里云-purple?style=for-the-badge" alt="核心阵地：阿里云 MaaS · Coding · App · Infra">
-  <img src="https://img.shields.io/badge/最后更新-2026--11--23-lightgrey?style=for-the-badge" alt="最后更新 2026-11-23">
+  <img src="https://img.shields.io/badge/最后更新-2026--11--24-lightgrey?style=for-the-badge" alt="最后更新 2026-11-24">
 </p>
 
-<!-- 统计口径（2026-11-23 实测）：结构化文档 = alibaba-ai-hub/ 与 knowledge/ 下 *.md（排除 _ 开头模板与 .venv）= 47 + 65 = 112 篇；HTML/PNG 交付件不计入。修改门面数字前请用 find 重测，勿凭报告/印象自增 -->
+<!-- 统计口径（2026-11-24 实测）：结构化文档 = alibaba-ai-hub/ 与 knowledge/ 下 *.md（排除 _ 开头模板与 .venv）= 47 + 68 = 115 篇；HTML/PNG 交付件 不计入。修改门面数字前请用 find 重测，勿凭报告/印象自增 -->
 
 <p align="center">
   <a href="index.md"><img src="https://img.shields.io/badge/📋-全局索引-blue?style=for-the-badge" alt="全局索引"></a>
@@ -76,7 +76,7 @@
 **📚 AI 通识**
 > Agent · Harness · Prompt · Benchmark
 
-[Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [记忆系统](knowledge/ai-general-notes/agent-memory.md) · [ReAct](knowledge/ai-general-notes/Memory-ReAct.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [推理服务栈](knowledge/ai-general-notes/inference-serving-stack/Mooncake.md) · [存储超级周期](knowledge/ai-general-notes/ai-memory-supercycle.md) · [算子经济学](knowledge/ai-general-notes/operator-kernel-economics.md) · [全部 31 篇 → index.md](index.md)
+[Agent](knowledge/ai-general-notes/agent-def.md) · [Harness](knowledge/ai-general-notes/harness.md) · [Prompt](knowledge/ai-general-notes/prompt-engineering.md) · [Benchmark](knowledge/ai-general-notes/benchmark-coding-agentic.md) · [记忆系统](knowledge/ai-general-notes/agent-memory.md) · [ReAct](knowledge/ai-general-notes/Memory-ReAct.md) · [长程任务](knowledge/ai-general-notes/long-horizon-task.md) · [推理服务栈](knowledge/ai-general-notes/inference-serving-stack/Mooncake.md) · [存储超级周期](knowledge/ai-general-notes/ai-memory-supercycle.md) · [算子经济学](knowledge/ai-general-notes/operator-kernel-economics.md) · [全部 34 篇 → index.md](index.md)
 
 </td>
 </tr>
@@ -154,7 +154,7 @@
 ```mermaid
 mindmap
   root((AI Playbook 2026))
-    道:AI 通识 31 篇
+    道:AI 通识 34 篇
       Agent 定义与框架
       Harness 治理层
       Prompt Engineering
@@ -251,8 +251,8 @@ flowchart LR
 │   └── ai-industry-solutions/ ← 🟩 行业方案（企业AI平台 / 短剧出海 / IPC / 商业地产）
 ├── inbox/              ← 📥 原始素材暂存（处理后自动归档）
 ├── archive/            ← 🗄️ 已处理素材备份
-├── knowledge/          ← 🎯 结构化知识库（通识 + 他厂商，65 篇）
-│   ├── ai-general-notes/   ← 🟦 AI 通识（31 篇：Agent / Harness / Prompt / 记忆 / ReAct / 增长飞轮 / Benchmark / RL 算法选型 / 开源定价套利 / 算子经济学 / Agent Native 存储 / 推理服务栈（vLLM/SGLang/Mooncake/EPD/Qwen3.8-27B 部署实测）/ 存储超级周期…）
+├── knowledge/          ← 🎯 结构化知识库（通识 + 他厂商，68 篇）
+│   ├── ai-general-notes/   ← 🟦 AI 通识（34 篇：Agent / Harness / Prompt / 记忆 / ReAct / 增长飞轮 / Benchmark / RL 算法选型 / 开源定价套利 / 算子经济学 / Agent Native 存储 / 推理服务栈（vLLM/SGLang/Mooncake/EPD/Qwen3.8-27B 部署实测）/ 存储超级周期…）
 │   ├── google/             ← 🔵 Google（4 篇：MaaS / Platform / TPU）
 │   ├── anthropic/          ← 🔵 Anthropic（5 篇：MaaS / Coding / App）
 │   ├── openai/             ← 🔵 OpenAI（4 篇：公司分析 / GPT-6系列 / GPT-5系列 / Codex）

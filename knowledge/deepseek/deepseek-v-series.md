@@ -1,6 +1,6 @@
 # DeepSeek V 系列模型
 
-> 最后更新: 2026-10-19
+> 最后更新: 2026-11-24
 > 所属厂商: DeepSeek（深度求索）
 > 产品类别: MaaS
 > 状态: Published
@@ -48,7 +48,8 @@
 - **训练方法（技术报告 5.1.1）**：基于自反馈的 RL（RL with self-feedback）；把任务形式化为 `(problem, environment, verification)`，用「难度 + 正确性」作奖励迭代训练模型**自己造任务**（正反馈飞轮）；两条环境生产线：通用 Agent（内部+外部交互数据 → 复刻 SaaS mock 工具 → 系统化复现失败案例）与 Coding Agent（star 阈值仓库 → 可容器化/可自动验证筛选 → fail-to-pass + pass-to-pass → 多 Agent 搭环境/质检/修复 → 清除答案痕迹 → 质检明确检查可作弊风险 hackability）
 - **增量解锁**：从「补全代码」到「交付完整项目」——游戏开发（网页赛车、Godot 复刻传送门 2）、3D 建模（故宫、Valley of Ages）；核心是长程自我验证闭环（先建、再看、再修）跑通
 - **成本关键事实**：**API 单价一分未降**（与 0910 一致），帕累托改进全部来自「每任务消耗更少」——输出更短 + 任务时间更短 + effort 可停在 60~80 档。这与降价促销有本质区别，不存在补贴退出后回调风险
-- **新增 API**：Search / Fetch，各 **5 元（$0.75）/千次**；Harness/Claude Code/Codex 内置服务端工具调用目前免费，**2026-11-01 00:00（北京时间）起计费**；自研搜索引擎索引千亿网页、日均数亿请求、过滤 SEO 作弊/GEO 操纵/低质 AIGC
+- **新增 API**：独立 Search / Fetch API 各 **5 元（$0.75）/千次**；自 **2026-11-18 12:00** 起，模型调用触发的服务端搜索/网页读取不再单独计费，而是作为模型 token 上下文计费；自研搜索引擎索引千亿网页、日均数亿请求、过滤 SEO 作弊/GEO 操纵/低质 AIGC
+- **应用 API（2026-11-13）**：DeepSeek App 开放 web search、file input、URL reading、voice interaction、safety 等完整应用 API
 - **Harness 依赖（关键风险）**：官方要求 **DeepSeek Harness 0.2.1-rc.1 及以上**才拿到完整收益；官方 77.0 由 mini-swe-v2 取得，换 `[CC]` 仅 **69.8（-7.2）**，跨 6 框架家族 8 种配置 DeepSWE 波动 65.5~74.2
 - **第三方口径**：AA Intelligence Index **39**（同类中位 19）；AA 每任务成本 $0.27、输出 176 t/s、**250M tokens/套（中位 130M，判 very verbose）**；LMArena Elo 1475 ± 6，**第 38 名**；OpenRouter $0.15 输入 / $0.60 输出、1.21s TTFT / 152 tps
 - **⚠️ 网传参数校正**：二手文章流传的「763B 总参数」与官方发布稿、HF 模型卡、百炼模型页三方冲突，正确口径为 **552B backbone**
@@ -181,6 +182,8 @@
 > **V4.1 Flash 新价 2026-09-10 12:00 生效** [来源: api-docs.deepseek.com/zh-cn/quick_start/pricing]。**峰时段 = 北京时间周一至周五 9:00-12:00、14:00-18:00（即旧口径 UTC 01-04 / 06-10），其余为空闲时段；空闲价 = 峰时价的一半**——鼓励将批量任务调度到空闲时段。官方定价页现以人民币（CNY）计价。
 >
 > 📌 **1017 快照价格未变**：2026-10-17 版本更新不改定价，API 标识 `deepseek-flash` 不变；旧名 `deepseek-v4-flash` 自 2026-09-10 起即路由至最新快照，非 1017 新增。
+>
+> 📌 **服务端搜索计费变更（2026-11-18 12:00）**：模型调用触发的 Search/Fetch 不再单独按次计费，而是计入模型 token 上下文；独立 Search/Fetch API 仍为 $0.75/千次。
 
 ### DeepSeek-V4.1-Flash（当前生效，CNY / 百万 tokens）
 
@@ -214,7 +217,7 @@
 ## 参考资料
 
 - [DeepSeek V4.1 Flash-1017 发布公告（中文）](https://api-docs.deepseek.com/zh-cn/news/news261017)（2026-10-17：帕累托改进、自反馈 RL、Search/Fetch 5 元/千次、Harness 0.2.1-rc.1、开源权重）
-- [DeepSeek-V4.1-Flash-1017 发布公告（英文）](https://api-docs.deepseek.com/news/news261017)（tagline“Wish-Driven Programming Made Real”、$0.75/1,000 calls、2026-10-31 16:00 UTC 起计费）
+- [DeepSeek-V4.1-Flash-1017 发布公告（英文）](https://api-docs.deepseek.com/news/news261017)（tagline“Wish-Driven Programming Made Real”、独立 Search/Fetch API $0.75/1,000 calls；模型触发计费规则见定价章节）
 - [Hugging Face - DeepSeek-V4.1-Flash-1017](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017)（模型卡 minor update 口径、MIT）
 - [IT之家 - DeepSeek V4.1 Flash-1017 新版本发布](https://www.ithome.com/1/014/328.htm)（2026-10-17，完整 benchmark 列表）
 - [DeepSeek API 更新日志](https://api-docs.deepseek.com/updates/)（V4-Pro GA 0813 / V4-Flash 0731 发布与 benchmark 来源）
@@ -231,6 +234,7 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-24 | 校验修复：同步 2026-11-18 服务端 Search/Fetch 计费变更（模型触发计入 token 上下文，独立 API 仍按次计费）；补记 2026-11-13 App 侧完整应用 API |
 | 2026-11-20 | 口径修订（全库 TB 4.0 规则）：V4-Pro GA 改引官方榜单 4.0（Vals 并列）；V4-Flash 0731 旧版 TB 分数停用；能力表派生结论同步 |
 | 2026-10-19 | 合并：inbox/ai-knowledge-by-qoder-ai-native-agent-20261019.md - V4.1-Flash 小节新增 1017 快照（2026-10-17：架构完全继承仅后训练重做，TB 4.0 31.2→42.3 / DeepSWE 74.2→77.0，reasoning_effort 连续 1~100，自反馈 RL + 两条环境生产线，Search/Fetch 开放，MIT；价格表未变）；主推表/头部/核心能力表/适用场景表/定价章/参考资料同步；校正网传「763B」为官方 552B；标注 Harness 版本门槛与跨框架波动 |
 | 2026-10-19 | 历史模型瘦身：删除单独的 V4-Flash 小节（已下线模型的 5 条特点 + 9 行 benchmark 表），关键基准值（TB 2.1 82.7 / DeepSWE 54.4 / Cybergym 76.7 / NL2Repo 54.2）下沉到头部「历史模型」标注一行 |

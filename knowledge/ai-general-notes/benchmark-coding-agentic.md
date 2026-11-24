@@ -1,6 +1,6 @@
 # AI Agent Benchmark 三维度评估框架
 
-> 最后更新: 2026-11-20
+> 最后更新: 2026-11-24
 > 领域: AI Engineering / AI Coding
 > 状态: Published
 
@@ -183,7 +183,7 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 
 > 注：HLE 分数受测试条件影响（是否带工具、harness 配置、Full / Verified / Diamond 子集）。AA Intelligence Index v5.0 已纳入 HLE-Diamond；上代 HLE 分数（Opus 4.8 57.9% 等）见下方存档，不与本表混排。
 >
-> **AA Intelligence Index 当前座次（全库统一引用口径）**：**Claude Fable 5.2 65（v5.0.1，#1/746，2026-11-09 收录 / 11-11 查询）** / Gemini 4 Carbon **60** / Claude Opus 5.5 **59** / GPT-6 Astra **57** / GPT-6.1 Sol **55** / Kimi K3.1 Pro **46** / Qwen3.8 Max **45**（Carbon 及以下为 2026-11-08 v5.0 首页 live 值）。⚠️ Fable 5.2 收录后榜首易主，其余总分是否再校准待下轮全量复核；AA 指数随新模型发布重校准（发布时口径与 live 值常差 1–4 分），各模型文档引用时必须注明查询日期。
+> **AA Intelligence Index 当前座次（全库统一引用口径）**：**Claude Fable 5.2 65（v5.0.1，#1/746，2026-11-09 收录 / 11-11 查询）** / Gemini 4 Carbon **60** / Claude Opus 5.5 **59** / GPT-6 Astra **57** / GPT-6.1 Sol **55** / Kimi K3.1 Pro **46**（以上为 2026-11-08 v5.0 首页 live 值）/ Qwen3.8 Max **34**（v5.0.1，2026-11-20 查询）。⚠️ Fable 5.2 收录后榜首易主，其余总分是否再校准待下轮全量复核；AA 指数随新模型发布重校准（发布时口径与 live 值常差 1–4 分），各模型文档引用时必须注明版本与查询日期。
 
 **知识工作力**：
 
@@ -295,6 +295,7 @@ AI Agent Benchmark 是评估 AI 模型/Agent 自主完成任务能力的标准�
 ## Changelog
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-24 | 校验修复：Qwen3.8 Max 的 AA Intelligence Index 由旧 v5.0 的 45 统一为 v5.0.1 的 34，与 qwen.md 主文档对齐 |
 | 2026-11-20 | 口径修订：TB 4.0 之前上市的老模型一律改引 TB 4.0（官方 tbench 榜单已收录旧代际实测），新增「旧代际模型 TB 4.0 座次表」；仍无 4.0 数据的模型写「未公布」，禁用旧版分数顶替；存档表移除 TB 旧版列。数据源为官方榜单 + Vals AI 镜像（AA 页本机超时未直取） |
 | 2026-11-11 | 校验修复（knowledge-verification-2026-11-11）：TB 4.1 已发布注记（版本号核实、榜单数值 JS 空表待复核，统一对比仍用 4.0）；AA 统一座次补 Fable 5.2 登顶（v5.0.1，其余总分待全量复核）；Changelog 折叠最早 1 条 |
 | 2026-11-08 | 校验修复（knowledge-verification-2026-11-08）：**确立 TB 4.0 统一对比口径规则**（适用范围 2026-09 起前沿模型；TB 4.0 之前的模型不追溯更新）；TB 表补 tbench.ai 榜单值并明确 harness 并列原则；新增 AA Intelligence Index v5 live 座次行（6 模型，全库统一引用口径）；Changelog 最早 2 条折叠 |

@@ -1,6 +1,6 @@
 # Anthropic Claude 模型
 
-> 最后更新: 2026-11-11
+> 最后更新: 2026-11-24
 > 所属厂商: Anthropic
 > 产品类别: MaaS
 > 状态: Published
@@ -45,7 +45,7 @@
 
 **家族级成本攻势**（同期）：Max/Team 订阅月度 API credits——Max 5x $100 / Max 20x $200 / Team 至 $500（不滚存），等于订阅费全额返还 API 额度（来源：Simon Willison 实测）。
 
-**Fable 线补录**：**Claude Fable 5.2**（当前最高能力档，2026-11-09 官方发布，与 Mythos 5.2 同期）——AA Intelligence Index v5.0.1 = **65、#1/746**（发布日登顶，取代 Gemini 4 Carbon）；官方定价 **$8 输入 / $40 输出**（较 5.1 降 20%，AA 收录 + 媒体转述官方一致）、cache 折扣 98%；1M 上下文、文本+图像输入、effort 五档（Max/Low/Medium/High/Xhigh）。
+**Fable 线补录**：**Claude Fable 5.2**（当前最高能力档，2026-11-09 官方发布，与 Mythos 5.2 同期）——AA Intelligence Index v5.0.1 = **65、#1/746**（发布日登顶 ，取代 Gemini 4 Carbon）；官方定价 **$8 输入 / $40 输出**（较 5.1 降 20%，AA 收录 + 媒体转述官方一致）、cache write **$10** / cache read **$0.20**；1M 上下文、文本+图像输入、effort 五档（Max/Low/Medium/High/Xhigh）。
 - **官方发布口径**（Mashable 转述 Anthropic 发布图，2026-11-11 核实）：Terminal-Bench-Science 0.1 **74.6%**（5.1 为 52.6%、GPT-6 Astra 68.1%）、HLE **74.2%**（5.1 为 65.6%，子集未明）；较 5.1 生成快 **30%**、表达更清晰；预发布测试曾从零设计 3 个可用电子设备、解决 2 个黑洞物理开放问题、30 小时形式化证明费马大定理。⚠️ TB-Science 0.1 与 TB 4.0 为不同评测，不混排；官方 benchmark 为自报口径，与 AA 独立评测并列参考。
 - **AA 独立实测**（2026-11-11 查询）：$26.54/task、44.4 min/task、103 tok/s、TTFA 230.35s、275M output tokens（极慢且冗长，中位 72.8M），blended $5.74（6 家 API 供应商）。
 - ⚠️ anthropic.com 发布页直取 404，官方细节经 AA（一手评测）+ Mashable（转述官方）双源交叉；官方发布页 URL / System Card 待补。
@@ -202,7 +202,7 @@
 | 日常主力 / 性价比最优 | **Opus 5.5** | $4/$20 新旗舰，TB 4.0 66.4%、AA 指数 59（v5） |
 | 极限难度任务 | Fable 5.2 | 最高能力档 $8/$40（AA 口径），AA v5.0.1 = 65 #1 |
 | 大规模 Agent / 成本敏感 | **Sonnet 5.5** | $2/$10，cache 读减半（agentic -20%），TB 4.0 70.6% |
-| 高并发摘要/压缩/subagent | **Haiku 5.5** | $0.10/$0.50（≤100K），同价档智力领先 GPT-6 Luna（详见[竞品对比](../../alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md)） |
+| 高并发摘要/压缩/subagent | **Haiku 5.5** | $0.10/$0.50（≤100K），同价档智力对比见 [Benchmark 全库统一口径](../ai-general-notes/benchmark-coding-agentic.md) |
 | 长上下文高并发（>100K） | Haiku 5.5（>100K 段）或 GPT-6 Luna | Haiku >100K 涨 5×，性价比对比见竞品分析 |
 | 需降低护栏的网络安全工作 | 申请 CVP（Cyber Verification Program） | 公开模型默认阻断渗透 / exploit / 二进制漏洞扫描；CVP 提供限制更少的版本 |
 | 企业级合规（不接受数据留存） | Opus 5.5 / Sonnet 5.5 / Haiku 5.5 | Fable 线强制 30 天留存且不可用于 ZDR |
@@ -219,7 +219,7 @@
 
 | 模型 | 输入 ($/1M tokens) | 输出 ($/1M tokens) | Prompt Cache Write | Prompt Cache Read |
 |------|---------------------|---------------------|-------------------|-------------------|
-| **Claude Fable 5.2** | $8.00 | $40.00 | [⚠️ 待补充] | [⚠️ 待补充]（AA 口径 cache 折扣 98%） |
+| **Claude Fable 5.2** | $8.00 | $40.00 | $10.00 | $0.20 |
 | Claude Fable 5.1（上代） | $10.00 | $50.00 | $12.50 | $0.25 |
 | **Claude Mythos 5**（限制访问） | $10.00 | $50.00 | — | — |
 | **Claude Opus 5.5** | **$4.00** | **$20.00** | $5.00 | $0.20 |
@@ -227,7 +227,7 @@
 | **Claude Haiku 5.5**（prompt ≤100K tokens） | **$0.10** | **$0.50** | $0.125 | $0.01 |
 | **Claude Haiku 5.5**（prompt >100K tokens） | **$0.50** | **$2.50** | $0.625 | $0.05 |
 
-> 来源：[Anthropic 官方定价页](https://www.anthropic.com/pricing)（cache 价格 2026-10-19 核实）；Fable 5.1 / Mythos 5 沿用 Fable 5 同价口径。**Fable 5.2 官方定价 $8/$40**（2026-11-09 发布，AA 收录 + Mashable 转述官方一致；cache 单价待官方核实）。
+> 来源：[Claude 官方定价页](https://claude.com/pricing)（2026-11-24 核实）；Fable 5.1 / Mythos 5 沿用 Fable 5 同价口径。**Fable 5.2 官方定价 $8/$40，cache write $10 / cache read $0.20**。
 
 > ⚡ **Fast mode**：Opus 5.5 支持 fast mode——2.5× 速度、2× 标准定价（官方定价页，2026-10-19）。
 
@@ -237,7 +237,7 @@
 
 ## 竞品对比
 
-> 📌 **最新对比**：Claude 5.5 家族（Opus 5.5 09-22 / Sonnet 5.5 09-28 / Haiku 5.5 10-07）与 GPT-6、Gemini 4 Argon 的横向对比（AA 独立指数座次以 [Benchmark 全库统一口径](../ai-general-notes/benchmark-coding-agentic.md) 为准；Opus 5.5 曾于 2026-10 登顶，现榜首为 Fable 5.2）见 [Haiku 5.5 vs GPT-6 Luna 小型档竞争分析](../../alibaba-ai-hub/competitive-analysis/haiku-vs-luna/overview.md)。
+> 📌 **最新对比**：Claude 5.5 家族（Opus 5.5 09-22 / Sonnet 5.5 09-28 / Haiku 5.5 10-07）与 GPT-6、Gemini 4 Argon 的横向对比，AA 独立指数座次以 [Benchmark 全库统一口径](../ai-general-notes/benchmark-coding-agentic.md) 为准；Opus 5.5 曾于 2026-10 登顶，现榜首为 Fable 5.2。Haiku 5.5 vs GPT-6 Luna 小型档竞争分析待补。
 >
 > 历史世代（Fable 5 / Opus 4.8 时期）的跨厂商对比已随各模型迭代失效，不再维护。
 
@@ -272,6 +272,7 @@
 
 | 日期 | 变更内容 |
 |------|----------|
+| 2026-11-24 | 校验修复：回填 Fable 5.2 cache write $10 / read $0.20；修复 2 处指向不存在竞品文档的内部链接 |
 | 2026-11-20 | 口径修订（全库 TB 4.0 规则）：Opus 4.8 改引官方榜单 4.0、Opus 4.7 标未公布，旧 TB 2.1 分数停用；统一对比口径改为官方 tbench 4.0 快照 |
 | 2026-11-11 | 补研（knowledge-verification-2026-11-11 B 组）：Fable 5.2 官方发布细节入库（发布日、官方 TB-Science/HLE 口径、快 30%、预发布成果），定价由 AA 口径升为官方公布（AA+媒体双源）；新增 Mythos 5.2 同期限制访问模型；anthropic.com 发布页 404、System Card 待补 |
 | 2026-11-11 | 校验修复（knowledge-verification-2026-11-11）：补记 Fable 5.2 并切为最高能力档（AA 口径，官方发布页未直取、细节待补研），Fable 5.1 移入历史；TB 4.1 已发布注记（榜单数值待复核）；竞品对比注 AA 座次残留改指向 benchmark 全库统一口径；Changelog 折叠最早 2 条 |
