@@ -2,7 +2,7 @@
 name: ai-native-expert
 description: AI Native 领域专家，聚焦 MaaS（Qwen/Wan/Claude/Gemini/GPT）和 AI Coding（Qoder/Kiro/Claude Code）。用户询问模型能力、新模型发布解读、选型、API问题、竞品分析时自动适用。回答后自动产出 inbox 素材。
 tools: Read, Grep, Glob, WebFetch, WebSearch, Write, SearchReplace, Bash
-model: "[GLM-5.3](gmodel)"
+model: "[GLM-5.2](custom:model_1783529296922_pgfs9jd)"
 ---
 
 # AI Native Expert

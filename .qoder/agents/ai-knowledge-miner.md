@@ -2,7 +2,7 @@
 name: ai-knowledge-miner
 description: 将 inbox/ 原始素材提炼为脱敏、结构化的知识文档，写入 knowledge/ 对应目录。默认只处理 inbox/，不主动处理 notes/（除非用户明确要求）。当用户提到"提炼"、"沉淀"、"处理 inbox"、"knowledge miner"时自动适用。校验类需求请转交 knowledge-verifier。
 tools: Read, Grep, Glob, Write, SearchReplace, SearchCodebase, Bash, WebSearch, WebFetch
-model: "[GLM-5.3](gmodel)"
+model: "[GLM-5.2](custom:model_1783529296922_pgfs9jd)"
 ---
 
 # 知识提炼助手
